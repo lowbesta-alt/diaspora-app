@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contrats - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center text-lg">🌍</div>
+      <span class="font-bold text-sm">Espace Diaspora</span>
+    </div>
+    <button class="text-xl">🔔</button>
+  </header>
+
+  <main class="p-4 max-w-2xl mx-auto space-y-4">
+
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold">Mes contrats</h1>
+        <p class="text-sm text-slate-400">Gérez vos engagements contractuels</p>
+      </div>
+    </div>
+
+    <section class="grid grid-cols-3 gap-2 text-center">
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-xl">📄</div>
+        <div class="text-lg font-bold mt-1">5</div>
+        <div class="text-[10px] text-slate-400">Total</div>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-xl">✅</div>
+        <div class="text-lg font-bold mt-1 text-emerald-400">3</div>
+        <div class="text-[10px] text-slate-400">Signés</div>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-xl">⏳</div>
+        <div class="text-lg font-bold mt-1 text-orange-400">2</div>
+        <div class="text-[10px] text-slate-400">En attente</div>
+      </div>
+    </section>
+
+    <div class="flex gap-2 overflow-x-auto pb-1">
+      <button data-filter="all" class="filter-btn bg-emerald-600 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">Tous</button>
+      <button data-filter="pending" class="filter-btn bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">À signer</button>
+      <button data-filter="signed" class="filter-btn bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">Signés</button>
+    </div>
+
+    <div id="contracts-list" class="space-y-3">
+      <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
+    </div>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-investisseur.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
+    <a href="projets.html" class="flex flex-col items-center gap-0.5 text-emerald-400 text-[10px]"><span class="text-lg">📁</span>Projets</a>
+    <a href="portefeuille.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💰</span>Portefeuille</a>
+    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
+    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script>
+    const demoContracts = [
+      { id: '1', number: 'CTR-2026-001', title: "Contrat-cadre Villa N'Djamena", parties: ['Investisseur Test', 'Chef Projet Test'], type: 'Prestation de service', amount: 25000000, date: '2026-01-05', status: 'signed' },
+      { id: '2', number: 'CTR-2026-002', title: 'Fourniture ciment', parties: ['Investisseur Test', 'Prestataire Fer & Ciment'], type: 'Fourniture matériaux', amount: 800000, date: '2026-02-10', status: 'signed' },
+      { id: '3', number: 'CTR-2026-003', title: "Main d'œuvre gros œuvre", parties: ['Investisseur Test', 'Chef Projet Test'], type: 'Prestation de service', amount: 3500000, date: '2026-02-15', status: 'signed' },
+      { id: '4', number: 'CTR-2026-004', title: 'Électricité', parties: ['Investisseur Test', 'Électricité Plus'], type: 'Prestation de service', amount: 1200000, date: '2026-09-01', status: 'pending_signature' },
+      { id: '5', number: 'CTR-2026-005', title: 'Plomberie', parties: ['Investisseur Test', 'Plomberie Pro'], type: 'Prestation de service', amount: 900000, date: '2026-09-05', status: 'pending_signature' }
+    ];
+
+    let allContracts = demoContracts;
+
+    function statusBadge(status) {
+      const map = {
+        'signed': 'bg-emerald-500/20 text-emerald-300|Signé',
+        'active': 'bg-emerald-500/20 text-emerald-300|Actif',
+        'pending_signature': 'bg-orange-500/20 text-orange-300|En attente',
+        'draft': 'bg-slate-500/20 text-slate-300|Brouillon',
+        'terminated': 'bg-slate-500/20 text-slate-300|Terminé'
+      };
+      const [colors, label] = (map[status] || map.draft).split('|');
+      return `<span class="text-[10px] ${colors} px-2 py-0.5 rounded-full font-semibold">${label}</span>`;
+    }
+
+    function renderContracts(list) {
+      const container = document.getElementById('contracts-list');
+      if (list.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucun contrat</p>';
+        return;
+      }
+      container.innerHTML = list.map(c => `
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <p class="text-[10px] text-slate-400">${c.number}</p>
+              <h3 class="font-bold mt-1">${c.title}</h3>
+            </div>
+            ${statusBadge(c.status)}
+          </div>
+          <div class="space-y-1 text-xs text-slate-400 mb-3">
+            ${c.parties.map(p => `<div>👤 ${p}</div>`).join('')}
+          </div>
+          <div class="flex justify-between items-center text-xs mb-3">
+            <span class="text-slate-400">${c.type}</span>
+            <span class="font-bold text-emerald-400">${Number(c.amount).toLocaleString()} XAF</span>
+          </div>
+          <div class="flex gap-2">
+            ${c.status === 'pending_signature' ? 
+              `<a href="contrat-signer.html?id=${c.id}" class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-2.5 rounded-lg text-xs font-bold text-center">✍️ Signer</a>` :
+              `<button class="flex-1 bg-white/5 border border-white/10 py-2.5 rounded-lg text-xs font-bold">Voir le contrat</button>`
+            }
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.remove('bg-emerald-600');
+          b.classList.add('bg-white/5', 'border', 'border-white/10');
+        });
+        btn.classList.add('bg-emerald-600');
+        btn.classList.remove('bg-white/5', 'border', 'border-white/10');
+        const f = btn.dataset.filter;
+        let filtered = allContracts;
+        if (f === 'pending') filtered = allContracts.filter(c => c.status === 'pending_signature');
+        if (f === 'signed') filtered = allContracts.filter(c => c.status === 'signed');
+        renderContracts(filtered);
+      });
+    });
+
+    async function loadContracts() {
+      try {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/contracts?order=created_at.desc', {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+        });
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          allContracts = data.map(c => ({
+            id: c.id,
+            number: c.id.slice(0, 8).toUpperCase(),
+            title: c.title,
+            parties: ['Investisseur Test', 'Prestataire'],
+            type: c.contract_type || 'Prestation',
+            amount: 0,
+            date: c.created_at,
+            status: c.status
+          }));
+        }
+      } catch (e) {}
+      renderContracts(allContracts);
+    }
+
+    loadContracts();
+  </script>
+</body>
+</html>
