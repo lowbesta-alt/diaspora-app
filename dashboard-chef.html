@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tableau de bord Chef - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-9 h-9 rounded-xl bg-blue-500/20 flex items-center justify-center text-lg">🌍</div>
+      <div>
+        <p class="font-bold text-sm">Espace Diaspora</p>
+        <span class="text-[10px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded">Chef de chantier</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button class="relative text-xl">🔔</button>
+      <a href="profil.html" class="w-9 h-9 rounded-full bg-blue-500/30 flex items-center justify-center text-xs font-bold">CP</a>
+    </div>
+  </header>
+
+  <main class="p-4 max-w-2xl mx-auto space-y-6">
+
+    <section>
+      <h1 class="text-2xl font-bold">Bonjour, Chef Projet 👷</h1>
+      <p class="text-sm text-slate-400 mt-1">Voici vos chantiers assignés</p>
+    </section>
+
+    <a href="document-ajouter.html" class="block bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-5 shadow-xl">
+      <div class="flex items-center gap-3">
+        <div class="text-3xl">📸</div>
+        <div class="flex-1">
+          <h2 class="font-bold text-lg">Signaler un avancement</h2>
+          <p class="text-xs text-blue-100 mt-1">Envoyez des photos et un rapport</p>
+        </div>
+        <span class="text-2xl">→</span>
+      </div>
+    </a>
+
+    <section class="grid grid-cols-3 gap-3">
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+        <div class="text-2xl">🏗️</div>
+        <div class="text-xl font-bold mt-1">2</div>
+        <div class="text-[10px] text-slate-400">Chantiers</div>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+        <div class="text-2xl">✅</div>
+        <div class="text-xl font-bold mt-1">1</div>
+        <div class="text-[10px] text-slate-400">En cours</div>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+        <div class="text-2xl">⏳</div>
+        <div class="text-xl font-bold mt-1 text-orange-400">2</div>
+        <div class="text-[10px] text-slate-400">À soumettre</div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-bold mb-3">Mes chantiers</h2>
+      <div class="space-y-3">
+        <a href="projet-detail.html" class="block bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition">
+          <div class="flex justify-between items-start mb-2">
+            <h3 class="font-bold">Construction Villa N'Djamena</h3>
+            <span class="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-semibold">En cours</span>
+          </div>
+          <p class="text-xs text-slate-400 mb-2">Propriétaire : Investisseur Test</p>
+          <div class="w-full bg-slate-700/50 rounded-full h-1.5 mb-2">
+            <div class="bg-blue-500 h-1.5 rounded-full" style="width: 40%"></div>
+          </div>
+          <div class="flex justify-between items-center text-[11px]">
+            <span class="text-slate-400">Prochain jalon : <strong class="text-orange-300">Gros œuvre</strong></span>
+            <span class="text-emerald-400 font-bold">40%</span>
+          </div>
+          <button class="w-full mt-3 bg-blue-600 hover:bg-blue-700 py-2 rounded-lg text-xs font-semibold">📸 Soumettre les preuves</button>
+        </a>
+
+        <a href="projet-detail.html" class="block bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition">
+          <div class="flex justify-between items-start mb-2">
+            <h3 class="font-bold">Boutique Centre-ville</h3>
+            <span class="text-[10px] bg-slate-500/20 text-slate-300 px-2 py-0.5 rounded-full font-semibold">En attente</span>
+          </div>
+          <p class="text-xs text-slate-400 mb-2">Propriétaire : Investisseur Test</p>
+          <div class="w-full bg-slate-700/50 rounded-full h-1.5 mb-2">
+            <div class="bg-slate-500 h-1.5 rounded-full" style="width: 10%"></div>
+          </div>
+          <div class="flex justify-between items-center text-[11px]">
+            <span class="text-slate-400">Prochain jalon : <strong>Études</strong></span>
+            <span class="text-slate-400 font-bold">10%</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-bold mb-3">À faire aujourd'hui</h2>
+      <div class="bg-white/5 border border-white/10 rounded-2xl divide-y divide-white/5">
+        <label class="flex items-center gap-3 p-3 cursor-pointer">
+          <input type="checkbox" class="w-4 h-4">
+          <span class="text-sm">Envoyer photos chantier Villa</span>
+        </label>
+        <label class="flex items-center gap-3 p-3 cursor-pointer">
+          <input type="checkbox" class="w-4 h-4">
+          <span class="text-sm">Soumettre rapport "Gros œuvre"</span>
+        </label>
+        <label class="flex items-center gap-3 p-3 cursor-pointer">
+          <input type="checkbox" class="w-4 h-4">
+          <span class="text-sm">Contacter fournisseur ciment</span>
+        </label>
+        <label class="flex items-center gap-3 p-3 cursor-pointer">
+          <input type="checkbox" checked class="w-4 h-4">
+          <span class="text-sm line-through text-slate-500">Valider devis électricité</span>
+        </label>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-chef.html" class="flex flex-col items-center gap-0.5 text-blue-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
+    <a href="projets.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏗️</span>Chantiers</a>
+    <a href="document-ajouter.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📸</span>Rapports</a>
+    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
+    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
+  </nav>
+
+  <script src="config.js"></script>
+</body>
+</html>
