@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Détail du jalon - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <a href="projet-detail.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm">Détail du jalon</span>
+    <button class="text-lg">⋯</button>
+  </header>
+
+  <main class="p-4 max-w-2xl mx-auto space-y-4">
+
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span id="jalon-number" class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-semibold">Jalon n°3</span>
+        <span id="jalon-status" class="text-[10px] bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded-full font-semibold">En attente</span>
+      </div>
+      <h1 id="jalon-title" class="text-2xl font-bold mb-2">Gros œuvre</h1>
+      <div id="jalon-amount" class="text-2xl font-bold text-emerald-400 mb-1">8 000 000 XAF</div>
+      <p id="jalon-date" class="text-xs text-slate-400">Échéance : 15/04/2026</p>
+    </section>
+
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+      <h2 class="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">Étapes</h2>
+      <div class="flex items-center justify-between text-[10px] text-center">
+        <div class="flex flex-col items-center gap-1 flex-1">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-xs">✓</div>
+          <span class="text-slate-300">Créé</span>
+        </div>
+        <div class="h-0.5 bg-emerald-500 flex-1"></div>
+        <div class="flex flex-col items-center gap-1 flex-1">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-xs">✓</div>
+          <span class="text-slate-300">Soumis</span>
+        </div>
+        <div class="h-0.5 bg-orange-500 flex-1"></div>
+        <div class="flex flex-col items-center gap-1 flex-1">
+          <div class="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-xs">⏳</div>
+          <span class="text-orange-300">En validation</span>
+        </div>
+        <div class="h-0.5 bg-slate-700 flex-1"></div>
+        <div class="flex flex-col items-center gap-1 flex-1">
+          <div class="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-xs">○</div>
+          <span class="text-slate-500">Validé</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+      <h2 class="text-sm font-bold mb-3">📸 Preuves soumises</h2>
+      <div class="grid grid-cols-3 gap-2 mb-3">
+        <div class="aspect-square bg-gradient-to-br from-emerald-700 to-slate-800 rounded-lg flex items-center justify-center text-2xl">🏗️</div>
+        <div class="aspect-square bg-gradient-to-br from-orange-700 to-slate-800 rounded-lg flex items-center justify-center text-2xl">🏗️</div>
+        <div class="aspect-square bg-gradient-to-br from-blue-700 to-slate-800 rounded-lg flex items-center justify-center text-2xl">🏗️</div>
+      </div>
+      <div class="space-y-2">
+        <div class="flex items-center gap-2 text-xs bg-slate-800/50 rounded-lg p-2">
+          <span>📄</span><span class="flex-1">facture-ciment.pdf</span>
+        </div>
+        <div class="flex items-center gap-2 text-xs bg-slate-800/50 rounded-lg p-2">
+          <span>📄</span><span class="flex-1">facture-fer.pdf</span>
+        </div>
+      </div>
+      <p class="text-[10px] text-slate-400 mt-3">Soumis il y a 2 jours par Chef Projet</p>
+    </section>
+
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+      <h2 class="text-sm font-bold mb-2">📝 Rapport d'avancement</h2>
+      <p class="text-xs text-slate-300 leading-relaxed bg-slate-800/50 p-3 rounded-lg">
+        Les fondations sont coulées sur 100%. Le ferraillage des poteaux a commencé. Livraison du ciment prévue pour le 20/04. Prévision de fin : 5 jours.
+      </p>
+      <p class="text-[10px] text-slate-400 mt-2">— Chef Projet</p>
+    </section>
+
+    <section class="space-y-2">
+      <button id="btn-approve" class="w-full bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-semibold text-sm">
+        ✅ Valider le jalon
+      </button>
+      <button id="btn-reject" class="w-full bg-red-600/80 hover:bg-red-700 py-3 rounded-xl font-semibold text-sm">
+        ❌ Refuser avec motif
+      </button>
+      <button id="btn-submit" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl font-semibold text-sm">
+        📸 Soumettre de nouvelles preuves
+      </button>
+    </section>
+
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+      <h2 class="text-sm font-bold mb-3">💬 Commentaires</h2>
+      <div class="space-y-3">
+        <div>
+          <p class="text-xs font-semibold text-emerald-300">Investisseur Test</p>
+          <p class="text-xs text-slate-300">Les photos sont bonnes, mais manque la facture du fer.</p>
+          <p class="text-[10px] text-slate-500">Il y a 1 jour</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold text-blue-300">Chef Projet</p>
+          <p class="text-xs text-slate-300">Je l'envoie demain.</p>
+          <p class="text-[10px] text-slate-500">Il y a 20 heures</p>
+        </div>
+      </div>
+      <div class="flex gap-2 mt-4">
+        <input type="text" id="comment-input" placeholder="Ajouter un commentaire..." class="flex-1 bg-slate-800/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+        <button id="btn-comment" class="bg-emerald-600 px-4 rounded-lg text-sm font-bold">➤</button>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-investisseur.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
+    <a href="projets.html" class="flex flex-col items-center gap-0.5 text-emerald-400 text-[10px]"><span class="text-lg">📁</span>Projets</a>
+    <a href="portefeuille.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💰</span>Portefeuille</a>
+    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
+    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const milestoneId = urlParams.get('id') || TEST_MILESTONE_ID;
+
+    async function loadMilestone() {
+      try {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/milestones?id=eq.' + milestoneId, {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+        });
+        const data = await res.json();
+        if (Array.isArray(data) && data[0]) {
+          const m = data[0];
+          document.getElementById('jalon-title').textContent = m.title;
+          document.getElementById('jalon-amount').textContent = Number(m.amount).toLocaleString() + ' XAF';
+        }
+      } catch (e) { console.log('Mode démo'); }
+    }
+
+    async function updateStatus(newStatus, extra = {}) {
+      try {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/milestones?id=eq.' + milestoneId, {
+          method: 'PATCH',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({ status: newStatus, ...extra })
+        });
+        if (res.ok) {
+          alert('Jalon mis à jour !');
+          location.reload();
+        } else {
+          alert('Erreur lors de la mise à jour');
+        }
+      } catch (e) {
+        alert('Erreur réseau : ' + e.message);
+      }
+    }
+
+    document.getElementById('btn-approve').addEventListener('click', () => {
+      if (confirm('Valider ce jalon ?')) {
+        updateStatus('approved', {
+          validated_at: new Date().toISOString(),
+          validated_by: TEST_USER_ID
+        });
+      }
+    });
+
+    document.getElementById('btn-reject').addEventListener('click', () => {
+      const reason = prompt('Motif du refus :');
+      if (reason) {
+        updateStatus('rejected', { rejection_reason: reason });
+      }
+    });
+
+    document.getElementById('btn-submit').addEventListener('click', () => {
+      alert('Redirection vers la page de soumission (à venir)');
+    });
+
+    document.getElementById('btn-comment').addEventListener('click', () => {
+      const input = document.getElementById('comment-input');
+      if (!input.value.trim()) return;
+      alert('Commentaire envoyé (fonctionnalité à venir)');
+      input.value = '';
+    });
+
+    loadMilestone();
+  </script>
+</body>
+</html>
