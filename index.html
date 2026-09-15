@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 flex items-center justify-center min-h-screen p-4">
+
+  <div class="w-full max-w-md bg-white/95 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white/20">
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 font-bold text-xl mb-3 shadow-inner">🌍</div>
+      <h1 class="text-2xl font-bold text-slate-900">Espace Diaspora</h1>
+      <p class="text-sm text-slate-600 mt-1">Pilotez vos projets et constructions en toute sérénité</p>
+    </div>
+
+    <form id="loginForm" class="space-y-5">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Adresse email</label>
+        <input type="email" id="email" required placeholder="nom@exemple.com"
+          class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition text-slate-800 bg-slate-50/50">
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label class="block text-sm font-medium text-slate-700">Mot de passe</label>
+          <a href="#" class="text-xs text-emerald-700 hover:underline font-medium">Mot de passe oublié ?</a>
+        </div>
+        <div class="relative">
+          <input type="password" id="password" required placeholder="••••••••"
+            class="w-full px-4 py-3 pr-10 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition text-slate-800 bg-slate-50/50">
+          <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button>
+        </div>
+      </div>
+
+      <button type="submit"
+        class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition shadow-lg">
+        Accéder à mon espace
+      </button>
+    </form>
+
+    <p class="text-center text-sm text-slate-600 mt-6 pt-6 border-t border-slate-100">
+      Nouveau sur la plateforme ?
+      <a href="inscription.html" class="text-emerald-700 font-semibold hover:underline">Créer un compte diaspora</a>
+    </p>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    togglePassword.addEventListener('click', function () {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      this.textContent = type === 'password' ? '👁️' : '🙈';
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!email || !password) { alert('Remplis email et mot de passe'); return; }
+
+      try {
+        const res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data.access_token) {
+          localStorage.setItem('access_token', data.access_token);
+          localStorage.setItem('user_id', data.user.id);
+          localStorage.setItem('user_email', data.user.email);
+          window.location.href = 'dashboard-investisseur.html';
+        } else {
+          alert('Erreur : ' + (data.error_description || data.msg || data.error || 'Identifiants invalides'));
+        }
+      } catch (err) {
+        alert('Erreur réseau : ' + err.message);
+      }
+    });
+  </script>
+</body>
+</html>
