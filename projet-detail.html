@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Détail du projet - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <a href="projets.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm" id="header-title">Projet</span>
+    <a href="projet-modifier.html" class="text-lg">⋯</a>
+  </header>
+
+  <main class="max-w-2xl mx-auto">
+
+    <section class="relative h-40 bg-gradient-to-br from-emerald-600 via-emerald-700 to-slate-800 flex items-center justify-center">
+      <span class="text-6xl">🏗️</span>
+      <div class="absolute bottom-3 left-4 right-4">
+        <span id="project-status" class="text-[10px] bg-emerald-500/90 text-white px-2 py-0.5 rounded-full font-semibold">En cours</span>
+        <h1 id="project-title" class="text-xl font-bold mt-1">Construction Villa N'Djamena</h1>
+        <p id="project-location" class="text-xs text-slate-200">📍 N'Djamena, Tchad</p>
+      </div>
+    </section>
+
+    <div class="p-4 space-y-4">
+
+      <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div>
+            <div class="text-[10px] text-slate-400 mb-1">Budget</div>
+            <div id="stat-budget" class="text-sm font-bold">25 000 000</div>
+            <div class="text-[10px] text-slate-400">XAF</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-400 mb-1">Dépensé</div>
+            <div id="stat-spent" class="text-sm font-bold text-amber-400">0</div>
+            <div class="text-[10px] text-slate-400">XAF</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-400 mb-1">Restant</div>
+            <div id="stat-remaining" class="text-sm font-bold text-emerald-400">25 000 000</div>
+            <div class="text-[10px] text-slate-400">XAF</div>
+          </div>
+        </div>
+        <div class="mt-3">
+          <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+            <span>Avancement global</span>
+            <span id="progress-text">40%</span>
+          </div>
+          <div class="w-full bg-slate-700/50 rounded-full h-2">
+            <div id="progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all" style="width: 40%"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="flex gap-1 overflow-x-auto pb-1">
+        <button class="tab-btn bg-emerald-600 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap" data-tab="jalons">Jalons</button>
+        <button class="tab-btn bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap" data-tab="timeline">Timeline</button>
+        <button class="tab-btn bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap" data-tab="documents">Documents</button>
+        <button class="tab-btn bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap" data-tab="equipe">Équipe</button>
+      </section>
+
+      <section id="tab-jalons" class="tab-content space-y-3">
+        <div id="milestones-list" class="space-y-3">
+          <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
+        </div>
+      </section>
+
+      <section id="tab-timeline" class="tab-content hidden space-y-3">
+        <p class="text-slate-400 text-sm text-center py-6">Timeline à venir</p>
+      </section>
+
+      <section id="tab-documents" class="tab-content hidden space-y-3">
+        <a href="documents.html" class="block bg-white/5 border border-white/10 rounded-xl p-4 text-center text-sm">📄 Voir tous les documents</a>
+      </section>
+
+      <section id="tab-equipe" class="tab-content hidden space-y-3">
+        <p class="text-slate-400 text-sm text-center py-6">Équipe à venir</p>
+      </section>
+
+    </div>
+
+  </main>
+
+  <a href="jalon-creer.html" class="fixed bottom-24 right-4 w-14 h-14 bg-emerald-600 hover:bg-emerald-700 rounded-full flex items-center justify-center text-2xl shadow-lg z-40">+</a>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-investisseur.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
+    <a href="projets.html" class="flex flex-col items-center gap-0.5 text-emerald-400 text-[10px]"><span class="text-lg">📁</span>Projets</a>
+    <a href="portefeuille.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💰</span>Portefeuille</a>
+    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
+    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectId = urlParams.get('id') || TEST_PROJECT_ID;
+
+    const demoMilestones = [
+      { id: '1', title: 'Études et permis', amount: 2000000, status: 'released', order_index: 1 },
+      { id: '2', title: 'Fondations', amount: 5000000, status: 'approved', order_index: 2 },
+      { id: '3', title: TEST_MILESTONE_ID, amount: 8000000, status: 'submitted', order_index: 3 },
+      { id: '4', title: 'Finitions', amount: 10000000, status: 'pending', order_index: 4 }
+    ];
+
+    function statusBadge(status) {
+      const map = {
+        'released': 'bg-blue-500/20 text-blue-300|Débloqué',
+        'approved': 'bg-emerald-500/20 text-emerald-300|Validé',
+        'submitted': 'bg-orange-500/20 text-orange-300|En attente',
+        'pending': 'bg-slate-500/20 text-slate-300|À venir',
+        'rejected': 'bg-red-500/20 text-red-300|Refusé'
+      };
+      const [c, l] = (map[status] || map.pending).split('|');
+      return `<span class="text-[10px] ${c} px-2 py-0.5 rounded-full font-semibold">${l}</span>`;
+    }
+
+    function statusCircle(status, idx) {
+      const colors = {
+        'released': 'bg-blue-500', 'approved': 'bg-emerald-500',
+        'submitted': 'bg-orange-500', 'pending': 'bg-slate-600', 'rejected': 'bg-red-500'
+      };
+      return `<div class="w-8 h-8 rounded-full ${colors[status] || colors.pending} flex items-center justify-center text-xs font-bold">${idx}</div>`;
+    }
+
+    async function loadProject() {
+      try {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/projects?id=eq.' + projectId, {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+        });
+        const data = await res.json();
+        if (Array.isArray(data) && data[0]) {
+          const p = data[0];
+          document.getElementById('header-title').textContent = p.title;
+          document.getElementById('project-title').textContent = p.title;
+          document.getElementById('project-location').textContent = '📍 ' + (p.city || '') + ', ' + (p.country || '');
+          document.getElementById('stat-budget').textContent = Number(p.total_budget).toLocaleString();
+          document.getElementById('stat-spent').textContent = Number(p.spent_budget || 0).toLocaleString();
+          document.getElementById('stat-remaining').textContent = Number(p.total_budget - (p.spent_budget || 0)).toLocaleString();
+        }
+      } catch (e) { console.log('Mode démo'); }
+    }
+
+    async function loadMilestones() {
+      const list = document.getElementById('milestones-list');
+      let milestones = demoMilestones;
+      try {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/milestones?project_id=eq.' + projectId + '&order=order_index', {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+        });
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) milestones = data;
+      } catch (e) {}
+
+      list.innerHTML = milestones.map((m, i) => `
+        <a href="jalon-detail.html?id=${m.id}" class="flex gap-3 bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition">
+          ${statusCircle(m.status, i + 1)}
+          <div class="flex-1">
+            <div class="flex justify-between items-start mb-1">
+              <h3 class="font-bold text-sm">${m.title}</h3>
+              ${statusBadge(m.status)}
+            </div>
+            <p class="text-[11px] text-slate-400">💰 ${Number(m.amount).toLocaleString()} XAF</p>
+          </div>
+        </a>
+      `).join('');
+    }
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.classList.remove('bg-emerald-600');
+          b.classList.add('bg-white/5', 'border', 'border-white/10');
+        });
+        btn.classList.add('bg-emerald-600');
+        btn.classList.remove('bg-white/5', 'border', 'border-white/10');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+      });
+    });
+
+    loadProject();
+    loadMilestones();
+  </script>
+</body>
+</html>
