@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <a href="dashboard-investisseur.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm">Notifications</span>
+    <button id="btn-mark-all" class="text-[10px] bg-emerald-600 px-3 py-1.5 rounded-lg font-semibold">Tout lire</button>
+  </header>
+
+  <main class="p-4 max-w-2xl mx-auto space-y-4">
+
+    <div class="flex items-center gap-2">
+      <span id="unread-count" class="text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full font-semibold">3 non lues</span>
+    </div>
+
+    <div class="flex gap-2 overflow-x-auto pb-1">
+      <button data-filter="all" class="filter-btn bg-emerald-600 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">Toutes</button>
+      <button data-filter="unread" class="filter-btn bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">Non lues</button>
+      <button data-filter="jalon" class="filter-btn bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">Jalons</button>
+      <button data-filter="paiement" class="filter-btn bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">Paiements</button>
+      <button data-filter="message" class="filter-btn bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">Messages</button>
+    </div>
+
+    <div id="notif-list" class="space-y-2">
+      <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
+    </div>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-investisseur.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
+    <a href="projets.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📁</span>Projets</a>
+    <a href="portefeuille.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💰</span>Portefeuille</a>
+    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
+    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-emerald-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script>
+    const demoNotifs = [
+      { id: '1', type: 'jalon', icon: '✅', color: 'bg-emerald-500/20', title: 'Jalon validé', message: "Le jalon 'Fondations' a été validé par l'investisseur", project: "Villa N'Djamena", date: 'Il y a 2 heures', unread: true },
+      { id: '2', type: 'paiement', icon: '💰', color: 'bg-blue-500/20', title: 'Fonds débloqués', message: '5 000 000 XAF ont été débloqués pour le jalon Fondations', project: "Villa N'Djamena", date: 'Il y a 5 heures', unread: true },
+      { id: '3', type: 'message', icon: '💬', color: 'bg-purple-500/20', title: 'Nouveau message', message: 'Chef Projet vous a envoyé un message', project: "Villa N'Djamena", date: 'Hier à 14:32', unread: true },
+      { id: '4', type: 'jalon', icon: '📸', color: 'bg-orange-500/20', title: 'Nouvelles photos', message: "3 photos ont été ajoutées au jalon 'Gros œuvre'", project: "Villa N'Djamena", date: 'Hier à 10:15', unread: false },
+      { id: '5', type: 'jalon', icon: '🎯', color: 'bg-emerald-500/20', title: 'Nouveau jalon créé', message: "Le jalon 'Finitions' a été créé", project: "Villa N'Djamena", date: 'Il y a 3 jours', unread: false },
+      { id: '6', type: 'jalon', icon: '⚠️', color: 'bg-orange-500/20', title: 'Retard signalé', message: "Le jalon 'Gros œuvre' a 2 jours de retard", project: "Villa N'Djamena", date: 'Il y a 5 jours', unread: false }
+    ];
+
+    let allNotifs = demoNotifs;
+
+    function renderNotifs(list) {
+      const container = document.getElementById('notif-list');
+      if (list.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucune notification</p>';
+        return;
+      }
+      container.innerHTML = list.map(n => `
+        <div class="flex gap-3 bg-white/5 border border-white/10 rounded-2xl p-3 ${n.unread ? 'ring-1 ring-emerald-500/30' : ''}">
+          <div class="w-10 h-10 rounded-full ${n.color} flex items-center justify-center text-lg">${n.icon}</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-start gap-2">
+              <h3 class="font-semibold text-sm">${n.title}</h3>
+              ${n.unread ? '<span class="w-2 h-2 bg-emerald-400 rounded-full mt-1.5 flex-shrink-0"></span>' : ''}
+            </div>
+            <p class="text-xs text-slate-300 mt-0.5">${n.message}</p>
+            <div class="flex justify-between items-center mt-1.5">
+              <span class="text-[10px] text-emerald-400">${n.project}</span>
+              <span class="text-[10px] text-slate-500">${n.date}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateUnread() {
+      const unread = allNotifs.filter(n => n.unread).length;
+      document.getElementById('unread-count').textContent = unread + ' non lue' + (unread > 1 ? 's' : '');
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.remove('bg-emerald-600');
+          b.classList.add('bg-white/5', 'border', 'border-white/10');
+        });
+        btn.classList.add('bg-emerald-600');
+        btn.classList.remove('bg-white/5', 'border', 'border-white/10');
+        const f = btn.dataset.filter;
+        let filtered = allNotifs;
+        if (f === 'unread') filtered = allNotifs.filter(n => n.unread);
+        else if (f !== 'all') filtered = allNotifs.filter(n => n.type === f);
+        renderNotifs(filtered);
+      });
+    });
+
+    document.getElementById('btn-mark-all').addEventListener('click', () => {
+      allNotifs.forEach(n => n.unread = false);
+      renderNotifs(allNotifs);
+      updateUnread();
+    });
+
+    renderNotifs(allNotifs);
+    updateUnread();
+  </script>
+</body>
+</html>
