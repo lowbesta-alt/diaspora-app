@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Créer un jalon - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <a href="jalons.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm">Créer un jalon</span>
+    <span class="w-6"></span>
+  </header>
+
+  <main class="p-4 max-w-2xl mx-auto space-y-4">
+
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-3">
+      <div class="text-3xl">🏗️</div>
+      <div class="flex-1">
+        <h2 class="font-bold text-sm">Construction Villa N'Djamena</h2>
+        <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-semibold">En cours</span>
+      </div>
+      <div class="text-right">
+        <div class="text-[10px] text-slate-400">Budget total</div>
+        <div class="text-xs font-bold">25 000 000 XAF</div>
+      </div>
+    </section>
+
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+      <h2 class="text-sm font-bold">Informations du jalon</h2>
+      <div>
+        <label class="text-[10px] text-slate-400">Titre *</label>
+        <input type="text" id="title" placeholder="Ex : Fondations" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+      </div>
+      <div>
+        <label class="text-[10px] text-slate-400">Description</label>
+        <textarea id="description" rows="3" placeholder="Décrivez les travaux à réaliser..." class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+      </div>
+      <div>
+        <label class="text-[10px] text-slate-400">Ordre *</label>
+        <input type="number" id="orderIndex" min="1" placeholder="Ex : 1" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+        <p class="text-[10px] text-slate-500 mt-1">Ex : 1 pour le premier jalon, 2 pour le second...</p>
+      </div>
+    </section>
+
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+      <h2 class="text-sm font-bold">Budget et délais</h2>
+      <div>
+        <label class="text-[10px] text-slate-400">Montant *</label>
+        <div class="flex items-center gap-2 bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3">
+          <span class="text-xs text-slate-400">XAF</span>
+          <input type="number" id="amount" placeholder="0" class="flex-1 bg-transparent text-lg font-bold focus:outline-none">
+        </div>
+        <div class="mt-2">
+          <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+            <span>Part du budget</span>
+            <span id="budget-percent">0%</span>
+          </div>
+          <div class="w-full bg-slate-700/50 rounded-full h-1">
+            <div id="budget-bar" class="bg-emerald-500 h-1 rounded-full transition-all" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <label class="text-[10px] text-slate-400">Date d'échéance</label>
+        <input type="date" id="dueDate" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+      </div>
+    </section>
+
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
+      <h2 class="text-sm font-bold mb-3">Justificatifs attendus</h2>
+      <div class="space-y-2">
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input type="checkbox" checked class="w-4 h-4">
+          <span class="text-xs">📸 Photos obligatoires</span>
+        </label>
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input type="checkbox" checked class="w-4 h-4">
+          <span class="text-xs">📄 Factures obligatoires</span>
+        </label>
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input type="checkbox" class="w-4 h-4">
+          <span class="text-xs">🎥 Vidéo</span>
+        </label>
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input type="checkbox" class="w-4 h-4">
+          <span class="text-xs">📋 Attestation d'un tiers</span>
+        </label>
+      </div>
+    </section>
+
+    <section class="flex gap-2">
+      <a href="jalons.html" class="flex-1 bg-white/5 border border-white/10 py-3 rounded-xl font-semibold text-sm text-center">Annuler</a>
+      <button id="btn-create" class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-semibold text-sm">Créer le jalon</button>
+    </section>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-investisseur.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
+    <a href="projets.html" class="flex flex-col items-center gap-0.5 text-emerald-400 text-[10px]"><span class="text-lg">📁</span>Projets</a>
+    <a href="portefeuille.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💰</span>Portefeuille</a>
+    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
+    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectId = urlParams.get('id') || TEST_PROJECT_ID;
+    const totalBudget = 25000000;
+
+    document.getElementById('amount').addEventListener('input', (e) => {
+      const val = Number(e.target.value) || 0;
+      const percent = Math.min((val / totalBudget) * 100, 100);
+      document.getElementById('budget-percent').textContent = percent.toFixed(1) + '%';
+      document.getElementById('budget-bar').style.width = percent + '%';
+    });
+
+    document.getElementById('btn-create').addEventListener('click', async () => {
+      const title = document.getElementById('title').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const orderIndex = Number(document.getElementById('orderIndex').value);
+      const amount = Number(document.getElementById('amount').value);
+      const dueDate = document.getElementById('dueDate').value;
+
+      if (!title) { alert('Entrez un titre'); return; }
+      if (!orderIndex || orderIndex <= 0) { alert('Entrez un ordre valide'); return; }
+      if (!amount || amount <= 0) { alert('Entrez un montant valide'); return; }
+      if (amount > totalBudget) { alert('Le montant dépasse le budget total'); return; }
+
+      const btn = document.getElementById('btn-create');
+      btn.disabled = true;
+      btn.textContent = 'Création en cours...';
+
+      try {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/milestones', {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            project_id: projectId,
+            title: title,
+            description: description,
+            order_index: orderIndex,
+            amount: amount,
+            currency: 'XAF',
+            status: 'pending',
+            due_date: dueDate || null
+          })
+        });
+
+        if (res.ok) {
+          alert('Jalon créé avec succès !');
+          window.location.href = 'jalons.html';
+        } else {
+          alert('Erreur lors de la création');
+          btn.disabled = false;
+          btn.textContent = 'Créer le jalon';
+        }
+      } catch (e) {
+        alert('Erreur réseau : ' + e.message);
+        btn.disabled = false;
+        btn.textContent = 'Créer le jalon';
+      }
+    });
+  </script>
+</body>
+</html>
