@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ajouter un document - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <a href="documents.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm">Ajouter un document</span>
+    <span class="w-6"></span>
+  </header>
+
+  <main class="p-4 max-w-2xl mx-auto space-y-4">
+
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
+      <label class="text-xs font-semibold text-slate-300 mb-2 block">Type de document</label>
+      <div class="grid grid-cols-4 gap-2">
+        <button data-type="photo" class="type-btn bg-emerald-600 py-3 rounded-xl text-[10px] font-semibold flex flex-col items-center gap-1">
+          <span class="text-lg">📸</span>Photo
+        </button>
+        <button data-type="invoice" class="type-btn bg-white/5 border border-white/10 py-3 rounded-xl text-[10px] font-semibold flex flex-col items-center gap-1">
+          <span class="text-lg">📄</span>Facture
+        </button>
+        <button data-type="contract" class="type-btn bg-white/5 border border-white/10 py-3 rounded-xl text-[10px] font-semibold flex flex-col items-center gap-1">
+          <span class="text-lg">📋</span>Contrat
+        </button>
+        <button data-type="video" class="type-btn bg-white/5 border border-white/10 py-3 rounded-xl text-[10px] font-semibold flex flex-col items-center gap-1">
+          <span class="text-lg">🎥</span>Vidéo
+        </button>
+      </div>
+    </section>
+
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
+      <label class="text-xs font-semibold text-slate-300 mb-2 block">Fichier</label>
+      <label for="fileInput" class="block border-2 border-dashed border-white/20 rounded-2xl p-8 text-center cursor-pointer hover:border-emerald-500 transition">
+        <div class="text-4xl mb-2">☁️</div>
+        <p class="text-sm font-semibold">Glissez votre fichier ici</p>
+        <p class="text-[10px] text-slate-400 mt-1">ou cliquez pour parcourir</p>
+        <p class="text-[10px] text-slate-500 mt-2">JPG, PNG, PDF, MP4 · max 100 MB</p>
+      </label>
+      <input type="file" id="fileInput" class="hidden" accept="image/*,application/pdf,video/mp4">
+      <div id="file-preview" class="hidden mt-3 bg-slate-800/50 rounded-xl p-3 flex items-center gap-3">
+        <span class="text-2xl">📎</span>
+        <div class="flex-1 min-w-0">
+          <p id="file-name" class="text-xs font-semibold truncate"></p>
+          <p id="file-size" class="text-[10px] text-slate-400"></p>
+        </div>
+        <button id="file-remove" class="text-red-400 text-sm">✕</button>
+      </div>
+    </section>
+
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+      <div>
+        <label class="text-xs font-semibold text-slate-300 mb-2 block">Titre du document *</label>
+        <input type="text" id="title" placeholder="Ex : Facture ciment du 15/02" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-slate-300 mb-2 block">Description</label>
+        <textarea id="description" rows="3" placeholder="Ajoutez des détails (optionnel)" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+      </div>
+
+      <div id="amount-field" class="hidden">
+        <label class="text-xs font-semibold text-slate-300 mb-2 block">Montant</label>
+        <div class="flex items-center gap-2 bg-slate-800/50 rounded-xl p-3">
+          <span class="text-sm text-slate-400">XAF</span>
+          <input type="number" id="amount" placeholder="0" class="flex-1 bg-transparent text-lg font-bold text-white focus:outline-none">
+        </div>
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-slate-300 mb-2 block">Date du document</label>
+        <input type="date" id="docDate" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+      </div>
+    </section>
+
+    <section id="gps-section" class="bg-white/5 border border-white/10 rounded-2xl p-4">
+      <button id="btn-gps" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl text-sm font-semibold">📍 Ajouter la position GPS</button>
+      <p id="gps-status" class="hidden text-xs text-emerald-400 mt-3 text-center"></p>
+    </section>
+
+    <section class="flex gap-2">
+      <a href="documents.html" class="flex-1 bg-white/5 border border-white/10 py-3 rounded-xl font-semibold text-sm text-center">Annuler</a>
+      <button id="btn-upload" class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-semibold text-sm">Téléverser</button>
+    </section>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-investisseur.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
+    <a href="projets.html" class="flex flex-col items-center gap-0.5 text-emerald-400 text-[10px]"><span class="text-lg">📁</span>Projets</a>
+    <a href="portefeuille.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💰</span>Portefeuille</a>
+    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
+    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script>
+    let docType = 'photo';
+    let selectedFile = null;
+    let gpsCoords = null;
+
+    document.querySelectorAll('.type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.type-btn').forEach(b => {
+          b.classList.remove('bg-emerald-600');
+          b.classList.add('bg-white/5', 'border', 'border-white/10');
+        });
+        btn.classList.add('bg-emerald-600');
+        btn.classList.remove('bg-white/5', 'border', 'border-white/10');
+        docType = btn.dataset.type;
+        document.getElementById('amount-field').classList.toggle('hidden', docType !== 'invoice');
+        document.getElementById('gps-section').classList.toggle('hidden', docType !== 'photo');
+      });
+    });
+
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      selectedFile = f;
+      document.getElementById('file-name').textContent = f.name;
+      document.getElementById('file-size').textContent = (f.size / 1024 / 1024).toFixed(2) + ' MB';
+      document.getElementById('file-preview').classList.remove('hidden');
+    });
+
+    document.getElementById('file-remove').addEventListener('click', () => {
+      selectedFile = null;
+      document.getElementById('fileInput').value = '';
+      document.getElementById('file-preview').classList.add('hidden');
+    });
+
+    document.getElementById('btn-gps').addEventListener('click', () => {
+      if (!navigator.geolocation) { alert('GPS non supporté'); return; }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          gpsCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          document.getElementById('gps-status').textContent = '✓ Position ajoutée : ' + gpsCoords.lat.toFixed(4) + ', ' + gpsCoords.lng.toFixed(4);
+          document.getElementById('gps-status').classList.remove('hidden');
+        },
+        () => alert('Impossible de récupérer la position')
+      );
+    });
+
+    document.getElementById('docDate').valueAsDate = new Date();
+
+    document.getElementById('btn-upload').addEventListener('click', async () => {
+      if (!selectedFile) { alert('Sélectionnez un fichier'); return; }
+      const title = document.getElementById('title').value.trim();
+      if (!title) { alert('Entrez un titre'); return; }
+
+      const btn = document.getElementById('btn-upload');
+      btn.disabled = true;
+      btn.textContent = 'Envoi en cours...';
+
+      try {
+        const fileName = Date.now() + '_' + selectedFile.name;
+        const path = TEST_PROJECT_ID + '/' + fileName;
+
+        const upRes = await fetch(SUPABASE_URL + '/storage/v1/object/project-documents/' + path, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Content-Type': selectedFile.type
+          },
+          body: selectedFile
+        });
+
+        if (!upRes.ok) throw new Error('Upload échoué');
+
+        const docRes = await fetch(SUPABASE_URL + '/rest/v1/documents', {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            project_id: TEST_PROJECT_ID,
+            uploaded_by: TEST_USER_ID,
+            document_type: docType,
+            title: title,
+            description: document.getElementById('description').value.trim(),
+            storage_bucket: 'project-documents',
+            storage_path: path,
+            file_size: selectedFile.size,
+            mime_type: selectedFile.type,
+            latitude: gpsCoords ? gpsCoords.lat : null,
+            longitude: gpsCoords ? gpsCoords.lng : null,
+            captured_at: new Date().toISOString()
+          })
+        });
+
+        if (!docRes.ok) throw new Error('Enregistrement échoué');
+
+        alert('Document téléversé !');
+        window.location.href = 'documents.html';
+
+      } catch (err) {
+        alert('Erreur : ' + err.message);
+        btn.disabled = false;
+        btn.textContent = 'Téléverser';
+      }
+    });
+  </script>
+</body>
+</html>
