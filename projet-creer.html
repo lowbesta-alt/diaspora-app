@@ -16,23 +16,6 @@
 
   <main class="p-4 max-w-2xl mx-auto space-y-4">
 
-    <div class="flex items-center gap-2 text-[10px]">
-      <div class="flex-1 flex items-center gap-1">
-        <div class="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center font-bold">1</div>
-        <span class="text-emerald-400 font-semibold">Infos</span>
-      </div>
-      <div class="h-0.5 bg-slate-700 flex-1"></div>
-      <div class="flex-1 flex items-center gap-1">
-        <div class="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center font-bold">2</div>
-        <span class="text-slate-400">Budget</span>
-      </div>
-      <div class="h-0.5 bg-slate-700 flex-1"></div>
-      <div class="flex-1 flex items-center gap-1">
-        <div class="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center font-bold">3</div>
-        <span class="text-slate-400">Lieu</span>
-      </div>
-    </div>
-
     <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
       <h2 class="text-sm font-bold">Informations générales</h2>
       <div>
@@ -120,6 +103,13 @@
     document.getElementById('startDate').valueAsDate = new Date();
 
     document.getElementById('btn-create').addEventListener('click', async () => {
+      const userId = localStorage.getItem('user_id');
+      if (!userId) {
+        alert('Vous devez etre connecte pour creer un projet');
+        window.location.href = 'index.html';
+        return;
+      }
+
       const title = document.getElementById('title').value.trim();
       const description = document.getElementById('description').value.trim();
       const projectType = document.getElementById('projectType').value;
@@ -134,7 +124,6 @@
       if (!title) { alert('Entrez un titre'); return; }
       if (!description) { alert('Entrez une description'); return; }
       if (!budget || budget <= 0) { alert('Entrez un budget valide'); return; }
-      if (endDate && startDate && new Date(endDate) <= new Date(startDate)) { alert('La date de fin doit être après la date de début'); return; }
 
       const btn = document.getElementById('btn-create');
       btn.disabled = true;
@@ -143,14 +132,9 @@
       try {
         const res = await fetch(SUPABASE_URL + '/rest/v1/projects', {
           method: 'POST',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-          },
+          headers: authHeaders({ 'Prefer': 'return=minimal' }),
           body: JSON.stringify({
-            owner_id: TEST_USER_ID,
+            owner_id: userId,
             title: title,
             description: description,
             project_type: projectType,
