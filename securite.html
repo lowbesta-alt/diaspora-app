@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sécurité - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <a href="profil.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm">Sécurité</span>
+    <span class="w-6"></span>
+  </header>
+
+  <main class="p-4 max-w-2xl mx-auto space-y-4">
+
+    <section class="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-2xl p-5">
+      <div class="flex items-center gap-4">
+        <div class="text-4xl">🛡️</div>
+        <div class="flex-1">
+          <p class="text-xs text-emerald-100">Score de sécurité</p>
+          <p class="text-2xl font-bold">Bonne</p>
+          <div class="w-full bg-emerald-900/40 rounded-full h-2 mt-2">
+            <div class="bg-white h-2 rounded-full" style="width: 75%"></div>
+          </div>
+          <p class="text-[10px] text-emerald-100 mt-1">2 étapes sur 3 activées</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
+      <h2 class="text-sm font-bold mb-3">🔑 Changer le mot de passe</h2>
+      <div class="space-y-2">
+        <div class="relative">
+          <input type="password" id="oldPass" placeholder="Mot de passe actuel" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 pr-10 text-sm focus:outline-none focus:border-emerald-500">
+          <button type="button" class="toggle-pass absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" data-target="oldPass">👁️</button>
+        </div>
+        <div class="relative">
+          <input type="password" id="newPass" placeholder="Nouveau mot de passe" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 pr-10 text-sm focus:outline-none focus:border-emerald-500">
+          <button type="button" class="toggle-pass absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" data-target="newPass">👁️</button>
+        </div>
+        <div class="relative">
+          <input type="password" id="confirmPass" placeholder="Confirmer le nouveau mot de passe" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 pr-10 text-sm focus:outline-none focus:border-emerald-500">
+          <button type="button" class="toggle-pass absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" data-target="confirmPass">👁️</button>
+        </div>
+
+        <div class="mt-3">
+          <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+            <span>Force du mot de passe</span>
+            <span id="strength-text">Faible</span>
+          </div>
+          <div class="w-full bg-slate-700/50 rounded-full h-1.5">
+            <div id="strength-bar" class="h-1.5 rounded-full bg-red-500 transition-all" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <button id="btn-pass" class="w-full mt-3 bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl text-sm font-semibold">Mettre à jour</button>
+      </div>
+    </section>
+
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <h2 class="text-sm font-bold">📱 Double authentification (2FA)</h2>
+          <p class="text-xs text-slate-400 mt-1">Ajoutez une couche de sécurité supplémentaire</p>
+        </div>
+        <span class="text-[10px] bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">Non activé</span>
+      </div>
+      <div class="space-y-2 mb-3">
+        <div class="bg-slate-800/50 rounded-xl p-3 text-xs flex items-center gap-3">
+          <span class="text-lg">📱</span>
+          <span>Application mobile (Authenticator)</span>
+        </div>
+        <div class="bg-slate-800/50 rounded-xl p-3 text-xs flex items-center gap-3">
+          <span class="text-lg">💬</span>
+          <span>SMS</span>
+        </div>
+      </div>
+      <button id="btn-2fa" class="w-full bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl text-sm font-semibold">Activer la 2FA</button>
+    </section>
+
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
+      <h2 class="text-sm font-bold mb-3">💻 Sessions actives</h2>
+      <div class="space-y-2">
+        <div class="bg-slate-800/50 rounded-xl p-3 flex items-center gap-3">
+          <span class="text-lg">📱</span>
+          <div class="flex-1">
+            <p class="text-xs font-semibold">Chrome sur Android</p>
+            <p class="text-[10px] text-slate-400">Douala, Cameroun · Maintenant</p>
+          </div>
+          <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-semibold">Actuel</span>
+        </div>
+        <div class="bg-slate-800/50 rounded-xl p-3 flex items-center gap-3">
+          <span class="text-lg">💻</span>
+          <div class="flex-1">
+            <p class="text-xs font-semibold">Chrome sur Windows</p>
+            <p class="text-[10px] text-slate-400">Paris, France · Il y a 2 jours</p>
+          </div>
+          <button class="text-[10px] bg-red-500/20 text-red-300 px-2 py-1 rounded-lg font-semibold">Déconnecter</button>
+        </div>
+        <div class="bg-slate-800/50 rounded-xl p-3 flex items-center gap-3">
+          <span class="text-lg">📱</span>
+          <div class="flex-1">
+            <p class="text-xs font-semibold">Safari sur iPhone</p>
+            <p class="text-[10px] text-slate-400">Bruxelles, Belgique · Il y a 5 jours</p>
+          </div>
+          <button class="text-[10px] bg-red-500/20 text-red-300 px-2 py-1 rounded-lg font-semibold">Déconnecter</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
+      <h2 class="text-sm font-bold mb-3">📜 Activité récente</h2>
+      <div class="space-y-2 text-xs">
+        <div class="flex items-start gap-2">
+          <span>✅</span>
+          <div class="flex-1">
+            <p>Connexion réussie (Douala)</p>
+            <p class="text-[10px] text-slate-400">14/09/2026 à 15:30</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span>✅</span>
+          <div class="flex-1">
+            <p>Mot de passe modifié</p>
+            <p class="text-[10px] text-slate-400">14/09/2026 à 10:15</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span>⚠️</span>
+          <div class="flex-1">
+            <p>Tentative de connexion échouée (Paris)</p>
+            <p class="text-[10px] text-slate-400">13/09/2026 à 22:45</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span>✅</span>
+          <div class="flex-1">
+            <p>Connexion réussie (Douala)</p>
+            <p class="text-[10px] text-slate-400">13/09/2026 à 08:00</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-red-500/10 border border-red-500/30 rounded-2xl p-4">
+      <h2 class="text-sm font-bold text-red-400 mb-2">⚠️ Zone dangereuse</h2>
+      <p class="text-xs text-slate-400 mb-3">Ces actions sont irréversibles.</p>
+      <div class="space-y-2">
+        <button class="w-full bg-red-600/20 border border-red-500/30 text-red-400 py-3 rounded-xl text-sm">Désactiver mon compte</button>
+        <button class="w-full bg-red-600/20 border border-red-500/30 text-red-400 py-3 rounded-xl text-sm">Supprimer définitivement mon compte</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="config.js"></script>
+  <script>
+    document.querySelectorAll('.toggle-pass').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const input = document.getElementById(btn.dataset.target);
+        input.type = input.type === 'password' ? 'text' : 'password';
+        btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+      });
+    });
+
+    document.getElementById('newPass').addEventListener('input', (e) => {
+      const val = e.target.value;
+      let score = 0;
+      if (val.length >= 8) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+
+      const bar = document.getElementById('strength-bar');
+      const text = document.getElementById('strength-text');
+
+      if (score <= 1) { bar.style.width = '25%'; bar.className = 'h-1.5 rounded-full bg-red-500 transition-all'; text.textContent = 'Faible'; text.className = 'text-red-400'; }
+      else if (score <= 3) { bar.style.width = '60%'; bar.className = 'h-1.5 rounded-full bg-orange-500 transition-all'; text.textContent = 'Moyen'; text.className = 'text-orange-400'; }
+      else { bar.style.width = '100%'; bar.className = 'h-1.5 rounded-full bg-emerald-500 transition-all'; text.textContent = 'Fort'; text.className = 'text-emerald-400'; }
+    });
+
+    document.getElementById('btn-pass').addEventListener('click', async () => {
+      const oldP = document.getElementById('oldPass').value;
+      const newP = document.getElementById('newPass').value;
+      const confP = document.getElementById('confirmPass').value;
+
+      if (!oldP || !newP || !confP) { alert('Remplissez les 3 champs'); return; }
+      if (newP !== confP) { alert('Les mots de passe ne correspondent pas'); return; }
+      if (newP.length < 8) { alert('Minimum 8 caractères'); return; }
+
+      try {
+        const res = await fetch(SUPABASE_URL + '/auth/v1/user', {
+          method: 'PUT',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ password: newP })
+        });
+        if (res.ok) { alert('Mot de passe modifié !'); }
+        else { alert('Erreur lors du changement'); }
+      } catch (e) {
+        alert('Erreur réseau : ' + e.message);
+      }
+    });
+
+    document.getElementById('btn-2fa').addEventListener('click', () => alert('Fonctionnalité 2FA à venir'));
+  </script>
+</body>
+</html>
