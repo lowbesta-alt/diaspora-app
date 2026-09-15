@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messages - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center text-lg">🌍</div>
+      <span class="font-bold text-sm">Messages</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <button class="text-xl">🔍</button>
+      <a href="profil.html" class="w-9 h-9 rounded-full bg-emerald-500/30 flex items-center justify-center text-xs font-bold">IT</a>
+    </div>
+  </header>
+
+  <main class="p-4 max-w-2xl mx-auto space-y-4">
+
+    <input type="text" id="searchInput" placeholder="🔍 Rechercher une conversation..." class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+
+    <div id="conversations-list" class="space-y-2">
+      <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
+    </div>
+
+  </main>
+
+  <button class="fixed bottom-24 right-4 w-14 h-14 bg-emerald-600 hover:bg-emerald-700 rounded-full flex items-center justify-center text-2xl shadow-lg z-40">+</button>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-investisseur.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
+    <a href="projets.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📁</span>Projets</a>
+    <a href="portefeuille.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💰</span>Portefeuille</a>
+    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-emerald-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
+    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script>
+    const demoConversations = [
+      { id: '1', name: 'Chef Projet Test', initials: 'CP', color: 'bg-blue-500', project: "Villa N'Djamena", last: 'Les fondations sont terminées ✅', time: '14:32', unread: 2, online: true },
+      { id: '2', name: 'Investisseur Test', initials: 'IT', color: 'bg-emerald-500', project: "Villa N'Djamena", last: 'Parfait, merci pour les photos', time: 'Hier', unread: 0, online: false },
+      { id: '3', name: 'Prestataire Fer', initials: 'PF', color: 'bg-orange-500', project: "Villa N'Djamena", last: 'Devis envoyé', time: 'Lun.', unread: 0, online: false }
+    ];
+
+    function renderConversations(convs) {
+      const list = document.getElementById('conversations-list');
+      if (convs.length === 0) {
+        list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucune conversation</p>';
+        return;
+      }
+      list.innerHTML = convs.map(c => `
+        <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-3 cursor-pointer hover:bg-white/10 transition" onclick="alert('Conversation avec ${c.name} (à venir)')">
+          <div class="relative">
+            <div class="w-12 h-12 rounded-full ${c.color} flex items-center justify-center font-bold text-sm">${c.initials}</div>
+            ${c.online ? '<span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900"></span>' : ''}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-baseline">
+              <h3 class="font-semibold text-sm truncate">${c.name}</h3>
+              <span class="text-[10px] text-slate-400 whitespace-nowrap ml-2">${c.time}</span>
+            </div>
+            <p class="text-[10px] text-emerald-400 mb-0.5">${c.project}</p>
+            <p class="text-xs text-slate-400 truncate">${c.last}</p>
+          </div>
+          ${c.unread > 0 ? `<div class="w-5 h-5 bg-emerald-600 rounded-full flex items-center justify-center text-[10px] font-bold">${c.unread}</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      renderConversations(demoConversations.filter(c => c.name.toLowerCase().includes(q)));
+    });
+
+    renderConversations(demoConversations);
+  </script>
+</body>
+</html>
