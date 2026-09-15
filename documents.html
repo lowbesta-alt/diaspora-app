@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documents - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center text-lg">🌍</div>
+      <span class="font-bold text-sm">Espace Diaspora</span>
+    </div>
+    <button class="text-xl">🔔</button>
+  </header>
+
+  <main class="p-4 max-w-2xl mx-auto space-y-4">
+
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold">Documents</h1>
+        <p class="text-sm text-slate-400">Villa N'Djamena</p>
+      </div>
+      <a href="document-ajouter.html" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-xl text-sm font-bold">+ Téléverser</a>
+    </div>
+
+    <input type="text" id="searchInput" placeholder="🔍 Rechercher un document..." class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+
+    <div class="flex gap-2 overflow-x-auto pb-1">
+      <button data-filter="all" class="filter-btn bg-emerald-600 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">Tous</button>
+      <button data-filter="photo" class="filter-btn bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">📸 Photos</button>
+      <button data-filter="invoice" class="filter-btn bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">📄 Factures</button>
+      <button data-filter="contract" class="filter-btn bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">📋 Contrats</button>
+    </div>
+
+    <section class="grid grid-cols-3 gap-2 text-center">
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-lg font-bold">24</div>
+        <div class="text-[10px] text-slate-400">Total</div>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-lg font-bold">15</div>
+        <div class="text-[10px] text-slate-400">Photos</div>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-lg font-bold">6</div>
+        <div class="text-[10px] text-slate-400">Factures</div>
+      </div>
+    </section>
+
+    <section id="docs-grid" class="grid grid-cols-3 gap-2">
+      <p class="col-span-3 text-slate-400 text-sm text-center py-6">Chargement...</p>
+    </section>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-investisseur.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
+    <a href="projets.html" class="flex flex-col items-center gap-0.5 text-emerald-400 text-[10px]"><span class="text-lg">📁</span>Projets</a>
+    <a href="portefeuille.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💰</span>Portefeuille</a>
+    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
+    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script>
+    const demoDocs = [
+      { id: '1', document_type: 'photo', title: 'Fondations jour 1', created_at: '2026-02-10', color: 'from-emerald-700 to-slate-800' },
+      { id: '2', document_type: 'photo', title: 'Coulage béton', created_at: '2026-02-12', color: 'from-orange-700 to-slate-800' },
+      { id: '3', document_type: 'photo', title: 'Vue de côté', created_at: '2026-02-14', color: 'from-blue-700 to-slate-800' },
+      { id: '4', document_type: 'photo', title: 'Avancement 50%', created_at: '2026-02-15', color: 'from-purple-700 to-slate-800' },
+      { id: '5', document_type: 'photo', title: 'Poteaux', created_at: '2026-02-17', color: 'from-red-700 to-slate-800' },
+      { id: '6', document_type: 'photo', title: 'Vue aérienne', created_at: '2026-02-18', color: 'from-yellow-700 to-slate-800' },
+      { id: '7', document_type: 'invoice', title: 'Facture ciment', created_at: '2026-02-10', amount: 450000 },
+      { id: '8', document_type: 'invoice', title: 'Facture fer', created_at: '2026-02-12', amount: 320000 },
+      { id: '9', document_type: 'invoice', title: "Main d'œuvre", created_at: '2026-02-15', amount: 800000 }
+    ];
+
+    let allDocs = demoDocs;
+
+    function renderDocs(docs) {
+      const grid = document.getElementById('docs-grid');
+      if (docs.length === 0) {
+        grid.innerHTML = '<p class="col-span-3 text-slate-400 text-sm text-center py-6">Aucun document</p>';
+        return;
+      }
+      grid.innerHTML = docs.map(d => {
+        if (d.document_type === 'photo') {
+          return `
+            <div class="aspect-square bg-gradient-to-br ${d.color || 'from-emerald-700 to-slate-800'} rounded-xl p-2 flex flex-col justify-end relative overflow-hidden">
+              <span class="absolute top-1 right-1 text-xs">📸</span>
+              <p class="text-[10px] font-semibold leading-tight">${d.title}</p>
+              <p class="text-[9px] text-slate-200">${new Date(d.created_at).toLocaleDateString('fr-FR')}</p>
+            </div>
+          `;
+        } else {
+          return `
+            <div class="aspect-square bg-white/5 border border-white/10 rounded-xl p-2 flex flex-col justify-between">
+              <span class="text-2xl">📄</span>
+              <div>
+                <p class="text-[10px] font-semibold leading-tight">${d.title}</p>
+                <p class="text-[9px] text-slate-400">${d.amount ? Number(d.amount).toLocaleString() + ' XAF' : ''}</p>
+              </div>
+            </div>
+          `;
+        }
+      }).join('');
+    }
+
+    async function loadDocs() {
+      try {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/documents?order=created_at.desc', {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+        });
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) allDocs = data;
+      } catch (e) {}
+      renderDocs(allDocs);
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.remove('bg-emerald-600');
+          b.classList.add('bg-white/5', 'border', 'border-white/10');
+        });
+        btn.classList.add('bg-emerald-600');
+        btn.classList.remove('bg-white/5', 'border', 'border-white/10');
+        const f = btn.dataset.filter;
+        renderDocs(f === 'all' ? allDocs : allDocs.filter(d => d.document_type === f));
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      renderDocs(allDocs.filter(d => d.title.toLowerCase().includes(q)));
+    });
+
+    loadDocs();
+  </script>
+</body>
+</html>
