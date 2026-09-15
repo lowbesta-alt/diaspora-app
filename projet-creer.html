@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Créer un projet - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <a href="projets.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm">Créer un projet</span>
+    <span class="w-6"></span>
+  </header>
+
+  <main class="p-4 max-w-2xl mx-auto space-y-4">
+
+    <div class="flex items-center gap-2 text-[10px]">
+      <div class="flex-1 flex items-center gap-1">
+        <div class="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center font-bold">1</div>
+        <span class="text-emerald-400 font-semibold">Infos</span>
+      </div>
+      <div class="h-0.5 bg-slate-700 flex-1"></div>
+      <div class="flex-1 flex items-center gap-1">
+        <div class="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center font-bold">2</div>
+        <span class="text-slate-400">Budget</span>
+      </div>
+      <div class="h-0.5 bg-slate-700 flex-1"></div>
+      <div class="flex-1 flex items-center gap-1">
+        <div class="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center font-bold">3</div>
+        <span class="text-slate-400">Lieu</span>
+      </div>
+    </div>
+
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+      <h2 class="text-sm font-bold">Informations générales</h2>
+      <div>
+        <label class="text-[10px] text-slate-400">Titre *</label>
+        <input type="text" id="title" placeholder="Ex : Construction Villa N'Djamena" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+      </div>
+      <div>
+        <label class="text-[10px] text-slate-400">Description *</label>
+        <textarea id="description" rows="3" placeholder="Décrivez votre projet..." class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+      </div>
+      <div>
+        <label class="text-[10px] text-slate-400">Type de projet</label>
+        <select id="projectType" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+          <option value="construction">Construction</option>
+          <option value="commerce">Commerce</option>
+          <option value="agriculture">Agriculture</option>
+          <option value="immobilier">Immobilier</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+      <h2 class="text-sm font-bold">Budget et délais</h2>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="text-[10px] text-slate-400">Devise</label>
+          <select id="currency" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+            <option value="XAF">XAF</option>
+            <option value="EUR">EUR</option>
+            <option value="USD">USD</option>
+            <option value="XOF">XOF</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400">Budget total *</label>
+          <input type="number" id="budget" placeholder="0" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="text-[10px] text-slate-400">Date de début</label>
+          <input type="date" id="startDate" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400">Fin estimée</label>
+          <input type="date" id="endDate" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+      <h2 class="text-sm font-bold">Localisation</h2>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="text-[10px] text-slate-400">Pays</label>
+          <select id="country" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+            <option value="TD">Tchad</option>
+            <option value="CM">Cameroun</option>
+            <option value="SN">Sénégal</option>
+            <option value="CI">Côte d'Ivoire</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400">Ville</label>
+          <input type="text" id="city" placeholder="Ex : N'Djamena" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+      </div>
+      <div>
+        <label class="text-[10px] text-slate-400">Adresse complète</label>
+        <input type="text" id="address" placeholder="Quartier, rue..." class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+      </div>
+    </section>
+
+    <section class="flex gap-2">
+      <a href="projets.html" class="flex-1 bg-white/5 border border-white/10 py-3 rounded-xl font-semibold text-sm text-center">Annuler</a>
+      <button id="btn-create" class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-semibold text-sm">Créer le projet</button>
+    </section>
+
+  </main>
+
+  <script src="config.js"></script>
+  <script>
+    document.getElementById('startDate').valueAsDate = new Date();
+
+    document.getElementById('btn-create').addEventListener('click', async () => {
+      const title = document.getElementById('title').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const projectType = document.getElementById('projectType').value;
+      const currency = document.getElementById('currency').value;
+      const budget = Number(document.getElementById('budget').value);
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      const country = document.getElementById('country').value;
+      const city = document.getElementById('city').value.trim();
+      const address = document.getElementById('address').value.trim();
+
+      if (!title) { alert('Entrez un titre'); return; }
+      if (!description) { alert('Entrez une description'); return; }
+      if (!budget || budget <= 0) { alert('Entrez un budget valide'); return; }
+      if (endDate && startDate && new Date(endDate) <= new Date(startDate)) { alert('La date de fin doit être après la date de début'); return; }
+
+      const btn = document.getElementById('btn-create');
+      btn.disabled = true;
+      btn.textContent = 'Création en cours...';
+
+      try {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/projects', {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            owner_id: TEST_USER_ID,
+            title: title,
+            description: description,
+            project_type: projectType,
+            country: country,
+            city: city,
+            address: address,
+            currency: currency,
+            total_budget: budget,
+            status: 'draft',
+            start_date: startDate || null,
+            estimated_end_date: endDate || null
+          })
+        });
+
+        if (res.ok) {
+          alert('Projet créé avec succès !');
+          window.location.href = 'projets.html';
+        } else {
+          const err = await res.json();
+          alert('Erreur : ' + (err.message || 'inconnue'));
+          btn.disabled = false;
+          btn.textContent = 'Créer le projet';
+        }
+      } catch (e) {
+        alert('Erreur réseau : ' + e.message);
+        btn.disabled = false;
+        btn.textContent = 'Créer le projet';
+      }
+    });
+  </script>
+</body>
+</html>
