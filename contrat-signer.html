@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signer le contrat - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <a href="contrats.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm">Signer le contrat</span>
+    <span class="w-6"></span>
+  </header>
+
+  <main class="p-4 max-w-2xl mx-auto space-y-4">
+
+    <div class="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-3 flex items-start gap-3">
+      <span class="text-lg">🔒</span>
+      <p class="text-xs text-blue-200">Signature électronique sécurisée et conforme à la réglementation eIDAS.</p>
+    </div>
+
+    <section class="bg-white text-slate-800 rounded-2xl p-5 max-h-72 overflow-y-auto">
+      <h1 class="text-base font-bold mb-1">CONTRAT DE PRESTATION DE SERVICE</h1>
+      <p class="text-[10px] text-slate-500 mb-4">Contrat n° CTR-2026-004</p>
+
+      <div class="space-y-3 text-xs leading-relaxed">
+        <div>
+          <h2 class="font-bold">Article 1 - Objet du contrat</h2>
+          <p>Le présent contrat a pour objet la réalisation des travaux d'électricité pour le projet de construction Villa N'Djamena.</p>
+        </div>
+        <div>
+          <h2 class="font-bold">Article 2 - Durée et délais</h2>
+          <p>Les travaux débuteront dès la signature du présent contrat et devront être achevés dans un délai de trois (3) mois.</p>
+        </div>
+        <div>
+          <h2 class="font-bold">Article 3 - Montant et modalités</h2>
+          <p>Le montant total des travaux est fixé à 1 200 000 XAF, payable par jalons validés par le maître d'ouvrage.</p>
+        </div>
+        <div>
+          <h2 class="font-bold">Article 4 - Obligations du prestataire</h2>
+          <p>Le prestataire s'engage à fournir des factures authentiques, des photos horodatées et à respecter les normes en vigueur.</p>
+        </div>
+        <div>
+          <h2 class="font-bold">Article 5 - Pénalités de retard</h2>
+          <p>Tout retard non justifié entraînera une pénalité de 1% du montant total par jour de retard.</p>
+        </div>
+        <div>
+          <h2 class="font-bold">Article 6 - Résiliation</h2>
+          <p>Le contrat peut être résilié par l'une ou l'autre partie avec un préavis de 15 jours en cas de manquement grave.</p>
+        </div>
+        <div>
+          <h2 class="font-bold">Article 7 - Juridiction compétente</h2>
+          <p>Tout litige sera soumis à la juridiction compétente de N'Djamena, Tchad.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-slate-800/50 border border-white/10 rounded-2xl p-4 space-y-2 text-xs">
+      <div class="flex justify-between"><span class="text-slate-400">Partie 1</span><span class="font-semibold">Investisseur Test</span></div>
+      <div class="flex justify-between"><span class="text-slate-400">Partie 2</span><span class="font-semibold">Électricité Plus</span></div>
+      <div class="flex justify-between"><span class="text-slate-400">Montant</span><span class="font-bold text-emerald-400">1 200 000 XAF</span></div>
+      <div class="flex justify-between"><span class="text-slate-400">Durée</span><span>3 mois</span></div>
+    </section>
+
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
+      <label class="text-xs font-semibold text-slate-300 mb-2 block">Mode de signature</label>
+      <div class="grid grid-cols-3 gap-2 mb-4">
+        <button data-mode="type" class="mode-btn bg-emerald-600 py-2 rounded-lg text-[10px] font-semibold flex flex-col items-center gap-1">
+          <span class="text-lg">⌨️</span>Taper
+        </button>
+        <button data-mode="draw" class="mode-btn bg-white/5 border border-white/10 py-2 rounded-lg text-[10px] font-semibold flex flex-col items-center gap-1">
+          <span class="text-lg">✍️</span>Dessiner
+        </button>
+        <button data-mode="upload" class="mode-btn bg-white/5 border border-white/10 py-2 rounded-lg text-[10px] font-semibold flex flex-col items-center gap-1">
+          <span class="text-lg">📤</span>Image
+        </button>
+      </div>
+
+      <div id="mode-type">
+        <input type="text" id="typedName" placeholder="Tapez votre nom complet" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+        <div class="mt-3 bg-slate-800/50 rounded-xl p-4 text-center">
+          <p id="signature-preview" class="text-2xl italic text-emerald-300 font-serif">Votre signature</p>
+        </div>
+      </div>
+
+      <div id="mode-draw" class="hidden">
+        <canvas id="sigCanvas" class="w-full bg-white rounded-xl" height="150"></canvas>
+        <button id="btn-clear" class="w-full mt-2 bg-white/5 border border-white/10 py-2 rounded-lg text-xs">Effacer</button>
+      </div>
+
+      <div id="mode-upload" class="hidden">
+        <input type="file" accept="image/*" class="w-full text-xs">
+      </div>
+    </section>
+
+    <section class="space-y-3">
+      <label class="flex items-start gap-2 bg-white/5 border border-white/10 rounded-xl p-3 cursor-pointer">
+        <input type="checkbox" class="cgu mt-0.5" data-num="1">
+        <span class="text-xs">J'ai lu et compris l'intégralité du contrat</span>
+      </label>
+      <label class="flex items-start gap-2 bg-white/5 border border-white/10 rounded-xl p-3 cursor-pointer">
+        <input type="checkbox" class="cgu mt-0.5" data-num="2">
+        <span class="text-xs">J'accepte les termes et conditions</span>
+      </label>
+      <label class="flex items-start gap-2 bg-white/5 border border-white/10 rounded-xl p-3 cursor-pointer">
+        <input type="checkbox" class="cgu mt-0.5" data-num="3">
+        <span class="text-xs">Je reconnais avoir la capacité juridique de signer</span>
+      </label>
+    </section>
+
+    <section class="flex gap-2">
+      <a href="contrats.html" class="flex-1 bg-white/5 border border-white/10 py-3 rounded-xl font-semibold text-sm text-center">Refuser</a>
+      <button id="btn-sign" class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-semibold text-sm">Signer le contrat</button>
+    </section>
+
+  </main>
+
+  <script src="config.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const contractId = urlParams.get('id') || 'demo-004';
+
+    let sigMode = 'type';
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn').forEach(b => {
+          b.classList.remove('bg-emerald-600');
+          b.classList.add('bg-white/5', 'border', 'border-white/10');
+        });
+        btn.classList.add('bg-emerald-600');
+        btn.classList.remove('bg-white/5', 'border', 'border-white/10');
+        sigMode = btn.dataset.mode;
+        document.getElementById('mode-type').classList.toggle('hidden', sigMode !== 'type');
+        document.getElementById('mode-draw').classList.toggle('hidden', sigMode !== 'draw');
+        document.getElementById('mode-upload').classList.toggle('hidden', sigMode !== 'upload');
+      });
+    });
+
+    document.getElementById('typedName').addEventListener('input', (e) => {
+      document.getElementById('signature-preview').textContent = e.target.value || 'Votre signature';
+    });
+
+    // Canvas de dessin
+    const canvas = document.getElementById('sigCanvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    canvas.width = canvas.offsetWidth;
+
+    canvas.addEventListener('mousedown', (e) => { drawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
+    canvas.addEventListener('mouseup', () => drawing = false);
+    canvas.addEventListener('mousemove', (e) => {
+      if (!drawing) return;
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+    canvas.addEventListener('touchstart', (e) => { drawing = true; const t = e.touches[0]; const r = canvas.getBoundingClientRect(); ctx.beginPath(); ctx.moveTo(t.clientX - r.left, t.clientY - r.top); e.preventDefault(); });
+    canvas.addEventListener('touchend', () => drawing = false);
+    canvas.addEventListener('touchmove', (e) => {
+      if (!drawing) return;
+      const t = e.touches[0]; const r = canvas.getBoundingClientRect();
+      ctx.lineTo(t.clientX - r.left, t.clientY - r.top);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      e.preventDefault();
+    });
+
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    document.getElementById('btn-sign').addEventListener('click', async () => {
+      const checked = Array.from(document.querySelectorAll('.cgu')).every(c => c.checked);
+      if (!checked) { alert('Cochez toutes les cases avant de signer'); return; }
+
+      if (sigMode === 'type' && !document.getElementById('typedName').value.trim()) {
+        alert('Tapez votre nom pour signer'); return;
+      }
+
+      if (!confirm('Confirmer la signature électronique ?')) return;
+
+      try {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/contracts?id=eq.' + contractId, {
+          method: 'PATCH',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            status: 'signed',
+            signed_by_investor_at: new Date().toISOString()
+          })
+        });
+
+        if (res.ok) {
+          alert('Contrat signé avec succès !');
+          window.location.href = 'contrats.html';
+        } else {
+          alert('Erreur lors de la signature');
+        }
+      } catch (e) {
+        alert('Erreur réseau : ' + e.message);
+      }
+    });
+  </script>
+</body>
+</html>
