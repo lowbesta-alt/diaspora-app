@@ -1,6 +1,6 @@
 // ============================================================
 // APP.JS - Boite a outils centrale Espace Diaspora
-// v3.0 : injection auto du theme + logo sur toutes les pages
+// v4.0 : injection auto du theme + HEADER PRO sur toutes les pages
 // ============================================================
 
 // ---------- Injection automatique du theme.css ----------
@@ -13,27 +13,114 @@
   }
 })();
 
-// ---------- Remplacement auto des emojis globe par le logo ----------
-function replaceGlobeLogos() {
-  document.querySelectorAll('div, span').forEach(el => {
-    if (el.children.length === 0 && el.textContent.trim() === '🌍') {
-      const img = document.createElement('img');
-      img.src = 'logo.svg';
-      img.alt = 'Espace Diaspora';
-      img.style.width = '100%';
-      img.style.height = '100%';
-      img.style.objectFit = 'contain';
-      img.style.filter = 'drop-shadow(0 4px 12px rgba(14,165,233,0.4))';
-      el.innerHTML = '';
-      el.appendChild(img);
-    }
-  });
+// ============================================================
+// HEADER PRO - injecté automatiquement sur toutes les pages
+// ============================================================
+const ED_MENU_ITEMS = [
+  { href: 'dashboard-investisseur.html', icon: '🏠', label: 'Accueil' },
+  { href: 'projets.html', icon: '📁', label: 'Projets' },
+  { href: 'portefeuille.html', icon: '💰', label: 'Portefeuille' },
+  { href: 'documents.html', icon: '📄', label: 'Documents' },
+  { href: 'messages.html', icon: '💬', label: 'Messages' },
+  { href: 'contrats.html', icon: '📋', label: 'Contrats' },
+  { href: 'profil.html', icon: '👤', label: 'Profil' }
+];
+
+function edCurrentPage() {
+  const path = window.location.pathname;
+  const file = path.split('/').pop() || 'index.html';
+  return file;
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', replaceGlobeLogos);
-} else {
-  replaceGlobeLogos();
+function edInjectHeader() {
+  // Ne pas injecter sur les pages publiques (login/inscription)
+  const current = edCurrentPage();
+  const publicPages = ['index.html', 'inscription.html', ''];
+  if (publicPages.includes(current)) return;
+
+  // Ne pas injecter si deja present
+  if (document.querySelector('.ed-header')) return;
+
+  // Ne pas injecter si l'utilisateur n'est pas connecte
+  if (!getToken()) return;
+
+  const email = getCurrentUserEmail() || '';
+  const initials = email.substring(0, 2).toUpperCase() || 'IT';
+
+  const menuItems = ED_MENU_ITEMS.map(item => {
+    const isActive = current === item.href ? 'active' : '';
+    return `<a href="${item.href}" class="${isActive}">${item.icon} ${item.label}</a>`;
+  }).join('');
+
+  const mobileMenuItems = ED_MENU_ITEMS.map(item => {
+    const isActive = current === item.href ? 'active' : '';
+    return `<a href="${item.href}" class="${isActive}">${item.icon} ${item.label}</a>`;
+  }).join('');
+
+  const headerHTML = `
+    <header class="ed-header">
+      <div class="ed-header-inner">
+        <a href="dashboard-investisseur.html" class="ed-header-logo">
+          <img src="logo.svg" alt="Espace Diaspora">
+          <div class="ed-header-logo-text">
+            <span class="ed-header-logo-name">Espace Diaspora</span>
+            <span class="ed-header-logo-tag">Investir au pays</span>
+          </div>
+        </a>
+
+        <nav class="ed-menu">
+          ${menuItems}
+        </nav>
+
+        <div class="ed-header-actions">
+          <a href="notifications.html" class="ed-bell">🔔</a>
+          <a href="profil.html" class="ed-avatar">${initials}</a>
+          <button class="ed-burger" id="edBurger" aria-label="Menu">☰</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="ed-overlay" id="edOverlay"></div>
+
+    <aside class="ed-mobile-menu" id="edMobileMenu">
+      <button class="ed-mobile-close" id="edMobileClose">✕</button>
+      <div class="ed-mobile-menu-title">Navigation</div>
+      ${mobileMenuItems}
+      <div class="ed-mobile-menu-title">Compte</div>
+      <a href="securite.html">🔒 Sécurité</a>
+      <a href="#" id="edLogoutBtn">🚪 Déconnexion</a>
+    </aside>
+  `;
+
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = headerHTML;
+
+  // Insère AVANT le body content
+  document.body.insertBefore(wrapper, document.body.firstChild);
+
+  // Wire mobile menu
+  const burger = document.getElementById('edBurger');
+  const mobileMenu = document.getElementById('edMobileMenu');
+  const overlay = document.getElementById('edOverlay');
+  const closeBtn = document.getElementById('edMobileClose');
+  const logoutBtn = document.getElementById('edLogoutBtn');
+
+  function openMenu() {
+    if (mobileMenu) mobileMenu.classList.add('open');
+    if (overlay) overlay.classList.add('open');
+  }
+  function closeMenu() {
+    if (mobileMenu) mobileMenu.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
+  }
+
+  if (burger) burger.addEventListener('click', openMenu);
+  if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+  if (overlay) overlay.addEventListener('click', closeMenu);
+  if (logoutBtn) logoutBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (confirm('Se deconnecter ?')) logout();
+  });
 }
 
 // ---------- Gestion de session ----------
@@ -189,15 +276,19 @@ function showError(msg) { alert('Erreur : ' + msg); }
 function showSuccess(msg) { alert(msg); }
 
 function setupUserHeader() {
-  const email = getCurrentUserEmail() || '';
-  const initials = email.substring(0, 2).toUpperCase();
-  document.querySelectorAll('[data-user-avatar]').forEach(el => {
-    el.textContent = initials || 'IT';
-  });
-  document.querySelectorAll('[data-logout]').forEach(el => {
-    el.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (confirm('Se deconnecter ?')) logout();
-    });
-  });
+  // Compat : plus utilise car le header est injecte automatiquement
+  // On garde la fonction pour ne pas casser les pages existantes
+}
+
+// ============================================================
+// AUTO-INJECTION AU CHARGEMENT
+// ============================================================
+function edInit() {
+  edInjectHeader();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', edInit);
+} else {
+  edInit();
 }
