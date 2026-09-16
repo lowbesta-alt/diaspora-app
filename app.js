@@ -1,6 +1,6 @@
 // ============================================================
 // APP.JS - Boite a outils centrale Espace Diaspora
-// v6.0 : theme + header + icones SVG integrees
+// v7.0 : theme + header + icones SVG + images auto
 // ============================================================
 
 // ---------- Bibliotheque d'icones SVG (Lucide) ----------
@@ -43,18 +43,14 @@ const ED_EMOJI_MAP = {
   '🤝': 'handshake', '🎯': 'target', '🏗️': 'building', '🏢': 'building'
 };
 
-// Fonction pour remplacer les emojis par SVG
 function edReplaceEmojis() {
-  const emojis = Object.keys(ED_EMOJI_MAP);
-
   function walk(node) {
     if (node.nodeType === 3) {
       const text = node.textContent.trim();
       if (ED_EMOJI_MAP[text]) {
-        const iconName = ED_EMOJI_MAP[text];
         const span = document.createElement('span');
         span.className = 'ed-icon';
-        span.innerHTML = ED_ICONS[iconName];
+        span.innerHTML = ED_ICONS[ED_EMOJI_MAP[text]];
         node.parentNode.replaceChild(span, node);
       }
       return;
@@ -62,11 +58,9 @@ function edReplaceEmojis() {
     if (node.nodeType !== 1) return;
     if (node.tagName === 'SCRIPT' || node.tagName === 'STYLE') return;
     if (node.classList && node.classList.contains('ed-icon')) return;
-
     const children = Array.from(node.childNodes);
     for (const child of children) walk(child);
   }
-
   walk(document.body);
 }
 
@@ -77,6 +71,16 @@ function edReplaceEmojis() {
     link.rel = 'stylesheet';
     link.href = 'theme.css';
     document.head.appendChild(link);
+  }
+})();
+
+// ---------- Injection images.js ----------
+(function() {
+  if (!document.querySelector('script[src="images.js"]')) {
+    const script = document.createElement('script');
+    script.src = 'images.js';
+    script.async = false;
+    document.head.appendChild(script);
   }
 })();
 
@@ -326,7 +330,6 @@ function setupUserHeader() {}
 // ============================================================
 function edInit() {
   edInjectHeader();
-  // Attendre 500ms que tout soit prêt puis remplacer
   setTimeout(edReplaceEmojis, 500);
 }
 
@@ -334,4 +337,4 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', edInit);
 } else {
   edInit();
-                                                                                                }
+}
