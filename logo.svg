@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <linearGradient id="edBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="edStar" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="52" fill="url(#edBg)"/>
+  <path d="M 58 138 Q 100 78 142 138" stroke="#ffffff" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <circle cx="100" cy="62" r="11" fill="url(#edStar)"/>
+  <circle cx="100" cy="62" r="4.5" fill="#fffbeb"/>
+</svg>
