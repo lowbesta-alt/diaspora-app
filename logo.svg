@@ -1,16 +1,44 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
   <defs>
-    <linearGradient id="edBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#10b981"/>
-      <stop offset="100%" stop-color="#047857"/>
+    <linearGradient id="bgG" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c1a2e"/>
+      <stop offset="100%" stop-color="#1e293b"/>
     </linearGradient>
-    <linearGradient id="edStar" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="bldgG" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="goldG" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#fef3c7"/>
       <stop offset="100%" stop-color="#f59e0b"/>
     </linearGradient>
   </defs>
-  <rect width="200" height="200" rx="52" fill="url(#edBg)"/>
-  <path d="M 58 138 Q 100 78 142 138" stroke="#ffffff" stroke-width="11" fill="none" stroke-linecap="round"/>
-  <circle cx="100" cy="62" r="11" fill="url(#edStar)"/>
-  <circle cx="100" cy="62" r="4.5" fill="#fffbeb"/>
+  <rect width="200" height="200" rx="48" fill="url(#bgG)"/>
+  <!-- Petites étoiles -->
+  <circle cx="45" cy="45" r="2" fill="#94a3b8" opacity="0.7"/>
+  <circle cx="68" cy="58" r="1.2" fill="#94a3b8" opacity="0.5"/>
+  <circle cx="38" cy="75" r="1" fill="#94a3b8" opacity="0.4"/>
+  <!-- Grande étoile dorée -->
+  <path d="M 148 38 L 151.5 49 L 163 49 L 153.5 56 L 157 67 L 148 60.5 L 139 67 L 142.5 56 L 133 49 L 144.5 49 Z" fill="url(#goldG)"/>
+  <!-- Immeuble en L : tour haute -->
+  <rect x="55" y="75" width="45" height="85" rx="2" fill="url(#bldgG)"/>
+  <!-- Immeuble en L : base large -->
+  <rect x="100" y="130" width="50" height="30" rx="2" fill="url(#bldgG)"/>
+  <!-- Fenêtres tour -->
+  <rect x="63" y="85" width="7" height="7" fill="#0c1a2e" rx="1"/>
+  <rect x="76" y="85" width="7" height="7" fill="#0c1a2e" rx="1"/>
+  <rect x="89" y="85" width="7" height="7" fill="#0c1a2e" rx="1"/>
+  <rect x="63" y="100" width="7" height="7" fill="#0c1a2e" rx="1"/>
+  <rect x="76" y="100" width="7" height="7" fill="#0c1a2e" rx="1"/>
+  <rect x="89" y="100" width="7" height="7" fill="#0c1a2e" rx="1"/>
+  <rect x="63" y="115" width="7" height="7" fill="#0c1a2e" rx="1"/>
+  <rect x="76" y="115" width="7" height="7" fill="#0c1a2e" rx="1"/>
+  <rect x="89" y="115" width="7" height="7" fill="#0c1a2e" rx="1"/>
+  <!-- Fenêtres base -->
+  <rect x="108" y="138" width="6" height="6" fill="#0c1a2e" rx="1"/>
+  <rect x="120" y="138" width="6" height="6" fill="#0c1a2e" rx="1"/>
+  <rect x="132" y="138" width="6" height="6" fill="#0c1a2e" rx="1"/>
+  <rect x="108" y="148" width="6" height="6" fill="#0c1a2e" rx="1"/>
+  <rect x="120" y="148" width="6" height="6" fill="#0c1a2e" rx="1"/>
+  <rect x="132" y="148" width="6" height="6" fill="#0c1a2e" rx="1"/>
 </svg>
