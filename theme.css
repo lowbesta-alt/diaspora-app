@@ -239,3 +239,74 @@ main > *:nth-child(4) { animation-delay: 0.15s; }
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(14,165,233,0.25); border-radius: 3px; }
+
+/* ==========================================================
+   AMELIORATION BADGE STATUT SUR PHOTO (banniere hero)
+   ========================================================== */
+.ed-hero-banner #project-status {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 8px 16px !important;
+  border-radius: 999px !important;
+  font-weight: 800 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  backdrop-filter: blur(12px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+  box-shadow: 
+    0 8px 24px -4px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(255,255,255,0.15) inset !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35) !important;
+  width: auto !important;
+  max-width: fit-content !important;
+  margin-bottom: 12px !important;
+}
+
+/* Statut "En preparation" (orange) */
+.ed-hero-banner #project-status[class*="orange"] {
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%) !important;
+  color: #ffffff !important;
+}
+
+/* Statut "En cours" (vert) */
+.ed-hero-banner #project-status[class*="emerald"] {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: #ffffff !important;
+}
+
+/* Statut "Termine" (gris) */
+.ed-hero-banner #project-status[class*="slate"] {
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%) !important;
+  color: #ffffff !important;
+}
+
+/* Statut "En pause" (jaune) */
+.ed-hero-banner #project-status[class*="yellow"] {
+  background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%) !important;
+  color: #1a1a2e !important;
+}
+
+/* Statut "Annule" ou "Litige" (rouge) */
+.ed-hero-banner #project-status[class*="red"] {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+}
+
+/* Petit point lumineux au debut du badge */
+.ed-hero-banner #project-status::before {
+  content: '' !important;
+  display: inline-block !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #ffffff !important;
+  margin-right: 8px !important;
+  box-shadow: 0 0 8px rgba(255,255,255,0.8) !important;
+  animation: edPulse 2s ease-in-out infinite !important;
+}
+
+@keyframes edPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
