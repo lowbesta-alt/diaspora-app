@@ -52,12 +52,6 @@
   <script>
     let allProjects = [];
 
-    const demoProjects = [
-      { id: '6f1d7e27-105a-45dc-ab31-71577e95f4f5', title: "Construction Villa N'Djamena", description: "Villa familiale 4 chambres avec jardin", status: 'active', total_budget: 25000000, city: 'N\'Djamena', country: 'Tchad' },
-      { id: 'demo2', title: 'Boutique Centre-ville', description: 'Local commercial 60m²', status: 'draft', total_budget: 8000000, city: 'N\'Djamena', country: 'Tchad' },
-      { id: 'demo3', title: 'Ferme Avicole Moundou', description: 'Élevage poulets de chair', status: 'completed', total_budget: 5000000, city: 'Moundou', country: 'Tchad' }
-    ];
-
     function getStatusBadge(status) {
       const badges = {
         'active': 'bg-emerald-500/20 text-emerald-300|En cours',
@@ -80,7 +74,7 @@
     function renderProjects(projects) {
       const list = document.getElementById('projects-list');
       if (projects.length === 0) {
-        list.innerHTML = '<p class="text-slate-400 text-sm text-center py-8">Aucun projet</p>';
+        list.innerHTML = '<p class="text-slate-400 text-sm text-center py-8">Aucun projet. Creez votre premier projet !</p>';
         return;
       }
       list.innerHTML = projects.map(p => `
@@ -94,7 +88,7 @@
             <div class="bg-emerald-500 h-1.5 rounded-full" style="width: ${getProgress(p.status)}%"></div>
           </div>
           <div class="flex justify-between text-[11px] text-slate-400">
-            <span>💰 ${Number(p.total_budget).toLocaleString()} XAF</span>
+            <span>💰 ${Number(p.total_budget).toLocaleString()} ${p.currency || 'XAF'}</span>
             <span>📍 ${p.city || ''}, ${p.country || ''}</span>
           </div>
         </a>
@@ -102,14 +96,25 @@
     }
 
     async function loadProjects() {
+      const userId = localStorage.getItem('user_id');
+      if (!userId) {
+        document.getElementById('projects-list').innerHTML = '<p class="text-slate-400 text-sm text-center py-8">Connectez-vous pour voir vos projets</p>';
+        return;
+      }
+
       try {
-        const res = await fetch(SUPABASE_URL + '/rest/v1/projects?select=*&order=created_at.desc', {
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
-        });
+        const res = await fetch(
+          SUPABASE_URL + '/rest/v1/projects?select=*&owner_id=eq.' + userId + '&order=created_at.desc',
+          { headers: authHeaders() }
+        );
         const data = await res.json();
-        allProjects = (Array.isArray(data) && data.length > 0) ? data : demoProjects;
+        if (Array.isArray(data)) {
+          allProjects = data;
+        } else {
+          allProjects = [];
+        }
       } catch (e) {
-        allProjects = demoProjects;
+        allProjects = [];
       }
       renderProjects(allProjects);
     }
