@@ -8,75 +8,81 @@
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
 
-  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
-    <a href="projets.html" class="text-2xl">←</a>
-    <span class="font-bold text-sm" id="header-title">Projet</span>
-    <a href="#" id="btn-edit" class="text-lg">⋯</a>
-  </header>
+  <a href="projets.html" class="fixed top-4 left-4 z-50 w-10 h-10 rounded-xl bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white text-xl hover:bg-black/70 transition">←</a>
 
   <main class="max-w-2xl mx-auto">
 
-    <section class="relative h-40 bg-gradient-to-br from-emerald-600 via-emerald-700 to-slate-800 flex items-center justify-center">
-      <span class="text-6xl">🏗️</span>
-      <div class="absolute bottom-3 left-4 right-4">
-        <span id="project-status" class="text-[10px] bg-emerald-500/90 text-white px-2 py-0.5 rounded-full font-semibold">...</span>
-        <h1 id="project-title" class="text-xl font-bold mt-1">Chargement...</h1>
-        <p id="project-location" class="text-xs text-slate-200"></p>
+    <!-- ============================================== -->
+    <!-- BANNIERE HERO PREMIUM                           -->
+    <!-- ============================================== -->
+    <section class="ed-hero-banner relative h-72 overflow-hidden">
+      <div class="ed-hero-image absolute inset-0 bg-slate-800"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-[#061229] via-[#061229]/60 to-transparent"></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-sky-900/30 to-transparent"></div>
+
+      <div class="relative h-full flex flex-col justify-end p-5 z-10">
+        <span id="project-status" class="self-start text-[10px] bg-emerald-500/90 backdrop-blur text-white px-3 py-1 rounded-full font-bold tracking-wide mb-3">...</span>
+        <h1 id="project-title" class="text-2xl font-extrabold tracking-tight leading-tight mb-1">Chargement...</h1>
+        <p id="project-location" class="text-xs text-slate-300 font-medium">📍</p>
       </div>
+
+      <a href="#" id="btn-edit" class="absolute top-4 right-4 z-20 w-10 h-10 rounded-xl bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-black/70 transition">⋯</a>
     </section>
 
-    <div class="p-4 space-y-4">
+    <div class="p-4 space-y-4 -mt-2">
 
+      <!-- Stats financieres -->
       <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
         <div class="grid grid-cols-3 gap-2 text-center">
           <div>
-            <div class="text-[10px] text-slate-400 mb-1">Budget</div>
-            <div id="stat-budget" class="text-sm font-bold">-</div>
+            <div class="text-[10px] text-slate-400 mb-1 uppercase tracking-wider font-semibold">Budget</div>
+            <div id="stat-budget" class="text-base font-bold">-</div>
             <div class="text-[10px] text-slate-400" id="stat-currency">XAF</div>
           </div>
-          <div>
-            <div class="text-[10px] text-slate-400 mb-1">Dépensé</div>
-            <div id="stat-spent" class="text-sm font-bold text-amber-400">0</div>
+          <div class="border-l border-white/10">
+            <div class="text-[10px] text-slate-400 mb-1 uppercase tracking-wider font-semibold">Dépensé</div>
+            <div id="stat-spent" class="text-base font-bold text-amber-400">0</div>
             <div class="text-[10px] text-slate-400" id="stat-currency-2">XAF</div>
           </div>
-          <div>
-            <div class="text-[10px] text-slate-400 mb-1">Restant</div>
-            <div id="stat-remaining" class="text-sm font-bold text-emerald-400">-</div>
+          <div class="border-l border-white/10">
+            <div class="text-[10px] text-slate-400 mb-1 uppercase tracking-wider font-semibold">Restant</div>
+            <div id="stat-remaining" class="text-base font-bold text-sky-400">-</div>
             <div class="text-[10px] text-slate-400" id="stat-currency-3">XAF</div>
           </div>
         </div>
-        <div class="mt-3">
-          <div class="flex justify-between text-[11px] text-slate-400 mb-1">
-            <span>Avancement global</span>
-            <span id="progress-text">0%</span>
+        <div class="mt-4">
+          <div class="flex justify-between text-[11px] text-slate-400 mb-1.5">
+            <span class="font-semibold uppercase tracking-wider">Avancement</span>
+            <span id="progress-text" class="font-bold text-white">0%</span>
           </div>
-          <div class="w-full bg-slate-700/50 rounded-full h-2">
-            <div id="progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all" style="width: 0%"></div>
+          <div class="w-full bg-slate-700/50 rounded-full h-2 overflow-hidden">
+            <div id="progress-bar" class="bg-gradient-to-r from-sky-500 to-sky-400 h-2 rounded-full transition-all" style="width: 0%"></div>
           </div>
         </div>
       </section>
 
-      <section class="bg-gradient-to-br from-emerald-600/20 to-blue-600/20 border border-emerald-500/30 rounded-2xl p-5">
+      <!-- Bouton engagement -->
+      <section class="bg-gradient-to-br from-sky-600/20 to-sky-900/20 border border-sky-500/30 rounded-2xl p-5">
         <div class="flex items-start gap-3 mb-4">
-          <div class="text-3xl">🤝</div>
+          <div class="w-12 h-12 rounded-xl bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-2xl flex-shrink-0">🤝</div>
           <div class="flex-1">
             <h2 class="text-base font-bold text-white">S'engager sur ce projet</h2>
             <p class="text-xs text-slate-300 mt-1 leading-relaxed">
-              Vous souhaitez participer, investir ou contribuer à ce projet ?
-              Échangez directement avec l'équipe de pilotage de l'Espace Diaspora.
+              Échangez avec l'équipe de pilotage pour participer ou investir.
             </p>
-            <p class="text-[11px] text-emerald-300 mt-2 leading-relaxed">
-              🛡️ Notre guichet unique vous accompagne et fait le pont avec nos partenaires bancaires agréés.
+            <p class="text-[11px] text-sky-300 mt-2 leading-relaxed">
+              🛡️ Guichet unique — mise en relation avec nos partenaires bancaires agréés.
             </p>
           </div>
         </div>
-        <button id="btn-engage" class="w-full bg-emerald-600 hover:bg-emerald-700 py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
-          <span>💬</span> Discuter avec l'équipe
+        <button id="btn-engage" class="w-full bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-sky-500/30">
+          Discuter avec l'équipe
         </button>
       </section>
 
-      <section class="flex gap-1 overflow-x-auto pb-1">
-        <button class="tab-btn bg-emerald-600 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap" data-tab="jalons">Jalons</button>
+      <!-- Onglets -->
+      <section class="flex gap-1 overflow-x-auto pb-1 -mx-4 px-4">
+        <button class="tab-btn bg-sky-600 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap" data-tab="jalons">Jalons</button>
         <button class="tab-btn bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap" data-tab="timeline">Timeline</button>
         <a href="documents.html" id="btn-docs" class="bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap">Documents</a>
         <button class="tab-btn bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap" data-tab="equipe">Équipe</button>
@@ -104,27 +110,15 @@
 
   </main>
 
-  <a id="btn-add-milestone" href="#" class="fixed bottom-24 right-4 w-14 h-14 bg-emerald-600 hover:bg-emerald-700 rounded-full flex items-center justify-center text-2xl shadow-lg z-40">+</a>
-
-  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
-    <a href="dashboard-investisseur.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
-    <a href="projets.html" class="flex flex-col items-center gap-0.5 text-emerald-400 text-[10px]"><span class="text-lg">📁</span>Projets</a>
-    <a href="portefeuille.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💰</span>Portefeuille</a>
-    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
-    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
-  </nav>
+  <a id="btn-add-milestone" href="#" class="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-sky-600 to-sky-500 rounded-full flex items-center justify-center text-2xl shadow-2xl shadow-sky-500/40 z-40 hover:scale-110 transition">+</a>
 
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script>
     if (!requireLogin()) throw new Error('Not logged');
 
-    // ============================================================
-    // A PERSONNALISER : vos coordonnees
-    // ============================================================
     const ADMIN_WHATSAPP = '237600000000';
     const ADMIN_EMAIL = 'contact@munitrace.org';
-    // ============================================================
 
     const urlParams = new URLSearchParams(window.location.search);
     const projectId = urlParams.get('id');
@@ -140,7 +134,6 @@
     document.getElementById('btn-engage').addEventListener('click', () => {
       const projectTitle = document.getElementById('project-title').textContent;
       const userEmail = getCurrentUserEmail() || 'utilisateur';
-
       const message =
         "Bonjour l'equipe Espace Diaspora,\n\n" +
         "Je souhaite m'engager sur le projet :\n" +
@@ -154,7 +147,7 @@
         "1 = WhatsApp\n" +
         "2 = Email\n" +
         "3 = Copier le message\n\n" +
-        "Le message sera pre-rempli automatiquement."
+        "Le message sera pre-rempli."
       );
 
       if (choice === '1') {
@@ -163,13 +156,9 @@
         window.location.href = 'mailto:' + ADMIN_EMAIL + '?subject=' + encodeURIComponent('Engagement : ' + projectTitle) + '&body=' + encodeURIComponent(message);
       } else if (choice === '3') {
         if (navigator.clipboard) {
-          navigator.clipboard.writeText(message).then(() => {
-            showSuccess('Message copie ! Collez-le dans WhatsApp ou Email.');
-          }).catch(() => {
-            prompt('Copiez ce message manuellement :', message);
-          });
+          navigator.clipboard.writeText(message).then(() => showSuccess('Message copie !'));
         } else {
-          prompt('Copiez ce message manuellement :', message);
+          prompt('Copiez ce message :', message);
         }
       }
     });
@@ -200,11 +189,10 @@
           return;
         }
         const p = data[0];
-        document.getElementById('header-title').textContent = p.title;
         document.getElementById('project-title').textContent = p.title;
         document.getElementById('project-location').textContent = '📍 ' + (p.city || '') + (p.country ? ', ' + p.country : '');
         document.getElementById('project-status').textContent = getStatusLabel(p.status);
-        document.getElementById('project-status').className = 'text-[10px] ' + getStatusColors(p.status) + ' text-white px-2 py-0.5 rounded-full font-semibold';
+        document.getElementById('project-status').className = 'self-start text-[10px] ' + getStatusColors(p.status) + ' backdrop-blur text-white px-3 py-1 rounded-full font-bold tracking-wide mb-3';
 
         const budget = Number(p.total_budget) || 0;
         const spent = Number(p.spent_budget) || 0;
@@ -215,8 +203,16 @@
         document.getElementById('stat-currency').textContent = currency;
         document.getElementById('stat-currency-2').textContent = currency;
         document.getElementById('stat-currency-3').textContent = currency;
+
+        // Hero image
+        const heroImg = document.querySelector('.ed-hero-image');
+        if (heroImg && typeof edCoverFor === 'function') {
+          heroImg.style.backgroundImage = 'url(' + edCoverFor(p.id) + ')';
+          heroImg.style.backgroundSize = 'cover';
+          heroImg.style.backgroundPosition = 'center';
+        }
       } catch (e) {
-        document.getElementById('project-title').textContent = 'Erreur de chargement';
+        document.getElementById('project-title').textContent = 'Erreur';
       }
     }
 
@@ -227,8 +223,6 @@
         const valid = Array.isArray(data) ? data : [];
         if (valid.length === 0) {
           list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucun jalon. Cliquez sur + pour en creer un.</p>';
-          document.getElementById('progress-text').textContent = '0%';
-          document.getElementById('progress-bar').style.width = '0%';
           return;
         }
         list.innerHTML = valid.map((m, i) => `
@@ -239,7 +233,7 @@
                 <h3 class="font-bold text-sm">${escapeHtml(m.title)}</h3>
                 ${renderStatusBadge(m.status)}
               </div>
-              <p class="text-[11px] text-slate-400">💰 ${formatAmount(m.amount)}</p>
+              <p class="text-[11px] text-slate-400">${formatAmount(m.amount)}</p>
             </div>
           </a>
         `).join('');
@@ -249,7 +243,7 @@
         document.getElementById('progress-text').textContent = progress + '%';
         document.getElementById('progress-bar').style.width = progress + '%';
       } catch (e) {
-        list.innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur de chargement</p>';
+        list.innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur</p>';
       }
     }
 
@@ -264,25 +258,23 @@
         }
         list.innerHTML = valid.map(m => `
           <div class="flex gap-3 items-center bg-white/5 border border-white/10 rounded-2xl p-3">
-            <div class="w-10 h-10 rounded-full bg-emerald-500/30 flex items-center justify-center text-xs font-bold">${(m.role || 'M').substring(0, 2).toUpperCase()}</div>
+            <div class="w-10 h-10 rounded-full bg-sky-500/30 flex items-center justify-center text-xs font-bold">${(m.role || 'M').substring(0, 2).toUpperCase()}</div>
             <div class="flex-1">
               <p class="text-sm font-semibold">${escapeHtml(m.role)}</p>
-              <p class="text-[10px] text-slate-400">Membre du projet</p>
+              <p class="text-[10px] text-slate-400">Membre</p>
             </div>
           </div>
         `).join('');
-      } catch (e) {
-        list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Erreur</p>';
-      }
+      } catch (e) {}
     }
 
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.tab-btn').forEach(b => {
-          b.classList.remove('bg-emerald-600');
+          b.classList.remove('bg-sky-600');
           b.classList.add('bg-white/5', 'border', 'border-white/10');
         });
-        btn.classList.add('bg-emerald-600');
+        btn.classList.add('bg-sky-600');
         btn.classList.remove('bg-white/5', 'border', 'border-white/10');
         document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
         document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
@@ -294,4 +286,4 @@
     loadTeam();
   </script>
 </body>
-</html>
+  </html>
