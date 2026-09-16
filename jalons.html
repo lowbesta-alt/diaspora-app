@@ -9,7 +9,7 @@
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
 
   <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
-    <a href="projet-detail.html" class="text-2xl">←</a>
+    <a href="projets.html" class="text-2xl">←</a>
     <span class="font-bold text-sm">Jalons du projet</span>
     <span class="w-6"></span>
   </header>
@@ -17,31 +17,31 @@
   <main class="p-4 max-w-2xl mx-auto space-y-4">
 
     <section>
-      <h1 class="text-xl font-bold">Villa N'Djamena</h1>
+      <h1 id="project-title" class="text-xl font-bold">Chargement...</h1>
       <p class="text-xs text-slate-400">Suivi des jalons du projet</p>
     </section>
 
     <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
       <div class="grid grid-cols-3 gap-2 text-center mb-3">
         <div>
-          <div class="text-lg font-bold" id="stat-total">4</div>
+          <div class="text-lg font-bold" id="stat-total">-</div>
           <div class="text-[10px] text-slate-400">Total</div>
         </div>
         <div>
-          <div class="text-lg font-bold text-emerald-400" id="stat-validated">2</div>
+          <div class="text-lg font-bold text-emerald-400" id="stat-validated">-</div>
           <div class="text-[10px] text-slate-400">Validés</div>
         </div>
         <div>
-          <div class="text-lg font-bold text-emerald-400" id="stat-amount">25M</div>
+          <div class="text-lg font-bold text-emerald-400" id="stat-amount">-</div>
           <div class="text-[10px] text-slate-400">XAF total</div>
         </div>
       </div>
       <div class="flex justify-between text-[10px] text-slate-400 mb-1">
         <span>Progression</span>
-        <span id="progress-text">50%</span>
+        <span id="progress-text">0%</span>
       </div>
       <div class="w-full bg-slate-700/50 rounded-full h-2">
-        <div id="progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all" style="width: 50%"></div>
+        <div id="progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all" style="width: 0%"></div>
       </div>
     </section>
 
@@ -59,7 +59,7 @@
 
   </main>
 
-  <a href="jalon-creer.html" class="fixed bottom-24 right-4 w-14 h-14 bg-emerald-600 hover:bg-emerald-700 rounded-full flex items-center justify-center text-2xl shadow-lg z-40">+</a>
+  <a id="btn-add" href="#" class="fixed bottom-24 right-4 w-14 h-14 bg-emerald-600 hover:bg-emerald-700 rounded-full flex items-center justify-center text-2xl shadow-lg z-40">+</a>
 
   <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
     <a href="dashboard-investisseur.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
@@ -70,31 +70,20 @@
   </nav>
 
   <script src="config.js"></script>
+  <script src="app.js"></script>
   <script>
+    if (!requireLogin()) throw new Error('Not logged');
+
     const urlParams = new URLSearchParams(window.location.search);
-    const projectId = urlParams.get('id') || TEST_PROJECT_ID;
-
-    const demoMilestones = [
-      { id: '1', title: 'Études et permis', amount: 2000000, status: 'released', order_index: 1 },
-      { id: '2', title: 'Fondations', amount: 5000000, status: 'approved', order_index: 2 },
-      { id: TEST_MILESTONE_ID, title: 'Gros œuvre', amount: 8000000, status: 'submitted', order_index: 3 },
-      { id: '4', title: 'Finitions', amount: 10000000, status: 'pending', order_index: 4 }
-    ];
-
-    let allMilestones = demoMilestones;
-
-    function statusBadge(status) {
-      const map = {
-        'released': 'bg-blue-500/20 text-blue-300|Débloqué',
-        'approved': 'bg-emerald-500/20 text-emerald-300|Validé',
-        'submitted': 'bg-orange-500/20 text-orange-300|En attente',
-        'pending': 'bg-slate-500/20 text-slate-300|À venir',
-        'rejected': 'bg-red-500/20 text-red-300|Refusé',
-        'in_progress': 'bg-yellow-500/20 text-yellow-300|En cours'
-      };
-      const [c, l] = (map[status] || map.pending).split('|');
-      return `<span class="text-[10px] ${c} px-2 py-0.5 rounded-full font-semibold">${l}</span>`;
+    const projectId = urlParams.get('id');
+    if (!projectId) {
+      alert('Aucun projet selectionne');
+      window.location.href = 'projets.html';
     }
+
+    document.getElementById('btn-add').href = 'jalon-creer.html?id=' + projectId;
+
+    let allMilestones = [];
 
     function statusCircle(status, idx) {
       const colors = {
@@ -102,7 +91,7 @@
         'submitted': 'bg-orange-500', 'pending': 'bg-slate-600',
         'rejected': 'bg-red-500', 'in_progress': 'bg-yellow-500'
       };
-      return `<div class="w-10 h-10 rounded-full ${colors[status] || colors.pending} flex items-center justify-center text-sm font-bold flex-shrink-0">${idx}</div>`;
+      return '<div class="w-10 h-10 rounded-full ' + (colors[status] || colors.pending) + ' flex items-center justify-center text-sm font-bold flex-shrink-0">' + idx + '</div>';
     }
 
     function getProgress(status) {
@@ -114,7 +103,7 @@
     function renderMilestones(list) {
       const container = document.getElementById('milestones-list');
       if (list.length === 0) {
-        container.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucun jalon</p>';
+        container.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucun jalon. Cliquez sur + pour en creer un.</p>';
         return;
       }
       container.innerHTML = list.map((m, i) => `
@@ -122,10 +111,10 @@
           ${statusCircle(m.status, m.order_index || i + 1)}
           <div class="flex-1 min-w-0">
             <div class="flex justify-between items-start mb-1 gap-2">
-              <h3 class="font-bold text-sm">${m.title}</h3>
-              ${statusBadge(m.status)}
+              <h3 class="font-bold text-sm">${escapeHtml(m.title)}</h3>
+              ${renderStatusBadge(m.status)}
             </div>
-            <p class="text-[11px] text-slate-400 mb-2">💰 ${Number(m.amount).toLocaleString()} XAF</p>
+            <p class="text-[11px] text-slate-400 mb-2">💰 ${formatAmount(m.amount)}</p>
             <div class="w-full bg-slate-700/50 rounded-full h-1">
               <div class="bg-emerald-500 h-1 rounded-full" style="width: ${getProgress(m.status)}%"></div>
             </div>
@@ -138,7 +127,7 @@
       document.getElementById('stat-total').textContent = list.length;
       const validated = list.filter(m => m.status === 'approved' || m.status === 'released').length;
       document.getElementById('stat-validated').textContent = validated;
-      const total = list.reduce((sum, m) => sum + Number(m.amount), 0);
+      const total = list.reduce((s, m) => s + Number(m.amount || 0), 0);
       document.getElementById('stat-amount').textContent = (total / 1000000).toFixed(1) + 'M';
       const progress = list.length > 0 ? Math.round((validated / list.length) * 100) : 0;
       document.getElementById('progress-text').textContent = progress + '%';
@@ -154,23 +143,31 @@
         btn.classList.add('bg-emerald-600');
         btn.classList.remove('bg-white/5', 'border', 'border-white/10');
         const f = btn.dataset.filter;
-        const filtered = f === 'all' ? allMilestones : allMilestones.filter(m => m.status === f);
-        renderMilestones(filtered);
+        renderMilestones(f === 'all' ? allMilestones : allMilestones.filter(m => m.status === f));
       });
     });
 
+    async function loadProject() {
+      try {
+        const data = await apiGet('projects', 'id=eq.' + projectId);
+        if (Array.isArray(data) && data[0]) {
+          document.getElementById('project-title').textContent = data[0].title;
+        }
+      } catch (e) {}
+    }
+
     async function loadMilestones() {
       try {
-        const res = await fetch(SUPABASE_URL + '/rest/v1/milestones?project_id=eq.' + projectId + '&order=order_index', {
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
-        });
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) allMilestones = data;
-      } catch (e) {}
+        const data = await apiGet('milestones', 'project_id=eq.' + projectId + '&order=order_index');
+        allMilestones = Array.isArray(data) ? data : [];
+      } catch (e) {
+        allMilestones = [];
+      }
       renderMilestones(allMilestones);
       updateStats(allMilestones);
     }
 
+    loadProject();
     loadMilestones();
   </script>
 </body>
