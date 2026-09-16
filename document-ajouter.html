@@ -52,6 +52,23 @@
       </div>
     </section>
 
+    <!-- ============================================ -->
+    <!-- SECTION GPS -->
+    <!-- ============================================ -->
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
+      <label class="text-xs font-semibold text-slate-300 mb-2 block">📍 Géolocalisation (optionnel)</label>
+      <p class="text-[10px] text-slate-400 mb-3">Enregistre la position exacte de la prise de vue. Recommandé pour les photos de chantier.</p>
+      <button id="btn-gps" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2">
+        <span>📍</span> Obtenir ma position
+      </button>
+      <div id="gps-status" class="hidden mt-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+        <p class="text-[11px] text-emerald-300">
+          ✅ Position enregistrée
+        </p>
+        <p id="gps-coords" class="text-[10px] text-slate-300 mt-1"></p>
+      </div>
+    </section>
+
     <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
       <div>
         <label class="text-xs font-semibold text-slate-300 mb-2 block">Titre du document *</label>
@@ -96,6 +113,7 @@
 
     let docType = 'photo';
     let selectedFile = null;
+    let gpsCoords = null;
 
     async function loadProjects() {
       const select = document.getElementById('project');
@@ -140,6 +158,54 @@
       document.getElementById('file-preview').classList.add('hidden');
     });
 
+    // ============================================
+    // GPS - Recupere la position de l'utilisateur
+    // ============================================
+    document.getElementById('btn-gps').addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        showError('GPS non supporte par votre appareil');
+        return;
+      }
+
+      const btn = document.getElementById('btn-gps');
+      btn.disabled = true;
+      btn.textContent = '📍 Localisation...';
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          gpsCoords = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            accuracy: position.coords.accuracy
+          };
+
+          document.getElementById('gps-status').classList.remove('hidden');
+          document.getElementById('gps-coords').textContent =
+            'Lat : ' + gpsCoords.lat.toFixed(6) +
+            ' — Lng : ' + gpsCoords.lng.toFixed(6) +
+            ' (±' + Math.round(gpsCoords.accuracy) + ' m)';
+
+          btn.textContent = '✅ Position enregistrée';
+          btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+          btn.classList.add('bg-emerald-600');
+          btn.disabled = false;
+        },
+        (error) => {
+          let msg = 'Impossible d\'obtenir la position';
+          if (error.code === 1) msg = 'Autorisation refusee. Activez la localisation.';
+          if (error.code === 2) msg = 'Position indisponible';
+          if (error.code === 3) msg = 'Delai depasse';
+          showError(msg);
+          btn.disabled = false;
+          btn.textContent = '📍 Obtenir ma position';
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      );
+    });
+
+    // ============================================
+    // UPLOAD
+    // ============================================
     document.getElementById('btn-upload').addEventListener('click', async () => {
       if (!selectedFile) { alert('Sélectionnez un fichier'); return; }
       const title = document.getElementById('title').value.trim();
@@ -157,7 +223,7 @@
 
         await uploadFile('project-documents', path, selectedFile);
 
-        await apiPost('documents', {
+        const docData = {
           project_id: projectId,
           uploaded_by: getCurrentUserId(),
           document_type: docType,
@@ -168,7 +234,15 @@
           file_size: selectedFile.size,
           mime_type: selectedFile.type,
           captured_at: new Date().toISOString()
-        });
+        };
+
+        // Ajoute GPS si present
+        if (gpsCoords) {
+          docData.latitude = gpsCoords.lat;
+          docData.longitude = gpsCoords.lng;
+        }
+
+        await apiPost('documents', docData);
 
         showSuccess('Document téléversé !');
         window.location.href = 'documents.html?id=' + projectId;
