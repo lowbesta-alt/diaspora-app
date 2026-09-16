@@ -13,7 +13,7 @@
       <div class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center text-lg">🌍</div>
       <span class="font-bold text-sm">Espace Diaspora</span>
     </div>
-    <button class="text-xl">🔔</button>
+    <a href="notifications.html" class="text-xl">🔔</a>
   </header>
 
   <main class="p-4 max-w-2xl mx-auto space-y-4">
@@ -23,7 +23,7 @@
 
     <section class="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-2xl p-6 shadow-xl">
       <p class="text-xs text-emerald-100 mb-1">Solde disponible</p>
-      <p class="text-4xl font-bold mb-1" id="solde">18 000 000</p>
+      <p class="text-4xl font-bold mb-1" id="solde">-</p>
       <p class="text-sm text-emerald-100 mb-4">XAF</p>
       <a href="transaction.html" class="inline-block bg-white text-emerald-700 px-4 py-2 rounded-xl text-sm font-bold">+ Ajouter des fonds</a>
     </section>
@@ -31,12 +31,12 @@
     <section class="grid grid-cols-2 gap-3">
       <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
         <div class="text-xl">🔒</div>
-        <div class="text-lg font-bold mt-2">8 000 000</div>
+        <div class="text-lg font-bold mt-2" id="stat-escrow">-</div>
         <div class="text-[10px] text-slate-400">Fonds bloqués (séquestre)</div>
       </div>
       <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
         <div class="text-xl">💰</div>
-        <div class="text-lg font-bold mt-2">7 000 000</div>
+        <div class="text-lg font-bold mt-2" id="stat-invested">-</div>
         <div class="text-[10px] text-slate-400">Total investi</div>
       </div>
     </section>
@@ -59,58 +59,74 @@
   </nav>
 
   <script src="config.js"></script>
+  <script src="app.js"></script>
   <script>
-    const demoTransactions = [
-      { transaction_type: 'deposit', description: 'Apport initial - Villa', amount: 25000000, created_at: '2026-01-01' },
-      { transaction_type: 'escrow_hold', description: 'Mise sous séquestre - Fondations', amount: 5000000, created_at: '2026-02-15' },
-      { transaction_type: 'milestone_release', description: 'Déblocage - Fondations', amount: 5000000, created_at: '2026-02-20' },
-      { transaction_type: 'escrow_hold', description: 'Mise sous séquestre - Gros œuvre', amount: 8000000, created_at: '2026-04-10' }
-    ];
+    if (!requireLogin()) throw new Error('Not logged');
 
     function txIcon(type) {
       const map = {
-        'deposit': { ic: '➕', bg: 'bg-emerald-500/20', color: 'text-emerald-400' },
-        'escrow_hold': { ic: '🔒', bg: 'bg-orange-500/20', color: 'text-orange-400' },
-        'milestone_release': { ic: '✅', bg: 'bg-blue-500/20', color: 'text-blue-400' },
-        'refund': { ic: '↩️', bg: 'bg-red-500/20', color: 'text-red-400' }
+        'deposit': { ic: '➕', bg: 'bg-emerald-500/20' },
+        'escrow_hold': { ic: '🔒', bg: 'bg-orange-500/20' },
+        'milestone_release': { ic: '✅', bg: 'bg-blue-500/20' },
+        'refund': { ic: '↩️', bg: 'bg-red-500/20' }
       };
       return map[type] || map.deposit;
     }
 
     function txSign(type) {
-      if (type === 'deposit') return '+';
-      return '-';
+      return type === 'deposit' ? '+' : '-';
     }
 
     function txColor(type) {
-      if (type === 'deposit') return 'text-emerald-400';
-      return 'text-orange-400';
+      return type === 'deposit' ? 'text-emerald-400' : 'text-orange-400';
     }
 
     async function loadTransactions() {
+      const userId = getCurrentUserId();
       const list = document.getElementById('transactions-list');
-      let txs = demoTransactions;
-      try {
-        const res = await fetch(SUPABASE_URL + '/rest/v1/transactions?order=created_at.desc&limit=20', {
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
-        });
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) txs = data;
-      } catch (e) {}
 
-      list.innerHTML = txs.map(t => {
-        const { ic, bg } = txIcon(t.transaction_type);
-        return `
-          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-3">
-            <div class="w-9 h-9 rounded-full ${bg} flex items-center justify-center">${ic}</div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-semibold truncate">${t.description || t.transaction_type}</p>
-              <p class="text-[10px] text-slate-400">${new Date(t.created_at).toLocaleDateString('fr-FR')}</p>
+      try {
+        const txs = await apiGet('transactions', 'initiated_by=eq.' + userId + '&order=created_at.desc&limit=50');
+        const valid = Array.isArray(txs) ? txs : [];
+
+        if (valid.length === 0) {
+          list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucune transaction pour le moment</p>';
+          document.getElementById('solde').textContent = '0';
+          document.getElementById('stat-escrow').textContent = '0';
+          document.getElementById('stat-invested').textContent = '0';
+          return;
+        }
+
+        let deposits = 0, escrow = 0, released = 0;
+        valid.forEach(t => {
+          const amt = Number(t.amount) || 0;
+          if (t.transaction_type === 'deposit') deposits += amt;
+          if (t.transaction_type === 'escrow_hold') escrow += amt;
+          if (t.transaction_type === 'milestone_release') released += amt;
+        });
+
+        const solde = deposits - escrow;
+        document.getElementById('solde').textContent = solde.toLocaleString('fr-FR');
+        document.getElementById('stat-escrow').textContent = escrow.toLocaleString('fr-FR');
+        document.getElementById('stat-invested').textContent = (escrow + released).toLocaleString('fr-FR');
+
+        list.innerHTML = valid.map(t => {
+          const { ic, bg } = txIcon(t.transaction_type);
+          return `
+            <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-3">
+              <div class="w-9 h-9 rounded-full ${bg} flex items-center justify-center">${ic}</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold truncate">${escapeHtml(t.description || getStatusLabel(t.transaction_type))}</p>
+                <p class="text-[10px] text-slate-400">${formatDate(t.created_at)}</p>
+              </div>
+              <div class="text-sm font-bold ${txColor(t.transaction_type)}">${txSign(t.transaction_type)} ${formatAmount(t.amount)}</div>
             </div>
-            <div class="text-sm font-bold ${txColor(t.transaction_type)}">${txSign(t.transaction_type)} ${Number(t.amount).toLocaleString()}</div>
-          </div>
-        `;
-      }).join('');
+          `;
+        }).join('');
+
+      } catch (e) {
+        list.innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur de chargement</p>';
+      }
     }
 
     loadTransactions();
