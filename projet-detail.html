@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Détail du projet - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
@@ -56,6 +57,28 @@
         </div>
       </section>
 
+      <!-- ============================================== -->
+      <!-- SECTION ENGAGEMENT / GUICHET UNIQUE            -->
+      <!-- ============================================== -->
+      <section class="bg-gradient-to-br from-emerald-600/20 to-blue-600/20 border border-emerald-500/30 rounded-2xl p-5">
+        <div class="flex items-start gap-3 mb-4">
+          <div class="text-3xl">🤝</div>
+          <div class="flex-1">
+            <h2 class="text-base font-bold text-white">S'engager sur ce projet</h2>
+            <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+              Vous souhaitez participer, investir ou contribuer à ce projet ?
+              Échangez directement avec l'équipe de pilotage de l'Espace Diaspora.
+            </p>
+            <p class="text-[11px] text-emerald-300 mt-2 leading-relaxed">
+              🛡️ Notre guichet unique vous accompagne et fait le pont avec nos partenaires bancaires agréés.
+            </p>
+          </div>
+        </div>
+        <button id="btn-engage" class="w-full bg-emerald-600 hover:bg-emerald-700 py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+          <span>💬</span> Discuter avec l'équipe
+        </button>
+      </section>
+
       <section class="flex gap-1 overflow-x-auto pb-1">
         <button class="tab-btn bg-emerald-600 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap" data-tab="jalons">Jalons</button>
         <button class="tab-btn bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap" data-tab="timeline">Timeline</button>
@@ -100,6 +123,12 @@
   <script>
     if (!requireLogin()) throw new Error('Not logged');
 
+    // ============================================================
+    // CONTACT ADMINISTRATION - Modifiable dans config.js plus tard
+    // ============================================================
+    const ADMIN_WHATSAPP = '237600000000'; // <-- A REMPLACER par votre vrai numero WhatsApp (indicatif + numero, sans +)
+    const ADMIN_EMAIL = 'contact@munitrace.org'; // <-- A REMPLACER par votre vrai email
+
     const urlParams = new URLSearchParams(window.location.search);
     const projectId = urlParams.get('id');
     if (!projectId) {
@@ -110,6 +139,29 @@
     document.getElementById('btn-edit').href = 'projet-modifier.html?id=' + projectId;
     document.getElementById('btn-add-milestone').href = 'jalon-creer.html?id=' + projectId;
     document.getElementById('btn-docs').href = 'documents.html?id=' + projectId;
+
+    // ============================================================
+    // BOUTON S'ENGAGER - Ouvre WhatsApp avec message pre-rempli
+    // ============================================================
+    document.getElementById('btn-engage').addEventListener('click', () => {
+      const projectTitle = document.getElementById('project-title').textContent;
+      const userEmail = getCurrentUserEmail() || 'utilisateur';
+      const userName = userEmail.split('@')[0];
+
+      const message = encodeURIComponent(
+        `Bonjour l'equipe Espace Diaspora,\n\n` +
+        `Je souhaite m'engager sur le projet suivant :\n` +
+        `📌 ${projectTitle}\n\n` +
+        `Mon compte : ${userEmail}\n\n` +
+        `Pouvez-vous me mettre en relation avec l'equipe de pilotage pour discuter des modalites de participation ?\n\n` +
+        `Merci.`
+      );
+
+      const whatsappUrl = 'https://wa.me/' + ADMIN_WHATSAPP + '?text=' + message;
+      window.open(whatsappUrl, '_blank');
+    });
+
+    // ============================================================
 
     function statusCircle(status, idx) {
       const colors = {
