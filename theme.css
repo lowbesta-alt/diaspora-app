@@ -1,6 +1,5 @@
 /* ==========================================================
-   ESPACE DIASPORA — Design System v2.0 "Blue Night"
-   S'ajoute par-dessus Tailwind sans rien casser
+   ESPACE DIASPORA — Design System v3.0 "Pro"
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap');
@@ -16,7 +15,8 @@
   --ed-muted: #94a3b8;
 }
 
-/* ---------- Typographie ---------- */
+* { box-sizing: border-box; }
+
 html, body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
   color: var(--ed-text) !important;
@@ -24,27 +24,22 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ---------- Fond bleu nuit multi-couche ---------- */
 body {
   background:
     radial-gradient(circle at 15% 0%, rgba(14,165,233,0.12) 0%, transparent 45%),
     radial-gradient(circle at 85% 100%, rgba(245,158,11,0.06) 0%, transparent 45%),
-    radial-gradient(circle at 50% 50%, rgba(59,130,246,0.04) 0%, transparent 60%),
     #061229 !important;
   background-attachment: fixed !important;
   min-height: 100vh;
 }
 
-/* Titres Manrope */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Manrope', sans-serif !important;
   letter-spacing: -0.025em !important;
 }
 h1 { font-weight: 800 !important; }
-h2 { font-weight: 700 !important; }
-h3 { font-weight: 700 !important; }
+h2, h3 { font-weight: 700 !important; }
 
-/* ---------- Cartes premium ---------- */
 main section,
 main > div > section,
 main .bg-white\/5 {
@@ -52,7 +47,6 @@ main .bg-white\/5 {
   box-shadow: 0 12px 32px -16px rgba(0,0,0,0.5);
 }
 
-/* ---------- Boutons premium ---------- */
 button, a[class*="bg-emerald"] {
   font-family: 'Manrope', sans-serif !important;
   font-weight: 600 !important;
@@ -60,11 +54,8 @@ button, a[class*="bg-emerald"] {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-button:not(:disabled):active {
-  transform: scale(0.97);
-}
+button:not(:disabled):active { transform: scale(0.97); }
 
-/* Boutons principaux → dégradé bleu brillant */
 button[class*="bg-emerald-6"],
 a[class*="bg-emerald-6"] {
   background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%) !important;
@@ -77,19 +68,16 @@ a[class*="bg-emerald-6"]:hover {
   box-shadow: 0 12px 32px -8px rgba(14,165,233,0.7) !important;
 }
 
-/* Boutons rouges (urgent) → dégradé rouge vif */
 button[class*="bg-red-6"] {
   background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
   box-shadow: 0 8px 24px -8px rgba(239,68,68,0.5) !important;
 }
 
-/* Boutons bleus (info) → cyan profond */
 button[class*="bg-blue-6"] {
   background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%) !important;
   box-shadow: 0 8px 24px -8px rgba(2,132,199,0.5) !important;
 }
 
-/* ---------- Inputs raffinés ---------- */
 input, select, textarea {
   font-family: 'Inter', sans-serif !important;
   transition: all 0.2s ease !important;
@@ -100,22 +88,247 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 4px rgba(14,165,233,0.15) !important;
 }
 
-/* ---------- Header & Nav en verre ---------- */
-header {
-  background: rgba(6,18,41,0.75) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border-color: rgba(56,189,248,0.08) !important;
+/* ==========================================================
+   HEADER PRO (injecté automatiquement par app.js)
+   ========================================================== */
+.ed-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(6,18,41,0.85);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(56,189,248,0.08);
+  padding: 12px 20px;
 }
 
-nav[class*="fixed bottom-0"] {
-  background: rgba(6,18,41,0.94) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border-color: rgba(56,189,248,0.08) !important;
+.ed-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-/* ---------- Animation d'entrée ---------- */
+.ed-header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.ed-header-logo img {
+  width: 38px;
+  height: 38px;
+  filter: drop-shadow(0 4px 12px rgba(14,165,233,0.45));
+}
+
+.ed-header-logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.ed-header-logo-name {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  color: white;
+  letter-spacing: -0.02em;
+}
+
+.ed-header-logo-tag {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--ed-accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+/* Menu desktop */
+.ed-menu {
+  display: none;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
+}
+
+.ed-menu a {
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.ed-menu a:hover {
+  color: white;
+  background: rgba(14,165,233,0.1);
+}
+
+.ed-menu a.active {
+  color: white;
+  background: rgba(14,165,233,0.15);
+}
+
+/* Actions à droite */
+.ed-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.ed-bell {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: white;
+  text-decoration: none;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.ed-bell:hover { background: rgba(14,165,233,0.15); }
+
+.ed-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0284c7, #0ea5e9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  color: white;
+  text-decoration: none;
+  box-shadow: 0 4px 12px -4px rgba(14,165,233,0.5);
+  transition: all 0.2s ease;
+}
+
+.ed-avatar:hover { transform: translateY(-1px); box-shadow: 0 8px 20px -4px rgba(14,165,233,0.7); }
+
+/* Menu mobile - burger */
+.ed-burger {
+  display: flex;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ed-burger:hover { background: rgba(14,165,233,0.15); }
+
+/* Menu mobile déroulant */
+.ed-mobile-menu {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 280px;
+  max-width: 85vw;
+  height: 100vh;
+  background: rgba(6,18,41,0.98);
+  backdrop-filter: blur(24px);
+  z-index: 100;
+  padding: 24px;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-left: 1px solid rgba(56,189,248,0.1);
+  overflow-y: auto;
+}
+
+.ed-mobile-menu.open { right: 0; }
+
+.ed-mobile-menu-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  margin-top: 20px;
+}
+
+.ed-mobile-menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  color: #cbd5e1;
+  text-decoration: none;
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.ed-mobile-menu a:hover, .ed-mobile-menu a.active {
+  background: rgba(14,165,233,0.15);
+  color: white;
+}
+
+.ed-mobile-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  border: none;
+}
+
+.ed-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 99;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.ed-overlay.open { opacity: 1; pointer-events: auto; }
+
+/* Affiche menu desktop + cache burger sur grand écran */
+@media (min-width: 768px) {
+  .ed-menu { display: flex; }
+  .ed-burger { display: none; }
+  .ed-mobile-menu, .ed-overlay { display: none !important; }
+}
+
+/* Cache l'ancien header des pages (il sera remplacé) */
+header:not(.ed-header) { display: none !important; }
+
+/* Animation d'entrée */
 @keyframes edEnter {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -130,35 +343,8 @@ main > *:nth-child(3) { animation-delay: 0.11s; }
 main > *:nth-child(4) { animation-delay: 0.15s; }
 main > *:nth-child(5) { animation-delay: 0.19s; }
 main > *:nth-child(6) { animation-delay: 0.23s; }
-main > *:nth-child(7) { animation-delay: 0.27s; }
 
-/* ---------- Logo ---------- */
-.ed-logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-}
-
-.ed-logo-icon {
-  width: 38px;
-  height: 38px;
-  flex-shrink: 0;
-  filter: drop-shadow(0 4px 12px rgba(14,165,233,0.45));
-}
-
-/* ---------- Emojis dans les carrés → alignement ---------- */
-[class*="rounded-xl"][class*="flex items-center justify-center"] img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* ---------- Scrollbar discrète ---------- */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: rgba(14,165,233,0.25);
-  border-radius: 3px;
-}
+::-webkit-scrollbar-thumb { background: rgba(14,165,233,0.25); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(14,165,233,0.45); }
