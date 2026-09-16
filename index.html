@@ -3,65 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Connexion - Espace Diaspora</title>
+  <title>Espace Diaspora — Investir au pays, en confiance</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="theme.css">
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 flex items-center justify-center min-h-screen p-4">
+<body class="bg-[#06121a] flex items-center justify-center min-h-screen p-4">
 
-  <div class="w-full max-w-md bg-white/95 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white/20">
-    <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 font-bold text-xl mb-3 shadow-inner">🌍</div>
-      <h1 class="text-2xl font-bold text-slate-900">Espace Diaspora</h1>
-      <p class="text-sm text-slate-600 mt-1">Pilotez vos projets et constructions en toute sérénité</p>
+  <div class="w-full max-w-md bg-white/5 backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-2xl">
+
+    <!-- Logo premium -->
+    <div class="flex flex-col items-center mb-8">
+      <img src="logo.svg" alt="Espace Diaspora" class="w-16 h-16 mb-4" style="filter: drop-shadow(0 8px 24px rgba(16,185,129,0.4));">
+      <h1 class="text-2xl font-extrabold text-white">Espace Diaspora</h1>
+      <p class="text-xs text-emerald-400 font-semibold mt-1 tracking-widest uppercase">Investir au pays, en confiance</p>
     </div>
 
-    <form id="loginForm" class="space-y-5">
+    <!-- Message sécurité -->
+    <div class="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-2 mb-6">
+      <span class="text-emerald-400">🔒</span>
+      <p class="text-[10px] text-emerald-300 font-medium">Connexion sécurisée — chiffrement bout en bout</p>
+    </div>
+
+    <!-- Formulaire -->
+    <form id="loginForm" class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">Adresse email</label>
+        <label class="block text-xs font-semibold text-slate-300 mb-2 tracking-wide uppercase">Adresse email</label>
         <input type="email" id="email" required placeholder="nom@exemple.com"
-          class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition text-slate-800 bg-slate-50/50">
+          class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm placeholder-slate-500 transition">
       </div>
 
       <div>
-        <div class="flex items-center justify-between mb-1">
-          <label class="block text-sm font-medium text-slate-700">Mot de passe</label>
-          <a href="#" class="text-xs text-emerald-700 hover:underline font-medium">Mot de passe oublié ?</a>
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-xs font-semibold text-slate-300 tracking-wide uppercase">Mot de passe</label>
+          <a href="#" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-medium">Oublié ?</a>
         </div>
         <div class="relative">
           <input type="password" id="password" required placeholder="••••••••"
-            class="w-full px-4 py-3 pr-10 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition text-slate-800 bg-slate-50/50">
-          <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button>
+            class="w-full px-4 py-3.5 pr-12 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm placeholder-slate-500 transition">
+          <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-emerald-400 transition">👁️</button>
         </div>
       </div>
 
       <button type="submit"
-        class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition shadow-lg">
+        class="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold py-3.5 rounded-xl mt-2 text-sm tracking-wide">
         Accéder à mon espace
       </button>
     </form>
 
-    <p class="text-center text-sm text-slate-600 mt-6 pt-6 border-t border-slate-100">
-      Nouveau sur la plateforme ?
-      <a href="inscription.html" class="text-emerald-700 font-semibold hover:underline">Créer un compte diaspora</a>
+    <div class="flex items-center my-6">
+      <div class="flex-1 h-px bg-white/10"></div>
+      <span class="px-3 text-[10px] text-slate-500 uppercase tracking-widest">ou</span>
+      <div class="flex-1 h-px bg-white/10"></div>
+    </div>
+
+    <a href="inscription.html"
+      class="block w-full text-center bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold py-3.5 rounded-xl text-sm transition">
+      Créer un compte diaspora
+    </a>
+
+    <p class="text-center text-[10px] text-slate-500 mt-8 leading-relaxed">
+      En continuant, vous acceptez nos<br>
+      <a href="#" class="text-emerald-400 hover:underline">Conditions générales d'utilisation</a>
     </p>
+
   </div>
 
   <script src="config.js"></script>
+  <script src="app.js"></script>
   <script>
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
-    togglePassword.addEventListener('click', function () {
-      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput.setAttribute('type', type);
-      this.textContent = type === 'password' ? '👁️' : '🙈';
+    document.getElementById('togglePassword').addEventListener('click', function() {
+      const input = document.getElementById('password');
+      input.type = input.type === 'password' ? 'text' : 'password';
+      this.textContent = input.type === 'password' ? '👁️' : '🙈';
     });
 
-    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
 
       if (!email || !password) { alert('Remplis email et mot de passe'); return; }
+
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'Connexion...';
 
       try {
         const res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
@@ -76,10 +101,14 @@
           localStorage.setItem('user_email', data.user.email);
           window.location.href = 'dashboard-investisseur.html';
         } else {
-          alert('Erreur : ' + (data.error_description || data.msg || data.error || 'Identifiants invalides'));
+          showError(data.error_description || data.msg || 'Identifiants invalides');
+          btn.disabled = false;
+          btn.textContent = 'Accéder à mon espace';
         }
       } catch (err) {
-        alert('Erreur réseau : ' + err.message);
+        showError('Erreur réseau : ' + err.message);
+        btn.disabled = false;
+        btn.textContent = 'Accéder à mon espace';
       }
     });
   </script>
