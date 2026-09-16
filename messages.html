@@ -20,6 +20,27 @@
 
   <main class="p-4 max-w-2xl mx-auto space-y-4">
 
+    <!-- SECTION VISITE EN DIRECT -->
+    <section class="bg-gradient-to-br from-red-600/20 to-orange-600/20 border border-red-500/30 rounded-2xl p-5">
+      <div class="flex items-start gap-3 mb-4">
+        <div class="text-3xl">🎥</div>
+        <div class="flex-1">
+          <h2 class="text-base font-bold text-white">Visite en direct du chantier</h2>
+          <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+            Le chef de chantier peut démarrer une visite vidéo en direct pour montrer l'avancement aux investisseurs.
+          </p>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <button id="btn-start-live" class="bg-red-600 hover:bg-red-700 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2">
+          <span>📹</span> Démarrer
+        </button>
+        <button id="btn-join-live" class="bg-white/10 hover:bg-white/20 border border-white/20 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2">
+          <span>👀</span> Rejoindre
+        </button>
+      </div>
+    </section>
+
     <input type="text" id="searchInput" placeholder="🔍 Rechercher une conversation..." class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm placeholder-slate-500 focus:outline-none focus:border-emerald-500">
 
     <div id="conversations-list" class="space-y-2">
@@ -43,19 +64,59 @@
     setupUserHeader();
 
     const userId = getCurrentUserId();
-    let conversations = [];
+
+    // ============================================================
+    // VISITE EN DIRECT - Genere un lien Jitsi Meet (gratuit, sans compte)
+    // ============================================================
+    function getLiveRoomName() {
+      return 'diaspora-chantier-' + Date.now();
+    }
+
+    document.getElementById('btn-start-live').addEventListener('click', async () => {
+      if (!confirm('Demarrer une visite en direct ?\n\nUn lien sera genere et copie automatiquement. Partagez-le aux investisseurs.')) return;
+
+      const roomName = getLiveRoomName();
+      const liveUrl = 'https://meet.jit.si/' + roomName;
+
+      // Copie automatiquement le lien
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(liveUrl).catch(() => {});
+      }
+
+      // Enregistre le lien localement pour que "Rejoindre" le retrouve
+      localStorage.setItem('live_url', liveUrl);
+      localStorage.setItem('live_started_at', new Date().toISOString());
+
+      // Ouvre le direct
+      window.open(liveUrl, '_blank');
+    });
+
+    document.getElementById('btn-join-live').addEventListener('click', () => {
+      let liveUrl = localStorage.getItem('live_url');
+
+      if (!liveUrl) {
+        const entered = prompt(
+          "Aucun direct en cours sur cet appareil.\n\n" +
+          "Collez ici le lien recu par WhatsApp ou Email :"
+        );
+        if (!entered) return;
+        liveUrl = entered;
+      }
+
+      window.open(liveUrl, '_blank');
+    });
+    // ============================================================
 
     async function loadConversations() {
       const list = document.getElementById('conversations-list');
       try {
-        // Charge les projets dont l'utilisateur est membre
         const members = await apiGet('project_members', 'user_id=eq.' + userId + '&is_active=eq.true');
         if (!Array.isArray(members) || members.length === 0) {
-          list.innerHTML = '<div class="text-center py-8"><p class="text-slate-400 text-sm">Aucune conversation pour le moment</p></div>';
+          list.innerHTML = '<div class="text-center py-8"><p class="text-slate-400 text-sm">Aucune conversation. Creez un projet pour commencer.</p></div>';
           return;
         }
 
-        conversations = [];
+        const conversations = [];
         for (const m of members) {
           try {
             const proj = await apiGet('projects', 'id=eq.' + m.project_id);
@@ -75,12 +136,12 @@
         }
 
         list.innerHTML = conversations.map(c => `
-          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-3 hover:bg-white/10 transition cursor-pointer" onclick="alert('Conversation sur : ${escapeHtml(c.projectTitle)}')">
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-3 hover:bg-white/10 transition cursor-pointer" onclick="alert('Conversation sur : ${escapeHtml(c.projectTitle).replace(/'/g, "\\'")}')">
             <div class="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-sm">${escapeHtml(c.projectTitle.substring(0, 2).toUpperCase())}</div>
             <div class="flex-1 min-w-0">
               <h3 class="font-semibold text-sm truncate">${escapeHtml(c.projectTitle)}</h3>
               <p class="text-[10px] text-emerald-400">${escapeHtml(c.role)}</p>
-              <p class="text-xs text-slate-400 truncate">Touchez pour voir les messages</p>
+              <p class="text-xs text-slate-400 truncate">Touchez pour ouvrir</p>
             </div>
           </div>
         `).join('');
