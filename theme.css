@@ -1,25 +1,22 @@
 /* ==========================================================
-   ESPACE DIASPORA — Design System v6.0
-   Palette "BLEU NUIT ROYAL & OR"
+   ESPACE DIASPORA — Design System v7.0
+   Palette "BLEU NUIT ROYAL · ÉMERAUDE · OR"
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap');
 
 :root {
-  /* Bleu nuit royal */
   --ed-navy: #050b1f;
   --ed-navy-2: #0a1838;
   --ed-navy-3: #0f2252;
-  --ed-navy-light: #1a3a7a;
-  /* Or */
+  --ed-emerald: #10b981;
+  --ed-emerald-light: #34d399;
+  --ed-emerald-bright: #6ee7b7;
+  --ed-emerald-dark: #047857;
   --ed-gold: #f59e0b;
   --ed-gold-light: #fbbf24;
   --ed-gold-bright: #fde68a;
-  --ed-gold-dark: #d97706;
-  /* Émeraude (validation) */
-  --ed-emerald: #10b981;
-  --ed-emerald-light: #34d399;
-  /* Textes */
+  --ed-bronze: #92400e;
   --ed-text: #ffffff;
   --ed-text-muted: #cbd5e1;
   --ed-text-dim: #94a3b8;
@@ -32,13 +29,11 @@ html, body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
   color: var(--ed-text) !important;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* ---------- Fond bleu nuit profond avec halo or ---------- */
 body {
   background:
-    radial-gradient(circle at 15% 0%, rgba(245,158,11,0.10) 0%, transparent 40%),
+    radial-gradient(circle at 15% 0%, rgba(16,185,129,0.08) 0%, transparent 40%),
     radial-gradient(circle at 85% 100%, rgba(59,130,246,0.10) 0%, transparent 45%),
     radial-gradient(circle at 50% 30%, rgba(30,58,138,0.15) 0%, transparent 70%),
     #050b1f !important;
@@ -46,7 +41,6 @@ body {
   min-height: 100vh;
 }
 
-/* ---------- Typographie ---------- */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Manrope', sans-serif !important;
   letter-spacing: -0.025em !important;
@@ -55,23 +49,23 @@ h1, h2, h3, h4, h5, h6 {
 h1 { font-weight: 800 !important; }
 h2, h3 { font-weight: 700 !important; }
 
-/* ---------- Cartes : bleu nuit légèrement plus clair + bordure or subtile ---------- */
+/* ---------- Cartes : bordure émeraude partout ---------- */
 main section,
 main > div > section,
 main .bg-white\/5 {
   border-radius: 20px !important;
   background: linear-gradient(180deg, rgba(15,34,82,0.45) 0%, rgba(10,24,56,0.65) 100%) !important;
-  border: 1px solid rgba(245, 158, 11, 0.15) !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
   box-shadow: 0 12px 32px -16px rgba(0,0,0,0.6);
   backdrop-filter: blur(12px);
 }
 
 main .bg-white\/5:hover {
-  border-color: rgba(245, 158, 11, 0.35) !important;
+  border-color: rgba(16, 185, 129, 0.5) !important;
   background: linear-gradient(180deg, rgba(15,34,82,0.55) 0%, rgba(10,24,56,0.75) 100%) !important;
 }
 
-/* ---------- Boutons PRINCIPAUX : OR dégradé, texte foncé ---------- */
+/* ---------- Boutons PRINCIPAUX : OR (garde le contraste) ---------- */
 button[class*="bg-emerald-6"],
 a[class*="bg-emerald-6"],
 button[class*="from-sky"],
@@ -83,11 +77,7 @@ a[class*="bg-amber-6"] {
   background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #fcd34d 100%) !important;
   color: #0a1838 !important;
   font-weight: 800 !important;
-  box-shadow: 
-    0 10px 24px -8px rgba(245,158,11,0.55),
-    0 0 0 1px rgba(255,255,255,0.15) inset !important;
-  text-shadow: none !important;
-  letter-spacing: -0.005em !important;
+  box-shadow: 0 10px 24px -8px rgba(245,158,11,0.55), 0 0 0 1px rgba(255,255,255,0.15) inset !important;
 }
 
 button[class*="bg-emerald-6"]:hover,
@@ -101,90 +91,83 @@ a[class*="bg-sky-6"]:hover {
   transform: translateY(-1px);
 }
 
-/* ---------- Boutons secondaires ---------- */
+/* ---------- Boutons secondaires : bordure ÉMERAUDE ---------- */
 button[class*="bg-white\/5"],
 a[class*="bg-white\/5"] {
-  border-color: rgba(245, 158, 11, 0.25) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
   color: #ffffff !important;
-  background: rgba(245, 158, 11, 0.05) !important;
+  background: rgba(16, 185, 129, 0.04) !important;
 }
 
 button[class*="bg-white\/5"]:hover,
 a[class*="bg-white\/5"]:hover {
-  border-color: rgba(245, 158, 11, 0.5) !important;
-  background: rgba(245, 158, 11, 0.12) !important;
-  color: #fbbf24 !important;
+  border-color: rgba(16, 185, 129, 0.6) !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #6ee7b7 !important;
 }
 
-/* ---------- Boutons rouges (danger) ---------- */
+/* ---------- Boutons rouges ---------- */
 button[class*="bg-red-6"] {
   background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
   color: #fff !important;
   box-shadow: 0 10px 28px -10px rgba(220,38,38,0.55) !important;
 }
 
-/* ---------- Boutons bleus (info) → bleu nuit plus vif ---------- */
+/* ---------- Boutons bleus (info) ---------- */
 button[class*="bg-blue-6"],
 a[class*="bg-blue-6"] {
   background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
   color: #fff !important;
-  box-shadow: 0 10px 28px -10px rgba(59,130,246,0.55) !important;
 }
 
-/* ---------- Inputs ---------- */
+/* ---------- Inputs : bordure ÉMERAUDE ---------- */
 input, select, textarea {
   font-family: 'Inter', sans-serif !important;
   background: rgba(15, 34, 82, 0.5) !important;
-  border-color: rgba(245, 158, 11, 0.2) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
   color: #ffffff !important;
   transition: all 0.2s ease !important;
 }
 
 input::placeholder, textarea::placeholder {
-  color: rgba(148, 163, 184, 0.8) !important;
+  color: rgba(148, 163, 184, 0.75) !important;
 }
 
 input:focus, select:focus, textarea:focus {
-  border-color: var(--ed-gold) !important;
-  box-shadow: 0 0 0 4px rgba(245,158,11,0.18) !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 4px rgba(16,185,129,0.18) !important;
   background: rgba(15, 34, 82, 0.7) !important;
 }
 
-/* ---------- Textes sky → OR lumineux ---------- */
+/* ---------- Override TOUS les "sky" → ÉMERAUDE ---------- */
 .text-sky-400, .text-sky-300, .text-sky-500,
 .text-blue-400, .text-blue-300 {
-  color: var(--ed-gold-light) !important;
+  color: var(--ed-emerald-light) !important;
 }
 
-/* Bordures sky → or */
 .border-sky-500\/30, .border-sky-500\/20,
 .border-sky-400\/30, .border-blue-500\/30 {
-  border-color: rgba(245, 158, 11, 0.3) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
 }
 
-/* Backgrounds sky → or subtil */
 .bg-sky-500\/10, .bg-sky-500\/20, .bg-sky-600\/20,
 .bg-blue-500\/10, .bg-blue-500\/20 {
-  background-color: rgba(245, 158, 11, 0.12) !important;
+  background-color: rgba(16, 185, 129, 0.12) !important;
 }
 
 .bg-sky-600, .bg-sky-500 {
-  background: linear-gradient(135deg, #d97706, #f59e0b) !important;
-  color: #0a1838 !important;
+  background: linear-gradient(135deg, #047857, #10b981) !important;
+  color: #ffffff !important;
 }
 
-/* Carte solde portefeuille → dégradé or royal */
+/* Carte solde portefeuille : dégradé émeraude → or */
 section[class*="from-sky-6"],
 section[class*="from-blue-6"] {
-  background: linear-gradient(135deg, #b45309 0%, #f59e0b 50%, #fbbf24 100%) !important;
+  background: linear-gradient(135deg, #047857 0%, #10b981 40%, #f59e0b 100%) !important;
 }
 section[class*="from-sky-6"] *,
 section[class*="from-blue-6"] * {
-  color: #0a1838 !important;
-}
-section[class*="from-sky-6"] .text-sky-100,
-section[class*="from-blue-6"] .text-sky-100 {
-  color: rgba(10,24,56,0.75) !important;
+  color: #ffffff !important;
 }
 
 /* ---------- Header pro ---------- */
@@ -192,10 +175,10 @@ section[class*="from-blue-6"] .text-sky-100 {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(5,11,31,0.88) !important;
+  background: rgba(5,11,31,0.9) !important;
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid rgba(245,158,11,0.18) !important;
+  border-bottom: 1px solid rgba(16,185,129,0.25) !important;
   padding: 12px 20px;
 }
 
@@ -211,7 +194,7 @@ section[class*="from-blue-6"] .text-sky-100 {
 .ed-header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
 .ed-header-logo img {
   width: 40px; height: 40px;
-  filter: drop-shadow(0 4px 14px rgba(245,158,11,0.5));
+  filter: drop-shadow(0 4px 14px rgba(16,185,129,0.5));
 }
 .ed-header-logo-text { display: flex; flex-direction: column; line-height: 1.1; }
 .ed-header-logo-name {
@@ -224,7 +207,7 @@ section[class*="from-blue-6"] .text-sky-100 {
 .ed-header-logo-tag {
   font-size: 9px;
   font-weight: 700;
-  color: var(--ed-gold-light);
+  color: var(--ed-emerald-light);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   margin-top: 1px;
@@ -245,12 +228,12 @@ section[class*="from-blue-6"] .text-sky-100 {
   gap: 6px;
 }
 .ed-menu a:hover {
-  color: var(--ed-gold-light);
-  background: rgba(245,158,11,0.1);
+  color: var(--ed-emerald-light);
+  background: rgba(16,185,129,0.1);
 }
 .ed-menu a.active {
-  color: var(--ed-gold-light);
-  background: rgba(245,158,11,0.15);
+  color: var(--ed-emerald-light);
+  background: rgba(16,185,129,0.15);
 }
 
 .ed-header-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
@@ -259,15 +242,15 @@ section[class*="from-blue-6"] .text-sky-100 {
   width: 38px; height: 38px;
   border-radius: 12px;
   background: rgba(15,34,82,0.6);
-  border: 1px solid rgba(245,158,11,0.25);
+  border: 1px solid rgba(16,185,129,0.35);
   display: flex; align-items: center; justify-content: center;
-  color: var(--ed-gold-light);
+  color: var(--ed-emerald-light);
   text-decoration: none;
   transition: all 0.2s ease;
 }
 .ed-bell:hover {
-  background: rgba(245,158,11,0.15);
-  border-color: rgba(245,158,11,0.5);
+  background: rgba(16,185,129,0.15);
+  border-color: rgba(16,185,129,0.6);
 }
 
 .ed-avatar {
@@ -292,18 +275,17 @@ section[class*="from-blue-6"] .text-sky-100 {
   width: 38px; height: 38px;
   border-radius: 12px;
   background: rgba(15,34,82,0.6);
-  border: 1px solid rgba(245,158,11,0.25);
+  border: 1px solid rgba(16,185,129,0.35);
   align-items: center; justify-content: center;
   font-size: 18px;
-  color: var(--ed-gold-light);
+  color: var(--ed-emerald-light);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 .ed-burger:hover {
-  background: rgba(245,158,11,0.15);
+  background: rgba(16,185,129,0.15);
 }
 
-/* Menu mobile */
 .ed-mobile-menu {
   position: fixed; top: 0; right: -100%;
   width: 280px; max-width: 85vw; height: 100vh;
@@ -311,14 +293,14 @@ section[class*="from-blue-6"] .text-sky-100 {
   backdrop-filter: blur(24px);
   z-index: 100; padding: 24px;
   transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-left: 1px solid rgba(245,158,11,0.2);
+  border-left: 1px solid rgba(16,185,129,0.3);
   overflow-y: auto;
 }
 .ed-mobile-menu.open { right: 0; }
 .ed-mobile-menu-title {
   font-family: 'Manrope', sans-serif;
   font-size: 11px; font-weight: 700;
-  color: var(--ed-gold-dark);
+  color: var(--ed-emerald-dark);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   margin-bottom: 12px; margin-top: 20px;
@@ -334,15 +316,15 @@ section[class*="from-blue-6"] .text-sky-100 {
   transition: all 0.2s ease;
 }
 .ed-mobile-menu a:hover, .ed-mobile-menu a.active {
-  background: rgba(245,158,11,0.15);
-  color: var(--ed-gold-light);
+  background: rgba(16,185,129,0.15);
+  color: var(--ed-emerald-light);
 }
 .ed-mobile-close {
   position: absolute; top: 20px; right: 20px;
   width: 38px; height: 38px; border-radius: 12px;
-  background: rgba(245,158,11,0.1);
+  background: rgba(16,185,129,0.1);
   display: flex; align-items: center; justify-content: center;
-  color: var(--ed-gold-light); font-size: 20px;
+  color: var(--ed-emerald-light); font-size: 20px;
   cursor: pointer; border: none;
 }
 .ed-overlay {
@@ -371,7 +353,7 @@ header:not(.ed-header) { display: none !important; }
 main section div > .ed-icon {
   width: 32px !important;
   height: 32px !important;
-  color: var(--ed-gold) !important;
+  color: var(--ed-emerald-light) !important;
 }
 
 nav .ed-icon {
@@ -382,7 +364,7 @@ nav .ed-icon {
 .ed-bell svg {
   width: 18px !important;
   height: 18px !important;
-  color: var(--ed-gold-light) !important;
+  color: var(--ed-emerald-light) !important;
 }
 
 .ed-menu-icon {
@@ -394,7 +376,7 @@ nav .ed-icon {
 nav[class*="fixed bottom-0"] {
   background: rgba(5,11,31,0.96) !important;
   backdrop-filter: blur(24px) saturate(180%);
-  border-top: 1px solid rgba(245,158,11,0.15) !important;
+  border-top: 1px solid rgba(16,185,129,0.25) !important;
 }
 
 nav[class*="fixed bottom-0"] a {
@@ -403,37 +385,32 @@ nav[class*="fixed bottom-0"] a {
 
 nav[class*="fixed bottom-0"] a[class*="text-sky-400"],
 nav[class*="fixed bottom-0"] a[class*="text-emerald-400"] {
-  color: var(--ed-gold-light) !important;
+  color: var(--ed-emerald-light) !important;
 }
 
 /* ---------- Images de couverture ---------- */
 a[href^="projet-detail.html"] {
   position: relative; overflow: hidden;
+  border: 1px solid rgba(16,185,129,0.3) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 a[href^="projet-detail.html"]:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 40px -16px rgba(245,158,11,0.3);
+  border-color: rgba(16,185,129,0.6) !important;
+  box-shadow: 0 16px 40px -16px rgba(16,185,129,0.35);
 }
 .ed-cover-bg { transition: opacity 0.3s ease; }
 a[href^="projet-detail.html"]:hover .ed-cover-bg { opacity: 0.22 !important; }
 
 /* ---------- Bannière hero ---------- */
-.ed-hero-banner {
-  background: linear-gradient(135deg, #0f2252, #050b1f);
-}
-
+.ed-hero-banner { background: linear-gradient(135deg, #0f2252, #050b1f); }
 .ed-hero-image {
-  background-size: cover;
-  background-position: center;
+  background-size: cover; background-position: center;
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
+.ed-hero-banner:hover .ed-hero-image { transform: scale(1.03); }
 
-.ed-hero-banner:hover .ed-hero-image {
-  transform: scale(1.03);
-}
-
-/* ---------- Badge statut sur hero ---------- */
+/* ---------- Badge statut ---------- */
 .ed-hero-banner #project-status {
   display: inline-flex !important;
   align-items: center !important;
@@ -455,7 +432,7 @@ a[href^="projet-detail.html"]:hover .ed-cover-bg { opacity: 0.22 !important; }
   color: #0a1838 !important;
 }
 .ed-hero-banner #project-status[class*="emerald"] {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%) !important;
   color: #ffffff !important;
 }
 .ed-hero-banner #project-status[class*="slate"] {
@@ -479,7 +456,7 @@ a[href^="projet-detail.html"]:hover .ed-cover-bg { opacity: 0.22 !important; }
   margin-right: 8px !important;
   box-shadow: 0 0 8px currentColor !important;
   animation: edPulse 2s ease-in-out infinite !important;
-  opacity: 0.85 !important;
+  opacity: 0.9 !important;
 }
 
 @keyframes edPulse {
@@ -503,8 +480,8 @@ main > *:nth-child(4) { animation-delay: 0.15s; }
 main > *:nth-child(5) { animation-delay: 0.19s; }
 main > *:nth-child(6) { animation-delay: 0.23s; }
 
-/* ---------- Scrollbar ---------- */
+/* ---------- Scrollbar émeraude ---------- */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.4); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(245,158,11,0.7); }
+::-webkit-scrollbar-thumb { background: rgba(16,185,129,0.4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(16,185,129,0.7); }
