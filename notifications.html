@@ -16,16 +16,11 @@
 
   <main class="p-4 max-w-2xl mx-auto space-y-4">
 
-    <div class="flex items-center gap-2">
-      <span id="unread-count" class="text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full font-semibold">3 non lues</span>
-    </div>
+    <span id="unread-count" class="inline-block text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full font-semibold">...</span>
 
     <div class="flex gap-2 overflow-x-auto pb-1">
       <button data-filter="all" class="filter-btn bg-emerald-600 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">Toutes</button>
       <button data-filter="unread" class="filter-btn bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">Non lues</button>
-      <button data-filter="jalon" class="filter-btn bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">Jalons</button>
-      <button data-filter="paiement" class="filter-btn bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">Paiements</button>
-      <button data-filter="message" class="filter-btn bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">Messages</button>
     </div>
 
     <div id="notif-list" class="space-y-2">
@@ -43,45 +38,79 @@
   </nav>
 
   <script src="config.js"></script>
+  <script src="app.js"></script>
   <script>
-    const demoNotifs = [
-      { id: '1', type: 'jalon', icon: '✅', color: 'bg-emerald-500/20', title: 'Jalon validé', message: "Le jalon 'Fondations' a été validé par l'investisseur", project: "Villa N'Djamena", date: 'Il y a 2 heures', unread: true },
-      { id: '2', type: 'paiement', icon: '💰', color: 'bg-blue-500/20', title: 'Fonds débloqués', message: '5 000 000 XAF ont été débloqués pour le jalon Fondations', project: "Villa N'Djamena", date: 'Il y a 5 heures', unread: true },
-      { id: '3', type: 'message', icon: '💬', color: 'bg-purple-500/20', title: 'Nouveau message', message: 'Chef Projet vous a envoyé un message', project: "Villa N'Djamena", date: 'Hier à 14:32', unread: true },
-      { id: '4', type: 'jalon', icon: '📸', color: 'bg-orange-500/20', title: 'Nouvelles photos', message: "3 photos ont été ajoutées au jalon 'Gros œuvre'", project: "Villa N'Djamena", date: 'Hier à 10:15', unread: false },
-      { id: '5', type: 'jalon', icon: '🎯', color: 'bg-emerald-500/20', title: 'Nouveau jalon créé', message: "Le jalon 'Finitions' a été créé", project: "Villa N'Djamena", date: 'Il y a 3 jours', unread: false },
-      { id: '6', type: 'jalon', icon: '⚠️', color: 'bg-orange-500/20', title: 'Retard signalé', message: "Le jalon 'Gros œuvre' a 2 jours de retard", project: "Villa N'Djamena", date: 'Il y a 5 jours', unread: false }
-    ];
+    if (!requireLogin()) throw new Error('Not logged');
 
-    let allNotifs = demoNotifs;
+    const userId = getCurrentUserId();
+    let allNotifs = [];
+    let readIds = JSON.parse(localStorage.getItem('read_notifs') || '[]');
+
+    function actionToIcon(action) {
+      const map = {
+        'milestone_validated': { ic: '✅', color: 'bg-emerald-500/20' },
+        'funds_released': { ic: '💰', color: 'bg-blue-500/20' },
+        'insert': { ic: '📋', color: 'bg-slate-500/20' },
+        'update': { ic: '✏️', color: 'bg-orange-500/20' },
+        'delete': { ic: '🗑️', color: 'bg-red-500/20' },
+        'contract_signed': { ic: '📝', color: 'bg-purple-500/20' },
+        'kyc_approved': { ic: '🛡️', color: 'bg-emerald-500/20' }
+      };
+      return map[action] || { ic: '🔔', color: 'bg-slate-500/20' };
+    }
+
+    function actionToText(action) {
+      const map = {
+        'milestone_validated': 'Jalon validé',
+        'funds_released': 'Fonds débloqués',
+        'insert': 'Nouvel élément créé',
+        'update': 'Modification enregistrée',
+        'delete': 'Suppression',
+        'contract_signed': 'Contrat signé',
+        'kyc_approved': 'Vérification approuvée'
+      };
+      return map[action] || action;
+    }
 
     function renderNotifs(list) {
       const container = document.getElementById('notif-list');
       if (list.length === 0) {
-        container.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucune notification</p>';
+        container.innerHTML = '<div class="text-center py-8"><p class="text-slate-400 text-sm">Aucune notification</p></div>';
         return;
       }
-      container.innerHTML = list.map(n => `
-        <div class="flex gap-3 bg-white/5 border border-white/10 rounded-2xl p-3 ${n.unread ? 'ring-1 ring-emerald-500/30' : ''}">
-          <div class="w-10 h-10 rounded-full ${n.color} flex items-center justify-center text-lg">${n.icon}</div>
-          <div class="flex-1 min-w-0">
-            <div class="flex justify-between items-start gap-2">
-              <h3 class="font-semibold text-sm">${n.title}</h3>
-              ${n.unread ? '<span class="w-2 h-2 bg-emerald-400 rounded-full mt-1.5 flex-shrink-0"></span>' : ''}
-            </div>
-            <p class="text-xs text-slate-300 mt-0.5">${n.message}</p>
-            <div class="flex justify-between items-center mt-1.5">
-              <span class="text-[10px] text-emerald-400">${n.project}</span>
-              <span class="text-[10px] text-slate-500">${n.date}</span>
+      container.innerHTML = list.map(n => {
+        const { ic, color } = actionToIcon(n.action);
+        const isUnread = !readIds.includes(n.id);
+        return `
+          <div class="flex gap-3 bg-white/5 border border-white/10 rounded-2xl p-3 ${isUnread ? 'ring-1 ring-emerald-500/30' : ''}">
+            <div class="w-10 h-10 rounded-full ${color} flex items-center justify-center text-lg flex-shrink-0">${ic}</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-start gap-2">
+                <h3 class="font-semibold text-sm">${escapeHtml(actionToText(n.action))}</h3>
+                ${isUnread ? '<span class="w-2 h-2 bg-emerald-400 rounded-full mt-1.5 flex-shrink-0"></span>' : ''}
+              </div>
+              <p class="text-xs text-slate-300 mt-0.5 truncate">${escapeHtml(n.table_name || '')}</p>
+              <span class="text-[10px] text-slate-500">${formatDate(n.created_at)}</span>
             </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function updateUnread() {
-      const unread = allNotifs.filter(n => n.unread).length;
+      const unread = allNotifs.filter(n => !readIds.includes(n.id)).length;
       document.getElementById('unread-count').textContent = unread + ' non lue' + (unread > 1 ? 's' : '');
+    }
+
+    async function loadNotifs() {
+      try {
+        const data = await apiGet('audit_log', 'order=created_at.desc&limit=30');
+        allNotifs = Array.isArray(data) ? data : [];
+      } catch (e) {
+        allNotifs = [];
+      }
+      renderNotifs(allNotifs);
+      updateUnread();
     }
 
     document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -93,21 +122,22 @@
         btn.classList.add('bg-emerald-600');
         btn.classList.remove('bg-white/5', 'border', 'border-white/10');
         const f = btn.dataset.filter;
-        let filtered = allNotifs;
-        if (f === 'unread') filtered = allNotifs.filter(n => n.unread);
-        else if (f !== 'all') filtered = allNotifs.filter(n => n.type === f);
-        renderNotifs(filtered);
+        if (f === 'unread') {
+          renderNotifs(allNotifs.filter(n => !readIds.includes(n.id)));
+        } else {
+          renderNotifs(allNotifs);
+        }
       });
     });
 
     document.getElementById('btn-mark-all').addEventListener('click', () => {
-      allNotifs.forEach(n => n.unread = false);
+      readIds = allNotifs.map(n => n.id);
+      localStorage.setItem('read_notifs', JSON.stringify(readIds));
       renderNotifs(allNotifs);
       updateUnread();
     });
 
-    renderNotifs(allNotifs);
-    updateUnread();
+    loadNotifs();
   </script>
 </body>
 </html>
