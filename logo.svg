@@ -1,137 +1,90 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
   <defs>
-    <!-- Fond carbone -->
     <linearGradient id="ed_bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0a0806"/>
-      <stop offset="100%" stop-color="#1c1408"/>
+      <stop offset="0%" stop-color="#0a1838"/>
+      <stop offset="100%" stop-color="#05102a"/>
     </linearGradient>
-
-    <!-- Or principal (bâtiments) -->
     <linearGradient id="ed_gold" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#fcd34d"/>
-      <stop offset="55%" stop-color="#f59e0b"/>
-      <stop offset="100%" stop-color="#b45309"/>
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
     </linearGradient>
-
-    <!-- Bronze (bâtiment arrière) -->
-    <linearGradient id="ed_bronze" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#92400e"/>
-      <stop offset="100%" stop-color="#451a03"/>
+    <linearGradient id="ed_emerald" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#059669"/>
     </linearGradient>
-
-    <!-- Grue (or clair) -->
-    <linearGradient id="ed_crane" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#fef3c7"/>
-      <stop offset="100%" stop-color="#f59e0b"/>
-    </linearGradient>
-
-    <!-- Étoile -->
-    <radialGradient id="ed_star" cx="50%" cy="50%">
-      <stop offset="0%" stop-color="#fefce8"/>
-      <stop offset="100%" stop-color="#fcd34d"/>
-    </radialGradient>
   </defs>
 
-  <!-- Fond arrondi carbone avec liseré or -->
   <rect width="200" height="200" rx="48" fill="url(#ed_bg)"/>
-  <rect x="1.5" y="1.5" width="197" height="197" rx="46.5" 
-        fill="none" stroke="url(#ed_gold)" stroke-opacity="0.35" stroke-width="2"/>
-
-  <!-- Halo lumineux subtil en haut -->
-  <ellipse cx="100" cy="30" rx="80" ry="40" fill="#f59e0b" opacity="0.06"/>
+  <rect x="2" y="2" width="196" height="196" rx="46" 
+        fill="none" stroke="#f59e0b" stroke-opacity="0.4" stroke-width="1.5"/>
 
   <!-- Étoile dorée en haut à droite -->
-  <path d="M 156 32 L 159 41 L 168 41 L 160.5 47 L 163.5 56 L 156 50.5 L 148.5 56 L 151.5 47 L 144 41 L 153 41 Z" 
-        fill="url(#ed_star)" opacity="0.95"/>
-  <circle cx="156" cy="44" r="2" fill="#fefce8" opacity="0.9"/>
+  <path d="M 156 26 L 159 36 L 169 36 L 161 42 L 164 52 L 156 46 L 148 52 L 151 42 L 143 36 L 153 36 Z" 
+        fill="url(#ed_gold)"/>
 
-  <!-- ============================ -->
-  <!-- BATIMENT 1 : tour arrière gauche (bronze) -->
-  <!-- ============================ -->
-  <rect x="48" y="82" width="22" height="78" rx="1.5" fill="url(#ed_bronze)"/>
-  <rect x="51" y="88" width="4" height="4" fill="#0a0806" opacity="0.6"/>
-  <rect x="58" y="88" width="4" height="4" fill="#0a0806" opacity="0.6"/>
-  <rect x="65" y="88" width="4" height="4" fill="#0a0806" opacity="0.6"/>
-  <rect x="51" y="98" width="4" height="4" fill="#0a0806" opacity="0.6"/>
-  <rect x="58" y="98" width="4" height="4" fill="#0a0806" opacity="0.6"/>
-  <rect x="65" y="98" width="4" height="4" fill="#0a0806" opacity="0.6"/>
-  <rect x="51" y="108" width="4" height="4" fill="#0a0806" opacity="0.6"/>
-  <rect x="58" y="108" width="4" height="4" fill="#0a0806" opacity="0.6"/>
-  <rect x="65" y="108" width="4" height="4" fill="#0a0806" opacity="0.6"/>
-  <rect x="51" y="118" width="4" height="4" fill="#0a0806" opacity="0.6"/>
-  <rect x="58" y="118" width="4" height="4" fill="#10b981" opacity="0.75"/>
-  <rect x="65" y="118" width="4" height="4" fill="#0a0806" opacity="0.6"/>
+  <!-- Batiment arrière gauche (bronze/or foncé) -->
+  <rect x="46" y="86" width="24" height="74" rx="2" fill="#b45309" opacity="0.7"/>
+  <rect x="50" y="92" width="4" height="4" fill="#0a1838"/>
+  <rect x="57" y="92" width="4" height="4" fill="#0a1838"/>
+  <rect x="64" y="92" width="4" height="4" fill="#0a1838"/>
+  <rect x="50" y="102" width="4" height="4" fill="#0a1838"/>
+  <rect x="57" y="102" width="4" height="4" fill="#0a1838"/>
+  <rect x="64" y="102" width="4" height="4" fill="#0a1838"/>
+  <rect x="50" y="112" width="4" height="4" fill="#0a1838"/>
+  <rect x="57" y="112" width="4" height="4" fill="#0a1838"/>
+  <rect x="64" y="112" width="4" height="4" fill="#0a1838"/>
+  <rect x="50" y="122" width="4" height="4" fill="#0a1838"/>
+  <rect x="57" y="122" width="4" height="4" fill="#10b981"/>
+  <rect x="64" y="122" width="4" height="4" fill="#0a1838"/>
 
-  <!-- ============================ -->
-  <!-- BATIMENT 2 : grande tour centrale (or) -->
-  <!-- ============================ -->
-  <rect x="74" y="62" width="34" height="98" rx="2" fill="url(#ed_gold)"/>
-  <!-- Reflet lumière en haut -->
-  <rect x="74" y="62" width="34" height="6" fill="#fef3c7" opacity="0.4"/>
-  <!-- Fenêtres 3 colonnes -->
-  <rect x="79" y="72" width="5" height="5" fill="#0a0806" opacity="0.85"/>
-  <rect x="88" y="72" width="5" height="5" fill="#0a0806" opacity="0.85"/>
-  <rect x="97" y="72" width="5" height="5" fill="#0a0806" opacity="0.85"/>
-  <rect x="79" y="84" width="5" height="5" fill="#0a0806" opacity="0.85"/>
-  <rect x="88" y="84" width="5" height="5" fill="#10b981" opacity="0.9"/>
-  <rect x="97" y="84" width="5" height="5" fill="#0a0806" opacity="0.85"/>
-  <rect x="79" y="96" width="5" height="5" fill="#0a0806" opacity="0.85"/>
-  <rect x="88" y="96" width="5" height="5" fill="#0a0806" opacity="0.85"/>
-  <rect x="97" y="96" width="5" height="5" fill="#0a0806" opacity="0.85"/>
-  <rect x="79" y="108" width="5" height="5" fill="#10b981" opacity="0.9"/>
-  <rect x="88" y="108" width="5" height="5" fill="#0a0806" opacity="0.85"/>
-  <rect x="97" y="108" width="5" height="5" fill="#0a0806" opacity="0.85"/>
-  <rect x="79" y="120" width="5" height="5" fill="#0a0806" opacity="0.85"/>
-  <rect x="88" y="120" width="5" height="5" fill="#0a0806" opacity="0.85"/>
-  <rect x="97" y="120" width="5" height="5" fill="#0a0806" opacity="0.85"/>
-  <rect x="79" y="132" width="5" height="5" fill="#0a0806" opacity="0.85"/>
-  <rect x="88" y="132" width="5" height="5" fill="#0a0806" opacity="0.85"/>
-  <rect x="97" y="132" width="5" height="5" fill="#0a0806" opacity="0.85"/>
+  <!-- Grande tour centrale (or) -->
+  <rect x="74" y="66" width="34" height="94" rx="2" fill="url(#ed_gold)"/>
+  <rect x="74" y="66" width="34" height="4" fill="#fef3c7"/>
+  <rect x="79" y="76" width="5" height="5" fill="#05102a"/>
+  <rect x="88" y="76" width="5" height="5" fill="#05102a"/>
+  <rect x="97" y="76" width="5" height="5" fill="#05102a"/>
+  <rect x="79" y="88" width="5" height="5" fill="#05102a"/>
+  <rect x="88" y="88" width="5" height="5" fill="#10b981"/>
+  <rect x="97" y="88" width="5" height="5" fill="#05102a"/>
+  <rect x="79" y="100" width="5" height="5" fill="#05102a"/>
+  <rect x="88" y="100" width="5" height="5" fill="#05102a"/>
+  <rect x="97" y="100" width="5" height="5" fill="#05102a"/>
+  <rect x="79" y="112" width="5" height="5" fill="#10b981"/>
+  <rect x="88" y="112" width="5" height="5" fill="#05102a"/>
+  <rect x="97" y="112" width="5" height="5" fill="#05102a"/>
+  <rect x="79" y="124" width="5" height="5" fill="#05102a"/>
+  <rect x="88" y="124" width="5" height="5" fill="#05102a"/>
+  <rect x="97" y="124" width="5" height="5" fill="#05102a"/>
+  <rect x="79" y="136" width="5" height="5" fill="#05102a"/>
+  <rect x="88" y="136" width="5" height="5" fill="#05102a"/>
+  <rect x="97" y="136" width="5" height="5" fill="#05102a"/>
 
-  <!-- ============================ -->
-  <!-- BATIMENT 3 : tour droite (or plus foncé) -->
-  <!-- ============================ -->
-  <rect x="114" y="90" width="26" height="70" rx="1.5" fill="url(#ed_gold)" opacity="0.85"/>
-  <rect x="119" y="98" width="4" height="4" fill="#0a0806" opacity="0.75"/>
-  <rect x="127" y="98" width="4" height="4" fill="#0a0806" opacity="0.75"/>
-  <rect x="135" y="98" width="4" height="4" fill="#0a0806" opacity="0.75"/>
-  <rect x="119" y="108" width="4" height="4" fill="#0a0806" opacity="0.75"/>
-  <rect x="127" y="108" width="4" height="4" fill="#10b981" opacity="0.85"/>
-  <rect x="135" y="108" width="4" height="4" fill="#0a0806" opacity="0.75"/>
-  <rect x="119" y="118" width="4" height="4" fill="#0a0806" opacity="0.75"/>
-  <rect x="127" y="118" width="4" height="4" fill="#0a0806" opacity="0.75"/>
-  <rect x="135" y="118" width="4" height="4" fill="#0a0806" opacity="0.75"/>
-  <rect x="119" y="128" width="4" height="4" fill="#0a0806" opacity="0.75"/>
-  <rect x="127" y="128" width="4" height="4" fill="#0a0806" opacity="0.75"/>
-  <rect x="135" y="128" width="4" height="4" fill="#0a0806" opacity="0.75"/>
+  <!-- Tour droite (or plus foncé) -->
+  <rect x="114" y="94" width="26" height="66" rx="2" fill="#d97706"/>
+  <rect x="119" y="102" width="4" height="4" fill="#05102a"/>
+  <rect x="127" y="102" width="4" height="4" fill="#05102a"/>
+  <rect x="135" y="102" width="4" height="4" fill="#05102a"/>
+  <rect x="119" y="112" width="4" height="4" fill="#05102a"/>
+  <rect x="127" y="112" width="4" height="4" fill="#10b981"/>
+  <rect x="135" y="112" width="4" height="4" fill="#05102a"/>
+  <rect x="119" y="122" width="4" height="4" fill="#05102a"/>
+  <rect x="127" y="122" width="4" height="4" fill="#05102a"/>
+  <rect x="135" y="122" width="4" height="4" fill="#05102a"/>
+  <rect x="119" y="132" width="4" height="4" fill="#05102a"/>
+  <rect x="127" y="132" width="4" height="4" fill="#05102a"/>
+  <rect x="135" y="132" width="4" height="4" fill="#05102a"/>
 
-  <!-- ============================ -->
-  <!-- GRUE DE CHANTIER (or clair) -->
-  <!-- ============================ -->
-  <!-- Mât vertical de la grue -->
-  <rect x="138" y="30" width="3" height="62" fill="url(#ed_crane)"/>
-  <!-- Croisillons sur le mât -->
-  <path d="M 138 38 L 141 43 M 141 38 L 138 43
-           M 138 48 L 141 53 M 141 48 L 138 53
-           M 138 58 L 141 63 M 141 58 L 138 63" 
-        stroke="#0a0806" stroke-width="0.8" opacity="0.5"/>
-  <!-- Flèche horizontale de la grue -->
-  <rect x="90" y="28" width="80" height="3" fill="url(#ed_crane)"/>
-  <!-- Contre-flèche (arrière de la grue) -->
-  <rect x="152" y="28" width="18" height="3" fill="url(#ed_crane)" opacity="0.85"/>
-  <!-- Cabine de la grue -->
-  <rect x="134" y="33" width="10" height="7" rx="1" fill="url(#ed_crane)"/>
-  <rect x="136" y="35" width="6" height="3" fill="#0a0806" opacity="0.7"/>
-  <!-- Câble de la grue qui descend -->
-  <line x1="100" y1="31" x2="100" y2="55" stroke="url(#ed_crane)" stroke-width="1" opacity="0.9"/>
-  <!-- Crochet -->
-  <path d="M 100 55 L 98 58 L 98 61 L 102 61 L 102 58 Z" fill="url(#ed_crane)"/>
-  <!-- Petite charge suspendue (bloc béton) -->
-  <rect x="95" y="61" width="10" height="6" rx="0.5" fill="url(#ed_crane)" opacity="0.95"/>
+  <!-- GRUE -->
+  <rect x="138" y="34" width="2.5" height="60" fill="url(#ed_gold)"/>
+  <rect x="90" y="32" width="78" height="2.5" fill="url(#ed_gold)"/>
+  <rect x="152" y="32" width="16" height="2.5" fill="url(#ed_gold)" opacity="0.8"/>
+  <rect x="134" y="36" width="10" height="7" rx="1" fill="url(#ed_gold)"/>
+  <rect x="136" y="38" width="6" height="3" fill="#05102a"/>
+  <line x1="100" y1="34" x2="100" y2="58" stroke="#fcd34d" stroke-width="1"/>
+  <rect x="95" y="58" width="10" height="6" rx="1" fill="url(#ed_gold)"/>
 
-  <!-- ============================ -->
-  <!-- SOL / BASE -->
-  <!-- ============================ -->
-  <rect x="35" y="158" width="130" height="3" rx="1.5" fill="url(#ed_gold)" opacity="0.9"/>
-  <rect x="40" y="162" width="120" height="1.5" rx="0.75" fill="url(#ed_gold)" opacity="0.4"/>
+  <!-- Sol -->
+  <rect x="35" y="160" width="130" height="2.5" rx="1" fill="url(#ed_gold)"/>
+  <rect x="40" y="164" width="120" height="1.5" rx="0.5" fill="url(#ed_gold)" opacity="0.4"/>
 </svg>
