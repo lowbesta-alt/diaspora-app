@@ -14,7 +14,7 @@
 })();
 
 // ============================================================
-// HEADER PRO - injecté automatiquement sur toutes les pages
+// HEADER PRO - injecte automatiquement sur toutes les pages
 // ============================================================
 const ED_MENU_ITEMS = [
   { href: 'dashboard-investisseur.html', icon: '🏠', label: 'Accueil' },
@@ -33,15 +33,11 @@ function edCurrentPage() {
 }
 
 function edInjectHeader() {
-  // Ne pas injecter sur les pages publiques (login/inscription)
   const current = edCurrentPage();
   const publicPages = ['index.html', 'inscription.html', ''];
   if (publicPages.includes(current)) return;
 
-  // Ne pas injecter si deja present
   if (document.querySelector('.ed-header')) return;
-
-  // Ne pas injecter si l'utilisateur n'est pas connecte
   if (!getToken()) return;
 
   const email = getCurrentUserEmail() || '';
@@ -49,56 +45,47 @@ function edInjectHeader() {
 
   const menuItems = ED_MENU_ITEMS.map(item => {
     const isActive = current === item.href ? 'active' : '';
-    return `<a href="${item.href}" class="${isActive}">${item.icon} ${item.label}</a>`;
+    return '<a href="' + item.href + '" class="' + isActive + '">' + item.icon + ' ' + item.label + '</a>';
   }).join('');
 
   const mobileMenuItems = ED_MENU_ITEMS.map(item => {
     const isActive = current === item.href ? 'active' : '';
-    return `<a href="${item.href}" class="${isActive}">${item.icon} ${item.label}</a>`;
+    return '<a href="' + item.href + '" class="' + isActive + '">' + item.icon + ' ' + item.label + '</a>';
   }).join('');
 
-  const headerHTML = `
-    <header class="ed-header">
-      <div class="ed-header-inner">
-        <a href="dashboard-investisseur.html" class="ed-header-logo">
-          <img src="logo.svg" alt="Espace Diaspora">
-          <div class="ed-header-logo-text">
-            <span class="ed-header-logo-name">Espace Diaspora</span>
-            <span class="ed-header-logo-tag">Investir au pays</span>
-          </div>
-        </a>
-
-        <nav class="ed-menu">
-          ${menuItems}
-        </nav>
-
-        <div class="ed-header-actions">
-          <a href="notifications.html" class="ed-bell">🔔</a>
-          <a href="profil.html" class="ed-avatar">${initials}</a>
-          <button class="ed-burger" id="edBurger" aria-label="Menu">☰</button>
-        </div>
-      </div>
-    </header>
-
-    <div class="ed-overlay" id="edOverlay"></div>
-
-    <aside class="ed-mobile-menu" id="edMobileMenu">
-      <button class="ed-mobile-close" id="edMobileClose">✕</button>
-      <div class="ed-mobile-menu-title">Navigation</div>
-      ${mobileMenuItems}
-      <div class="ed-mobile-menu-title">Compte</div>
-      <a href="securite.html">🔒 Sécurité</a>
-      <a href="#" id="edLogoutBtn">🚪 Déconnexion</a>
-    </aside>
-  `;
+  const headerHTML =
+    '<header class="ed-header">' +
+      '<div class="ed-header-inner">' +
+        '<a href="dashboard-investisseur.html" class="ed-header-logo">' +
+          '<img src="logo.svg" alt="Espace Diaspora">' +
+          '<div class="ed-header-logo-text">' +
+            '<span class="ed-header-logo-name">Espace Diaspora</span>' +
+            '<span class="ed-header-logo-tag">Investir au pays</span>' +
+          '</div>' +
+        '</a>' +
+        '<nav class="ed-menu">' + menuItems + '</nav>' +
+        '<div class="ed-header-actions">' +
+          '<a href="notifications.html" class="ed-bell">🔔</a>' +
+          '<a href="profil.html" class="ed-avatar">' + initials + '</a>' +
+          '<button class="ed-burger" id="edBurger" aria-label="Menu">☰</button>' +
+        '</div>' +
+      '</div>' +
+    '</header>' +
+    '<div class="ed-overlay" id="edOverlay"></div>' +
+    '<aside class="ed-mobile-menu" id="edMobileMenu">' +
+      '<button class="ed-mobile-close" id="edMobileClose">✕</button>' +
+      '<div class="ed-mobile-menu-title">Navigation</div>' +
+      mobileMenuItems +
+      '<div class="ed-mobile-menu-title">Compte</div>' +
+      '<a href="securite.html">🔒 Sécurité</a>' +
+      '<a href="#" id="edLogoutBtn">🚪 Déconnexion</a>' +
+    '</aside>';
 
   const wrapper = document.createElement('div');
   wrapper.innerHTML = headerHTML;
 
-  // Insère AVANT le body content
   document.body.insertBefore(wrapper, document.body.firstChild);
 
-  // Wire mobile menu
   const burger = document.getElementById('edBurger');
   const mobileMenu = document.getElementById('edMobileMenu');
   const overlay = document.getElementById('edOverlay');
@@ -117,7 +104,7 @@ function edInjectHeader() {
   if (burger) burger.addEventListener('click', openMenu);
   if (closeBtn) closeBtn.addEventListener('click', closeMenu);
   if (overlay) overlay.addEventListener('click', closeMenu);
-  if (logoutBtn) logoutBtn.addEventListener('click', (e) => {
+  if (logoutBtn) logoutBtn.addEventListener('click', function(e) {
     e.preventDefault();
     if (confirm('Se deconnecter ?')) logout();
   });
@@ -146,23 +133,24 @@ function logout() {
 }
 
 // ---------- Headers avec token ----------
-function getHeaders(extra = {}) {
-  const headers = {
+function getHeaders(extra) {
+  extra = extra || {};
+  const headers = Object.assign({
     'apikey': SUPABASE_KEY,
-    'Content-Type': 'application/json',
-    ...extra
-  };
+    'Content-Type': 'application/json'
+  }, extra);
   const token = getToken();
   if (token) headers['Authorization'] = 'Bearer ' + token;
   return headers;
 }
 
 // ---------- API REST ----------
-async function apiGet(table, params = '') {
+async function apiGet(table, params) {
+  params = params || '';
   const url = SUPABASE_URL + '/rest/v1/' + table + (params ? '?' + params : '');
   const res = await fetch(url, { headers: getHeaders() });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
+    const err = await res.json().catch(function() { return {}; });
     throw new Error(err.message || 'Erreur de chargement');
   }
   return res.json();
@@ -175,7 +163,7 @@ async function apiPost(table, data) {
     body: JSON.stringify(data)
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
+    const err = await res.json().catch(function() { return {}; });
     throw new Error(err.message || 'Erreur de creation');
   }
   return res.json();
@@ -188,7 +176,7 @@ async function apiPatch(table, id, data) {
     body: JSON.stringify(data)
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
+    const err = await res.json().catch(function() { return {}; });
     throw new Error(err.message || 'Erreur de mise a jour');
   }
   return true;
@@ -200,7 +188,7 @@ async function apiDelete(table, id) {
     headers: getHeaders({ 'Prefer': 'return=minimal' })
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
+    const err = await res.json().catch(function() { return {}; });
     throw new Error(err.message || 'Erreur de suppression');
   }
   return true;
@@ -219,14 +207,15 @@ async function uploadFile(bucket, path, file) {
     body: file
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
+    const err = await res.json().catch(function() { return {}; });
     throw new Error(err.message || 'Erreur upload');
   }
   return true;
 }
 
 // ---------- Utilitaires ----------
-function formatAmount(amount, currency = 'XAF') {
+function formatAmount(amount, currency) {
+  currency = currency || 'XAF';
   return Number(amount || 0).toLocaleString('fr-FR') + ' ' + currency;
 }
 
@@ -276,8 +265,7 @@ function showError(msg) { alert('Erreur : ' + msg); }
 function showSuccess(msg) { alert(msg); }
 
 function setupUserHeader() {
-  // Compat : plus utilise car le header est injecte automatiquement
-  // On garde la fonction pour ne pas casser les pages existantes
+  // Compat : header injecte automatiquement
 }
 
 // ============================================================
