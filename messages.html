@@ -8,41 +8,47 @@
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
 
-  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <div class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center text-lg">🌍</div>
-      <span class="font-bold text-sm">Messages</span>
-    </div>
-    <div class="flex items-center gap-3">
-      <a href="profil.html" class="w-9 h-9 rounded-full bg-emerald-500/30 flex items-center justify-center text-xs font-bold" data-user-avatar>IT</a>
-    </div>
-  </header>
+  <main class="p-4 max-w-2xl mx-auto space-y-4 pt-6">
 
-  <main class="p-4 max-w-2xl mx-auto space-y-4">
-
-    <!-- SECTION VISITE EN DIRECT -->
-    <section class="bg-gradient-to-br from-red-600/20 to-orange-600/20 border border-red-500/30 rounded-2xl p-5">
-      <div class="flex items-start gap-3 mb-4">
-        <div class="text-3xl">🎥</div>
-        <div class="flex-1">
-          <h2 class="text-base font-bold text-white">Visite en direct du chantier</h2>
-          <p class="text-xs text-slate-300 mt-1 leading-relaxed">
-            Démarrer une visite vidéo en direct. Un message WhatsApp sera pré-rempli automatiquement.
-          </p>
+    <!-- Section LIVE premium -->
+    <section class="relative overflow-hidden rounded-3xl border border-red-500/30">
+      <div class="absolute inset-0 bg-gradient-to-br from-red-900/40 via-slate-900/60 to-orange-900/30"></div>
+      <div class="relative p-6">
+        <div class="flex items-start gap-4 mb-5">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-red-500/40">
+            <span class="text-2xl">📹</span>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <h2 class="text-base font-extrabold tracking-tight">Visite en direct</h2>
+              <span class="flex items-center gap-1 text-[10px] bg-red-500/20 border border-red-500/40 text-red-300 px-2 py-0.5 rounded-full font-bold">
+                <span class="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse"></span>
+                LIVE
+              </span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Filmez le chantier en direct et partagez le lien aux investisseurs.
+            </p>
+          </div>
         </div>
-      </div>
-      <div class="grid grid-cols-2 gap-2">
-        <button id="btn-start-live" class="bg-red-600 hover:bg-red-700 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2">
-          <span>📹</span> Démarrer
-        </button>
-        <button id="btn-join-live" class="bg-white/10 hover:bg-white/20 border border-white/20 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2">
-          <span>👀</span> Rejoindre
-        </button>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btn-start-live" class="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 py-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-red-500/30 transition">
+            <span>📹</span> Démarrer
+          </button>
+          <button id="btn-join-live" class="bg-white/10 hover:bg-white/15 backdrop-blur border border-white/15 py-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition">
+            <span>👀</span> Rejoindre
+          </button>
+        </div>
       </div>
     </section>
 
-    <input type="text" id="searchInput" placeholder="🔍 Rechercher une conversation..." class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+    <!-- Barre de recherche premium -->
+    <div class="relative">
+      <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">🔍</span>
+      <input type="text" id="searchInput" placeholder="Rechercher une conversation..." class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-sm placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:bg-white/[0.07] transition">
+    </div>
 
+    <!-- Liste conversations -->
     <div id="conversations-list" class="space-y-2">
       <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
     </div>
@@ -53,7 +59,7 @@
     <a href="dashboard-investisseur.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
     <a href="projets.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📁</span>Projets</a>
     <a href="portefeuille.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💰</span>Portefeuille</a>
-    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-emerald-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
+    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-sky-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
     <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
   </nav>
 
@@ -65,19 +71,13 @@
 
     const userId = getCurrentUserId();
 
-    // ============================================================
-    // VISITE EN DIRECT - Genere un lien Jitsi + WhatsApp automatique
-    // ============================================================
     function getLiveRoomName() {
       return 'diaspora-chantier-' + Date.now();
     }
 
     document.getElementById('btn-start-live').addEventListener('click', () => {
-      // 1. Genere le lien Jitsi
       const roomName = getLiveRoomName();
       const liveUrl = 'https://meet.jit.si/' + roomName;
-
-      // 2. Prepare le message WhatsApp
       const message =
         "🎥 *VISITE EN DIRECT DU CHANTIER*\n\n" +
         "Bonjour,\n" +
@@ -86,25 +86,18 @@
         liveUrl + "\n\n" +
         "A tout de suite !";
 
-      // 3. Copie le lien dans le presse-papier (au cas ou)
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(liveUrl).catch(() => {});
-      }
-
-      // 4. Sauvegarde pour le bouton "Rejoindre"
+      if (navigator.clipboard) navigator.clipboard.writeText(liveUrl).catch(() => {});
       localStorage.setItem('live_url', liveUrl);
 
-      // 5. Choix : WhatsApp maintenant ou ouvrir le direct d'abord ?
       const choice = prompt(
         "✅ Lien de visite cree !\n\n" +
         "Tapez :\n" +
-        "1 = Envoyer par WhatsApp (recommande)\n" +
-        "2 = Ouvrir la camera d'abord\n" +
-        "3 = Copier le lien seulement"
+        "1 = Envoyer par WhatsApp\n" +
+        "2 = Ouvrir la camera\n" +
+        "3 = Copier le lien"
       );
 
       if (choice === '1') {
-        // Ouvre WhatsApp avec message pre-rempli (l'utilisateur choisit le destinataire)
         window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
       } else if (choice === '2') {
         window.open(liveUrl, '_blank');
@@ -115,26 +108,20 @@
 
     document.getElementById('btn-join-live').addEventListener('click', () => {
       let liveUrl = localStorage.getItem('live_url');
-
       if (!liveUrl) {
-        const entered = prompt(
-          "Aucun direct en cours sur cet appareil.\n\n" +
-          "Collez ici le lien recu par WhatsApp ou Email :"
-        );
+        const entered = prompt("Collez ici le lien recu par WhatsApp ou Email :");
         if (!entered) return;
         liveUrl = entered;
       }
-
       window.open(liveUrl, '_blank');
     });
-    // ============================================================
 
     async function loadConversations() {
       const list = document.getElementById('conversations-list');
       try {
         const members = await apiGet('project_members', 'user_id=eq.' + userId + '&is_active=eq.true');
         if (!Array.isArray(members) || members.length === 0) {
-          list.innerHTML = '<div class="text-center py-8"><p class="text-slate-400 text-sm">Aucune conversation</p></div>';
+          list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">💬</div><p class="text-slate-400 text-sm">Aucune conversation</p><p class="text-slate-500 text-xs mt-1">Creez un projet pour commencer.</p></div>';
           return;
         }
 
@@ -146,6 +133,7 @@
               conversations.push({
                 projectId: m.project_id,
                 projectTitle: proj[0].title,
+                city: proj[0].city || '',
                 role: m.role
               });
             }
@@ -153,23 +141,29 @@
         }
 
         if (conversations.length === 0) {
-          list.innerHTML = '<div class="text-center py-8"><p class="text-slate-400 text-sm">Aucune conversation</p></div>';
+          list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucune conversation</p>';
           return;
         }
 
         list.innerHTML = conversations.map(c => `
-          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-3 hover:bg-white/10 transition cursor-pointer" onclick="alert('Conversation sur : ${escapeHtml(c.projectTitle).replace(/'/g, "\\'")}')">
-            <div class="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-sm">${escapeHtml(c.projectTitle.substring(0, 2).toUpperCase())}</div>
-            <div class="flex-1 min-w-0">
-              <h3 class="font-semibold text-sm truncate">${escapeHtml(c.projectTitle)}</h3>
-              <p class="text-[10px] text-emerald-400">${escapeHtml(c.role)}</p>
-              <p class="text-xs text-slate-400 truncate">Touchez pour ouvrir</p>
+          <div class="group flex items-center gap-3 bg-white/5 hover:bg-white/[0.08] border border-white/10 rounded-2xl p-3.5 transition cursor-pointer" onclick="alert('Conversation : ${escapeHtml(c.projectTitle).replace(/'/g, "\\'")}')">
+            <div class="relative flex-shrink-0">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-600 to-sky-500 flex items-center justify-center font-extrabold text-sm shadow-lg shadow-sky-500/30">
+                ${escapeHtml(c.projectTitle.substring(0, 2).toUpperCase())}
+              </div>
+              <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-slate-900"></span>
             </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-bold text-sm truncate">${escapeHtml(c.projectTitle)}</h3>
+              <p class="text-[10px] text-sky-400 font-semibold uppercase tracking-wider mt-0.5">${escapeHtml(c.role)}</p>
+              <p class="text-xs text-slate-400 truncate mt-0.5">${c.city ? '📍 ' + escapeHtml(c.city) + ' — ' : ''}Touchez pour ouvrir</p>
+            </div>
+            <span class="text-slate-500 group-hover:text-sky-400 transition">›</span>
           </div>
         `).join('');
 
       } catch (e) {
-        list.innerHTML = '<div class="text-center py-8"><p class="text-red-400 text-sm">Erreur de chargement</p></div>';
+        list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><p class="text-red-400 text-sm">Erreur de chargement</p></div>';
       }
     }
 
