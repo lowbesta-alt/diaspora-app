@@ -348,3 +348,44 @@ main > *:nth-child(6) { animation-delay: 0.23s; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(14,165,233,0.25); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(14,165,233,0.45); }
+
+/* ==========================================================
+   ICONES SVG
+   ========================================================== */
+.ed-icon,
+.ed-menu-icon {
+  display: inline-block;
+  vertical-align: middle;
+  width: 1.1em;
+  height: 1.1em;
+  line-height: 1;
+}
+
+.ed-icon svg,
+.ed-menu-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+main section div > .ed-icon {
+  width: 32px !important;
+  height: 32px !important;
+  color: var(--ed-accent);
+}
+
+nav .ed-icon {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+.ed-bell svg {
+  width: 18px !important;
+  height: 18px !important;
+  color: white;
+}
+
+.ed-menu-icon {
+  width: 15px !important;
+  height: 15px !important;
+}
