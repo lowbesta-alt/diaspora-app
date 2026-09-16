@@ -59,7 +59,7 @@
       <section class="flex gap-1 overflow-x-auto pb-1">
         <button class="tab-btn bg-emerald-600 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap" data-tab="jalons">Jalons</button>
         <button class="tab-btn bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap" data-tab="timeline">Timeline</button>
-        <button class="tab-btn bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap" data-tab="documents">Documents</button>
+        <a href="documents.html" id="btn-docs" class="bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap">Documents</a>
         <button class="tab-btn bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap" data-tab="equipe">Équipe</button>
       </section>
 
@@ -70,15 +70,15 @@
       </section>
 
       <section id="tab-timeline" class="tab-content hidden space-y-3">
-        <p class="text-slate-400 text-sm text-center py-6">Timeline à venir</p>
-      </section>
-
-      <section id="tab-documents" class="tab-content hidden space-y-3">
-        <a href="documents.html" class="block bg-white/5 border border-white/10 rounded-xl p-4 text-center text-sm">📄 Voir tous les documents</a>
+        <div id="timeline-list" class="space-y-3">
+          <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
+        </div>
       </section>
 
       <section id="tab-equipe" class="tab-content hidden space-y-3">
-        <p class="text-slate-400 text-sm text-center py-6">Équipe à venir</p>
+        <div id="team-list" class="space-y-3">
+          <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
+        </div>
       </section>
 
     </div>
@@ -96,10 +96,12 @@
   </nav>
 
   <script src="config.js"></script>
+  <script src="app.js"></script>
   <script>
+    if (!requireLogin()) throw new Error('Not logged');
+
     const urlParams = new URLSearchParams(window.location.search);
     const projectId = urlParams.get('id');
-
     if (!projectId) {
       alert('Aucun projet selectionne');
       window.location.href = 'projets.html';
@@ -107,19 +109,7 @@
 
     document.getElementById('btn-edit').href = 'projet-modifier.html?id=' + projectId;
     document.getElementById('btn-add-milestone').href = 'jalon-creer.html?id=' + projectId;
-
-    function statusBadge(status) {
-      const map = {
-        'released': 'bg-blue-500/20 text-blue-300|Débloqué',
-        'approved': 'bg-emerald-500/20 text-emerald-300|Validé',
-        'submitted': 'bg-orange-500/20 text-orange-300|En attente',
-        'pending': 'bg-slate-500/20 text-slate-300|À venir',
-        'rejected': 'bg-red-500/20 text-red-300|Refusé',
-        'in_progress': 'bg-yellow-500/20 text-yellow-300|En cours'
-      };
-      const [c, l] = (map[status] || map.pending).split('|');
-      return `<span class="text-[10px] ${c} px-2 py-0.5 rounded-full font-semibold">${l}</span>`;
-    }
+    document.getElementById('btn-docs').href = 'documents.html?id=' + projectId;
 
     function statusCircle(status, idx) {
       const colors = {
@@ -127,60 +117,41 @@
         'submitted': 'bg-orange-500', 'pending': 'bg-slate-600',
         'rejected': 'bg-red-500', 'in_progress': 'bg-yellow-500'
       };
-      return `<div class="w-8 h-8 rounded-full ${colors[status] || colors.pending} flex items-center justify-center text-xs font-bold">${idx}</div>`;
-    }
-
-    function getStatusLabel(status) {
-      const map = {
-        'active': 'En cours',
-        'draft': 'En préparation',
-        'completed': 'Terminé',
-        'paused': 'En pause',
-        'cancelled': 'Annulé',
-        'disputed': 'En litige'
-      };
-      return map[status] || status;
+      return '<div class="w-8 h-8 rounded-full ' + (colors[status] || colors.pending) + ' flex items-center justify-center text-xs font-bold">' + idx + '</div>';
     }
 
     function getStatusColors(status) {
       const map = {
-        'active': 'bg-emerald-500/90',
-        'draft': 'bg-orange-500/90',
-        'completed': 'bg-slate-500/90',
-        'paused': 'bg-yellow-500/90',
-        'cancelled': 'bg-red-500/90',
-        'disputed': 'bg-red-700/90'
+        'active': 'bg-emerald-500/90', 'draft': 'bg-orange-500/90',
+        'completed': 'bg-slate-500/90', 'paused': 'bg-yellow-500/90',
+        'cancelled': 'bg-red-500/90', 'disputed': 'bg-red-700/90'
       };
       return map[status] || 'bg-slate-500/90';
     }
 
     async function loadProject() {
       try {
-        const res = await fetch(
-          SUPABASE_URL + '/rest/v1/projects?id=eq.' + projectId,
-          { headers: authHeaders() }
-        );
-        const data = await res.json();
-        if (Array.isArray(data) && data[0]) {
-          const p = data[0];
-          document.getElementById('header-title').textContent = p.title;
-          document.getElementById('project-title').textContent = p.title;
-          document.getElementById('project-location').textContent = '📍 ' + (p.city || '') + (p.country ? ', ' + p.country : '');
-          document.getElementById('project-status').textContent = getStatusLabel(p.status);
-          document.getElementById('project-status').className = 'text-[10px] ' + getStatusColors(p.status) + ' text-white px-2 py-0.5 rounded-full font-semibold';
-
-          const budget = Number(p.total_budget) || 0;
-          const spent = Number(p.spent_budget) || 0;
-          document.getElementById('stat-budget').textContent = budget.toLocaleString();
-          document.getElementById('stat-spent').textContent = spent.toLocaleString();
-          document.getElementById('stat-remaining').textContent = (budget - spent).toLocaleString();
-          const currency = p.currency || 'XAF';
-          document.getElementById('stat-currency').textContent = currency;
-          document.getElementById('stat-currency-2').textContent = currency;
-          document.getElementById('stat-currency-3').textContent = currency;
-        } else {
+        const data = await apiGet('projects', 'id=eq.' + projectId);
+        if (!Array.isArray(data) || !data[0]) {
           document.getElementById('project-title').textContent = 'Projet introuvable';
+          return;
         }
+        const p = data[0];
+        document.getElementById('header-title').textContent = p.title;
+        document.getElementById('project-title').textContent = p.title;
+        document.getElementById('project-location').textContent = '📍 ' + (p.city || '') + (p.country ? ', ' + p.country : '');
+        document.getElementById('project-status').textContent = getStatusLabel(p.status);
+        document.getElementById('project-status').className = 'text-[10px] ' + getStatusColors(p.status) + ' text-white px-2 py-0.5 rounded-full font-semibold';
+
+        const budget = Number(p.total_budget) || 0;
+        const spent = Number(p.spent_budget) || 0;
+        const currency = p.currency || 'XAF';
+        document.getElementById('stat-budget').textContent = budget.toLocaleString('fr-FR');
+        document.getElementById('stat-spent').textContent = spent.toLocaleString('fr-FR');
+        document.getElementById('stat-remaining').textContent = (budget - spent).toLocaleString('fr-FR');
+        document.getElementById('stat-currency').textContent = currency;
+        document.getElementById('stat-currency-2').textContent = currency;
+        document.getElementById('stat-currency-3').textContent = currency;
       } catch (e) {
         document.getElementById('project-title').textContent = 'Erreur de chargement';
       }
@@ -189,37 +160,56 @@
     async function loadMilestones() {
       const list = document.getElementById('milestones-list');
       try {
-        const res = await fetch(
-          SUPABASE_URL + '/rest/v1/milestones?project_id=eq.' + projectId + '&order=order_index',
-          { headers: authHeaders() }
-        );
-        const data = await res.json();
-        if (!Array.isArray(data) || data.length === 0) {
+        const data = await apiGet('milestones', 'project_id=eq.' + projectId + '&order=order_index');
+        const valid = Array.isArray(data) ? data : [];
+        if (valid.length === 0) {
           list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucun jalon. Cliquez sur + pour en créer un.</p>';
           document.getElementById('progress-text').textContent = '0%';
           document.getElementById('progress-bar').style.width = '0%';
           return;
         }
-
-        list.innerHTML = data.map((m, i) => `
+        list.innerHTML = valid.map((m, i) => `
           <a href="jalon-detail.html?id=${m.id}" class="flex gap-3 bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition">
             ${statusCircle(m.status, m.order_index || i + 1)}
             <div class="flex-1">
               <div class="flex justify-between items-start mb-1 gap-2">
-                <h3 class="font-bold text-sm">${m.title}</h3>
-                ${statusBadge(m.status)}
+                <h3 class="font-bold text-sm">${escapeHtml(m.title)}</h3>
+                ${renderStatusBadge(m.status)}
               </div>
-              <p class="text-[11px] text-slate-400">💰 ${Number(m.amount).toLocaleString()} XAF</p>
+              <p class="text-[11px] text-slate-400">💰 ${formatAmount(m.amount)}</p>
             </div>
           </a>
         `).join('');
 
-        const validated = data.filter(m => m.status === 'approved' || m.status === 'released').length;
-        const progress = Math.round((validated / data.length) * 100);
+        const validated = valid.filter(m => m.status === 'approved' || m.status === 'released').length;
+        const progress = Math.round((validated / valid.length) * 100);
         document.getElementById('progress-text').textContent = progress + '%';
         document.getElementById('progress-bar').style.width = progress + '%';
       } catch (e) {
         list.innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur de chargement</p>';
+      }
+    }
+
+    async function loadTeam() {
+      const list = document.getElementById('team-list');
+      try {
+        const data = await apiGet('project_members', 'project_id=eq.' + projectId + '&is_active=eq.true');
+        const valid = Array.isArray(data) ? data : [];
+        if (valid.length === 0) {
+          list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucun membre</p>';
+          return;
+        }
+        list.innerHTML = valid.map(m => `
+          <div class="flex gap-3 items-center bg-white/5 border border-white/10 rounded-2xl p-3">
+            <div class="w-10 h-10 rounded-full bg-emerald-500/30 flex items-center justify-center text-xs font-bold">${(m.role || 'M').substring(0, 2).toUpperCase()}</div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold">${escapeHtml(m.role)}</p>
+              <p class="text-[10px] text-slate-400">Membre du projet</p>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Erreur</p>';
       }
     }
 
@@ -238,6 +228,7 @@
 
     loadProject();
     loadMilestones();
+    loadTeam();
   </script>
 </body>
 </html>
