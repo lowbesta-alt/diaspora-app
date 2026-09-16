@@ -9,22 +9,18 @@
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
 
   <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
-    <a href="jalons.html" class="text-2xl">←</a>
+    <a id="btn-back" href="jalons.html" class="text-2xl">←</a>
     <span class="font-bold text-sm">Créer un jalon</span>
     <span class="w-6"></span>
   </header>
 
   <main class="p-4 max-w-2xl mx-auto space-y-4">
 
-    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-3">
-      <div class="text-3xl">🏗️</div>
-      <div class="flex-1">
-        <h2 class="font-bold text-sm">Construction Villa N'Djamena</h2>
-        <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-semibold">En cours</span>
-      </div>
-      <div class="text-right">
-        <div class="text-[10px] text-slate-400">Budget total</div>
-        <div class="text-xs font-bold">25 000 000 XAF</div>
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
+      <h2 id="project-title" class="font-bold text-sm">Chargement...</h2>
+      <div class="flex justify-between mt-2 text-xs">
+        <span class="text-slate-400">Budget total</span>
+        <span id="project-budget" class="font-bold">- XAF</span>
       </div>
     </section>
 
@@ -36,12 +32,11 @@
       </div>
       <div>
         <label class="text-[10px] text-slate-400">Description</label>
-        <textarea id="description" rows="3" placeholder="Décrivez les travaux à réaliser..." class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+        <textarea id="description" rows="3" placeholder="Décrivez les travaux..." class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500 resize-none"></textarea>
       </div>
       <div>
         <label class="text-[10px] text-slate-400">Ordre *</label>
         <input type="number" id="orderIndex" min="1" placeholder="Ex : 1" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
-        <p class="text-[10px] text-slate-500 mt-1">Ex : 1 pour le premier jalon, 2 pour le second...</p>
       </div>
     </section>
 
@@ -69,30 +64,8 @@
       </div>
     </section>
 
-    <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
-      <h2 class="text-sm font-bold mb-3">Justificatifs attendus</h2>
-      <div class="space-y-2">
-        <label class="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox" checked class="w-4 h-4">
-          <span class="text-xs">📸 Photos obligatoires</span>
-        </label>
-        <label class="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox" checked class="w-4 h-4">
-          <span class="text-xs">📄 Factures obligatoires</span>
-        </label>
-        <label class="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox" class="w-4 h-4">
-          <span class="text-xs">🎥 Vidéo</span>
-        </label>
-        <label class="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox" class="w-4 h-4">
-          <span class="text-xs">📋 Attestation d'un tiers</span>
-        </label>
-      </div>
-    </section>
-
     <section class="flex gap-2">
-      <a href="jalons.html" class="flex-1 bg-white/5 border border-white/10 py-3 rounded-xl font-semibold text-sm text-center">Annuler</a>
+      <a id="btn-cancel" href="jalons.html" class="flex-1 bg-white/5 border border-white/10 py-3 rounded-xl font-semibold text-sm text-center">Annuler</a>
       <button id="btn-create" class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-semibold text-sm">Créer le jalon</button>
     </section>
 
@@ -107,16 +80,39 @@
   </nav>
 
   <script src="config.js"></script>
+  <script src="app.js"></script>
   <script>
+    if (!requireLogin()) throw new Error('Not logged');
+
     const urlParams = new URLSearchParams(window.location.search);
-    const projectId = urlParams.get('id') || TEST_PROJECT_ID;
-    const totalBudget = 25000000;
+    const projectId = urlParams.get('id');
+    if (!projectId) {
+      alert('Aucun projet selectionne');
+      window.location.href = 'projets.html';
+    }
+
+    document.getElementById('btn-back').href = 'jalons.html?id=' + projectId;
+    document.getElementById('btn-cancel').href = 'jalons.html?id=' + projectId;
+
+    let totalBudget = 0;
+
+    async function loadProject() {
+      try {
+        const data = await apiGet('projects', 'id=eq.' + projectId);
+        if (Array.isArray(data) && data[0]) {
+          const p = data[0];
+          document.getElementById('project-title').textContent = p.title;
+          totalBudget = Number(p.total_budget) || 0;
+          document.getElementById('project-budget').textContent = formatAmount(totalBudget, p.currency);
+        }
+      } catch (e) {}
+    }
 
     document.getElementById('amount').addEventListener('input', (e) => {
       const val = Number(e.target.value) || 0;
-      const percent = Math.min((val / totalBudget) * 100, 100);
-      document.getElementById('budget-percent').textContent = percent.toFixed(1) + '%';
-      document.getElementById('budget-bar').style.width = percent + '%';
+      const pct = totalBudget > 0 ? Math.min((val / totalBudget) * 100, 100) : 0;
+      document.getElementById('budget-percent').textContent = pct.toFixed(1) + '%';
+      document.getElementById('budget-bar').style.width = pct + '%';
     });
 
     document.getElementById('btn-create').addEventListener('click', async () => {
@@ -129,47 +125,32 @@
       if (!title) { alert('Entrez un titre'); return; }
       if (!orderIndex || orderIndex <= 0) { alert('Entrez un ordre valide'); return; }
       if (!amount || amount <= 0) { alert('Entrez un montant valide'); return; }
-      if (amount > totalBudget) { alert('Le montant dépasse le budget total'); return; }
 
       const btn = document.getElementById('btn-create');
       btn.disabled = true;
-      btn.textContent = 'Création en cours...';
+      btn.textContent = 'Création...';
 
       try {
-        const res = await fetch(SUPABASE_URL + '/rest/v1/milestones', {
-          method: 'POST',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-          },
-          body: JSON.stringify({
-            project_id: projectId,
-            title: title,
-            description: description,
-            order_index: orderIndex,
-            amount: amount,
-            currency: 'XAF',
-            status: 'pending',
-            due_date: dueDate || null
-          })
+        await apiPost('milestones', {
+          project_id: projectId,
+          title: title,
+          description: description,
+          order_index: orderIndex,
+          amount: amount,
+          currency: 'XAF',
+          status: 'pending',
+          due_date: dueDate || null
         });
-
-        if (res.ok) {
-          alert('Jalon créé avec succès !');
-          window.location.href = 'jalons.html';
-        } else {
-          alert('Erreur lors de la création');
-          btn.disabled = false;
-          btn.textContent = 'Créer le jalon';
-        }
+        showSuccess('Jalon créé !');
+        window.location.href = 'jalons.html?id=' + projectId;
       } catch (e) {
-        alert('Erreur réseau : ' + e.message);
+        showError(e.message);
         btn.disabled = false;
         btn.textContent = 'Créer le jalon';
       }
     });
+
+    loadProject();
   </script>
 </body>
 </html>
