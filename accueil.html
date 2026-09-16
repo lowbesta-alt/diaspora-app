@@ -3,26 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Espace Diaspora — Investissez au pays en toute confiance</title>
+  <title>Espace Diaspora — Conciergerie & pilotage de chantiers au pays</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link rel="stylesheet" href="theme.css">
 </head>
 <body class="text-white">
 
-  <!-- ============================================== -->
-  <!-- HEADER PUBLIC                                   -->
-  <!-- ============================================== -->
-  <header class="fixed top-0 left-0 right-0 z-50 bg-[#050b1f]/80 backdrop-blur-xl border-b border-amber-500/20">
+  <!-- HEADER PUBLIC -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-[#050b1f]/80 backdrop-blur-xl border-b" style="border-color: rgba(16,185,129,0.25);">
     <div class="max-w-7xl mx-auto px-5 py-3 flex items-center justify-between">
       <a href="accueil.html" class="flex items-center gap-2.5">
         <img src="logo.svg" alt="Espace Diaspora" class="w-10 h-10">
         <div class="leading-tight">
           <div class="font-extrabold text-sm tracking-tight">Espace Diaspora</div>
-          <div class="text-[9px] font-bold text-amber-400 tracking-widest uppercase">Investir au pays</div>
+          <div class="text-[9px] font-bold text-emerald-400 tracking-widest uppercase">Conciergerie & pilotage</div>
         </div>
       </a>
       <div class="flex items-center gap-2">
-        <a href="index.html" class="hidden sm:inline-block text-sm font-semibold text-slate-300 hover:text-amber-400 px-4 py-2 transition">Se connecter</a>
+        <a href="partenariat-btp.html" class="hidden md:inline-block text-xs font-bold text-emerald-300 hover:text-emerald-200 px-3 py-2 transition">Devenir partenaire BTP</a>
+        <a href="index.html" class="hidden sm:inline-block text-sm font-semibold text-slate-300 hover:text-emerald-300 px-4 py-2 transition">Se connecter</a>
         <a href="inscription.html" class="bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-[#0a1838] font-extrabold px-4 py-2 rounded-xl text-sm shadow-lg shadow-amber-500/40 transition">
           Créer un compte
         </a>
@@ -30,40 +29,32 @@
     </div>
   </header>
 
-  <!-- ============================================== -->
-  <!-- HERO PLEIN ÉCRAN AVEC PHOTO DE CHANTIER         -->
-  <!-- ============================================== -->
+  <!-- HERO -->
   <section class="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
-    <!-- Photo de fond : chantier de construction avec grue -->
     <div class="absolute inset-0 z-0">
       <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1920&q=85&auto=format&fit=crop" 
-           alt="Chantier de construction avec grue"
-           class="w-full h-full object-cover">
-      <!-- Double dégradé pour lisibilité + ambiance bleu nuit -->
+           alt="Chantier" class="w-full h-full object-cover">
       <div class="absolute inset-0 bg-gradient-to-r from-[#050b1f]/95 via-[#050b1f]/75 to-[#050b1f]/40"></div>
       <div class="absolute inset-0 bg-gradient-to-t from-[#050b1f] via-transparent to-[#050b1f]/40"></div>
     </div>
 
     <div class="relative z-10 max-w-6xl mx-auto px-5 py-20 grid md:grid-cols-2 gap-10 items-center">
-
-      <!-- Texte à gauche -->
       <div>
-        <div class="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-500/40 rounded-full px-4 py-1.5 mb-6 backdrop-blur">
-          <span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
-          <span class="text-xs font-bold text-amber-300 tracking-wide">Plateforme sécurisée pour la diaspora</span>
+        <div class="inline-flex items-center gap-2 bg-emerald-500/15 border border-emerald-500/40 rounded-full px-4 py-1.5 mb-6 backdrop-blur">
+          <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+          <span class="text-xs font-bold text-emerald-300 tracking-wide">Conciergerie & courtage de confiance</span>
         </div>
 
         <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.05] mb-6">
-          Investissez au pays<br>
-          <span class="bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-200 bg-clip-text text-transparent">
-            en toute confiance.
+          Votre chantier au pays,<br>
+          <span class="bg-gradient-to-r from-emerald-300 via-emerald-400 to-amber-300 bg-clip-text text-transparent">
+            piloté à distance.
           </span>
         </h1>
 
         <p class="text-base md:text-lg text-slate-200 max-w-xl mb-8 leading-relaxed">
-          Pilotez vos projets de construction à distance, validez chaque étape, 
-          et gardez le contrôle total sur vos fonds. 
-          <strong class="text-white">Sans intermédiaires opaques.</strong>
+          Nous ne construisons pas. Nous <strong class="text-white">orchestrons</strong> : sélection d'entrepreneurs BTP agréés, 
+          contrôle par jalons, sécurisation des fonds. Vous validez chaque étape, nous garantissons le sérieux.
         </p>
 
         <div class="flex flex-col sm:flex-row gap-3 mb-10 max-w-md">
@@ -75,7 +66,6 @@
           </a>
         </div>
 
-        <!-- Chiffres clés -->
         <div class="grid grid-cols-3 gap-4 max-w-md">
           <div>
             <div class="text-2xl md:text-3xl font-extrabold text-amber-400">100%</div>
@@ -92,16 +82,15 @@
         </div>
       </div>
 
-      <!-- Carte flottante à droite (sur ordinateur) -->
       <div class="hidden md:block">
-        <div class="bg-white/5 backdrop-blur-xl border border-amber-500/30 rounded-3xl p-6 shadow-2xl">
+        <div class="bg-white/5 backdrop-blur-xl rounded-3xl p-6 shadow-2xl" style="border: 1px solid rgba(16,185,129,0.35);">
           <div class="flex items-center gap-3 mb-4">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-400 flex items-center justify-center text-2xl">🏗️</div>
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-400 flex items-center justify-center text-2xl">🎯</div>
             <div>
-              <div class="font-extrabold text-white">Chantier en direct</div>
+              <div class="font-extrabold text-white">Pilotage en direct</div>
               <div class="text-xs text-emerald-400 font-semibold flex items-center gap-1">
                 <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                Live maintenant
+                Actif maintenant
               </div>
             </div>
           </div>
@@ -110,6 +99,9 @@
                  alt="Chef de chantier" class="w-full h-40 object-cover">
           </div>
           <div class="space-y-2 text-xs">
+            <div class="flex items-center gap-2 text-slate-300">
+              <span class="text-emerald-400">✓</span> Entreprise BTP agréée retenue
+            </div>
             <div class="flex items-center gap-2 text-slate-300">
               <span class="text-emerald-400">✓</span> Jalon "Fondations" validé
             </div>
@@ -122,126 +114,197 @@
           </div>
         </div>
       </div>
-
-    </div>
-
-    <!-- Flèche scroll -->
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-slate-500 animate-bounce">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="6 9 12 15 18 9"/>
-      </svg>
     </div>
   </section>
 
-  <!-- ============================================== -->
-  <!-- COMMENT ÇA MARCHE                               -->
-  <!-- ============================================== -->
+  <!-- CE QUE NOUS FAISONS / NE FAISONS PAS -->
   <section class="py-20 px-5 bg-[#050b1f]">
     <div class="max-w-5xl mx-auto">
       <div class="text-center mb-14">
-        <div class="text-xs font-bold text-amber-400 tracking-widest uppercase mb-3">Simple. Transparent. Sécurisé.</div>
+        <div class="text-xs font-bold text-emerald-400 tracking-widest uppercase mb-3">Notre rôle</div>
+        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-3">Ce que nous faisons — et ne faisons pas</h2>
+        <p class="text-slate-400 max-w-xl mx-auto">Clarté totale. Nous sommes une plateforme de confiance, pas une entreprise de BTP.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-5">
+        <!-- CE QUE NOUS FAISONS -->
+        <div class="bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6" style="border: 1px solid rgba(16,185,129,0.35);">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-2xl">✅</div>
+            <h3 class="font-extrabold text-lg text-emerald-300">Ce que nous faisons</h3>
+          </div>
+          <ul class="space-y-3 text-sm text-slate-200">
+            <li class="flex gap-2"><span class="text-emerald-400">•</span> Mise en relation avec des entreprises BTP locales agréées</li>
+            <li class="flex gap-2"><span class="text-emerald-400">•</span> Vérification KYC des entrepreneurs et prestataires</li>
+            <li class="flex gap-2"><span class="text-emerald-400">•</span> Contrats-cadres et jalons contractuels</li>
+            <li class="flex gap-2"><span class="text-emerald-400">•</span> Sécurisation des fonds par séquestre numérique</li>
+            <li class="flex gap-2"><span class="text-emerald-400">•</span> Contrôle terrain et suivi documentaire (photos, factures)</li>
+            <li class="flex gap-2"><span class="text-emerald-400">•</span> Arbitrage des litiges et médiation</li>
+          </ul>
+        </div>
+
+        <!-- CE QUE NOUS NE FAISONS PAS -->
+        <div class="bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6" style="border: 1px solid rgba(148,163,184,0.25);">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-12 h-12 rounded-2xl bg-slate-500/20 border border-slate-500/40 flex items-center justify-center text-2xl">⛔</div>
+            <h3 class="font-extrabold text-lg text-slate-300">Ce que nous ne faisons pas</h3>
+          </div>
+          <ul class="space-y-3 text-sm text-slate-400">
+            <li class="flex gap-2"><span class="text-slate-500">•</span> Nous ne réalisons pas les travaux de construction</li>
+            <li class="flex gap-2"><span class="text-slate-500">•</span> Nous n'achetons ni ne revendons de matériaux</li>
+            <li class="flex gap-2"><span class="text-slate-500">•</span> Nous ne sommes pas une entreprise de BTP</li>
+            <li class="flex gap-2"><span class="text-slate-500">•</span> Nous ne recevons pas vos fonds sur notre compte (séquestre agréé)</li>
+            <li class="flex gap-2"><span class="text-slate-500">•</span> Nous n'employons pas les ouvriers du chantier</li>
+            <li class="flex gap-2"><span class="text-slate-500">•</span> Nous ne garantissons pas le résultat (nous sécurisons le processus)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMENT ÇA MARCHE -->
+  <section class="py-20 px-5 bg-[#050b1f]">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-14">
+        <div class="text-xs font-bold text-emerald-400 tracking-widest uppercase mb-3">Simple. Transparent. Sécurisé.</div>
         <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-3">Comment ça marche</h2>
         <p class="text-slate-400 max-w-xl mx-auto">Trois étapes pour concrétiser votre projet au pays.</p>
       </div>
 
       <div class="grid md:grid-cols-3 gap-6">
-        <div class="bg-gradient-to-b from-[#0f2252]/50 to-[#0a1838]/70 border border-amber-500/20 rounded-3xl p-6 hover:border-amber-500/50 transition">
+        <div class="bg-gradient-to-b from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6 transition" style="border: 1px solid rgba(16,185,129,0.25);">
           <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-400 flex items-center justify-center text-2xl font-extrabold text-[#0a1838] mb-5 shadow-lg shadow-amber-500/30">1</div>
           <h3 class="font-extrabold text-lg mb-2">Décrivez votre projet</h3>
-          <p class="text-sm text-slate-400 leading-relaxed">Créez votre projet, définissez les jalons et le budget. Chaque étape est validée par vous seul.</p>
+          <p class="text-sm text-slate-400 leading-relaxed">Vous créez votre projet et définissez les jalons. Nous sélectionnons pour vous une entreprise BTP agréée.</p>
         </div>
 
-        <div class="bg-gradient-to-b from-[#0f2252]/50 to-[#0a1838]/70 border border-amber-500/20 rounded-3xl p-6 hover:border-amber-500/50 transition">
+        <div class="bg-gradient-to-b from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6 transition" style="border: 1px solid rgba(16,185,129,0.25);">
           <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-400 flex items-center justify-center text-2xl font-extrabold text-[#0a1838] mb-5 shadow-lg shadow-amber-500/30">2</div>
-          <h3 class="font-extrabold text-lg mb-2">Suivez en temps réel</h3>
-          <p class="text-sm text-slate-400 leading-relaxed">Photos horodatées, vidéos, rapports. Voyez l'avancement comme si vous étiez sur le chantier.</p>
+          <h3 class="font-extrabold text-lg mb-2">Nous pilotons le chantier</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">Nous contrôlons les preuves (photos, factures) et vous transmettons tout en temps réel. Vous restez décisionnaire.</p>
         </div>
 
-        <div class="bg-gradient-to-b from-[#0f2252]/50 to-[#0a1838]/70 border border-amber-500/20 rounded-3xl p-6 hover:border-amber-500/50 transition">
+        <div class="bg-gradient-to-b from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6 transition" style="border: 1px solid rgba(16,185,129,0.25);">
           <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-400 flex items-center justify-center text-2xl font-extrabold text-[#0a1838] mb-5 shadow-lg shadow-amber-500/30">3</div>
-          <h3 class="font-extrabold text-lg mb-2">Débloquez les fonds</h3>
-          <p class="text-sm text-slate-400 leading-relaxed">Vos fonds restent bloqués jusqu'à validation. Vous débloquez uniquement quand vous êtes satisfait.</p>
+          <h3 class="font-extrabold text-lg mb-2">Vous validez, on débloque</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">Vos fonds restent sous séquestre jusqu'à votre validation. Les entrepreneurs sont payés quand vous êtes satisfait.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============================================== -->
-  <!-- BANNIERE PHOTO + TEXTE                          -->
-  <!-- ============================================== -->
+  <!-- MODELE ECONOMIQUE TRANSPARENT -->
+  <section class="py-20 px-5 bg-[#050b1f]">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <div class="text-xs font-bold text-emerald-400 tracking-widest uppercase mb-3">Modèle économique transparent</div>
+        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-3">Nos frais, en toute clarté</h2>
+        <p class="text-slate-400 max-w-xl mx-auto">Aucun frais caché. Nous sommes rémunérés uniquement sur le service rendu.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-5">
+        <div class="bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6 text-center" style="border: 1px solid rgba(16,185,129,0.25);">
+          <div class="text-4xl mb-3">🎯</div>
+          <h3 class="font-extrabold text-base mb-2">Frais de pilotage</h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">Un pourcentage du projet, prélevé à la signature. Couvre la sélection d'entrepreneurs, le cadrage et la mise en place contractuelle.</p>
+          <div class="text-xs text-emerald-300 font-bold">Un % du budget projet</div>
+        </div>
+
+        <div class="bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6 text-center" style="border: 1px solid rgba(16,185,129,0.25);">
+          <div class="text-4xl mb-3">🛰️</div>
+          <h3 class="font-extrabold text-base mb-2">Frais de suivi</h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">Frais mensuels de coordination terrain, contrôle des preuves et reporting. Facturés pendant toute la durée du chantier.</p>
+          <div class="text-xs text-emerald-300 font-bold">Montant mensuel fixe</div>
+        </div>
+
+        <div class="bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6 text-center" style="border: 1px solid rgba(16,185,129,0.25);">
+          <div class="text-4xl mb-3">🤝</div>
+          <h3 class="font-extrabold text-base mb-2">Commission partenaire</h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">Commission d'apport d'affaires versée par l'entreprise BTP partenaire, sans surcoût pour vous.</p>
+          <div class="text-xs text-emerald-300 font-bold">Payée par le partenaire BTP</div>
+        </div>
+      </div>
+
+      <p class="text-center text-xs text-slate-500 mt-8">
+        Les taux exacts sont communiqués dans votre devis personnalisé, avant tout engagement.
+      </p>
+    </div>
+  </section>
+
+  <!-- DEVENIR PARTENAIRE BTP -->
   <section class="relative py-24 px-5 overflow-hidden">
     <div class="absolute inset-0 z-0">
       <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1920&q=85&auto=format&fit=crop" 
            alt="Chantier" class="w-full h-full object-cover">
-      <div class="absolute inset-0 bg-gradient-to-r from-[#050b1f] via-[#050b1f]/80 to-[#050b1f]/40"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-[#050b1f] via-[#050b1f]/85 to-[#050b1f]/40"></div>
     </div>
     <div class="relative z-10 max-w-5xl mx-auto">
-      <div class="max-w-xl">
-        <div class="text-xs font-bold text-amber-400 tracking-widest uppercase mb-3">Votre chantier, votre contrôle</div>
+      <div class="max-w-2xl">
+        <div class="text-xs font-bold text-emerald-400 tracking-widest uppercase mb-3">Vous êtes une entreprise BTP ?</div>
         <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
-          Chaque brique, chaque franc,<br>
-          <span class="text-amber-400">sous vos yeux.</span>
+          Rejoignez notre réseau d'exécutants agréés
         </h2>
         <p class="text-slate-300 leading-relaxed mb-6">
-          Photos horodatées et géolocalisées, factures authentifiées, rapports quotidiens. 
-          Vous validez avant tout déblocage de fonds.
+          Vous êtes maçon, électricien, plombier, architecte, chef de chantier ou entreprise générale ? 
+          Rejoignez notre réseau de partenaires BTP. Nous vous apportons des chantiers, vous exécutez selon nos standards.
         </p>
-        <div class="flex flex-wrap gap-3">
+        <div class="flex flex-wrap gap-3 mb-8">
           <div class="bg-white/10 backdrop-blur border border-white/20 rounded-2xl px-4 py-3">
-            <div class="text-2xl">📸</div>
-            <div class="text-xs text-slate-300 mt-1">Photos horodatées</div>
+            <div class="text-2xl">📋</div>
+            <div class="text-xs text-slate-300 mt-1">Apport d'affaires</div>
           </div>
           <div class="bg-white/10 backdrop-blur border border-white/20 rounded-2xl px-4 py-3">
-            <div class="text-2xl">📍</div>
-            <div class="text-xs text-slate-300 mt-1">Géolocalisation GPS</div>
+            <div class="text-2xl">💰</div>
+            <div class="text-xs text-slate-300 mt-1">Paiements garantis</div>
           </div>
           <div class="bg-white/10 backdrop-blur border border-white/20 rounded-2xl px-4 py-3">
-            <div class="text-2xl">🔒</div>
-            <div class="text-xs text-slate-300 mt-1">Fonds sécurisés</div>
+            <div class="text-2xl">⭐</div>
+            <div class="text-xs text-slate-300 mt-1">Référencement public</div>
           </div>
         </div>
+        <a href="partenariat-btp.html" class="inline-block bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold px-8 py-4 rounded-2xl shadow-xl shadow-emerald-500/40 transition">
+          Déposer ma candidature BTP
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- ============================================== -->
-  <!-- POURQUOI NOUS FAIRE CONFIANCE                   -->
-  <!-- ============================================== -->
+  <!-- POURQUOI NOUS FAIRE CONFIANCE -->
   <section class="py-20 px-5 bg-[#050b1f]">
     <div class="max-w-5xl mx-auto">
       <div class="text-center mb-14">
-        <div class="text-xs font-bold text-amber-400 tracking-widest uppercase mb-3">Nos engagements</div>
+        <div class="text-xs font-bold text-emerald-400 tracking-widest uppercase mb-3">Nos engagements</div>
         <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-3">Pourquoi nous faire confiance</h2>
         <p class="text-slate-400 max-w-xl mx-auto">Une plateforme conçue pour la diaspora exigeante.</p>
       </div>
 
       <div class="grid md:grid-cols-2 gap-5">
-        <div class="flex gap-4 bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 border border-amber-500/20 rounded-3xl p-6">
-          <div class="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-2xl flex-shrink-0">🔒</div>
+        <div class="flex gap-4 bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6" style="border: 1px solid rgba(16,185,129,0.25);">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-2xl flex-shrink-0">🔒</div>
           <div>
             <h3 class="font-extrabold text-base mb-1">Fonds sécurisés</h3>
-            <p class="text-sm text-slate-400 leading-relaxed">Système de séquestre numérique. Aucun déblocage sans votre accord explicite.</p>
+            <p class="text-sm text-slate-400 leading-relaxed">Système de séquestre numérique agréé. Aucun déblocage sans votre accord explicite.</p>
           </div>
         </div>
 
-        <div class="flex gap-4 bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 border border-amber-500/20 rounded-3xl p-6">
-          <div class="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-2xl flex-shrink-0">📸</div>
+        <div class="flex gap-4 bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6" style="border: 1px solid rgba(16,185,129,0.25);">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-2xl flex-shrink-0">📸</div>
           <div>
             <h3 class="font-extrabold text-base mb-1">Preuves horodatées</h3>
             <p class="text-sm text-slate-400 leading-relaxed">Chaque photo et facture est enregistrée avec date, heure et GPS. Impossible à falsifier.</p>
           </div>
         </div>
 
-        <div class="flex gap-4 bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 border border-amber-500/20 rounded-3xl p-6">
-          <div class="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-2xl flex-shrink-0">🤝</div>
+        <div class="flex gap-4 bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6" style="border: 1px solid rgba(16,185,129,0.25);">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-2xl flex-shrink-0">🤝</div>
           <div>
-            <h3 class="font-extrabold text-base mb-1">Prestataires vérifiés</h3>
-            <p class="text-sm text-slate-400 leading-relaxed">Chaque intervenant est identifié (KYC) et lié par contrat-cadre.</p>
+            <h3 class="font-extrabold text-base mb-1">Entreprises agréées</h3>
+            <p class="text-sm text-slate-400 leading-relaxed">Chaque intervenant est identifié (KYC), référencé et lié par contrat-cadre.</p>
           </div>
         </div>
 
-        <div class="flex gap-4 bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 border border-amber-500/20 rounded-3xl p-6">
-          <div class="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-2xl flex-shrink-0">📊</div>
+        <div class="flex gap-4 bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6" style="border: 1px solid rgba(16,185,129,0.25);">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-2xl flex-shrink-0">📊</div>
           <div>
             <h3 class="font-extrabold text-base mb-1">Suivi transparent</h3>
             <p class="text-sm text-slate-400 leading-relaxed">Budget, dépenses, avancement : tout est visible en temps réel. Fini les surprises.</p>
@@ -251,104 +314,98 @@
     </div>
   </section>
 
-  <!-- ============================================== -->
-  <!-- APPEL À L'ACTION FINAL                          -->
-  <!-- ============================================== -->
-  <!-- ============================================== -->
-<!-- TÉMOIGNAGES                                     -->
-<!-- ============================================== -->
-<section class="py-20 px-5 bg-[#050b1f]">
-  <div class="max-w-5xl mx-auto">
-    <div class="text-center mb-14">
-      <div class="text-xs font-bold text-emerald-400 tracking-widest uppercase mb-3">Ils nous font confiance</div>
-      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-3">Ce que dit la diaspora</h2>
-      <p class="text-slate-400 max-w-xl mx-auto">Des investisseurs comme vous, qui ont retrouvé confiance.</p>
-    </div>
-
-    <div class="grid md:grid-cols-3 gap-5">
-      <div class="bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6" style="border: 1px solid rgba(16,185,129,0.25);">
-        <div class="flex gap-1 text-amber-400 mb-4 text-sm">★★★★★</div>
-        <p class="text-sm text-slate-200 leading-relaxed mb-5 italic">
-          "J'ai pu suivre la construction de ma maison à N'Djamena depuis Paris, photo par photo. Plus jamais de mauvaises surprises."
-        </p>
-        <div class="flex items-center gap-3">
-          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80&auto=format&fit=crop" alt="" class="w-11 h-11 rounded-full object-cover border-2" style="border-color: rgba(16,185,129,0.4);">
-          <div>
-            <div class="font-bold text-sm">Karim B.</div>
-            <div class="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">Investisseur — Paris</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6" style="border: 1px solid rgba(16,185,129,0.25);">
-        <div class="flex gap-1 text-amber-400 mb-4 text-sm">★★★★★</div>
-        <p class="text-sm text-slate-200 leading-relaxed mb-5 italic">
-          "La validation par jalons m'a évité d'envoyer tout l'argent d'un coup. Chaque franc est justifié."
-        </p>
-        <div class="flex items-center gap-3">
-          <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=100&q=80&auto=format&fit=crop" alt="" class="w-11 h-11 rounded-full object-cover border-2" style="border-color: rgba(16,185,129,0.4);">
-          <div>
-            <div class="font-bold text-sm">Aminata D.</div>
-            <div class="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">Investisseuse — Montréal</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6" style="border: 1px solid rgba(16,185,129,0.25);">
-        <div class="flex gap-1 text-amber-400 mb-4 text-sm">★★★★★</div>
-        <p class="text-sm text-slate-200 leading-relaxed mb-5 italic">
-          "Enfin une plateforme sérieuse pour investir au pays. Le chef de chantier envoie des vidéos chaque semaine."
-        </p>
-        <div class="flex items-center gap-3">
-          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80&auto=format&fit=crop" alt="" class="w-11 h-11 rounded-full object-cover border-2" style="border-color: rgba(16,185,129,0.4);">
-          <div>
-            <div class="font-bold text-sm">Jean-Marc T.</div>
-            <div class="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">Investisseur — Bruxelles</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================== -->
-<!-- PARTENAIRES BANCAIRES                           -->
-<!-- ============================================== -->
-<section class="py-16 px-5 bg-[#050b1f]">
-  <div class="max-w-5xl mx-auto">
-    <div class="text-center mb-10">
-      <div class="text-xs font-bold text-emerald-400 tracking-widest uppercase mb-3">Partenaires agréés</div>
-      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-3">Vos fonds, entre de bonnes mains</h2>
-      <p class="text-slate-400 max-w-xl mx-auto text-sm">Nous travaillons avec des établissements de paiement agréés pour sécuriser chaque transaction.</p>
-    </div>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <div class="bg-white/5 backdrop-blur rounded-2xl p-5 text-center" style="border: 1px solid rgba(16,185,129,0.2);">
-        <div class="text-3xl mb-2">🏦</div>
-        <div class="text-xs font-bold text-slate-200">Virement bancaire</div>
-        <div class="text-[10px] text-slate-500 mt-1">SEPA & SWIFT</div>
-      </div>
-      <div class="bg-white/5 backdrop-blur rounded-2xl p-5 text-center" style="border: 1px solid rgba(16,185,129,0.2);">
-        <div class="text-3xl mb-2">💳</div>
-        <div class="text-xs font-bold text-slate-200">Carte bancaire</div>
-        <div class="text-[10px] text-slate-500 mt-1">Visa & Mastercard</div>
-      </div>
-      <div class="bg-white/5 backdrop-blur rounded-2xl p-5 text-center" style="border: 1px solid rgba(16,185,129,0.2);">
-        <div class="text-3xl mb-2">📱</div>
-        <div class="text-xs font-bold text-slate-200">Mobile Money</div>
-        <div class="text-[10px] text-slate-500 mt-1">MTN · Orange · Wave</div>
-      </div>
-      <div class="bg-white/5 backdrop-blur rounded-2xl p-5 text-center" style="border: 1px solid rgba(16,185,129,0.2);">
-        <div class="text-3xl mb-2">🔒</div>
-        <div class="text-xs font-bold text-slate-200">Séquestre</div>
-        <div class="text-[10px] text-slate-500 mt-1">Fonds protégés</div>
-      </div>
-    </div>
-  </div>
-</section>
-
+  <!-- TÉMOIGNAGES -->
   <section class="py-20 px-5 bg-[#050b1f]">
-    <div class="max-w-3xl mx-auto text-center bg-gradient-to-br from-amber-500/15 to-[#0f2252]/50 border border-amber-500/40 rounded-3xl p-10 md:p-14">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-14">
+        <div class="text-xs font-bold text-emerald-400 tracking-widest uppercase mb-3">Ils nous font confiance</div>
+        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-3">Ce que dit la diaspora</h2>
+        <p class="text-slate-400 max-w-xl mx-auto">Des investisseurs comme vous, qui ont retrouvé confiance.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-5">
+        <div class="bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6" style="border: 1px solid rgba(16,185,129,0.25);">
+          <div class="flex gap-1 text-amber-400 mb-4 text-sm">★★★★★</div>
+          <p class="text-sm text-slate-200 leading-relaxed mb-5 italic">
+            "Espace Diaspora a piloté la construction de ma maison à N'Djamena. Chaque jalon validé, chaque facture vérifiée. Rien à voir avec les intermédiaires d'avant."
+          </p>
+          <div class="flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80&auto=format&fit=crop" alt="" class="w-11 h-11 rounded-full object-cover border-2" style="border-color: rgba(16,185,129,0.4);">
+            <div>
+              <div class="font-bold text-sm">Karim B.</div>
+              <div class="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">Investisseur — Paris</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6" style="border: 1px solid rgba(16,185,129,0.25);">
+          <div class="flex gap-1 text-amber-400 mb-4 text-sm">★★★★★</div>
+          <p class="text-sm text-slate-200 leading-relaxed mb-5 italic">
+            "Le système de validation par jalons m'a évité d'envoyer tout l'argent d'un coup. Chaque franc est justifié par une preuve."
+          </p>
+          <div class="flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=100&q=80&auto=format&fit=crop" alt="" class="w-11 h-11 rounded-full object-cover border-2" style="border-color: rgba(16,185,129,0.4);">
+            <div>
+              <div class="font-bold text-sm">Aminata D.</div>
+              <div class="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">Investisseuse — Montréal</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6" style="border: 1px solid rgba(16,185,129,0.25);">
+          <div class="flex gap-1 text-amber-400 mb-4 text-sm">★★★★★</div>
+          <p class="text-sm text-slate-200 leading-relaxed mb-5 italic">
+            "Enfin un tiers de confiance sérieux. Ma sœur me dit toujours que mon chantier avance sans qu'elle ait besoin d'aller sur place."
+          </p>
+          <div class="flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80&auto=format&fit=crop" alt="" class="w-11 h-11 rounded-full object-cover border-2" style="border-color: rgba(16,185,129,0.4);">
+            <div>
+              <div class="font-bold text-sm">Jean-Marc T.</div>
+              <div class="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">Investisseur — Bruxelles</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PARTENAIRES PAIEMENT -->
+  <section class="py-16 px-5 bg-[#050b1f]">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-10">
+        <div class="text-xs font-bold text-emerald-400 tracking-widest uppercase mb-3">Partenaires agréés</div>
+        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-3">Vos fonds, entre de bonnes mains</h2>
+        <p class="text-slate-400 max-w-xl mx-auto text-sm">Nous travaillons avec des établissements de paiement agréés pour sécuriser chaque transaction.</p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-white/5 backdrop-blur rounded-2xl p-5 text-center" style="border: 1px solid rgba(16,185,129,0.2);">
+          <div class="text-3xl mb-2">🏦</div>
+          <div class="text-xs font-bold text-slate-200">Virement bancaire</div>
+          <div class="text-[10px] text-slate-500 mt-1">SEPA & SWIFT</div>
+        </div>
+        <div class="bg-white/5 backdrop-blur rounded-2xl p-5 text-center" style="border: 1px solid rgba(16,185,129,0.2);">
+          <div class="text-3xl mb-2">💳</div>
+          <div class="text-xs font-bold text-slate-200">Carte bancaire</div>
+          <div class="text-[10px] text-slate-500 mt-1">Visa & Mastercard</div>
+        </div>
+        <div class="bg-white/5 backdrop-blur rounded-2xl p-5 text-center" style="border: 1px solid rgba(16,185,129,0.2);">
+          <div class="text-3xl mb-2">📱</div>
+          <div class="text-xs font-bold text-slate-200">Mobile Money</div>
+          <div class="text-[10px] text-slate-500 mt-1">MTN · Orange · Wave</div>
+        </div>
+        <div class="bg-white/5 backdrop-blur rounded-2xl p-5 text-center" style="border: 1px solid rgba(16,185,129,0.2);">
+          <div class="text-3xl mb-2">🔒</div>
+          <div class="text-xs font-bold text-slate-200">Séquestre</div>
+          <div class="text-[10px] text-slate-500 mt-1">Fonds protégés</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section class="py-20 px-5 bg-[#050b1f]">
+    <div class="max-w-3xl mx-auto text-center bg-gradient-to-br from-emerald-500/10 to-[#0f2252]/50 rounded-3xl p-10 md:p-14" style="border: 1px solid rgba(16,185,129,0.4);">
       <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
         Prêt à concrétiser vos projets ?
       </h2>
@@ -362,19 +419,18 @@
     </div>
   </section>
 
-  <!-- ============================================== -->
-  <!-- FOOTER                                          -->
-  <!-- ============================================== -->
-  <footer class="border-t border-amber-500/15 py-10 px-5 bg-[#050b1f]">
+  <!-- FOOTER -->
+  <footer class="border-t py-10 px-5 bg-[#050b1f]" style="border-color: rgba(16,185,129,0.15);">
     <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-500">
       <div class="flex items-center gap-2.5">
         <img src="logo.svg" alt="" class="w-8 h-8">
         <span class="font-bold text-slate-300">Espace Diaspora</span>
       </div>
       <div class="flex gap-6 text-xs">
-        <a href="#" class="hover:text-amber-400 transition">Mentions légales</a>
-        <a href="#" class="hover:text-amber-400 transition">Confidentialité</a>
-        <a href="#" class="hover:text-amber-400 transition">Contact</a>
+        <a href="#" class="hover:text-emerald-400 transition">Mentions légales</a>
+        <a href="#" class="hover:text-emerald-400 transition">Confidentialité</a>
+        <a href="partenariat-btp.html" class="hover:text-emerald-400 transition">Partenariat BTP</a>
+        <a href="#" class="hover:text-emerald-400 transition">Contact</a>
       </div>
       <div class="text-xs">© 2026 Espace Diaspora</div>
     </div>
