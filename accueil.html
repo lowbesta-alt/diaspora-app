@@ -11,18 +11,18 @@
 
   <!-- HEADER FIXE avec logo bien visible -->
   <header class="fixed top-0 left-0 right-0 z-50 bg-[#050b1f]/85 backdrop-blur-xl border-b" style="border-color: rgba(16,185,129,0.25);">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 py-4 md:py-5 flex items-center justify-between">
       <a href="accueil.html" class="flex items-center gap-3.5">
-  <img src="logo.svg" alt="Espace Diaspora" class="w-14 h-14 md:w-16 md:h-16" style="filter: drop-shadow(0 6px 18px rgba(16,185,129,0.6));">
-  <div class="leading-tight">
-    <div class="font-extrabold text-lg md:text-xl tracking-tight text-white">Espace Diaspora</div>
-    <div class="text-[11px] md:text-xs font-bold text-emerald-400 tracking-[0.15em] uppercase mt-0.5">Investir au pays</div>
-  </div>
-</a>
+        <img src="logo.svg" alt="Espace Diaspora" class="w-14 h-14 md:w-16 md:h-16" style="filter: drop-shadow(0 6px 18px rgba(16,185,129,0.6));">
+        <div class="leading-tight">
+          <div class="font-extrabold text-lg md:text-xl tracking-tight text-white">Espace Diaspora</div>
+          <div class="text-[11px] md:text-xs font-bold text-emerald-400 tracking-[0.15em] uppercase mt-0.5">Investir au pays</div>
+        </div>
+      </a>
       <div class="flex items-center gap-2">
-        <a href="partenariat-btp.html" class="hidden md:inline-block text-xs font-bold text-emerald-300 hover:text-emerald-200 px-3 py-2 transition">Rejoindre le réseau</a>
+        <a href="partenariat-btp.html" class="hidden md:inline-block text-sm font-bold text-emerald-300 hover:text-emerald-200 px-3 py-2 transition">Rejoindre le réseau</a>
         <a href="index.html" class="hidden sm:inline-block text-sm font-semibold text-slate-300 hover:text-emerald-300 px-4 py-2 transition">Se connecter</a>
-        <a href="inscription.html" class="bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-[#0a1838] font-extrabold px-4 py-2 rounded-xl text-sm shadow-lg shadow-amber-500/40 transition">
+        <a href="inscription.html" class="bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-[#0a1838] font-extrabold px-4 py-2.5 rounded-xl text-sm shadow-lg shadow-amber-500/40 transition">
           Créer un compte
         </a>
       </div>
@@ -30,7 +30,7 @@
   </header>
 
   <!-- HERO -->
-  <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-24">
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 md:pt-36">
     <div class="absolute inset-0 z-0">
       <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1920&q=85&auto=format&fit=crop" 
            alt="Chantier" class="w-full h-full object-cover">
@@ -40,13 +40,11 @@
 
     <div class="relative z-10 max-w-6xl mx-auto px-5 py-16 grid md:grid-cols-2 gap-10 items-center">
       <div>
-        <!-- Badge simple et direct -->
-        <div class="inline-flex items-center gap-2 bg-emerald-500/15 border border-emerald-500/40 rounded-full px-4 py-1.5 mb-6 backdrop-blur">
+        <div class="inline-flex items-center gap-2 bg-emerald-500/15 border border-emerald-500/40 rounded-full px-4 py-2 mb-6 backdrop-blur">
           <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-          <span class="text-xs font-bold text-emerald-300 tracking-wide">Plateforme de suivi de chantier à distance</span>
+          <span class="text-sm md:text-base font-bold text-emerald-300 tracking-wide">Plateforme de suivi de chantier à distance</span>
         </div>
 
-        <!-- Titre principal -->
         <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.08] mb-6">
           Votre chantier au pays,<br>
           <span class="bg-gradient-to-r from-emerald-300 via-emerald-400 to-amber-300 bg-clip-text text-transparent">
@@ -55,7 +53,6 @@
           comme si vous y étiez.
         </h1>
 
-        <!-- Texte court, percutant, humain -->
         <p class="text-base md:text-lg text-slate-200 max-w-xl mb-8 leading-relaxed">
           Fini le stress des travaux à distance. Notre plateforme sécurise vos fonds, contrôle la qualité des matériaux, vérifie les finitions et vous envoie photos et vidéos en temps réel. Construisez en toute confiance, du gros œuvre jusqu'aux clés.
         </p>
