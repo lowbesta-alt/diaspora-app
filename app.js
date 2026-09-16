@@ -1,24 +1,46 @@
 // ============================================================
 // APP.JS - Boite a outils centrale Espace Diaspora
-// Toutes les pages utilisent ces fonctions
+// v3.0 : injection auto du theme + logo sur toutes les pages
 // ============================================================
 
+// ---------- Injection automatique du theme.css ----------
+(function() {
+  if (!document.querySelector('link[href="theme.css"]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'theme.css';
+    document.head.appendChild(link);
+  }
+})();
+
+// ---------- Remplacement auto des emojis globe par le logo ----------
+function replaceGlobeLogos() {
+  document.querySelectorAll('div, span').forEach(el => {
+    if (el.children.length === 0 && el.textContent.trim() === '🌍') {
+      const img = document.createElement('img');
+      img.src = 'logo.svg';
+      img.alt = 'Espace Diaspora';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'contain';
+      img.style.filter = 'drop-shadow(0 4px 12px rgba(14,165,233,0.4))';
+      el.innerHTML = '';
+      el.appendChild(img);
+    }
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', replaceGlobeLogos);
+} else {
+  replaceGlobeLogos();
+}
+
 // ---------- Gestion de session ----------
-function getToken() {
-  return localStorage.getItem('access_token');
-}
-
-function getCurrentUserId() {
-  return localStorage.getItem('user_id');
-}
-
-function getCurrentUserEmail() {
-  return localStorage.getItem('user_email');
-}
-
-function isLoggedIn() {
-  return !!getToken() && !!getCurrentUserId();
-}
+function getToken() { return localStorage.getItem('access_token'); }
+function getCurrentUserId() { return localStorage.getItem('user_id'); }
+function getCurrentUserEmail() { return localStorage.getItem('user_email'); }
+function isLoggedIn() { return !!getToken() && !!getCurrentUserId(); }
 
 function requireLogin() {
   if (!isLoggedIn()) {
@@ -36,7 +58,7 @@ function logout() {
   window.location.href = 'index.html';
 }
 
-// ---------- Headers avec token utilisateur ----------
+// ---------- Headers avec token ----------
 function getHeaders(extra = {}) {
   const headers = {
     'apikey': SUPABASE_KEY,
@@ -44,13 +66,11 @@ function getHeaders(extra = {}) {
     ...extra
   };
   const token = getToken();
-  if (token) {
-    headers['Authorization'] = 'Bearer ' + token;
-  }
+  if (token) headers['Authorization'] = 'Bearer ' + token;
   return headers;
 }
 
-// ---------- API REST Supabase ----------
+// ---------- API REST ----------
 async function apiGet(table, params = '') {
   const url = SUPABASE_URL + '/rest/v1/' + table + (params ? '?' + params : '');
   const res = await fetch(url, { headers: getHeaders() });
@@ -130,18 +150,10 @@ function formatDate(dateStr) {
 
 function getStatusLabel(status) {
   const map = {
-    'active': 'En cours',
-    'draft': 'En preparation',
-    'completed': 'Termine',
-    'paused': 'En pause',
-    'cancelled': 'Annule',
-    'disputed': 'En litige',
-    'released': 'Debloque',
-    'approved': 'Valide',
-    'submitted': 'En attente',
-    'pending': 'A venir',
-    'rejected': 'Refuse',
-    'in_progress': 'En cours'
+    'active': 'En cours', 'draft': 'En preparation', 'completed': 'Termine',
+    'paused': 'En pause', 'cancelled': 'Annule', 'disputed': 'En litige',
+    'released': 'Debloque', 'approved': 'Valide', 'submitted': 'En attente',
+    'pending': 'A venir', 'rejected': 'Refuse', 'in_progress': 'En cours'
   };
   return map[status] || status;
 }
@@ -173,15 +185,9 @@ function escapeHtml(str) {
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function showError(msg) {
-  alert('Erreur : ' + msg);
-}
+function showError(msg) { alert('Erreur : ' + msg); }
+function showSuccess(msg) { alert(msg); }
 
-function showSuccess(msg) {
-  alert(msg);
-}
-
-// ---------- Header commun (avatar + deconnexion) ----------
 function setupUserHeader() {
   const email = getCurrentUserEmail() || '';
   const initials = email.substring(0, 2).toUpperCase();
