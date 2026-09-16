@@ -1,17 +1,19 @@
 /* ==========================================================
-   ESPACE DIASPORA - Design System v1.0
+   ESPACE DIASPORA — Design System v2.0 "Blue Night"
    S'ajoute par-dessus Tailwind sans rien casser
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap');
 
 :root {
-  --ed-deep: #06121a;
-  --ed-accent: #10b981;
+  --ed-navy: #061229;
+  --ed-navy-light: #0c1a2e;
+  --ed-accent: #0ea5e9;
+  --ed-accent-light: #38bdf8;
   --ed-gold: #f59e0b;
-  --ed-text: #f8fafc;
+  --ed-emerald: #10b981;
+  --ed-text: #f1f5f9;
   --ed-muted: #94a3b8;
-  --ed-shadow: 0 20px 50px -20px rgba(0,0,0,0.5);
 }
 
 /* ---------- Typographie ---------- */
@@ -22,32 +24,32 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Fond premium multi-couche */
+/* ---------- Fond bleu nuit multi-couche ---------- */
 body {
   background:
-    radial-gradient(circle at 20% 0%, rgba(16,185,129,0.10) 0%, transparent 45%),
-    radial-gradient(circle at 80% 100%, rgba(245,158,11,0.06) 0%, transparent 45%),
-    #06121a !important;
+    radial-gradient(circle at 15% 0%, rgba(14,165,233,0.12) 0%, transparent 45%),
+    radial-gradient(circle at 85% 100%, rgba(245,158,11,0.06) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(59,130,246,0.04) 0%, transparent 60%),
+    #061229 !important;
   background-attachment: fixed !important;
   min-height: 100vh;
 }
 
-/* Titres en Manrope (moderne, chaleureux) */
+/* Titres Manrope */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Manrope', sans-serif !important;
   letter-spacing: -0.025em !important;
 }
-
 h1 { font-weight: 800 !important; }
 h2 { font-weight: 700 !important; }
 h3 { font-weight: 700 !important; }
 
-/* ---------- Cartes : ombre + arrondi premium ---------- */
+/* ---------- Cartes premium ---------- */
 main section,
 main > div > section,
 main .bg-white\/5 {
   border-radius: 20px !important;
-  box-shadow: 0 12px 32px -16px rgba(0,0,0,0.4);
+  box-shadow: 0 12px 32px -16px rgba(0,0,0,0.5);
 }
 
 /* ---------- Boutons premium ---------- */
@@ -62,15 +64,29 @@ button:not(:disabled):active {
   transform: scale(0.97);
 }
 
-/* Halo vert sur boutons principaux */
+/* Boutons principaux → dégradé bleu brillant */
 button[class*="bg-emerald-6"],
 a[class*="bg-emerald-6"] {
-  box-shadow: 0 8px 24px -8px rgba(16,185,129,0.5) !important;
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%) !important;
+  box-shadow: 0 8px 24px -8px rgba(14,165,233,0.55) !important;
 }
 
 button[class*="bg-emerald-6"]:hover,
 a[class*="bg-emerald-6"]:hover {
-  box-shadow: 0 12px 32px -8px rgba(16,185,129,0.65) !important;
+  background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%) !important;
+  box-shadow: 0 12px 32px -8px rgba(14,165,233,0.7) !important;
+}
+
+/* Boutons rouges (urgent) → dégradé rouge vif */
+button[class*="bg-red-6"] {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
+  box-shadow: 0 8px 24px -8px rgba(239,68,68,0.5) !important;
+}
+
+/* Boutons bleus (info) → cyan profond */
+button[class*="bg-blue-6"] {
+  background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%) !important;
+  box-shadow: 0 8px 24px -8px rgba(2,132,199,0.5) !important;
 }
 
 /* ---------- Inputs raffinés ---------- */
@@ -80,22 +96,23 @@ input, select, textarea {
 }
 
 input:focus, select:focus, textarea:focus {
-  box-shadow: 0 0 0 4px rgba(16,185,129,0.12) !important;
+  border-color: var(--ed-accent) !important;
+  box-shadow: 0 0 0 4px rgba(14,165,233,0.15) !important;
 }
 
-/* ---------- Header & Nav en verre premium ---------- */
+/* ---------- Header & Nav en verre ---------- */
 header {
-  background: rgba(6,18,26,0.75) !important;
+  background: rgba(6,18,41,0.75) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border-color: rgba(255,255,255,0.05) !important;
+  border-color: rgba(56,189,248,0.08) !important;
 }
 
 nav[class*="fixed bottom-0"] {
-  background: rgba(6,18,26,0.92) !important;
+  background: rgba(6,18,41,0.94) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border-color: rgba(255,255,255,0.05) !important;
+  border-color: rgba(56,189,248,0.08) !important;
 }
 
 /* ---------- Animation d'entrée ---------- */
@@ -127,34 +144,21 @@ main > *:nth-child(7) { animation-delay: 0.27s; }
   width: 38px;
   height: 38px;
   flex-shrink: 0;
-  filter: drop-shadow(0 4px 12px rgba(16,185,129,0.35));
+  filter: drop-shadow(0 4px 12px rgba(14,165,233,0.45));
 }
 
-.ed-logo-name {
-  font-family: 'Manrope', sans-serif;
-  font-weight: 800;
-  font-size: 15px;
-  color: white;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  display: block;
-}
-
-.ed-logo-tag {
-  font-size: 9px;
-  font-weight: 600;
-  color: #10b981;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  display: block;
-  margin-top: 1px;
+/* ---------- Emojis dans les carrés → alignement ---------- */
+[class*="rounded-xl"][class*="flex items-center justify-center"] img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 /* ---------- Scrollbar discrète ---------- */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(16,185,129,0.25);
+  background: rgba(14,165,233,0.25);
   border-radius: 3px;
 }
-::-webkit-scrollbar-thumb:hover { background: rgba(16,185,129,0.45); }
+::-webkit-scrollbar-thumb:hover { background: rgba(14,165,233,0.45); }
