@@ -8,41 +8,57 @@
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
 
-  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <div class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center text-lg">🌍</div>
-      <span class="font-bold text-sm">Espace Diaspora</span>
+  <main class="p-4 max-w-2xl mx-auto space-y-4 pt-6">
+
+    <div>
+      <h1 class="text-2xl font-extrabold tracking-tight">Mon portefeuille</h1>
+      <p class="text-sm text-slate-400 mt-1">Suivez vos fonds en temps réel</p>
     </div>
-    <a href="notifications.html" class="text-xl">🔔</a>
-  </header>
 
-  <main class="p-4 max-w-2xl mx-auto space-y-4">
-
-    <h1 class="text-2xl font-bold">Mon portefeuille</h1>
-    <p class="text-sm text-slate-400">Suivez vos fonds en temps réel</p>
-
-    <section class="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-2xl p-6 shadow-xl">
-      <p class="text-xs text-emerald-100 mb-1">Solde disponible</p>
-      <p class="text-4xl font-bold mb-1" id="solde">-</p>
-      <p class="text-sm text-emerald-100 mb-4">XAF</p>
-      <a href="transaction.html" class="inline-block bg-white text-emerald-700 px-4 py-2 rounded-xl text-sm font-bold">+ Ajouter des fonds</a>
+    <!-- Carte solde principale -->
+    <section class="relative overflow-hidden rounded-3xl border border-sky-500/30 shadow-2xl shadow-sky-500/20">
+      <div class="absolute inset-0 bg-gradient-to-br from-sky-600 via-sky-700 to-blue-900"></div>
+      <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-20 translate-x-20 blur-3xl"></div>
+      <div class="relative p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">💼</span>
+            <span class="text-xs font-bold uppercase tracking-widest text-sky-100">Solde disponible</span>
+          </div>
+          <span class="text-[10px] bg-white/20 backdrop-blur px-2 py-1 rounded-full font-bold">XAF</span>
+        </div>
+        <p class="text-4xl font-extrabold tracking-tight mb-1" id="solde">-</p>
+        <p class="text-xs text-sky-100 mb-6">Mis à jour en temps réel</p>
+        <a href="transaction.html" class="inline-flex items-center gap-2 bg-white text-sky-700 hover:bg-sky-50 px-5 py-2.5 rounded-xl text-sm font-extrabold shadow-lg transition">
+          <span>➕</span> Ajouter des fonds
+        </a>
+      </div>
     </section>
 
+    <!-- Stats secondaires -->
     <section class="grid grid-cols-2 gap-3">
-      <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
-        <div class="text-xl">🔒</div>
-        <div class="text-lg font-bold mt-2" id="stat-escrow">-</div>
-        <div class="text-[10px] text-slate-400">Fonds bloqués (séquestre)</div>
+      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+        <div class="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center mb-3">
+          <span class="text-xl">🔒</span>
+        </div>
+        <div class="text-xl font-extrabold text-orange-300" id="stat-escrow">-</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mt-1 font-semibold">Fonds bloqués</div>
       </div>
-      <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
-        <div class="text-xl">💰</div>
-        <div class="text-lg font-bold mt-2" id="stat-invested">-</div>
-        <div class="text-[10px] text-slate-400">Total investi</div>
+      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center mb-3">
+          <span class="text-xl">💰</span>
+        </div>
+        <div class="text-xl font-extrabold text-emerald-300" id="stat-invested">-</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mt-1 font-semibold">Total investi</div>
       </div>
     </section>
 
+    <!-- Historique -->
     <section>
-      <h2 class="text-lg font-bold mb-3">Historique des transactions</h2>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-base font-extrabold tracking-tight">Historique</h2>
+        <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Transactions récentes</span>
+      </div>
       <div id="transactions-list" class="space-y-2">
         <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
       </div>
@@ -53,7 +69,7 @@
   <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
     <a href="dashboard-investisseur.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
     <a href="projets.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📁</span>Projets</a>
-    <a href="portefeuille.html" class="flex flex-col items-center gap-0.5 text-emerald-400 text-[10px]"><span class="text-lg">💰</span>Portefeuille</a>
+    <a href="portefeuille.html" class="flex flex-col items-center gap-0.5 text-sky-400 text-[10px]"><span class="text-lg">💰</span>Portefeuille</a>
     <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
     <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
   </nav>
@@ -65,21 +81,16 @@
 
     function txIcon(type) {
       const map = {
-        'deposit': { ic: '➕', bg: 'bg-emerald-500/20' },
-        'escrow_hold': { ic: '🔒', bg: 'bg-orange-500/20' },
-        'milestone_release': { ic: '✅', bg: 'bg-blue-500/20' },
-        'refund': { ic: '↩️', bg: 'bg-red-500/20' }
+        'deposit': { ic: '➕', bg: 'bg-emerald-500/20', color: 'text-emerald-300' },
+        'escrow_hold': { ic: '🔒', bg: 'bg-orange-500/20', color: 'text-orange-300' },
+        'milestone_release': { ic: '✅', bg: 'bg-sky-500/20', color: 'text-sky-300' },
+        'refund': { ic: '↩️', bg: 'bg-red-500/20', color: 'text-red-300' }
       };
       return map[type] || map.deposit;
     }
 
-    function txSign(type) {
-      return type === 'deposit' ? '+' : '-';
-    }
-
-    function txColor(type) {
-      return type === 'deposit' ? 'text-emerald-400' : 'text-orange-400';
-    }
+    function txSign(type) { return type === 'deposit' ? '+' : '−'; }
+    function txColorClass(type) { return type === 'deposit' ? 'text-emerald-400' : 'text-orange-400'; }
 
     async function loadTransactions() {
       const userId = getCurrentUserId();
@@ -90,7 +101,7 @@
         const valid = Array.isArray(txs) ? txs : [];
 
         if (valid.length === 0) {
-          list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucune transaction pour le moment</p>';
+          list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">💰</div><p class="text-slate-400 text-sm">Aucune transaction</p><p class="text-slate-500 text-xs mt-1">Vos mouvements apparaîtront ici.</p></div>';
           document.getElementById('solde').textContent = '0';
           document.getElementById('stat-escrow').textContent = '0';
           document.getElementById('stat-invested').textContent = '0';
@@ -111,21 +122,21 @@
         document.getElementById('stat-invested').textContent = (escrow + released).toLocaleString('fr-FR');
 
         list.innerHTML = valid.map(t => {
-          const { ic, bg } = txIcon(t.transaction_type);
+          const { ic, bg, color } = txIcon(t.transaction_type);
           return `
-            <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-3">
-              <div class="w-9 h-9 rounded-full ${bg} flex items-center justify-center">${ic}</div>
+            <div class="flex items-center gap-3 bg-white/5 hover:bg-white/[0.08] border border-white/10 rounded-2xl p-3.5 transition">
+              <div class="w-11 h-11 rounded-xl ${bg} flex items-center justify-center flex-shrink-0 text-lg">${ic}</div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold truncate">${escapeHtml(t.description || getStatusLabel(t.transaction_type))}</p>
-                <p class="text-[10px] text-slate-400">${formatDate(t.created_at)}</p>
+                <p class="text-sm font-bold truncate">${escapeHtml(t.description || getStatusLabel(t.transaction_type))}</p>
+                <p class="text-[10px] text-slate-500 mt-0.5 font-semibold uppercase tracking-wider">${formatDate(t.created_at)}</p>
               </div>
-              <div class="text-sm font-bold ${txColor(t.transaction_type)}">${txSign(t.transaction_type)} ${formatAmount(t.amount)}</div>
+              <div class="text-sm font-extrabold ${txColorClass(t.transaction_type)}">${txSign(t.transaction_type)} ${Number(t.amount).toLocaleString('fr-FR')}</div>
             </div>
           `;
         }).join('');
 
       } catch (e) {
-        list.innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur de chargement</p>';
+        list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><p class="text-red-400 text-sm">Erreur de chargement</p></div>';
       }
     }
 
