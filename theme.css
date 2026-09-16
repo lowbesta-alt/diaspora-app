@@ -1,29 +1,28 @@
 /* ==========================================================
-   ESPACE DIASPORA — Design System v5.0
-   Palette "TERRE & AVENIR" : Carbone · Or · Émeraude
+   ESPACE DIASPORA — Design System v6.0
+   Palette "BLEU NUIT ROYAL & OR"
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap');
 
 :root {
-  /* Carbone */
-  --ed-carbon: #0a0806;
-  --ed-carbon-2: #12100c;
-  --ed-carbon-3: #1c1408;
-  /* Or / Ambre */
+  /* Bleu nuit royal */
+  --ed-navy: #050b1f;
+  --ed-navy-2: #0a1838;
+  --ed-navy-3: #0f2252;
+  --ed-navy-light: #1a3a7a;
+  /* Or */
   --ed-gold: #f59e0b;
   --ed-gold-light: #fbbf24;
-  --ed-gold-bright: #fcd34d;
-  --ed-gold-dark: #b45309;
-  --ed-bronze: #92400e;
+  --ed-gold-bright: #fde68a;
+  --ed-gold-dark: #d97706;
   /* Émeraude (validation) */
   --ed-emerald: #10b981;
   --ed-emerald-light: #34d399;
-  /* Textes chaleureux */
-  --ed-text-warm: #faf9f5;
-  --ed-text-warm-muted: #d6d3d1;
-  --ed-text-warm-dim: #a8a29e;
-  /* Alias */
+  /* Textes */
+  --ed-text: #ffffff;
+  --ed-text-muted: #cbd5e1;
+  --ed-text-dim: #94a3b8;
   --ed-accent: #f59e0b;
 }
 
@@ -31,18 +30,18 @@
 
 html, body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  color: var(--ed-text-warm) !important;
+  color: var(--ed-text) !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ---------- Fond carbone profond avec halos or + émeraude ---------- */
+/* ---------- Fond bleu nuit profond avec halo or ---------- */
 body {
   background:
-    radial-gradient(circle at 15% 0%, rgba(245,158,11,0.14) 0%, transparent 45%),
-    radial-gradient(circle at 85% 100%, rgba(16,185,129,0.08) 0%, transparent 45%),
-    radial-gradient(circle at 50% 50%, rgba(180,83,9,0.04) 0%, transparent 60%),
-    #0a0806 !important;
+    radial-gradient(circle at 15% 0%, rgba(245,158,11,0.10) 0%, transparent 40%),
+    radial-gradient(circle at 85% 100%, rgba(59,130,246,0.10) 0%, transparent 45%),
+    radial-gradient(circle at 50% 30%, rgba(30,58,138,0.15) 0%, transparent 70%),
+    #050b1f !important;
   background-attachment: fixed !important;
   min-height: 100vh;
 }
@@ -51,42 +50,44 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Manrope', sans-serif !important;
   letter-spacing: -0.025em !important;
-  color: var(--ed-text-warm) !important;
+  color: #ffffff !important;
 }
 h1 { font-weight: 800 !important; }
 h2, h3 { font-weight: 700 !important; }
 
-p, span, label, div {
-  color: inherit;
-}
-
-/* ---------- Cartes : fond sombre + bordures dorées subtiles ---------- */
+/* ---------- Cartes : bleu nuit légèrement plus clair + bordure or subtile ---------- */
 main section,
 main > div > section,
 main .bg-white\/5 {
   border-radius: 20px !important;
-  background: rgba(255, 250, 240, 0.025) !important;
-  border-color: rgba(245, 158, 11, 0.18) !important;
-  box-shadow: 0 12px 32px -16px rgba(0,0,0,0.7), 0 0 0 1px rgba(245,158,11,0.05) inset;
+  background: linear-gradient(180deg, rgba(15,34,82,0.45) 0%, rgba(10,24,56,0.65) 100%) !important;
+  border: 1px solid rgba(245, 158, 11, 0.15) !important;
+  box-shadow: 0 12px 32px -16px rgba(0,0,0,0.6);
+  backdrop-filter: blur(12px);
 }
 
 main .bg-white\/5:hover {
   border-color: rgba(245, 158, 11, 0.35) !important;
-  background: rgba(255, 250, 240, 0.04) !important;
+  background: linear-gradient(180deg, rgba(15,34,82,0.55) 0%, rgba(10,24,56,0.75) 100%) !important;
 }
 
-/* ---------- Boutons PRINCIPAUX : or dégradé ---------- */
+/* ---------- Boutons PRINCIPAUX : OR dégradé, texte foncé ---------- */
 button[class*="bg-emerald-6"],
 a[class*="bg-emerald-6"],
 button[class*="from-sky"],
 a[class*="from-sky"],
 button[class*="bg-sky-6"],
-a[class*="bg-sky-6"] {
-  background: linear-gradient(135deg, #b45309 0%, #f59e0b 45%, #fcd34d 100%) !important;
-  color: #1a0f00 !important;
-  font-weight: 700 !important;
-  box-shadow: 0 10px 28px -10px rgba(245,158,11,0.65), 0 0 0 1px rgba(255,255,255,0.08) inset !important;
+a[class*="bg-sky-6"],
+button[class*="bg-amber-6"],
+a[class*="bg-amber-6"] {
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #fcd34d 100%) !important;
+  color: #0a1838 !important;
+  font-weight: 800 !important;
+  box-shadow: 
+    0 10px 24px -8px rgba(245,158,11,0.55),
+    0 0 0 1px rgba(255,255,255,0.15) inset !important;
   text-shadow: none !important;
+  letter-spacing: -0.005em !important;
 }
 
 button[class*="bg-emerald-6"]:hover,
@@ -95,59 +96,61 @@ button[class*="from-sky"]:hover,
 a[class*="from-sky"]:hover,
 button[class*="bg-sky-6"]:hover,
 a[class*="bg-sky-6"]:hover {
-  background: linear-gradient(135deg, #f59e0b 0%, #fcd34d 50%, #fef08a 100%) !important;
-  box-shadow: 0 14px 36px -10px rgba(245,158,11,0.75) !important;
+  background: linear-gradient(135deg, #fbbf24 0%, #fcd34d 50%, #fef08a 100%) !important;
+  box-shadow: 0 14px 32px -8px rgba(245,158,11,0.75) !important;
   transform: translateY(-1px);
 }
 
-/* ---------- Boutons secondaires (bg-white/5, borders) ---------- */
+/* ---------- Boutons secondaires ---------- */
 button[class*="bg-white\/5"],
 a[class*="bg-white\/5"] {
-  border-color: rgba(245, 158, 11, 0.2) !important;
-  color: var(--ed-text-warm) !important;
+  border-color: rgba(245, 158, 11, 0.25) !important;
+  color: #ffffff !important;
+  background: rgba(245, 158, 11, 0.05) !important;
 }
 
 button[class*="bg-white\/5"]:hover,
 a[class*="bg-white\/5"]:hover {
-  border-color: rgba(245, 158, 11, 0.4) !important;
-  background: rgba(245, 158, 11, 0.08) !important;
+  border-color: rgba(245, 158, 11, 0.5) !important;
+  background: rgba(245, 158, 11, 0.12) !important;
+  color: #fbbf24 !important;
 }
 
-/* ---------- Boutons rouges (dangers/urgences) ---------- */
+/* ---------- Boutons rouges (danger) ---------- */
 button[class*="bg-red-6"] {
-  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%) !important;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
   color: #fff !important;
   box-shadow: 0 10px 28px -10px rgba(220,38,38,0.55) !important;
 }
 
-/* ---------- Boutons bleus (info) → convertis en or bronze ---------- */
+/* ---------- Boutons bleus (info) → bleu nuit plus vif ---------- */
 button[class*="bg-blue-6"],
 a[class*="bg-blue-6"] {
-  background: linear-gradient(135deg, #78350f 0%, #b45309 100%) !important;
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
   color: #fff !important;
-  box-shadow: 0 10px 28px -10px rgba(180,83,9,0.55) !important;
+  box-shadow: 0 10px 28px -10px rgba(59,130,246,0.55) !important;
 }
 
-/* ---------- Inputs chaleureux ---------- */
+/* ---------- Inputs ---------- */
 input, select, textarea {
   font-family: 'Inter', sans-serif !important;
-  background: rgba(255, 250, 240, 0.04) !important;
+  background: rgba(15, 34, 82, 0.5) !important;
   border-color: rgba(245, 158, 11, 0.2) !important;
-  color: var(--ed-text-warm) !important;
+  color: #ffffff !important;
   transition: all 0.2s ease !important;
 }
 
 input::placeholder, textarea::placeholder {
-  color: rgba(168, 162, 158, 0.7) !important;
+  color: rgba(148, 163, 184, 0.8) !important;
 }
 
 input:focus, select:focus, textarea:focus {
   border-color: var(--ed-gold) !important;
   box-shadow: 0 0 0 4px rgba(245,158,11,0.18) !important;
-  background: rgba(255, 250, 240, 0.06) !important;
+  background: rgba(15, 34, 82, 0.7) !important;
 }
 
-/* ---------- Override de tous les textes bleus → or ---------- */
+/* ---------- Textes sky → OR lumineux ---------- */
 .text-sky-400, .text-sky-300, .text-sky-500,
 .text-blue-400, .text-blue-300 {
   color: var(--ed-gold-light) !important;
@@ -159,47 +162,40 @@ input:focus, select:focus, textarea:focus {
   border-color: rgba(245, 158, 11, 0.3) !important;
 }
 
-/* Backgrounds sky → or subtils */
+/* Backgrounds sky → or subtil */
 .bg-sky-500\/10, .bg-sky-500\/20, .bg-sky-600\/20,
 .bg-blue-500\/10, .bg-blue-500\/20 {
   background-color: rgba(245, 158, 11, 0.12) !important;
 }
 
 .bg-sky-600, .bg-sky-500 {
-  background: linear-gradient(135deg, #b45309, #f59e0b) !important;
-  color: #1a0f00 !important;
+  background: linear-gradient(135deg, #d97706, #f59e0b) !important;
+  color: #0a1838 !important;
 }
 
-/* ---------- Override de TOUS les dégradés sky → or ---------- */
-[class*="from-sky-6"], [class*="from-sky-7"],
-[class*="from-blue-6"], [class*="from-blue-9"] {
-  --tw-gradient-from: #b45309 !important;
-}
-
-[class*="via-sky-7"], [class*="via-blue-9"] {
-  --tw-gradient-via: #92400e !important;
-}
-
-[class*="to-sky-5"], [class*="to-sky-6"], [class*="to-sky-9"],
-[class*="to-blue-9"] {
-  --tw-gradient-to: #f59e0b !important;
-}
-
-/* Carte solde portefeuille (from-sky-600 via-sky-700 to-blue-900) */
+/* Carte solde portefeuille → dégradé or royal */
 section[class*="from-sky-6"],
 section[class*="from-blue-6"] {
-  background: linear-gradient(135deg, #78350f 0%, #b45309 45%, #f59e0b 100%) !important;
+  background: linear-gradient(135deg, #b45309 0%, #f59e0b 50%, #fbbf24 100%) !important;
+}
+section[class*="from-sky-6"] *,
+section[class*="from-blue-6"] * {
+  color: #0a1838 !important;
+}
+section[class*="from-sky-6"] .text-sky-100,
+section[class*="from-blue-6"] .text-sky-100 {
+  color: rgba(10,24,56,0.75) !important;
 }
 
-/* ---------- Header ---------- */
+/* ---------- Header pro ---------- */
 .ed-header {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(10,8,6,0.88) !important;
+  background: rgba(5,11,31,0.88) !important;
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid rgba(245,158,11,0.12) !important;
+  border-bottom: 1px solid rgba(245,158,11,0.18) !important;
   padding: 12px 20px;
 }
 
@@ -214,7 +210,7 @@ section[class*="from-blue-6"] {
 
 .ed-header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
 .ed-header-logo img {
-  width: 38px; height: 38px;
+  width: 40px; height: 40px;
   filter: drop-shadow(0 4px 14px rgba(245,158,11,0.5));
 }
 .ed-header-logo-text { display: flex; flex-direction: column; line-height: 1.1; }
@@ -222,7 +218,7 @@ section[class*="from-blue-6"] {
   font-family: 'Manrope', sans-serif;
   font-weight: 800;
   font-size: 15px;
-  color: var(--ed-text-warm);
+  color: #ffffff;
   letter-spacing: -0.02em;
 }
 .ed-header-logo-tag {
@@ -239,7 +235,7 @@ section[class*="from-blue-6"] {
   font-family: 'Manrope', sans-serif;
   font-size: 13px;
   font-weight: 600;
-  color: var(--ed-text-warm-dim);
+  color: #94a3b8;
   text-decoration: none;
   padding: 8px 14px;
   border-radius: 10px;
@@ -262,26 +258,26 @@ section[class*="from-blue-6"] {
 .ed-bell {
   width: 38px; height: 38px;
   border-radius: 12px;
-  background: rgba(245,158,11,0.08);
-  border: 1px solid rgba(245,158,11,0.2);
+  background: rgba(15,34,82,0.6);
+  border: 1px solid rgba(245,158,11,0.25);
   display: flex; align-items: center; justify-content: center;
   color: var(--ed-gold-light);
   text-decoration: none;
   transition: all 0.2s ease;
 }
 .ed-bell:hover {
-  background: rgba(245,158,11,0.18);
-  border-color: rgba(245,158,11,0.4);
+  background: rgba(245,158,11,0.15);
+  border-color: rgba(245,158,11,0.5);
 }
 
 .ed-avatar {
   width: 38px; height: 38px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #b45309, #f59e0b);
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
   display: flex; align-items: center; justify-content: center;
   font-family: 'Manrope', sans-serif;
   font-size: 12px; font-weight: 800;
-  color: #1a0f00;
+  color: #0a1838;
   text-decoration: none;
   box-shadow: 0 4px 14px -4px rgba(245,158,11,0.6);
   transition: all 0.2s ease;
@@ -295,8 +291,8 @@ section[class*="from-blue-6"] {
   display: flex;
   width: 38px; height: 38px;
   border-radius: 12px;
-  background: rgba(245,158,11,0.08);
-  border: 1px solid rgba(245,158,11,0.2);
+  background: rgba(15,34,82,0.6);
+  border: 1px solid rgba(245,158,11,0.25);
   align-items: center; justify-content: center;
   font-size: 18px;
   color: var(--ed-gold-light);
@@ -304,18 +300,18 @@ section[class*="from-blue-6"] {
   transition: all 0.2s ease;
 }
 .ed-burger:hover {
-  background: rgba(245,158,11,0.18);
+  background: rgba(245,158,11,0.15);
 }
 
 /* Menu mobile */
 .ed-mobile-menu {
   position: fixed; top: 0; right: -100%;
   width: 280px; max-width: 85vw; height: 100vh;
-  background: rgba(10,8,6,0.98);
+  background: rgba(5,11,31,0.98);
   backdrop-filter: blur(24px);
   z-index: 100; padding: 24px;
   transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-left: 1px solid rgba(245,158,11,0.15);
+  border-left: 1px solid rgba(245,158,11,0.2);
   overflow-y: auto;
 }
 .ed-mobile-menu.open { right: 0; }
@@ -331,7 +327,7 @@ section[class*="from-blue-6"] {
   display: flex; align-items: center; gap: 12px;
   padding: 12px 14px;
   border-radius: 12px;
-  color: var(--ed-text-warm-muted);
+  color: #cbd5e1;
   text-decoration: none;
   font-family: 'Manrope', sans-serif;
   font-size: 14px; font-weight: 600;
@@ -351,7 +347,7 @@ section[class*="from-blue-6"] {
 }
 .ed-overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.75);
+  background: rgba(0,0,0,0.7);
   z-index: 99; opacity: 0; pointer-events: none;
   transition: opacity 0.3s ease;
 }
@@ -396,13 +392,13 @@ nav .ed-icon {
 
 /* ---------- Nav du bas ---------- */
 nav[class*="fixed bottom-0"] {
-  background: rgba(10,8,6,0.96) !important;
+  background: rgba(5,11,31,0.96) !important;
   backdrop-filter: blur(24px) saturate(180%);
-  border-top: 1px solid rgba(245,158,11,0.12) !important;
+  border-top: 1px solid rgba(245,158,11,0.15) !important;
 }
 
 nav[class*="fixed bottom-0"] a {
-  color: var(--ed-text-warm-dim) !important;
+  color: #94a3b8 !important;
 }
 
 nav[class*="fixed bottom-0"] a[class*="text-sky-400"],
@@ -414,19 +410,17 @@ nav[class*="fixed bottom-0"] a[class*="text-emerald-400"] {
 a[href^="projet-detail.html"] {
   position: relative; overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-color: rgba(245,158,11,0.2) !important;
 }
 a[href^="projet-detail.html"]:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 40px -16px rgba(245,158,11,0.35);
-  border-color: rgba(245,158,11,0.4) !important;
+  box-shadow: 0 16px 40px -16px rgba(245,158,11,0.3);
 }
 .ed-cover-bg { transition: opacity 0.3s ease; }
-a[href^="projet-detail.html"]:hover .ed-cover-bg { opacity: 0.25 !important; }
+a[href^="projet-detail.html"]:hover .ed-cover-bg { opacity: 0.22 !important; }
 
 /* ---------- Bannière hero ---------- */
 .ed-hero-banner {
-  background: linear-gradient(135deg, #1c1408, #0a0806);
+  background: linear-gradient(135deg, #0f2252, #050b1f);
 }
 
 .ed-hero-image {
@@ -439,7 +433,7 @@ a[href^="projet-detail.html"]:hover .ed-cover-bg { opacity: 0.25 !important; }
   transform: scale(1.03);
 }
 
-/* ---------- Badge statut sur hero (conservé) ---------- */
+/* ---------- Badge statut sur hero ---------- */
 .ed-hero-banner #project-status {
   display: inline-flex !important;
   align-items: center !important;
@@ -452,26 +446,25 @@ a[href^="projet-detail.html"]:hover .ed-cover-bg { opacity: 0.25 !important; }
   backdrop-filter: blur(12px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
   box-shadow: 0 8px 24px -4px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.15) inset !important;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.35) !important;
   width: auto !important;
   max-width: fit-content !important;
   margin-bottom: 12px !important;
 }
 .ed-hero-banner #project-status[class*="orange"] {
-  background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%) !important;
-  color: #1a0f00 !important;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  color: #0a1838 !important;
 }
 .ed-hero-banner #project-status[class*="emerald"] {
-  background: linear-gradient(135deg, #10b981 0%, #047857 100%) !important;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
   color: #ffffff !important;
 }
 .ed-hero-banner #project-status[class*="slate"] {
-  background: linear-gradient(135deg, #57534e 0%, #292524 100%) !important;
+  background: linear-gradient(135deg, #475569 0%, #1e293b 100%) !important;
   color: #ffffff !important;
 }
 .ed-hero-banner #project-status[class*="yellow"] {
   background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%) !important;
-  color: #1a0f00 !important;
+  color: #0a1838 !important;
 }
 .ed-hero-banner #project-status[class*="red"] {
   background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
@@ -494,7 +487,7 @@ a[href^="projet-detail.html"]:hover .ed-cover-bg { opacity: 0.25 !important; }
   50% { opacity: 0.4; }
 }
 
-/* ---------- Animation d'entrée ---------- */
+/* ---------- Animation ---------- */
 @keyframes edEnter {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -510,16 +503,8 @@ main > *:nth-child(4) { animation-delay: 0.15s; }
 main > *:nth-child(5) { animation-delay: 0.19s; }
 main > *:nth-child(6) { animation-delay: 0.23s; }
 
-/* ---------- Scrollbar or ---------- */
+/* ---------- Scrollbar ---------- */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.35); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(245,158,11,0.6); }
-
-/* ---------- Statuts conservés en émeraude (validé) ---------- */
-.text-emerald-400, .text-emerald-300 {
-  color: var(--ed-emerald-light) !important;
-}
-.bg-emerald-500\/20 {
-  background-color: rgba(16,185,129,0.15) !important;
-}
+::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(245,158,11,0.7); }
