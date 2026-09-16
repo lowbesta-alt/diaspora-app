@@ -27,7 +27,7 @@
         <div class="flex-1">
           <h2 class="text-base font-bold text-white">Visite en direct du chantier</h2>
           <p class="text-xs text-slate-300 mt-1 leading-relaxed">
-            Le chef de chantier peut démarrer une visite vidéo en direct pour montrer l'avancement aux investisseurs.
+            Démarrer une visite vidéo en direct. Un message WhatsApp sera pré-rempli automatiquement.
           </p>
         </div>
       </div>
@@ -66,29 +66,51 @@
     const userId = getCurrentUserId();
 
     // ============================================================
-    // VISITE EN DIRECT - Genere un lien Jitsi Meet (gratuit, sans compte)
+    // VISITE EN DIRECT - Genere un lien Jitsi + WhatsApp automatique
     // ============================================================
     function getLiveRoomName() {
       return 'diaspora-chantier-' + Date.now();
     }
 
-    document.getElementById('btn-start-live').addEventListener('click', async () => {
-      if (!confirm('Demarrer une visite en direct ?\n\nUn lien sera genere et copie automatiquement. Partagez-le aux investisseurs.')) return;
-
+    document.getElementById('btn-start-live').addEventListener('click', () => {
+      // 1. Genere le lien Jitsi
       const roomName = getLiveRoomName();
       const liveUrl = 'https://meet.jit.si/' + roomName;
 
-      // Copie automatiquement le lien
+      // 2. Prepare le message WhatsApp
+      const message =
+        "🎥 *VISITE EN DIRECT DU CHANTIER*\n\n" +
+        "Bonjour,\n" +
+        "Je vais demarrer une visite video en direct du chantier.\n\n" +
+        "Cliquez sur ce lien pour rejoindre :\n" +
+        liveUrl + "\n\n" +
+        "A tout de suite !";
+
+      // 3. Copie le lien dans le presse-papier (au cas ou)
       if (navigator.clipboard) {
         navigator.clipboard.writeText(liveUrl).catch(() => {});
       }
 
-      // Enregistre le lien localement pour que "Rejoindre" le retrouve
+      // 4. Sauvegarde pour le bouton "Rejoindre"
       localStorage.setItem('live_url', liveUrl);
-      localStorage.setItem('live_started_at', new Date().toISOString());
 
-      // Ouvre le direct
-      window.open(liveUrl, '_blank');
+      // 5. Choix : WhatsApp maintenant ou ouvrir le direct d'abord ?
+      const choice = prompt(
+        "✅ Lien de visite cree !\n\n" +
+        "Tapez :\n" +
+        "1 = Envoyer par WhatsApp (recommande)\n" +
+        "2 = Ouvrir la camera d'abord\n" +
+        "3 = Copier le lien seulement"
+      );
+
+      if (choice === '1') {
+        // Ouvre WhatsApp avec message pre-rempli (l'utilisateur choisit le destinataire)
+        window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
+      } else if (choice === '2') {
+        window.open(liveUrl, '_blank');
+      } else if (choice === '3') {
+        showSuccess('Lien copie !');
+      }
     });
 
     document.getElementById('btn-join-live').addEventListener('click', () => {
@@ -112,7 +134,7 @@
       try {
         const members = await apiGet('project_members', 'user_id=eq.' + userId + '&is_active=eq.true');
         if (!Array.isArray(members) || members.length === 0) {
-          list.innerHTML = '<div class="text-center py-8"><p class="text-slate-400 text-sm">Aucune conversation. Creez un projet pour commencer.</p></div>';
+          list.innerHTML = '<div class="text-center py-8"><p class="text-slate-400 text-sm">Aucune conversation</p></div>';
           return;
         }
 
