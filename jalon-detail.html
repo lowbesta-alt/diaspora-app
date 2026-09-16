@@ -9,104 +9,42 @@
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
 
   <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
-    <a href="projet-detail.html" class="text-2xl">←</a>
+    <a id="btn-back" href="projets.html" class="text-2xl">←</a>
     <span class="font-bold text-sm">Détail du jalon</span>
-    <button class="text-lg">⋯</button>
+    <span class="w-6"></span>
   </header>
 
   <main class="p-4 max-w-2xl mx-auto space-y-4">
 
     <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-5">
       <div class="flex items-center gap-2 mb-3">
-        <span id="jalon-number" class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-semibold">Jalon n°3</span>
-        <span id="jalon-status" class="text-[10px] bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded-full font-semibold">En attente</span>
+        <span id="jalon-number" class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-semibold">Jalon</span>
+        <span id="jalon-status" class="text-[10px] bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded-full font-semibold">...</span>
       </div>
-      <h1 id="jalon-title" class="text-2xl font-bold mb-2">Gros œuvre</h1>
-      <div id="jalon-amount" class="text-2xl font-bold text-emerald-400 mb-1">8 000 000 XAF</div>
-      <p id="jalon-date" class="text-xs text-slate-400">Échéance : 15/04/2026</p>
+      <h1 id="jalon-title" class="text-2xl font-bold mb-2">Chargement...</h1>
+      <div id="jalon-amount" class="text-2xl font-bold text-emerald-400 mb-1">-</div>
+      <p id="jalon-date" class="text-xs text-slate-400"></p>
+      <p id="jalon-description" class="text-xs text-slate-300 mt-3"></p>
     </section>
 
-    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
-      <h2 class="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">Étapes</h2>
-      <div class="flex items-center justify-between text-[10px] text-center">
-        <div class="flex flex-col items-center gap-1 flex-1">
-          <div class="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-xs">✓</div>
-          <span class="text-slate-300">Créé</span>
-        </div>
-        <div class="h-0.5 bg-emerald-500 flex-1"></div>
-        <div class="flex flex-col items-center gap-1 flex-1">
-          <div class="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-xs">✓</div>
-          <span class="text-slate-300">Soumis</span>
-        </div>
-        <div class="h-0.5 bg-orange-500 flex-1"></div>
-        <div class="flex flex-col items-center gap-1 flex-1">
-          <div class="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-xs">⏳</div>
-          <span class="text-orange-300">En validation</span>
-        </div>
-        <div class="h-0.5 bg-slate-700 flex-1"></div>
-        <div class="flex flex-col items-center gap-1 flex-1">
-          <div class="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-xs">○</div>
-          <span class="text-slate-500">Validé</span>
-        </div>
-      </div>
-    </section>
-
-    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
-      <h2 class="text-sm font-bold mb-3">📸 Preuves soumises</h2>
-      <div class="grid grid-cols-3 gap-2 mb-3">
-        <div class="aspect-square bg-gradient-to-br from-emerald-700 to-slate-800 rounded-lg flex items-center justify-center text-2xl">🏗️</div>
-        <div class="aspect-square bg-gradient-to-br from-orange-700 to-slate-800 rounded-lg flex items-center justify-center text-2xl">🏗️</div>
-        <div class="aspect-square bg-gradient-to-br from-blue-700 to-slate-800 rounded-lg flex items-center justify-center text-2xl">🏗️</div>
-      </div>
-      <div class="space-y-2">
-        <div class="flex items-center gap-2 text-xs bg-slate-800/50 rounded-lg p-2">
-          <span>📄</span><span class="flex-1">facture-ciment.pdf</span>
-        </div>
-        <div class="flex items-center gap-2 text-xs bg-slate-800/50 rounded-lg p-2">
-          <span>📄</span><span class="flex-1">facture-fer.pdf</span>
-        </div>
-      </div>
-      <p class="text-[10px] text-slate-400 mt-3">Soumis il y a 2 jours par Chef Projet</p>
-    </section>
-
-    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
-      <h2 class="text-sm font-bold mb-2">📝 Rapport d'avancement</h2>
-      <p class="text-xs text-slate-300 leading-relaxed bg-slate-800/50 p-3 rounded-lg">
-        Les fondations sont coulées sur 100%. Le ferraillage des poteaux a commencé. Livraison du ciment prévue pour le 20/04. Prévision de fin : 5 jours.
-      </p>
-      <p class="text-[10px] text-slate-400 mt-2">— Chef Projet</p>
-    </section>
-
-    <section class="space-y-2">
+    <section id="actions-investor" class="space-y-2 hidden">
       <button id="btn-approve" class="w-full bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-semibold text-sm">
         ✅ Valider le jalon
       </button>
       <button id="btn-reject" class="w-full bg-red-600/80 hover:bg-red-700 py-3 rounded-xl font-semibold text-sm">
         ❌ Refuser avec motif
       </button>
+    </section>
+
+    <section id="actions-pm" class="hidden">
       <button id="btn-submit" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl font-semibold text-sm">
         📸 Soumettre de nouvelles preuves
       </button>
     </section>
 
     <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
-      <h2 class="text-sm font-bold mb-3">💬 Commentaires</h2>
-      <div class="space-y-3">
-        <div>
-          <p class="text-xs font-semibold text-emerald-300">Investisseur Test</p>
-          <p class="text-xs text-slate-300">Les photos sont bonnes, mais manque la facture du fer.</p>
-          <p class="text-[10px] text-slate-500">Il y a 1 jour</p>
-        </div>
-        <div>
-          <p class="text-xs font-semibold text-blue-300">Chef Projet</p>
-          <p class="text-xs text-slate-300">Je l'envoie demain.</p>
-          <p class="text-[10px] text-slate-500">Il y a 20 heures</p>
-        </div>
-      </div>
-      <div class="flex gap-2 mt-4">
-        <input type="text" id="comment-input" placeholder="Ajouter un commentaire..." class="flex-1 bg-slate-800/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
-        <button id="btn-comment" class="bg-emerald-600 px-4 rounded-lg text-sm font-bold">➤</button>
-      </div>
+      <h2 class="text-sm font-bold mb-2">📝 Description</h2>
+      <p id="description-content" class="text-xs text-slate-300">Aucune description</p>
     </section>
 
   </main>
@@ -120,72 +58,98 @@
   </nav>
 
   <script src="config.js"></script>
+  <script src="app.js"></script>
   <script>
+    if (!requireLogin()) throw new Error('Not logged');
+
     const urlParams = new URLSearchParams(window.location.search);
-    const milestoneId = urlParams.get('id') || TEST_MILESTONE_ID;
+    const milestoneId = urlParams.get('id');
+    if (!milestoneId) {
+      alert('Aucun jalon selectionne');
+      window.location.href = 'projets.html';
+    }
+
+    let currentMilestone = null;
+    let projectOwnerId = null;
 
     async function loadMilestone() {
       try {
-        const res = await fetch(SUPABASE_URL + '/rest/v1/milestones?id=eq.' + milestoneId, {
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
-        });
-        const data = await res.json();
-        if (Array.isArray(data) && data[0]) {
-          const m = data[0];
-          document.getElementById('jalon-title').textContent = m.title;
-          document.getElementById('jalon-amount').textContent = Number(m.amount).toLocaleString() + ' XAF';
+        const data = await apiGet('milestones', 'id=eq.' + milestoneId);
+        if (!Array.isArray(data) || !data[0]) {
+          document.getElementById('jalon-title').textContent = 'Jalon introuvable';
+          return;
         }
-      } catch (e) { console.log('Mode démo'); }
-    }
+        const m = data[0];
+        currentMilestone = m;
 
-    async function updateStatus(newStatus, extra = {}) {
-      try {
-        const res = await fetch(SUPABASE_URL + '/rest/v1/milestones?id=eq.' + milestoneId, {
-          method: 'PATCH',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-          },
-          body: JSON.stringify({ status: newStatus, ...extra })
-        });
-        if (res.ok) {
-          alert('Jalon mis à jour !');
-          location.reload();
-        } else {
-          alert('Erreur lors de la mise à jour');
+        document.getElementById('jalon-title').textContent = m.title;
+        document.getElementById('jalon-amount').textContent = formatAmount(m.amount, m.currency);
+        document.getElementById('jalon-number').textContent = 'Jalon n°' + (m.order_index || '?');
+        document.getElementById('jalon-status').textContent = getStatusLabel(m.status);
+        document.getElementById('jalon-status').className = 'text-[10px] ' + getStatusBadgeClass(m.status) + ' px-2 py-0.5 rounded-full font-semibold';
+        if (m.due_date) document.getElementById('jalon-date').textContent = 'Échéance : ' + formatDate(m.due_date);
+        if (m.description) document.getElementById('description-content').textContent = m.description;
+
+        document.getElementById('btn-back').href = 'jalons.html?id=' + m.project_id;
+
+        try {
+          const projData = await apiGet('projects', 'id=eq.' + m.project_id);
+          if (Array.isArray(projData) && projData[0]) {
+            projectOwnerId = projData[0].owner_id;
+          }
+        } catch (e) {}
+
+        const userId = getCurrentUserId();
+        const isOwner = projectOwnerId === userId;
+        const canValidate = isOwner && (m.status === 'submitted' || m.status === 'pending');
+        const canSubmit = !isOwner && (m.status === 'pending' || m.status === 'in_progress' || m.status === 'rejected');
+
+        if (canValidate) {
+          document.getElementById('actions-investor').classList.remove('hidden');
+        }
+        if (canSubmit) {
+          document.getElementById('actions-pm').classList.remove('hidden');
         }
       } catch (e) {
-        alert('Erreur réseau : ' + e.message);
+        document.getElementById('jalon-title').textContent = 'Erreur de chargement';
       }
     }
 
-    document.getElementById('btn-approve').addEventListener('click', () => {
-      if (confirm('Valider ce jalon ?')) {
-        updateStatus('approved', {
+    document.getElementById('btn-approve').addEventListener('click', async () => {
+      if (!confirm('Valider ce jalon ?')) return;
+      try {
+        await apiPatch('milestones', milestoneId, {
+          status: 'approved',
           validated_at: new Date().toISOString(),
-          validated_by: TEST_USER_ID
+          validated_by: getCurrentUserId()
         });
+        showSuccess('Jalon validé !');
+        location.reload();
+      } catch (e) {
+        showError(e.message);
       }
     });
 
-    document.getElementById('btn-reject').addEventListener('click', () => {
+    document.getElementById('btn-reject').addEventListener('click', async () => {
       const reason = prompt('Motif du refus :');
-      if (reason) {
-        updateStatus('rejected', { rejection_reason: reason });
+      if (!reason) return;
+      try {
+        await apiPatch('milestones', milestoneId, {
+          status: 'rejected',
+          rejection_reason: reason,
+          validated_at: new Date().toISOString(),
+          validated_by: getCurrentUserId()
+        });
+        showSuccess('Jalon refusé');
+        location.reload();
+      } catch (e) {
+        showError(e.message);
       }
     });
 
     document.getElementById('btn-submit').addEventListener('click', () => {
-      alert('Redirection vers la page de soumission (à venir)');
-    });
-
-    document.getElementById('btn-comment').addEventListener('click', () => {
-      const input = document.getElementById('comment-input');
-      if (!input.value.trim()) return;
-      alert('Commentaire envoyé (fonctionnalité à venir)');
-      input.value = '';
+      alert('Pour soumettre des preuves, allez dans Documents et uploadez vos photos.');
+      window.location.href = 'document-ajouter.html';
     });
 
     loadMilestone();
