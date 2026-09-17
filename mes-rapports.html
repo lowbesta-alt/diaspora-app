@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes rapports - Espace Artisan</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <main class="p-4 max-w-2xl mx-auto space-y-4 pt-6">
+
+    <div>
+      <h1 class="text-2xl font-extrabold tracking-tight">Mes rapports</h1>
+      <p class="text-sm text-slate-400 mt-1">Soumettez l'avancement de vos chantiers</p>
+    </div>
+
+    <!-- Info procédure -->
+    <div class="bg-amber-500/10 border rounded-2xl p-4 flex items-start gap-3" style="border-color: rgba(245,158,11,0.35);">
+      <span class="text-amber-400 text-xl flex-shrink-0">ℹ️</span>
+      <p class="text-xs text-amber-200 leading-relaxed">
+        Chaque rapport est <strong>vérifié par la plateforme</strong> avant d'être transmis au client. Fournissez des photos claires, horodatées et factices authentiques.
+      </p>
+    </div>
+
+    <!-- Selection chantier -->
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+      <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Chantier concerné</label>
+      <select id="project" class="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-white/10 text-white text-sm focus:border-amber-500 outline-none transition">
+        <option value="">Chargement...</option>
+      </select>
+    </section>
+
+    <!-- Formulaire rapport -->
+    <form id="reportForm" class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-4">
+
+      <div>
+        <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Titre du rapport *</label>
+        <input type="text" id="title" required placeholder="Ex : Fin des fondations" class="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm placeholder-slate-500 transition">
+      </div>
+
+      <div>
+        <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Description du travail effectué *</label>
+        <textarea id="content" required rows="4" placeholder="Décrivez ce qui a été fait, les difficultés éventuelles, les prochaines étapes..." class="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm placeholder-slate-500 transition resize-none"></textarea>
+      </div>
+
+      <div>
+        <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Avancement global du chantier (%)</label>
+        <div class="flex items-center gap-3">
+          <input type="range" id="progress" min="0" max="100" value="0" class="flex-1">
+          <span id="progress-value" class="text-lg font-extrabold text-amber-400 w-14 text-right">0%</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Jalon concerné (optionnel)</label>
+        <select id="milestone" class="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm transition">
+          <option value="">Aucun jalon spécifique</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Point bloquant (optionnel)</label>
+        <input type="text" id="blockers" placeholder="Ex : Attente livraison ciment" class="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm placeholder-slate-500 transition">
+      </div>
+
+      <button type="submit" id="btnSubmit"
+        class="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-[#0a1838] font-extrabold py-4 rounded-xl mt-3 text-sm tracking-wide shadow-lg shadow-amber-500/40 transition">
+        Soumettre le rapport
+      </button>
+
+    </form>
+
+    <!-- Historique -->
+    <section>
+      <h2 class="text-lg font-extrabold tracking-tight mb-3 mt-6">Historique de mes rapports</h2>
+      <div id="reports-list" class="space-y-2">
+        <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-artisan.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Chantiers</a>
+    <a href="mes-rapports.html" class="flex flex-col items-center gap-0.5 text-amber-400 text-[10px]"><span class="text-lg">📸</span>Rapports</a>
+    <a href="mes-paiements.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💰</span>Paiements</a>
+    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
+    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if (!requireRole(['provider', 'project_manager'])) throw new Error('Not allowed');
+
+    const userId = getCurrentUserId();
+    let allProjects = [];
+
+    async function loadProjects() {
+      const select = document.getElementById('project');
+      try {
+        const members = await apiGet('project_members', 'user_id=eq.' + userId + '&is_active=eq.true');
+        if (!Array.isArray(members) || members.length === 0) {
+          select.innerHTML = '<option value="">Aucun chantier assigné</option>';
+          return;
+        }
+        allProjects = [];
+        for (const m of members) {
+          try {
+            const p = await apiGet('projects', 'id=eq.' + m.project_id);
+            if (Array.isArray(p) && p[0]) allProjects.push(p[0]);
+          } catch (e) {}
+        }
+        if (allProjects.length === 0) {
+          select.innerHTML = '<option value="">Aucun chantier</option>';
+          return;
+        }
+        select.innerHTML = '<option value="">Sélectionner un chantier</option>' +
+          allProjects.map(p => '<option value="' + p.id + '">' + escapeHtml(p.title) + '</option>').join('');
+      } catch (e) {
+        select.innerHTML = '<option value="">Erreur</option>';
+      }
+    }
+
+    async function loadMilestones(projectId) {
+      const select = document.getElementById('milestone');
+      if (!projectId) {
+        select.innerHTML = '<option value="">Aucun jalon spécifique</option>';
+        return;
+      }
+      try {
+        const ms = await apiGet('milestones', 'project_id=eq.' + projectId + '&order=order_index');
+        const valid = Array.isArray(ms) ? ms : [];
+        select.innerHTML = '<option value="">Aucun jalon spécifique</option>' +
+          valid.map(m => '<option value="' + m.id + '">' + escapeHtml(m.title) + '</option>').join('');
+      } catch (e) {
+        select.innerHTML = '<option value="">Aucun jalon spécifique</option>';
+      }
+    }
+
+    document.getElementById('project').addEventListener('change', (e) => {
+      loadMilestones(e.target.value);
+    });
+
+    document.getElementById('progress').addEventListener('input', (e) => {
+      document.getElementById('progress-value').textContent = e.target.value + '%';
+    });
+
+    document.getElementById('reportForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const projectId = document.getElementById('project').value;
+      const title = document.getElementById('title').value.trim();
+      const content = document.getElementById('content').value.trim();
+      const progress = parseInt(document.getElementById('progress').value);
+      const milestoneId = document.getElementById('milestone').value;
+      const blockers = document.getElementById('blockers').value.trim();
+
+      if (!projectId) { alert('Sélectionnez un chantier'); return; }
+      if (!title) { alert('Entrez un titre'); return; }
+      if (!content) { alert('Entrez la description'); return; }
+
+      const btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Envoi en cours...';
+
+      try {
+        await apiPost('reports', {
+          project_id: projectId,
+          author_id: userId,
+          milestone_id: milestoneId || null,
+          title: title,
+          content: content,
+          progress_percent: progress,
+          blockers: blockers || null
+        });
+
+        // Notifie dans l'audit_log pour que l'admin le voit
+        try {
+          await apiPost('audit_log', {
+            actor_id: userId,
+            action: 'insert',
+            table_name: 'reports',
+            project_id: projectId,
+            new_data: { type: 'report_submitted', title: title }
+          });
+        } catch (e) {}
+
+        showSuccess('Rapport envoyé ! La plateforme va le vérifier.');
+        document.getElementById('reportForm').reset();
+        document.getElementById('progress-value').textContent = '0%';
+        loadReports();
+      } catch (err) {
+        showError(err.message);
+      }
+      btn.disabled = false;
+      btn.textContent = 'Soumettre le rapport';
+    });
+
+    async function loadReports() {
+      const list = document.getElementById('reports-list');
+      try {
+        const reports = await apiGet('reports', 'author_id=eq.' + userId + '&order=created_at.desc&limit=10');
+        const valid = Array.isArray(reports) ? reports : [];
+        if (valid.length === 0) {
+          list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun rapport pour le moment</p></div>';
+          return;
+        }
+        list.innerHTML = valid.map(r => `
+          <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-3">
+            <div class="flex justify-between items-start mb-1">
+              <h3 class="font-bold text-sm">${escapeHtml(r.title)}</h3>
+              <span class="text-[10px] text-amber-300 font-semibold">${r.progress_percent || 0}%</span>
+            </div>
+            <p class="text-xs text-slate-400 truncate">${escapeHtml(r.content)}</p>
+            <p class="text-[10px] text-slate-500 mt-2">${formatDate(r.created_at)}</p>
+          </div>
+        `).join('');
+      } catch (e) {
+        list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Impossible de charger</p>';
+      }
+    }
+
+    loadProjects();
+    loadReports();
+  </script>
+</body>
+</html>
