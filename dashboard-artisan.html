@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes chantiers - Espace Artisan</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <main class="p-4 max-w-2xl mx-auto space-y-6 pt-6">
+
+    <!-- Bienvenue -->
+    <section class="bg-gradient-to-br from-amber-500/15 to-[#0f2252]/60 rounded-3xl p-6" style="border: 1px solid rgba(245,158,11,0.35);">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-400 flex items-center justify-center text-2xl">🏗️</div>
+        <div>
+          <div class="text-xs font-bold text-amber-300 tracking-widest uppercase">Espace Artisan</div>
+          <h1 class="text-xl font-extrabold">Bonjour <span id="user-name">👷</span></h1>
+        </div>
+      </div>
+      <p class="text-sm text-slate-300 leading-relaxed">Voici les chantiers qui vous sont assignés par la plateforme.</p>
+    </section>
+
+    <!-- Stats -->
+    <section class="grid grid-cols-3 gap-3">
+      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 text-center">
+        <div class="text-2xl">🏗️</div>
+        <div class="text-2xl font-extrabold mt-1" id="stat-chantiers">-</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Chantiers</div>
+      </div>
+      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 text-center">
+        <div class="text-2xl">⏳</div>
+        <div class="text-2xl font-extrabold mt-1 text-amber-400" id="stat-jalons">-</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Jalons en cours</div>
+      </div>
+      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 text-center">
+        <div class="text-2xl">💰</div>
+        <div class="text-2xl font-extrabold mt-1 text-emerald-400" id="stat-paiements">-</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">FCFA reçus</div>
+      </div>
+    </section>
+
+    <!-- Action principale -->
+    <a href="mes-rapports.html" class="block bg-gradient-to-r from-amber-500 to-amber-400 text-[#0a1838] rounded-3xl p-5 shadow-2xl shadow-amber-500/30">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-[#0a1838]/20 flex items-center justify-center text-2xl">📸</div>
+        <div class="flex-1">
+          <div class="font-extrabold text-base">Soumettre un rapport</div>
+          <div class="text-xs opacity-80 mt-0.5">Envoyez photos, vidéos et avancement</div>
+        </div>
+        <span class="text-2xl">→</span>
+      </div>
+    </a>
+
+    <!-- Liste chantiers -->
+    <section>
+      <h2 class="text-lg font-extrabold tracking-tight mb-3">Mes chantiers assignés</h2>
+      <div id="chantiers-list" class="space-y-3">
+        <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-artisan.html" class="flex flex-col items-center gap-0.5 text-amber-400 text-[10px]"><span class="text-lg">🏠</span>Chantiers</a>
+    <a href="mes-rapports.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📸</span>Rapports</a>
+    <a href="mes-paiements.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💰</span>Paiements</a>
+    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
+    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if (!requireRole(['provider', 'project_manager'])) throw new Error('Not allowed');
+
+    const userId = getCurrentUserId();
+    const userName = getCurrentUserName();
+    if (userName) document.getElementById('user-name').textContent = userName.split(' ')[0];
+
+    async function loadChantiers() {
+      const list = document.getElementById('chantiers-list');
+      try {
+        // Recupere les projets ou l'artisan est membre
+        const members = await apiGet('project_members', 'user_id=eq.' + userId + '&is_active=eq.true');
+
+        if (!Array.isArray(members) || members.length === 0) {
+          list.innerHTML = '<div class="text-center py-12 bg-white/5 rounded-2xl border border-white/10"><div class="text-4xl mb-3 opacity-40">🏗️</div><p class="text-slate-400 text-sm">Aucun chantier assigné</p><p class="text-slate-500 text-xs mt-2">La plateforme vous enverra des missions dès qu\'elles seront prêtes.</p></div>';
+          document.getElementById('stat-chantiers').textContent = '0';
+          document.getElementById('stat-jalons').textContent = '0';
+          document.getElementById('stat-paiements').textContent = '0';
+          return;
+        }
+
+        // Charge chaque projet
+        const chantiers = [];
+        let totalJalons = 0;
+        for (const m of members) {
+          try {
+            const proj = await apiGet('projects', 'id=eq.' + m.project_id);
+            if (Array.isArray(proj) && proj[0]) {
+              const p = proj[0];
+              // Compte les jalons en cours
+              let jalons = [];
+              try {
+                jalons = await apiGet('milestones', 'project_id=eq.' + m.project_id);
+              } catch (e) {}
+              const jalonsEnCours = Array.isArray(jalons) ? jalons.filter(j => j.status === 'pending' || j.status === 'in_progress' || j.status === 'submitted').length : 0;
+              totalJalons += jalonsEnCours;
+
+              chantiers.push({
+                project: p,
+                role: m.role,
+                jalonsEnCours: jalonsEnCours,
+                totalJalons: Array.isArray(jalons) ? jalons.length : 0
+              });
+            }
+          } catch (e) {}
+        }
+
+        document.getElementById('stat-chantiers').textContent = chantiers.length;
+        document.getElementById('stat-jalons').textContent = totalJalons;
+
+        // Paiements
+        try {
+          const txs = await apiGet('transactions', 'initiated_by=eq.' + userId + '&transaction_type=eq.milestone_release');
+          const total = Array.isArray(txs) ? txs.reduce((s, t) => s + Number(t.amount || 0), 0) : 0;
+          document.getElementById('stat-paiements').textContent = (total / 1000000).toFixed(1) + 'M';
+        } catch (e) {
+          document.getElementById('stat-paiements').textContent = '0';
+        }
+
+        // Affiche
+        if (chantiers.length === 0) {
+          list.innerHTML = '<div class="text-center py-12 bg-white/5 rounded-2xl border border-white/10"><p class="text-slate-400 text-sm">Aucun chantier</p></div>';
+          return;
+        }
+
+        list.innerHTML = chantiers.map(c => {
+          const p = c.project;
+          const progress = c.totalJalons > 0 ? Math.round(((c.totalJalons - c.jalonsEnCours) / c.totalJalons) * 100) : 0;
+          return `
+            <a href="projet-detail.html?id=${p.id}" class="block bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition">
+              <div class="flex justify-between items-start mb-2">
+                <h3 class="font-extrabold text-sm">${escapeHtml(p.title)}</h3>
+                ${renderStatusBadge(p.status)}
+              </div>
+              <p class="text-xs text-slate-400 mb-3">${escapeHtml(p.description || '')}</p>
+              <div class="w-full bg-slate-700/50 rounded-full h-2 mb-2">
+                <div class="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full" style="width: ${progress}%"></div>
+              </div>
+              <div class="flex justify-between text-[11px] text-slate-400">
+                <span>📍 ${escapeHtml(p.city || '')}</span>
+                <span>${c.jalonsEnCours} jalon(s) à soumettre</span>
+              </div>
+            </a>
+          `;
+        }).join('');
+
+      } catch (e) {
+        list.innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur de chargement</p>';
+      }
+    }
+
+    loadChantiers();
+  </script>
+</body>
+</html>
