@@ -1,6 +1,6 @@
 // ============================================================
 // APP.JS - Boite a outils centrale Espace Diaspora
-// v11.0 : menu investisseur epure
+// v12.0 : MODE TEST ADMIN (basculer entre les 3 roles)
 // ============================================================
 
 // ---------- Injection du favicon ----------
@@ -44,7 +44,8 @@ const ED_ICONS = {
   building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="9" y1="22" x2="9" y2="18"/><line x1="15" y1="22" x2="15" y2="18"/><line x1="9" y1="6" x2="9" y2="6.01"/><line x1="15" y1="6" x2="15" y2="6.01"/><line x1="9" y1="10" x2="9" y2="10.01"/><line x1="15" y1="10" x2="15" y2="10.01"/><line x1="9" y1="14" x2="9" y2="14.01"/><line x1="15" y1="14" x2="15" y2="14.01"/></svg>',
   users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
   grid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
-  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>'
+  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
+  eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
 };
 
 const ED_EMOJI_MAP = {
@@ -129,15 +130,78 @@ const ED_MENUS = {
 
 const ED_MENU_ITEMS = ED_MENUS.investor;
 
-function edGetRole() {
+// ---------- Gestion des roles ----------
+function getRealUserRole() {
   return localStorage.getItem('user_role') || 'investor';
 }
 
+// Role "effectif" : ce que l'utilisateur voit. Un admin en mode test voit un autre role.
+function getCurrentUserRole() {
+  const realRole = getRealUserRole();
+  if (realRole === 'admin') {
+    const testRole = localStorage.getItem('test_role');
+    if (testRole && testRole !== 'admin') return testRole;
+  }
+  return realRole;
+}
+
+// Role "reel" (admin reste admin, meme en mode test)
+function isAdminModeTest() {
+  return getRealUserRole() === 'admin' && !!localStorage.getItem('test_role');
+}
+
+function setTestRole(role) {
+  localStorage.setItem('test_role', role);
+}
+
+function clearTestRole() {
+  localStorage.removeItem('test_role');
+}
+
 function edGetMenuItems() {
-  const role = edGetRole();
+  const role = getCurrentUserRole();
   if (role === 'admin') return ED_MENUS.admin;
   if (role === 'provider' || role === 'project_manager') return ED_MENUS.provider;
   return ED_MENUS.investor;
+}
+
+// ============================================================
+// BANDEAU MODE TEST
+// ============================================================
+function edInjectTestBanner() {
+  if (!isAdminModeTest()) return;
+  if (document.getElementById('edTestBanner')) return;
+
+  const testRole = localStorage.getItem('test_role');
+  const labels = {
+    'investor': 'Client / Diaspora',
+    'provider': 'Artisan / Partenaire BTP'
+  };
+  const label = labels[testRole] || testRole;
+
+  const banner = document.createElement('div');
+  banner.id = 'edTestBanner';
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:60;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#0a1838;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 4px 12px rgba(245,158,11,0.4);';
+  banner.innerHTML =
+    '<div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:12px;">' +
+      '<span>👁️</span>' +
+      '<span>Mode test : ' + label + '</span>' +
+    '</div>' +
+    '<button id="edExitTest" style="background:#0a1838;color:#fbbf24;border:none;padding:6px 12px;border-radius:8px;font-weight:800;font-size:11px;cursor:pointer;">QUITTER LE TEST</button>';
+
+  document.body.insertBefore(banner, document.body.firstChild);
+
+  document.getElementById('edExitTest').addEventListener('click', function() {
+    clearTestRole();
+    window.location.href = 'dashboard-admin.html';
+  });
+
+  // Ajoute un padding top pour ne pas cacher le contenu
+  setTimeout(function() {
+    const header = document.querySelector('.ed-header');
+    if (header) header.style.marginTop = '40px';
+    else document.body.style.paddingTop = '40px';
+  }, 100);
 }
 
 // ============================================================
@@ -156,7 +220,7 @@ function edInjectHeader() {
 
   const email = getCurrentUserEmail() || '';
   const initials = email.substring(0, 2).toUpperCase() || 'IT';
-  const role = edGetRole();
+  const role = getCurrentUserRole();
   const items = edGetMenuItems();
 
   function makeLink(item) {
@@ -235,7 +299,6 @@ function getToken() { return localStorage.getItem('access_token'); }
 function getCurrentUserId() { return localStorage.getItem('user_id'); }
 function getCurrentUserEmail() { return localStorage.getItem('user_email'); }
 function getCurrentUserName() { return localStorage.getItem('user_name') || ''; }
-function getCurrentUserRole() { return localStorage.getItem('user_role') || 'investor'; }
 function isLoggedIn() { return !!getToken() && !!getCurrentUserId(); }
 
 function requireLogin() {
@@ -249,11 +312,15 @@ function requireLogin() {
 
 function requireRole(allowedRoles) {
   if (!requireLogin()) return false;
-  const role = getCurrentUserRole();
-  if (!allowedRoles.includes(role)) {
+  const realRole = getRealUserRole();
+  // Admin a toujours acces, peu importe son mode test
+  if (realRole === 'admin') return true;
+
+  const effectiveRole = getCurrentUserRole();
+  if (!allowedRoles.includes(effectiveRole)) {
     alert('Acces non autorise');
-    if (role === 'admin') window.location.href = 'dashboard-admin.html';
-    else if (role === 'provider' || role === 'project_manager') window.location.href = 'dashboard-artisan.html';
+    if (effectiveRole === 'admin') window.location.href = 'dashboard-admin.html';
+    else if (effectiveRole === 'provider' || effectiveRole === 'project_manager') window.location.href = 'dashboard-artisan.html';
     else window.location.href = 'dashboard-investisseur.html';
     return false;
   }
@@ -266,6 +333,7 @@ function logout() {
   localStorage.removeItem('user_email');
   localStorage.removeItem('user_role');
   localStorage.removeItem('user_name');
+  localStorage.removeItem('test_role');
   window.location.href = 'index.html';
 }
 
@@ -407,6 +475,7 @@ function setupUserHeader() {}
 // INIT
 // ============================================================
 function edInit() {
+  edInjectTestBanner();
   edInjectHeader();
   setTimeout(edReplaceEmojis, 500);
 }
