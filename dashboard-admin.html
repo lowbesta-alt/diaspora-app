@@ -22,6 +22,30 @@
       <p class="text-sm text-slate-300 leading-relaxed">Vue globale de la plateforme : projets, artisans, candidatures et flux financiers.</p>
     </section>
 
+    <!-- MODE TEST : BASCULER ENTRE LES ROLES -->
+    <section class="bg-gradient-to-br from-amber-500/15 to-[#0f2252]/60 rounded-3xl p-6" style="border: 1px solid rgba(245,158,11,0.4);">
+      <div class="flex items-start gap-3 mb-4">
+        <div class="text-3xl">👁️</div>
+        <div class="flex-1">
+          <h2 class="text-base font-extrabold text-amber-300">Mode test — Voir l'app comme un utilisateur</h2>
+          <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+            Basculez dans la vue d'un Client ou d'un Artisan pour tester la plateforme. Vous gardez votre compte admin, vous pouvez revenir à tout moment.
+          </p>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <button id="btn-test-client" class="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold py-3.5 rounded-xl text-xs flex flex-col items-center gap-1 transition shadow-lg shadow-emerald-500/30">
+          <span class="text-xl">🏠</span>
+          <span>Voir en Client</span>
+        </button>
+        <button id="btn-test-artisan" class="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-bold py-3.5 rounded-xl text-xs flex flex-col items-center gap-1 transition shadow-lg shadow-amber-500/30">
+          <span class="text-xl">🏗️</span>
+          <span>Voir en Artisan</span>
+        </button>
+      </div>
+      <p class="text-[10px] text-slate-500 mt-3 text-center">Un bandeau orange s'affichera pendant le test. Cliquez sur "Quitter" pour revenir ici.</p>
+    </section>
+
     <!-- STATS GLOBALES -->
     <section class="grid grid-cols-2 md:grid-cols-4 gap-3">
       <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 text-center">
@@ -59,9 +83,7 @@
 
     <!-- RAPPORTS A VERIFIER -->
     <section>
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-extrabold tracking-tight">Rapports à vérifier</h2>
-      </div>
+      <h2 class="text-lg font-extrabold tracking-tight mb-3">Rapports à vérifier</h2>
       <div id="reports-list" class="space-y-2">
         <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
       </div>
@@ -91,8 +113,25 @@
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script>
+    // Admin uniquement (mais tolere si en mode test)
     if (!requireRole(['admin'])) throw new Error('Not allowed');
 
+    // ============================================
+    // Boutons Mode Test
+    // ============================================
+    document.getElementById('btn-test-client').addEventListener('click', function() {
+      setTestRole('investor');
+      window.location.href = 'dashboard-investisseur.html';
+    });
+
+    document.getElementById('btn-test-artisan').addEventListener('click', function() {
+      setTestRole('provider');
+      window.location.href = 'dashboard-artisan.html';
+    });
+
+    // ============================================
+    // Chargement des donnees
+    // ============================================
     async function loadStats() {
       try {
         const projects = await apiGet('projects', '');
