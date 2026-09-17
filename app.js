@@ -109,13 +109,13 @@ function edReplaceEmojis() {
 const ED_MENU_ITEMS = [
   { href: 'dashboard-investisseur.html', icon: 'home', label: 'Accueil' },
   { href: 'projets.html', icon: 'folder', label: 'Projets' },
+  { href: 'partenaires.html', icon: 'handshake', label: 'Partenaires' },
   { href: 'portefeuille.html', icon: 'wallet', label: 'Portefeuille' },
   { href: 'documents.html', icon: 'file', label: 'Documents' },
   { href: 'messages.html', icon: 'message', label: 'Messages' },
   { href: 'contrats.html', icon: 'clipboard', label: 'Contrats' },
   { href: 'profil.html', icon: 'user', label: 'Profil' }
 ];
-
 function edCurrentPage() {
   return window.location.pathname.split('/').pop() || 'index.html';
 }
