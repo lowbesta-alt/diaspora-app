@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partenaires BTP - Administration</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <main class="p-4 max-w-3xl mx-auto space-y-4 pt-6">
+
+    <div>
+      <h1 class="text-2xl font-extrabold tracking-tight">Candidatures partenaires</h1>
+      <p class="text-sm text-slate-400 mt-1">Approuvez ou refusez les entreprises BTP</p>
+    </div>
+
+    <!-- Filtres -->
+    <div class="flex gap-2 overflow-x-auto pb-1">
+      <button data-filter="pending" class="filter-btn font-bold px-5 py-2 rounded-full text-xs whitespace-nowrap" style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #0a1838;">⏳ En attente</button>
+      <button data-filter="approved" class="filter-btn bg-white/5 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap" style="border: 1px solid rgba(16,185,129,0.3);">✅ Approuvés</button>
+      <button data-filter="rejected" class="filter-btn bg-white/5 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap" style="border: 1px solid rgba(239,68,68,0.3);">❌ Refusés</button>
+      <button data-filter="all" class="filter-btn bg-white/5 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap" style="border: 1px solid rgba(16,185,129,0.3);">Tous</button>
+    </div>
+
+    <!-- Stats -->
+    <section class="grid grid-cols-3 gap-2 text-center">
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-lg font-bold text-amber-400" id="stat-pending">-</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">En attente</div>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-lg font-bold text-emerald-400" id="stat-approved">-</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Approuvés</div>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-lg font-bold text-red-400" id="stat-rejected">-</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Refusés</div>
+      </div>
+    </section>
+
+    <!-- Liste -->
+    <div id="partners-list" class="space-y-3">
+      <p class="text-slate-400 text-sm text-center py-8">Chargement...</p>
+    </div>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-admin.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🎯</span>Contrôle</a>
+    <a href="admin-leads.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📋</span>Leads</a>
+    <a href="admin-chantiers.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏗️</span>Chantiers</a>
+    <a href="admin-partenaires.html" class="flex flex-col items-center gap-0.5 text-sky-400 text-[10px]"><span class="text-lg">🤝</span>Partenaires</a>
+    <a href="admin-utilisateurs.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👥</span>Users</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if (!requireRole(['admin'])) throw new Error('Not allowed');
+
+    let allPartners = [];
+    let currentFilter = 'pending';
+
+    const professionIcons = {
+      "Entreprise générale de BTP": "🏗️",
+      "Cabinet d'architecture": "📐",
+      "Bureau de contrôle / Maîtrise d'œuvre": "🎯",
+      "Fournisseur de matériaux": "📦"
+    };
+
+    function renderPartners(list) {
+      const container = document.getElementById('partners-list');
+      if (list.length === 0) {
+        container.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">📭</div><p class="text-slate-400 text-sm">Aucune candidature</p></div>';
+        return;
+      }
+
+      container.innerHTML = list.map(c => {
+        const icon = professionIcons[c.profession] || '🏢';
+        const initials = (c.company_name || 'P').substring(0, 2).toUpperCase();
+        const isPending = c.status === 'pending';
+        const isApproved = c.status === 'approved';
+        const isRejected = c.status === 'rejected';
+
+        let statusBadge = '';
+        if (isPending) statusBadge = '<span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">EN ATTENTE</span>';
+        else if (isApproved) statusBadge = '<span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">APPROUVÉ</span>';
+        else if (isRejected) statusBadge = '<span class="text-[10px] bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full font-bold">REFUSÉ</span>';
+
+        return `
+          <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+            <div class="flex items-start gap-3 mb-3">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/30 to-amber-400/20 flex items-center justify-center text-2xl flex-shrink-0">
+                ${icon}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-start gap-2 mb-1">
+                  <h3 class="font-extrabold text-sm leading-tight">${escapeHtml(c.company_name)}</h3>
+                  ${statusBadge}
+                </div>
+                <p class="text-[10px] text-amber-300 font-semibold uppercase tracking-wider">${escapeHtml(c.profession)}</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-400 mb-3">
+              <div>👤 ${escapeHtml(c.contact_name)}</div>
+              <div>📍 ${escapeHtml(c.city)}, ${escapeHtml(c.country)}</div>
+              <div>✉️ ${escapeHtml(c.email)}</div>
+              <div>📞 ${escapeHtml(c.phone)}</div>
+              ${c.experience_years ? `<div>⭐ ${c.experience_years} ans d'activité</div>` : ''}
+              ${c.website ? `<div>🔗 <a href="${escapeHtml(c.website)}" target="_blank" class="text-sky-400 hover:underline">Site web</a></div>` : ''}
+            </div>
+
+            <p class="text-xs text-slate-300 leading-relaxed bg-slate-800/40 rounded-xl p-3 mb-3">
+              ${escapeHtml(c.description || '')}
+            </p>
+
+            ${isPending ? `
+              <div class="grid grid-cols-2 gap-2">
+                <button class="approve-btn w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold py-3 rounded-xl text-xs transition" data-id="${c.id}">
+                  ✅ Approuver
+                </button>
+                <button class="reject-btn w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-bold py-3 rounded-xl text-xs transition" data-id="${c.id}">
+                  ❌ Refuser
+                </button>
+              </div>
+            ` : ''}
+
+            ${isApproved ? `
+              <div class="text-center text-[10px] text-emerald-400 font-semibold py-2">
+                ✓ Candidature validée
+              </div>
+            ` : ''}
+
+            ${isRejected ? `
+              <div class="text-center text-[10px] text-red-400 font-semibold py-2">
+                Candidature refusée
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+
+      // Attache les boutons
+      document.querySelectorAll('.approve-btn').forEach(btn => {
+        btn.addEventListener('click', () => handleAction(btn.dataset.id, 'approved'));
+      });
+      document.querySelectorAll('.reject-btn').forEach(btn => {
+        btn.addEventListener('click', () => handleAction(btn.dataset.id, 'rejected'));
+      });
+    }
+
+    async function handleAction(id, newStatus) {
+      const confirm_msg = newStatus === 'approved'
+        ? 'Approuver cette candidature ?\n\nL\'entreprise rejoindra votre réseau de partenaires agréés.'
+        : 'Refuser cette candidature ?';
+
+      if (!confirm(confirm_msg)) return;
+
+      try {
+        await apiPatch('partnership_requests', id, { status: newStatus });
+        showSuccess(newStatus === 'approved' ? 'Candidature approuvée !' : 'Candidature refusée');
+
+        // Ajoute au journal d'audit
+        try {
+          await apiPost('audit_log', {
+            actor_id: getCurrentUserId(),
+            action: 'update',
+            table_name: 'partnership_requests',
+            record_id: id,
+            new_data: { status: newStatus }
+          });
+        } catch (e) {}
+
+        loadPartners();
+      } catch (e) {
+        showError(e.message);
+      }
+    }
+
+    async function loadPartners() {
+      try {
+        const data = await apiGet('partnership_requests', 'order=created_at.desc');
+        allPartners = Array.isArray(data) ? data : [];
+
+        document.getElementById('stat-pending').textContent = allPartners.filter(p => p.status === 'pending').length;
+        document.getElementById('stat-approved').textContent = allPartners.filter(p => p.status === 'approved').length;
+        document.getElementById('stat-rejected').textContent = allPartners.filter(p => p.status === 'rejected').length;
+
+        renderFiltered();
+      } catch (e) {
+        document.getElementById('partners-list').innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur de chargement</p>';
+      }
+    }
+
+    function renderFiltered() {
+      if (currentFilter === 'all') renderPartners(allPartners);
+      else renderPartners(allPartners.filter(p => p.status === currentFilter));
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.style.background = 'rgba(255,255,255,0.05)';
+          b.style.color = '#ffffff';
+          b.style.border = '1px solid rgba(16,185,129,0.3)';
+        });
+        btn.style.background = 'linear-gradient(135deg, #f59e0b, #fbbf24)';
+        btn.style.color = '#0a1838';
+        btn.style.border = 'none';
+        currentFilter = btn.dataset.filter;
+        renderFiltered();
+      });
+    });
+
+    loadPartners();
+  </script>
+</body>
+</html>
