@@ -1,20 +1,17 @@
 // ============================================================
 // APP.JS - Boite a outils centrale Espace Diaspora
-// v8.0 : theme + header + icones + images + favicon
+// v9.0 : theme + header + icones + images + favicon + partenaires
 // ============================================================
 
 // ---------- Injection du favicon dans toutes les pages ----------
 (function() {
   if (!document.querySelector('link[rel="icon"][href="favicon.svg"]')) {
-    // Supprime les anciens favicons s'ils existent
     document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach(el => el.remove());
-    
     const link = document.createElement('link');
     link.rel = 'icon';
     link.type = 'image/svg+xml';
     link.href = 'favicon.svg';
     document.head.appendChild(link);
-
     const appleLink = document.createElement('link');
     appleLink.rel = 'apple-touch-icon';
     appleLink.href = 'favicon.svg';
@@ -22,7 +19,7 @@
   }
 })();
 
-// ---------- Bibliotheque d'icones SVG (Lucide) ----------
+// ---------- Bibliotheque d'icones SVG ----------
 const ED_ICONS = {
   globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
   home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
@@ -51,7 +48,6 @@ const ED_ICONS = {
   building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="9" y1="22" x2="9" y2="18"/><line x1="15" y1="22" x2="15" y2="18"/><line x1="9" y1="6" x2="9" y2="6.01"/><line x1="15" y1="6" x2="15" y2="6.01"/><line x1="9" y1="10" x2="9" y2="10.01"/><line x1="15" y1="10" x2="15" y2="10.01"/><line x1="9" y1="14" x2="9" y2="14.01"/><line x1="15" y1="14" x2="15" y2="14.01"/></svg>'
 };
 
-// Mapping emoji -> nom icone
 const ED_EMOJI_MAP = {
   '🌍': 'globe', '🌎': 'globe', '🏠': 'home', '📁': 'folder',
   '💰': 'wallet', '💵': 'dollar', '💬': 'message', '👤': 'user',
@@ -116,6 +112,7 @@ const ED_MENU_ITEMS = [
   { href: 'contrats.html', icon: 'clipboard', label: 'Contrats' },
   { href: 'profil.html', icon: 'user', label: 'Profil' }
 ];
+
 function edCurrentPage() {
   return window.location.pathname.split('/').pop() || 'index.html';
 }
