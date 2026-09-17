@@ -14,14 +14,12 @@
     <div class="w-full max-w-md bg-white/5 backdrop-blur-xl rounded-3xl p-8 shadow-2xl"
          style="border: 1px solid rgba(16,185,129,0.35); box-shadow: 0 20px 60px -20px rgba(16,185,129,0.25), 0 0 0 1px rgba(16,185,129,0.05) inset;">
 
-      <!-- Logo -->
       <div class="flex flex-col items-center mb-8">
         <img src="logo.svg" alt="Espace Diaspora" class="w-16 h-16 mb-4" style="filter: drop-shadow(0 8px 24px rgba(16,185,129,0.5));">
         <h1 class="text-2xl font-extrabold text-white">Espace Diaspora</h1>
         <p class="text-[11px] font-bold mt-2 tracking-[0.15em] uppercase" style="color: #34d399;">Investir au pays, en confiance</p>
       </div>
 
-      <!-- Encadré sécurité émeraude -->
       <div class="flex items-center gap-2 rounded-xl px-3 py-2.5 mb-6"
            style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3);">
         <span class="text-emerald-400 text-sm">🔒</span>
@@ -53,7 +51,7 @@
           </div>
         </div>
 
-        <button type="submit"
+        <button type="submit" id="btnSubmit"
           class="w-full font-extrabold py-4 rounded-xl mt-3 text-sm tracking-wide transition"
           style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #fcd34d 100%); color: #0a1838; box-shadow: 0 10px 24px -8px rgba(245,158,11,0.55);">
           Accéder à mon espace
@@ -95,28 +93,69 @@
       const password = document.getElementById('password').value;
       if (!email || !password) { alert('Remplis email et mot de passe'); return; }
 
-      const btn = e.target.querySelector('button[type="submit"]');
+      const btn = document.getElementById('btnSubmit');
       const originalText = btn.innerHTML;
       btn.disabled = true;
       btn.textContent = 'Connexion...';
 
       try {
+        // 1. Authentification
         const res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
           method: 'POST',
           headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
         });
         const data = await res.json();
-        if (data.access_token) {
-          localStorage.setItem('access_token', data.access_token);
-          localStorage.setItem('user_id', data.user.id);
-          localStorage.setItem('user_email', data.user.email);
-          window.location.href = 'dashboard-investisseur.html';
-        } else {
+
+        if (!data.access_token) {
           showError(data.error_description || data.msg || 'Identifiants invalides');
           btn.disabled = false;
           btn.innerHTML = originalText;
+          return;
         }
+
+        // 2. Stocke le token
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('user_id', data.user.id);
+        localStorage.setItem('user_email', data.user.email);
+
+        // 3. Récupère le rôle depuis profiles
+        btn.textContent = 'Chargement du profil...';
+        let role = 'investor';
+        try {
+          const profileRes = await fetch(
+            SUPABASE_URL + '/rest/v1/profiles?id=eq.' + data.user.id + '&select=default_role,full_name',
+            {
+              headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': 'Bearer ' + data.access_token,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+          const profiles = await profileRes.json();
+          if (Array.isArray(profiles) && profiles[0] && profiles[0].default_role) {
+            role = profiles[0].default_role;
+          }
+          if (Array.isArray(profiles) && profiles[0] && profiles[0].full_name) {
+            localStorage.setItem('user_name', profiles[0].full_name);
+          }
+        } catch (err) {
+          console.log('Erreur chargement role, utilisation par defaut');
+        }
+
+        localStorage.setItem('user_role', role);
+
+        // 4. Redirection selon le rôle
+        if (role === 'admin') {
+          window.location.href = 'dashboard-admin.html';
+        } else if (role === 'provider' || role === 'project_manager') {
+          window.location.href = 'dashboard-artisan.html';
+        } else {
+          // investor par defaut
+          window.location.href = 'dashboard-investisseur.html';
+        }
+
       } catch (err) {
         showError('Erreur réseau : ' + err.message);
         btn.disabled = false;
