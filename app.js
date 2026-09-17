@@ -1,9 +1,9 @@
 // ============================================================
 // APP.JS - Boite a outils centrale Espace Diaspora
-// v9.0 : theme + header + icones + images + favicon + partenaires
+// v10.0 : header adaptatif selon le role (investor / provider / admin)
 // ============================================================
 
-// ---------- Injection du favicon dans toutes les pages ----------
+// ---------- Injection du favicon ----------
 (function() {
   if (!document.querySelector('link[rel="icon"][href="favicon.svg"]')) {
     document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach(el => el.remove());
@@ -12,10 +12,6 @@
     link.type = 'image/svg+xml';
     link.href = 'favicon.svg';
     document.head.appendChild(link);
-    const appleLink = document.createElement('link');
-    appleLink.rel = 'apple-touch-icon';
-    appleLink.href = 'favicon.svg';
-    document.head.appendChild(appleLink);
   }
 })();
 
@@ -45,13 +41,16 @@ const ED_ICONS = {
   handshake: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-2.5-2.5a2.12 2.12 0 0 1 0-3 2.12 2.12 0 0 1 3 0L13 13"/><path d="M14 14l2.5 2.5a2.12 2.12 0 0 1 0 3 2.12 2.12 0 0 1-3 0L12 18"/><path d="M20 9l-3-3"/><path d="M4 9l3-3"/><path d="M2 12h3l2 2"/><path d="M22 12h-3l-2 2"/></svg>',
   target: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
   dollar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
-  building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="9" y1="22" x2="9" y2="18"/><line x1="15" y1="22" x2="15" y2="18"/><line x1="9" y1="6" x2="9" y2="6.01"/><line x1="15" y1="6" x2="15" y2="6.01"/><line x1="9" y1="10" x2="9" y2="10.01"/><line x1="15" y1="10" x2="15" y2="10.01"/><line x1="9" y1="14" x2="9" y2="14.01"/><line x1="15" y1="14" x2="15" y2="14.01"/></svg>'
+  building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="9" y1="22" x2="9" y2="18"/><line x1="15" y1="22" x2="15" y2="18"/><line x1="9" y1="6" x2="9" y2="6.01"/><line x1="15" y1="6" x2="15" y2="6.01"/><line x1="9" y1="10" x2="9" y2="10.01"/><line x1="15" y1="10" x2="15" y2="10.01"/><line x1="9" y1="14" x2="9" y2="14.01"/><line x1="15" y1="14" x2="15" y2="14.01"/></svg>',
+  users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  grid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>'
 };
 
 const ED_EMOJI_MAP = {
   '🌍': 'globe', '🌎': 'globe', '🏠': 'home', '📁': 'folder',
   '💰': 'wallet', '💵': 'dollar', '💬': 'message', '👤': 'user',
-  '👥': 'user', '📄': 'file', '📋': 'clipboard', '🔔': 'bell',
+  '👥': 'users', '📄': 'file', '📋': 'clipboard', '🔔': 'bell',
   '🔒': 'lock', '✅': 'check', '⏳': 'clock', '📸': 'camera',
   '🎥': 'video', '📍': 'mapPin', '⚙️': 'settings', '🔍': 'search',
   '➕': 'plus', '✏️': 'edit', '🗑️': 'trash', '⚠️': 'alert',
@@ -100,48 +99,97 @@ function edReplaceEmojis() {
 })();
 
 // ============================================================
+// MENUS PAR ROLE
+// ============================================================
+const ED_MENUS = {
+  investor: [
+    { href: 'dashboard-investisseur.html', icon: 'home', label: 'Accueil' },
+    { href: 'projets.html', icon: 'folder', label: 'Projets' },
+    { href: 'partenaires.html', icon: 'handshake', label: 'Partenaires' },
+    { href: 'portefeuille.html', icon: 'wallet', label: 'Portefeuille' },
+    { href: 'documents.html', icon: 'file', label: 'Documents' },
+    { href: 'messages.html', icon: 'message', label: 'Messages' },
+    { href: 'contrats.html', icon: 'clipboard', label: 'Contrats' },
+    { href: 'profil.html', icon: 'user', label: 'Profil' }
+  ],
+  provider: [
+    { href: 'dashboard-artisan.html', icon: 'home', label: 'Mes chantiers' },
+    { href: 'mes-rapports.html', icon: 'camera', label: 'Rapports' },
+    { href: 'mes-paiements.html', icon: 'wallet', label: 'Paiements' },
+    { href: 'messages.html', icon: 'message', label: 'Messages' },
+    { href: 'profil.html', icon: 'user', label: 'Profil' }
+  ],
+  admin: [
+    { href: 'dashboard-admin.html', icon: 'home', label: 'Tour de contrôle' },
+    { href: 'admin-leads.html', icon: 'list', label: 'Leads' },
+    { href: 'admin-chantiers.html', icon: 'building', label: 'Chantiers' },
+    { href: 'admin-partenaires.html', icon: 'handshake', label: 'Partenaires' },
+    { href: 'admin-utilisateurs.html', icon: 'users', label: 'Utilisateurs' },
+    { href: 'profil.html', icon: 'user', label: 'Profil' }
+  ]
+};
+
+// Compatibilite : on garde ED_MENU_ITEMS pour les anciens scripts
+const ED_MENU_ITEMS = ED_MENUS.investor;
+
+function edGetRole() {
+  return localStorage.getItem('user_role') || 'investor';
+}
+
+function edGetMenuItems() {
+  const role = edGetRole();
+  if (role === 'admin') return ED_MENUS.admin;
+  if (role === 'provider' || role === 'project_manager') return ED_MENUS.provider;
+  return ED_MENUS.investor;
+}
+
+// ============================================================
 // HEADER PRO
 // ============================================================
-const ED_MENU_ITEMS = [
-  { href: 'dashboard-investisseur.html', icon: 'home', label: 'Accueil' },
-  { href: 'projets.html', icon: 'folder', label: 'Projets' },
-  { href: 'partenaires.html', icon: 'handshake', label: 'Partenaires' },
-  { href: 'portefeuille.html', icon: 'wallet', label: 'Portefeuille' },
-  { href: 'documents.html', icon: 'file', label: 'Documents' },
-  { href: 'messages.html', icon: 'message', label: 'Messages' },
-  { href: 'contrats.html', icon: 'clipboard', label: 'Contrats' },
-  { href: 'profil.html', icon: 'user', label: 'Profil' }
-];
-
 function edCurrentPage() {
   return window.location.pathname.split('/').pop() || 'index.html';
 }
 
 function edInjectHeader() {
   const current = edCurrentPage();
-  if (['index.html', 'inscription.html', 'accueil.html', 'partenariat-btp.html', ''].includes(current)) return;
+  const publicPages = ['index.html', 'inscription.html', 'accueil.html', 'partenariat-btp.html', 'partenaires.html', ''];
+  if (publicPages.includes(current)) return;
   if (document.querySelector('.ed-header')) return;
   if (!getToken()) return;
 
   const email = getCurrentUserEmail() || '';
   const initials = email.substring(0, 2).toUpperCase() || 'IT';
+  const role = edGetRole();
+  const items = edGetMenuItems();
 
   function makeLink(item) {
     const isActive = current === item.href ? 'active' : '';
-    return '<a href="' + item.href + '" class="' + isActive + '"><span class="ed-menu-icon">' + ED_ICONS[item.icon] + '</span> ' + item.label + '</a>';
+    const icon = ED_ICONS[item.icon] || '';
+    return '<a href="' + item.href + '" class="' + isActive + '"><span class="ed-menu-icon">' + icon + '</span> ' + item.label + '</a>';
   }
+
+  const menuItems = items.map(makeLink).join('');
+
+  // Badge de role
+  const roleLabels = {
+    'investor': { label: 'Espace Investisseur', color: '#34d399' },
+    'provider': { label: 'Espace Artisan', color: '#fbbf24' },
+    'project_manager': { label: 'Espace Chef de chantier', color: '#fbbf24' },
+    'admin': { label: 'Administration', color: '#f59e0b' }
+  };
+  const roleMeta = roleLabels[role] || roleLabels.investor;
 
   const headerHTML =
     '<header class="ed-header">' +
       '<div class="ed-header-inner">' +
-        '<a href="dashboard-investisseur.html" class="ed-header-logo">' +
+        '<a href="' + (items[0] ? items[0].href : 'dashboard-investisseur.html') + '" class="ed-header-logo">' +
           '<img src="logo.svg" alt="Espace Diaspora">' +
           '<div class="ed-header-logo-text">' +
             '<span class="ed-header-logo-name">Espace Diaspora</span>' +
-            '<span class="ed-header-logo-tag">Investir au pays</span>' +
+            '<span class="ed-header-logo-tag">' + roleMeta.label + '</span>' +
           '</div>' +
         '</a>' +
-        '<nav class="ed-menu">' + ED_MENU_ITEMS.map(makeLink).join('') + '</nav>' +
+        '<nav class="ed-menu">' + menuItems + '</nav>' +
         '<div class="ed-header-actions">' +
           '<a href="notifications.html" class="ed-bell">' + ED_ICONS.bell + '</a>' +
           '<a href="profil.html" class="ed-avatar">' + initials + '</a>' +
@@ -152,11 +200,11 @@ function edInjectHeader() {
     '<div class="ed-overlay" id="edOverlay"></div>' +
     '<aside class="ed-mobile-menu" id="edMobileMenu">' +
       '<button class="ed-mobile-close" id="edMobileClose">✕</button>' +
-      '<div class="ed-mobile-menu-title">Navigation</div>' +
-      ED_MENU_ITEMS.map(makeLink).join('') +
+      '<div class="ed-mobile-menu-title">' + roleMeta.label + '</div>' +
+      menuItems +
       '<div class="ed-mobile-menu-title">Compte</div>' +
       '<a href="securite.html"><span class="ed-menu-icon">' + ED_ICONS.lock + '</span> Sécurité</a>' +
-      '<a href="#" id="edLogoutBtn">🚪 Déconnexion</a>' +
+      '<a href="#" id="edLogoutBtn"><span class="ed-menu-icon">🚪</span> Déconnexion</a>' +
     '</aside>';
 
   const wrapper = document.createElement('div');
@@ -191,6 +239,8 @@ function edInjectHeader() {
 function getToken() { return localStorage.getItem('access_token'); }
 function getCurrentUserId() { return localStorage.getItem('user_id'); }
 function getCurrentUserEmail() { return localStorage.getItem('user_email'); }
+function getCurrentUserName() { return localStorage.getItem('user_name') || ''; }
+function getCurrentUserRole() { return localStorage.getItem('user_role') || 'investor'; }
 function isLoggedIn() { return !!getToken() && !!getCurrentUserId(); }
 
 function requireLogin() {
@@ -202,10 +252,27 @@ function requireLogin() {
   return true;
 }
 
+// Verifie que l'utilisateur a bien le role attendu, sinon redirige
+function requireRole(allowedRoles) {
+  if (!requireLogin()) return false;
+  const role = getCurrentUserRole();
+  if (!allowedRoles.includes(role)) {
+    alert('Acces non autorise');
+    // Redirige vers le bon dashboard
+    if (role === 'admin') window.location.href = 'dashboard-admin.html';
+    else if (role === 'provider' || role === 'project_manager') window.location.href = 'dashboard-artisan.html';
+    else window.location.href = 'dashboard-investisseur.html';
+    return false;
+  }
+  return true;
+}
+
 function logout() {
   localStorage.removeItem('access_token');
   localStorage.removeItem('user_id');
   localStorage.removeItem('user_email');
+  localStorage.removeItem('user_role');
+  localStorage.removeItem('user_name');
   window.location.href = 'index.html';
 }
 
@@ -304,7 +371,8 @@ function getStatusLabel(status) {
     'active': 'En cours', 'draft': 'En preparation', 'completed': 'Termine',
     'paused': 'En pause', 'cancelled': 'Annule', 'disputed': 'En litige',
     'released': 'Debloque', 'approved': 'Valide', 'submitted': 'En attente',
-    'pending': 'A venir', 'rejected': 'Refuse', 'in_progress': 'En cours'
+    'pending': 'A venir', 'rejected': 'Refuse', 'in_progress': 'En cours',
+    'pending_review': 'En attente de validation'
   };
   return map[status] || status;
 }
@@ -322,7 +390,8 @@ function getStatusBadgeClass(status) {
     'submitted': 'bg-orange-500/20 text-orange-300',
     'pending': 'bg-slate-500/20 text-slate-300',
     'rejected': 'bg-red-500/20 text-red-300',
-    'in_progress': 'bg-yellow-500/20 text-yellow-300'
+    'in_progress': 'bg-yellow-500/20 text-yellow-300',
+    'pending_review': 'bg-amber-500/20 text-amber-300'
   };
   return map[status] || 'bg-slate-500/20 text-slate-300';
 }
@@ -353,4 +422,4 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', edInit);
 } else {
   edInit();
-}
+  }
