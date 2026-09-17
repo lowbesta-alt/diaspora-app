@@ -1,6 +1,6 @@
 // ============================================================
 // APP.JS - Boite a outils centrale Espace Diaspora
-// v10.0 : header adaptatif selon le role (investor / provider / admin)
+// v11.0 : menu investisseur epure
 // ============================================================
 
 // ---------- Injection du favicon ----------
@@ -105,11 +105,9 @@ const ED_MENUS = {
   investor: [
     { href: 'dashboard-investisseur.html', icon: 'home', label: 'Accueil' },
     { href: 'projets.html', icon: 'folder', label: 'Projets' },
-    { href: 'partenaires.html', icon: 'handshake', label: 'Partenaires' },
     { href: 'portefeuille.html', icon: 'wallet', label: 'Portefeuille' },
     { href: 'documents.html', icon: 'file', label: 'Documents' },
     { href: 'messages.html', icon: 'message', label: 'Messages' },
-    { href: 'contrats.html', icon: 'clipboard', label: 'Contrats' },
     { href: 'profil.html', icon: 'user', label: 'Profil' }
   ],
   provider: [
@@ -120,7 +118,7 @@ const ED_MENUS = {
     { href: 'profil.html', icon: 'user', label: 'Profil' }
   ],
   admin: [
-    { href: 'dashboard-admin.html', icon: 'home', label: 'Tour de contrôle' },
+    { href: 'dashboard-admin.html', icon: 'home', label: 'Tour de controle' },
     { href: 'admin-leads.html', icon: 'list', label: 'Leads' },
     { href: 'admin-chantiers.html', icon: 'building', label: 'Chantiers' },
     { href: 'admin-partenaires.html', icon: 'handshake', label: 'Partenaires' },
@@ -129,7 +127,6 @@ const ED_MENUS = {
   ]
 };
 
-// Compatibilite : on garde ED_MENU_ITEMS pour les anciens scripts
 const ED_MENU_ITEMS = ED_MENUS.investor;
 
 function edGetRole() {
@@ -170,12 +167,11 @@ function edInjectHeader() {
 
   const menuItems = items.map(makeLink).join('');
 
-  // Badge de role
   const roleLabels = {
-    'investor': { label: 'Espace Investisseur', color: '#34d399' },
-    'provider': { label: 'Espace Artisan', color: '#fbbf24' },
-    'project_manager': { label: 'Espace Chef de chantier', color: '#fbbf24' },
-    'admin': { label: 'Administration', color: '#f59e0b' }
+    'investor': 'Espace Investisseur',
+    'provider': 'Espace Artisan',
+    'project_manager': 'Espace Chef de chantier',
+    'admin': 'Administration'
   };
   const roleMeta = roleLabels[role] || roleLabels.investor;
 
@@ -186,7 +182,7 @@ function edInjectHeader() {
           '<img src="logo.svg" alt="Espace Diaspora">' +
           '<div class="ed-header-logo-text">' +
             '<span class="ed-header-logo-name">Espace Diaspora</span>' +
-            '<span class="ed-header-logo-tag">' + roleMeta.label + '</span>' +
+            '<span class="ed-header-logo-tag">' + roleMeta + '</span>' +
           '</div>' +
         '</a>' +
         '<nav class="ed-menu">' + menuItems + '</nav>' +
@@ -200,10 +196,9 @@ function edInjectHeader() {
     '<div class="ed-overlay" id="edOverlay"></div>' +
     '<aside class="ed-mobile-menu" id="edMobileMenu">' +
       '<button class="ed-mobile-close" id="edMobileClose">✕</button>' +
-      '<div class="ed-mobile-menu-title">' + roleMeta.label + '</div>' +
+      '<div class="ed-mobile-menu-title">' + roleMeta + '</div>' +
       menuItems +
       '<div class="ed-mobile-menu-title">Compte</div>' +
-      '<a href="securite.html"><span class="ed-menu-icon">' + ED_ICONS.lock + '</span> Sécurité</a>' +
       '<a href="#" id="edLogoutBtn"><span class="ed-menu-icon">🚪</span> Déconnexion</a>' +
     '</aside>';
 
@@ -252,13 +247,11 @@ function requireLogin() {
   return true;
 }
 
-// Verifie que l'utilisateur a bien le role attendu, sinon redirige
 function requireRole(allowedRoles) {
   if (!requireLogin()) return false;
   const role = getCurrentUserRole();
   if (!allowedRoles.includes(role)) {
     alert('Acces non autorise');
-    // Redirige vers le bon dashboard
     if (role === 'admin') window.location.href = 'dashboard-admin.html';
     else if (role === 'provider' || role === 'project_manager') window.location.href = 'dashboard-artisan.html';
     else window.location.href = 'dashboard-investisseur.html';
@@ -422,4 +415,4 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', edInit);
 } else {
   edInit();
-  }
+}
