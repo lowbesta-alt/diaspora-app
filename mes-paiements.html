@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes paiements - Espace Artisan</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <main class="p-4 max-w-2xl mx-auto space-y-4 pt-6">
+
+    <div>
+      <h1 class="text-2xl font-extrabold tracking-tight">Mes paiements</h1>
+      <p class="text-sm text-slate-400 mt-1">Suivi des déblocages de fonds validés</p>
+    </div>
+
+    <!-- Carte principale -->
+    <section class="bg-gradient-to-br from-amber-500 to-amber-400 rounded-3xl p-6 text-[#0a1838] shadow-2xl shadow-amber-500/30">
+      <div class="text-xs font-bold uppercase tracking-widest opacity-70 mb-1">Total perçu</div>
+      <div class="text-4xl font-extrabold mb-1" id="total-recu">-</div>
+      <div class="text-sm opacity-80 mb-4">XAF</div>
+      <div class="flex gap-2">
+        <div class="bg-white/20 backdrop-blur rounded-xl px-3 py-1.5">
+          <span class="text-[10px] font-bold uppercase tracking-wider">En attente</span>
+          <span class="text-xs font-extrabold ml-2" id="total-attente">-</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Historique -->
+    <section>
+      <h2 class="text-lg font-extrabold tracking-tight mb-3">Historique des déblocages</h2>
+      <div id="payments-list" class="space-y-2">
+        <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
+      </div>
+    </section>
+
+    <!-- Info procédure -->
+    <div class="bg-emerald-500/10 border rounded-2xl p-4 flex items-start gap-3 mt-6" style="border-color: rgba(16,185,129,0.35);">
+      <span class="text-emerald-400 text-xl flex-shrink-0">🛡️</span>
+      <p class="text-xs text-emerald-200 leading-relaxed">
+        Les paiements sont débloqués après validation du jalon par le client et vérification de la plateforme.
+      </p>
+    </div>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-artisan.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Chantiers</a>
+    <a href="mes-rapports.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📸</span>Rapports</a>
+    <a href="mes-paiements.html" class="flex flex-col items-center gap-0.5 text-amber-400 text-[10px]"><span class="text-lg">💰</span>Paiements</a>
+    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
+    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if (!requireRole(['provider', 'project_manager'])) throw new Error('Not allowed');
+
+    const userId = getCurrentUserId();
+
+    async function loadPayments() {
+      const list = document.getElementById('payments-list');
+      try {
+        const txs = await apiGet('transactions', 'initiated_by=eq.' + userId + '&order=created_at.desc&limit=30');
+        const valid = Array.isArray(txs) ? txs : [];
+
+        let totalRecu = 0;
+        let totalAttente = 0;
+
+        valid.forEach(t => {
+          const amt = Number(t.amount) || 0;
+          if (t.status === 'released') totalRecu += amt;
+          else if (t.status === 'pending' || t.status === 'escrowed') totalAttente += amt;
+        });
+
+        document.getElementById('total-recu').textContent = totalRecu.toLocaleString('fr-FR');
+        document.getElementById('total-attente').textContent = totalAttente.toLocaleString('fr-FR');
+
+        if (valid.length === 0) {
+          list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">💰</div><p class="text-slate-400 text-sm">Aucun paiement pour le moment</p></div>';
+          return;
+        }
+
+        list.innerHTML = valid.map(t => {
+          const isReleased = t.status === 'released';
+          const bg = isReleased ? 'bg-emerald-500/20' : 'bg-amber-500/20';
+          const ic = isReleased ? '✅' : '⏳';
+          const label = isReleased ? 'Débloqué' : 'En attente';
+          const color = isReleased ? 'text-emerald-400' : 'text-amber-400';
+          return `
+            <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-3">
+              <div class="w-11 h-11 rounded-xl ${bg} flex items-center justify-center text-lg flex-shrink-0">${ic}</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold truncate">${escapeHtml(t.description || 'Paiement')}</p>
+                <p class="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">${formatDate(t.created_at)} · ${label}</p>
+              </div>
+              <div class="text-sm font-extrabold ${color}">+ ${Number(t.amount).toLocaleString('fr-FR')}</div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (e) {
+        list.innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur de chargement</p>';
+      }
+    }
+
+    loadPayments();
+  </script>
+</body>
+</html>
