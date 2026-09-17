@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partenariat BTP - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body class="text-white">
+
+  <header class="fixed top-0 left-0 right-0 z-50 bg-[#050b1f]/85 backdrop-blur-xl border-b" style="border-color: rgba(16,185,129,0.25);">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <a href="accueil.html" class="flex items-center gap-3">
+        <img src="logo.svg" alt="Espace Diaspora" class="w-12 h-12" style="filter: drop-shadow(0 4px 14px rgba(16,185,129,0.5));">
+        <div class="leading-tight">
+          <div class="font-extrabold text-base tracking-tight text-white">Espace Diaspora</div>
+          <div class="text-[10px] font-bold text-emerald-400 tracking-widest uppercase">Investir au pays</div>
+        </div>
+      </a>
+      <a href="accueil.html" class="text-sm font-semibold text-slate-300 hover:text-emerald-300 px-3 py-2 transition">← Retour</a>
+    </div>
+  </header>
+
+  <main class="pt-28 pb-20 px-5">
+    <div class="max-w-3xl mx-auto">
+
+      <!-- EN-TETE -->
+      <div class="text-center mb-10">
+        <div class="inline-block bg-emerald-500/15 border border-emerald-500/40 rounded-full px-4 py-1.5 mb-5 backdrop-blur">
+          <span class="text-xs font-bold text-emerald-300 tracking-widest uppercase">Partenariat BTP</span>
+        </div>
+        <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
+          Rejoignez notre réseau<br>
+          <span class="bg-gradient-to-r from-emerald-300 to-amber-300 bg-clip-text text-transparent">de partenaires agréés</span>
+        </h1>
+        <p class="text-slate-300 max-w-xl mx-auto leading-relaxed">
+          Artisans, architectes, bureaux d'études et entreprises générales : déposez votre candidature pour collaborer sur nos projets au pays. Nous étudions chaque dossier avec attention.
+        </p>
+      </div>
+
+      <!-- CARTE AVANTAGES -->
+      <div class="grid grid-cols-3 gap-3 mb-8">
+        <div class="bg-white/5 backdrop-blur rounded-2xl p-4 text-center" style="border: 1px solid rgba(16,185,129,0.25);">
+          <div class="text-2xl mb-1">📋</div>
+          <div class="text-[10px] text-slate-300 font-semibold">Projets réguliers</div>
+        </div>
+        <div class="bg-white/5 backdrop-blur rounded-2xl p-4 text-center" style="border: 1px solid rgba(16,185,129,0.25);">
+          <div class="text-2xl mb-1">💰</div>
+          <div class="text-[10px] text-slate-300 font-semibold">Paiements garantis</div>
+        </div>
+        <div class="bg-white/5 backdrop-blur rounded-2xl p-4 text-center" style="border: 1px solid rgba(16,185,129,0.25);">
+          <div class="text-2xl mb-1">⭐</div>
+          <div class="text-[10px] text-slate-300 font-semibold">Référencement</div>
+        </div>
+      </div>
+
+      <!-- FORMULAIRE -->
+      <form id="partnerForm" class="bg-white/5 backdrop-blur-xl rounded-3xl p-6 md:p-8 space-y-5" style="border: 1px solid rgba(16,185,129,0.35);">
+
+        <h2 class="text-lg font-extrabold tracking-tight pb-3 border-b" style="border-color: rgba(16,185,129,0.2);">Votre entreprise</h2>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Nom de l'entreprise *</label>
+          <input type="text" id="companyName" required placeholder="Ex : BTP Douala SARL" class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm placeholder-slate-500 transition">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Profession / Spécialité *</label>
+          <select id="profession" required class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm transition">
+            <option value="" disabled selected>Choisissez votre métier</option>
+            <option value="Entreprise générale de BTP">Entreprise générale de BTP</option>
+            <option value="Architecte">Architecte</option>
+            <option value="Bureau d'études">Bureau d'études</option>
+            <option value="Chef de chantier">Chef de chantier</option>
+            <option value="Maçon">Maçon</option>
+            <option value="Électricien">Électricien</option>
+            <option value="Plombier">Plombier</option>
+            <option value="Peintre">Peintre</option>
+            <option value="Carreleur">Carreleur</option>
+            <option value="Menuisier">Menuisier</option>
+            <option value="Fournisseur matériaux">Fournisseur matériaux</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Pays *</label>
+            <select id="country" required class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm transition">
+              <option value="TD">Tchad</option>
+              <option value="CM" selected>Cameroun</option>
+              <option value="SN">Sénégal</option>
+              <option value="CI">Côte d'Ivoire</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Ville *</label>
+            <input type="text" id="city" required placeholder="Ex : Douala" class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm placeholder-slate-500 transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Années d'expérience *</label>
+          <input type="number" id="experience" required min="0" placeholder="Ex : 5" class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm placeholder-slate-500 transition">
+        </div>
+
+        <h2 class="text-lg font-extrabold tracking-tight pb-3 border-b pt-3" style="border-color: rgba(16,185,129,0.2);">Votre contact</h2>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Nom du responsable *</label>
+          <input type="text" id="contactName" required placeholder="Prénom et nom" class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm placeholder-slate-500 transition">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Email *</label>
+            <input type="email" id="email" required placeholder="nom@exemple.com" class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm placeholder-slate-500 transition">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Téléphone *</label>
+            <input type="tel" id="phone" required placeholder="+237 6 XX XX XX XX" class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm placeholder-slate-500 transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Site web ou portfolio (optionnel)</label>
+          <input type="url" id="website" placeholder="https://..." class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm placeholder-slate-500 transition">
+        </div>
+
+        <h2 class="text-lg font-extrabold tracking-tight pb-3 border-b pt-3" style="border-color: rgba(16,185,129,0.2);">Votre dossier</h2>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Présentation de votre entreprise *</label>
+          <textarea id="description" required rows="5" placeholder="Décrivez votre entreprise, vos domaines d'expertise, vos réalisations marquantes..." class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm placeholder-slate-500 transition resize-none"></textarea>
+          <p class="text-[10px] text-slate-500 mt-1.5">Minimum 100 caractères</p>
+        </div>
+
+        <div>
+          <label class="flex items-start gap-2 text-xs text-slate-300 cursor-pointer">
+            <input type="checkbox" id="charte" required class="mt-0.5">
+            <span>J'accepte la charte d'éthique et de transparence d'Espace Diaspora (travail soigné, factures authentiques, respect des délais).</span>
+          </label>
+        </div>
+
+        <button type="submit" id="btnSubmit"
+          class="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-[#0a1838] font-extrabold py-4 rounded-xl mt-3 text-sm tracking-wide shadow-lg shadow-amber-500/40 transition">
+          Envoyer ma candidature
+        </button>
+
+      </form>
+
+      <!-- MESSAGE SUCCES -->
+      <div id="successBox" class="hidden bg-gradient-to-br from-emerald-500/15 to-[#0f2252]/50 rounded-3xl p-8 text-center" style="border: 1px solid rgba(16,185,129,0.4);">
+        <div class="text-5xl mb-4">✅</div>
+        <h2 class="text-2xl font-extrabold tracking-tight mb-3">Candidature envoyée !</h2>
+        <p class="text-slate-300 leading-relaxed mb-6">
+          Merci pour votre intérêt. Notre équipe étudie votre dossier sous 48h et vous contactera par email ou téléphone.
+        </p>
+        <a href="accueil.html" class="inline-block bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold px-6 py-3 rounded-xl transition">
+          Retour à l'accueil
+        </a>
+      </div>
+
+      <p class="text-center text-xs text-slate-500 mt-8 leading-relaxed">
+        🛡️ Vos informations sont strictement confidentielles et ne seront jamais partagées sans votre accord.
+      </p>
+
+    </div>
+  </main>
+
+  <script src="config.js"></script>
+  <script>
+    document.getElementById('partnerForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const data = {
+        company_name: document.getElementById('companyName').value.trim(),
+        contact_name: document.getElementById('contactName').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        profession: document.getElementById('profession').value,
+        country: document.getElementById('country').value,
+        city: document.getElementById('city').value.trim(),
+        experience_years: parseInt(document.getElementById('experience').value) || 0,
+        website: document.getElementById('website').value.trim() || null,
+        description: document.getElementById('description').value.trim(),
+        status: 'pending'
+      };
+
+      // Validations
+      if (!data.company_name) { alert('Nom de l\'entreprise requis'); return; }
+      if (!data.profession) { alert('Choisissez votre spécialité'); return; }
+      if (!data.contact_name) { alert('Nom du responsable requis'); return; }
+      if (!data.email) { alert('Email requis'); return; }
+      if (!data.phone) { alert('Téléphone requis'); return; }
+      if (!data.city) { alert('Ville requise'); return; }
+      if (!data.description || data.description.length < 100) { alert('Présentation : minimum 100 caractères'); return; }
+      if (!document.getElementById('charte').checked) { alert('Vous devez accepter la charte'); return; }
+
+      const btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Envoi en cours...';
+
+      try {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/partnership_requests', {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (res.ok) {
+          document.getElementById('partnerForm').classList.add('hidden');
+          document.getElementById('successBox').classList.remove('hidden');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          const err = await res.json().catch(() => ({}));
+          alert('Erreur : ' + (err.message || 'impossible d\'envoyer la candidature'));
+          btn.disabled = false;
+          btn.textContent = 'Envoyer ma candidature';
+        }
+      } catch (err) {
+        alert('Erreur réseau : ' + err.message);
+        btn.disabled = false;
+        btn.textContent = 'Envoyer ma candidature';
+      }
+    });
+  </script>
+</body>
+</html>
