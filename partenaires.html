@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nos partenaires BTP - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body class="text-white">
+
+  <header class="fixed top-0 left-0 right-0 z-50 bg-[#050b1f]/85 backdrop-blur-xl border-b" style="border-color: rgba(16,185,129,0.25);">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <a href="accueil.html" class="flex items-center gap-3">
+        <img src="logo.svg" alt="Espace Diaspora" class="w-12 h-12" style="filter: drop-shadow(0 4px 14px rgba(16,185,129,0.5));">
+        <div class="leading-tight">
+          <div class="font-extrabold text-base tracking-tight text-white">Espace Diaspora</div>
+          <div class="text-[10px] font-bold text-emerald-400 tracking-widest uppercase">Investir au pays</div>
+        </div>
+      </a>
+      <div class="flex items-center gap-2">
+        <a href="partenariat-btp.html" class="hidden md:inline-block text-sm font-bold text-emerald-300 hover:text-emerald-200 px-3 py-2 transition">Devenir partenaire</a>
+        <a href="index.html" class="text-sm font-semibold text-slate-300 hover:text-emerald-300 px-3 py-2 transition">Se connecter</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="pt-28 pb-20 px-5">
+    <div class="max-w-6xl mx-auto">
+
+      <div class="text-center mb-12">
+        <div class="inline-block bg-emerald-500/15 border border-emerald-500/40 rounded-full px-4 py-1.5 mb-5 backdrop-blur">
+          <span class="text-xs font-bold text-emerald-300 tracking-widest uppercase">Réseau d'excellence</span>
+        </div>
+        <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
+          Nos entreprises<br>
+          <span class="bg-gradient-to-r from-emerald-300 to-amber-300 bg-clip-text text-transparent">partenaires agréées</span>
+        </h1>
+        <p class="text-slate-300 max-w-2xl mx-auto leading-relaxed">
+          Des structures rigoureusement sélectionnées, vérifiées et engagées par contrat. Chaque partenaire est évalué sur ses références, sa conformité et son engagement qualité.
+        </p>
+      </div>
+
+      <!-- FILTRES -->
+      <div class="flex gap-2 overflow-x-auto pb-2 mb-6 justify-center">
+        <button data-filter="all" class="filter-btn font-bold px-5 py-2 rounded-full text-xs whitespace-nowrap" style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #0a1838;">Tous</button>
+        <button data-filter="Entreprise générale de BTP" class="filter-btn bg-white/5 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap" style="border: 1px solid rgba(16,185,129,0.3);">🏗️ Entreprises BTP</button>
+        <button data-filter="Cabinet d'architecture" class="filter-btn bg-white/5 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap" style="border: 1px solid rgba(16,185,129,0.3);">📐 Architectes</button>
+        <button data-filter="Bureau de contrôle / Maîtrise d'œuvre" class="filter-btn bg-white/5 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap" style="border: 1px solid rgba(16,185,129,0.3);">🎯 Maîtres d'œuvre</button>
+        <button data-filter="Fournisseur de matériaux" class="filter-btn bg-white/5 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap" style="border: 1px solid rgba(16,185,129,0.3);">📦 Fournisseurs</button>
+      </div>
+
+      <!-- GRILLE PARTENAIRES -->
+      <div id="partners-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <p class="col-span-full text-slate-400 text-sm text-center py-12">Chargement des partenaires...</p>
+      </div>
+
+      <!-- BLOC DEVENIR PARTENAIRE -->
+      <section class="mt-20 bg-gradient-to-br from-emerald-500/10 to-[#0f2252]/50 rounded-3xl p-8 md:p-12 text-center" style="border: 1px solid rgba(16,185,129,0.4);">
+        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-3">
+          Vous êtes une structure professionnelle ?
+        </h2>
+        <p class="text-slate-300 mb-6 max-w-xl mx-auto leading-relaxed">
+          Rejoignez notre réseau d'excellence et collaborez sur des projets à fort impact auprès de la diaspora.
+        </p>
+        <a href="partenariat-btp.html" class="inline-block bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-[#0a1838] font-extrabold px-8 py-4 rounded-2xl shadow-xl shadow-amber-500/40 transition">
+          Déposer ma candidature
+        </a>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="config.js"></script>
+  <script>
+    const professionIcons = {
+      "Entreprise générale de BTP": { icon: "🏗️", color: "from-emerald-500 to-emerald-400" },
+      "Cabinet d'architecture": { icon: "📐", color: "from-amber-500 to-amber-400" },
+      "Bureau de contrôle / Maîtrise d'œuvre": { icon: "🎯", color: "from-sky-500 to-sky-400" },
+      "Fournisseur de matériaux": { icon: "📦", color: "from-purple-500 to-purple-400" }
+    };
+
+    let allPartners = [];
+
+    function renderPartners(list) {
+      const grid = document.getElementById('partners-grid');
+      if (list.length === 0) {
+        grid.innerHTML = '<div class="col-span-full text-center py-12"><div class="text-5xl mb-3 opacity-40">🏗️</div><p class="text-slate-400 text-sm">Aucun partenaire à afficher pour le moment.</p><p class="text-slate-500 text-xs mt-2">Les partenaires validés apparaîtront ici.</p></div>';
+        return;
+      }
+
+      grid.innerHTML = list.map(p => {
+        const meta = professionIcons[p.profession] || { icon: "🏢", color: "from-slate-500 to-slate-400" };
+        const initials = (p.company_name || p.contact_name || 'P').substring(0, 2).toUpperCase();
+        const countryName = {
+          'TD': 'Tchad', 'CM': 'Cameroun', 'SN': 'Sénégal', 'CI': 'Côte d\'Ivoire'
+        }[p.country] || p.country || '';
+
+        return `
+          <div class="bg-gradient-to-br from-[#0f2252]/50 to-[#0a1838]/70 rounded-3xl p-6 hover:border-emerald-500/60 transition" style="border: 1px solid rgba(16,185,129,0.25);">
+            <div class="flex items-start gap-4 mb-4">
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-br ${meta.color} flex items-center justify-center text-3xl flex-shrink-0 shadow-lg">
+                ${meta.icon}
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-extrabold text-base leading-tight truncate">${escapeHtml(p.company_name)}</h3>
+                <p class="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider mt-1">${escapeHtml(p.profession)}</p>
+              </div>
+            </div>
+
+            <p class="text-xs text-slate-400 leading-relaxed mb-4 line-clamp-3">
+              ${escapeHtml((p.description || '').substring(0, 140))}${(p.description || '').length > 140 ? '...' : ''}
+            </p>
+
+            <div class="space-y-1.5 text-[11px] text-slate-400 border-t pt-3" style="border-color: rgba(16,185,129,0.15);">
+              <div class="flex items-center gap-2">
+                <span>📍</span><span>${escapeHtml(p.city || '')}, ${escapeHtml(countryName)}</span>
+              </div>
+              ${p.experience_years ? `<div class="flex items-center gap-2"><span>⭐</span><span>${p.experience_years} ans d'activité</span></div>` : ''}
+              ${p.website ? `<div class="flex items-center gap-2"><span>🔗</span><a href="${escapeHtml(p.website)}" target="_blank" class="text-emerald-400 hover:underline truncate">${escapeHtml(p.website)}</a></div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadPartners() {
+      try {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/partnership_requests?status=eq.approved&order=created_at.desc', {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await res.json();
+        allPartners = Array.isArray(data) ? data : [];
+      } catch (e) {
+        allPartners = [];
+      }
+      renderPartners(allPartners);
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.style.background = 'rgba(255,255,255,0.05)';
+          b.style.color = '#ffffff';
+          b.style.border = '1px solid rgba(16,185,129,0.3)';
+        });
+        btn.style.background = 'linear-gradient(135deg, #f59e0b, #fbbf24)';
+        btn.style.color = '#0a1838';
+        btn.style.border = 'none';
+        const f = btn.dataset.filter;
+        renderPartners(f === 'all' ? allPartners : allPartners.filter(p => p.profession === f));
+      });
+    });
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    loadPartners();
+  </script>
+</body>
+</html>
