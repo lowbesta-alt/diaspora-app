@@ -10,72 +10,80 @@
 <body class="text-white">
 
   <div class="min-h-screen flex items-center justify-center p-4 py-10">
+    <div class="w-full max-w-md">
 
-    <div class="w-full max-w-md bg-white/5 backdrop-blur-xl rounded-3xl p-8 shadow-2xl"
-         style="border: 1px solid rgba(16,185,129,0.35); box-shadow: 0 20px 60px -20px rgba(16,185,129,0.25), 0 0 0 1px rgba(16,185,129,0.05) inset;">
-
-      <div class="flex flex-col items-center mb-8">
-        <img src="logo.svg" alt="Espace Diaspora" class="w-16 h-16 mb-4" style="filter: drop-shadow(0 8px 24px rgba(16,185,129,0.5));">
+      <!-- LOGO + NOM -->
+      <div class="text-center mb-6">
+        <img src="logo.svg" alt="Espace Diaspora" class="w-20 h-20 mx-auto mb-4" style="filter: drop-shadow(0 8px 24px rgba(16,185,129,0.5));">
         <h1 class="text-2xl font-extrabold text-white">Espace Diaspora</h1>
         <p class="text-[11px] font-bold mt-2 tracking-[0.15em] uppercase" style="color: #34d399;">Investir au pays, en confiance</p>
       </div>
 
-      <div class="flex items-center gap-2 rounded-xl px-3 py-2.5 mb-6"
-           style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3);">
-        <span class="text-emerald-400 text-sm">🔒</span>
-        <p class="text-[11px] font-medium" style="color: #6ee7b7;">Connexion sécurisée — chiffrement bout en bout</p>
-      </div>
-
-      <form id="loginForm" class="space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Adresse email</label>
-          <input type="email" id="email" required placeholder="nom@exemple.com"
-            class="w-full px-4 py-3.5 rounded-xl bg-white/5 outline-none text-white text-sm placeholder-slate-500 transition"
-            style="border: 1px solid rgba(16,185,129,0.3);"
-            onfocus="this.style.borderColor='#10b981'; this.style.boxShadow='0 0 0 4px rgba(16,185,129,0.15)';"
-            onblur="this.style.borderColor='rgba(16,185,129,0.3)'; this.style.boxShadow='none';">
-        </div>
-
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <label class="text-xs font-bold text-slate-200 tracking-wider uppercase">Mot de passe</label>
-            <a href="#" class="text-[11px] font-bold" style="color: #34d399;">Oublié ?</a>
+      <!-- LES 3 ESPACES -->
+      <div class="mb-6">
+        <p class="text-[10px] text-slate-500 text-center uppercase tracking-widest font-bold mb-3">3 espaces vous attendent</p>
+        <div class="grid grid-cols-3 gap-2">
+          <div class="rounded-2xl p-3 text-center" style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3);">
+            <div class="text-2xl mb-1">🏠</div>
+            <div class="text-[10px] font-bold text-emerald-300">CLIENT</div>
+            <div class="text-[8px] text-slate-500 mt-0.5">Diaspora</div>
           </div>
-          <div class="relative">
-            <input type="password" id="password" required placeholder="••••••••"
-              class="w-full px-4 py-3.5 pr-12 rounded-xl bg-white/5 outline-none text-white text-sm placeholder-slate-500 transition"
-              style="border: 1px solid rgba(16,185,129,0.3);"
-              onfocus="this.style.borderColor='#10b981'; this.style.boxShadow='0 0 0 4px rgba(16,185,129,0.15)';"
-              onblur="this.style.borderColor='rgba(16,185,129,0.3)'; this.style.boxShadow='none';">
-            <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-emerald-400 transition">👁️</button>
+          <div class="rounded-2xl p-3 text-center" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3);">
+            <div class="text-2xl mb-1">🏗️</div>
+            <div class="text-[10px] font-bold text-amber-300">ARTISAN</div>
+            <div class="text-[8px] text-slate-500 mt-0.5">Partenaire BTP</div>
+          </div>
+          <div class="rounded-2xl p-3 text-center" style="background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.3);">
+            <div class="text-2xl mb-1">🎯</div>
+            <div class="text-[10px] font-bold text-sky-300">ADMIN</div>
+            <div class="text-[8px] text-slate-500 mt-0.5">Gestion</div>
           </div>
         </div>
-
-        <button type="submit" id="btnSubmit"
-          class="w-full font-extrabold py-4 rounded-xl mt-3 text-sm tracking-wide transition"
-          style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #fcd34d 100%); color: #0a1838; box-shadow: 0 10px 24px -8px rgba(245,158,11,0.55);">
-          Accéder à mon espace
-        </button>
-      </form>
-
-      <div class="flex items-center my-6">
-        <div class="flex-1 h-px bg-white/10"></div>
-        <span class="px-3 text-[10px] text-slate-500 uppercase tracking-widest font-semibold">ou</span>
-        <div class="flex-1 h-px bg-white/10"></div>
+        <p class="text-[10px] text-slate-500 text-center mt-3">Le système vous redirige automatiquement vers votre espace</p>
       </div>
 
-      <a href="inscription.html" class="block w-full text-center bg-white/5 hover:bg-emerald-500/10 text-white font-bold py-4 rounded-xl text-sm transition"
-         style="border: 1px solid rgba(16,185,129,0.3);">
-        Créer un compte diaspora
-      </a>
+      <!-- FORMULAIRE -->
+      <div class="bg-white/5 backdrop-blur-xl rounded-3xl p-6 shadow-2xl" style="border: 1px solid rgba(16,185,129,0.35);">
 
-      <p class="text-center text-[10px] text-slate-500 mt-6 leading-relaxed">
-        En continuant, vous acceptez nos<br>
-        <a href="#" class="font-medium hover:underline" style="color: #34d399;">Conditions générales d'utilisation</a>
-      </p>
+        <form id="loginForm" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Adresse email</label>
+            <input type="email" id="email" required placeholder="nom@exemple.com"
+              class="w-full px-4 py-3.5 rounded-xl bg-white/5 outline-none text-white text-sm placeholder-slate-500 transition"
+              style="border: 1px solid rgba(16,185,129,0.3);">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Mot de passe</label>
+            <div class="relative">
+              <input type="password" id="password" required placeholder="••••••••"
+                class="w-full px-4 py-3.5 pr-12 rounded-xl bg-white/5 outline-none text-white text-sm placeholder-slate-500 transition"
+                style="border: 1px solid rgba(16,185,129,0.3);">
+              <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-emerald-400 transition">👁️</button>
+            </div>
+          </div>
+
+          <button type="submit" id="btnSubmit"
+            class="w-full font-extrabold py-4 rounded-xl mt-3 text-sm tracking-wide transition"
+            style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #fcd34d 100%); color: #0a1838; box-shadow: 0 10px 24px -8px rgba(245,158,11,0.55);">
+            Accéder à mon espace
+          </button>
+        </form>
+
+        <div class="flex items-center my-5">
+          <div class="flex-1 h-px bg-white/10"></div>
+          <span class="px-3 text-[10px] text-slate-500 uppercase tracking-widest font-semibold">ou</span>
+          <div class="flex-1 h-px bg-white/10"></div>
+        </div>
+
+        <a href="inscription.html" class="block w-full text-center bg-white/5 hover:bg-emerald-500/10 text-white font-bold py-3.5 rounded-xl text-sm transition"
+           style="border: 1px solid rgba(16,185,129,0.3);">
+          Créer un compte diaspora
+        </a>
+
+      </div>
 
     </div>
-
   </div>
 
   <script src="config.js"></script>
@@ -99,7 +107,6 @@
       btn.textContent = 'Connexion...';
 
       try {
-        // 1. Authentification
         const res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
           method: 'POST',
           headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
@@ -114,12 +121,10 @@
           return;
         }
 
-        // 2. Stocke le token
         localStorage.setItem('access_token', data.access_token);
         localStorage.setItem('user_id', data.user.id);
         localStorage.setItem('user_email', data.user.email);
 
-        // 3. Récupère le rôle depuis profiles
         btn.textContent = 'Chargement du profil...';
         let role = 'investor';
         try {
@@ -140,19 +145,16 @@
           if (Array.isArray(profiles) && profiles[0] && profiles[0].full_name) {
             localStorage.setItem('user_name', profiles[0].full_name);
           }
-        } catch (err) {
-          console.log('Erreur chargement role, utilisation par defaut');
-        }
+        } catch (err) {}
 
         localStorage.setItem('user_role', role);
 
-        // 4. Redirection selon le rôle
+        // Redirection selon le rôle
         if (role === 'admin') {
           window.location.href = 'dashboard-admin.html';
         } else if (role === 'provider' || role === 'project_manager') {
           window.location.href = 'dashboard-artisan.html';
         } else {
-          // investor par defaut
           window.location.href = 'dashboard-investisseur.html';
         }
 
