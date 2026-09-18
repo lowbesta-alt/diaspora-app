@@ -24,20 +24,33 @@
       <h1 id="jalon-title" class="text-2xl font-bold mb-2">Chargement...</h1>
       <div id="jalon-amount" class="text-2xl font-bold text-emerald-400 mb-1">-</div>
       <p id="jalon-date" class="text-xs text-slate-400"></p>
-      <p id="jalon-description" class="text-xs text-slate-300 mt-3"></p>
     </section>
 
+    <!-- ACTIONS INVESTISSEUR (statut submitted) -->
     <section id="actions-investor" class="space-y-2 hidden">
-      <button id="btn-approve" class="w-full bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-semibold text-sm">
+      <button id="btn-approve" class="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 py-3 rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/30">
         ✅ Valider le jalon
       </button>
-      <button id="btn-reject" class="w-full bg-red-600/80 hover:bg-red-700 py-3 rounded-xl font-semibold text-sm">
+      <button id="btn-reject" class="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 py-3 rounded-xl font-bold text-sm shadow-lg shadow-red-500/30">
         ❌ Refuser avec motif
       </button>
     </section>
 
+    <!-- ACTION DEBLOCAGE (statut approved) -->
+    <section id="actions-release" class="hidden">
+      <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 mb-3">
+        <p class="text-xs text-emerald-200 leading-relaxed">
+          ✅ Jalon validé. Vous pouvez maintenant <strong>débloquer les fonds</strong> pour libérer le paiement.
+        </p>
+      </div>
+      <button id="btn-release" class="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-[#0a1838] py-4 rounded-xl font-extrabold text-sm shadow-lg shadow-amber-500/40">
+        💰 Débloquer les fonds (300 000 XAF)
+      </button>
+    </section>
+
+    <!-- ACTIONS CHEF DE CHANTIER -->
     <section id="actions-pm" class="hidden">
-      <button id="btn-submit" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl font-semibold text-sm">
+      <button id="btn-submit" class="w-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 py-3 rounded-xl font-bold text-sm">
         📸 Soumettre de nouvelles preuves
       </button>
     </section>
@@ -102,10 +115,16 @@
         const userId = getCurrentUserId();
         const isOwner = projectOwnerId === userId;
         const canValidate = isOwner && (m.status === 'submitted' || m.status === 'pending');
+        const canRelease = isOwner && m.status === 'approved';
         const canSubmit = !isOwner && (m.status === 'pending' || m.status === 'in_progress' || m.status === 'rejected');
 
         if (canValidate) {
           document.getElementById('actions-investor').classList.remove('hidden');
+        }
+        if (canRelease) {
+          document.getElementById('actions-release').classList.remove('hidden');
+          const btnRelease = document.getElementById('btn-release');
+          btnRelease.textContent = '💰 Débloquer les fonds (' + Number(m.amount).toLocaleString('fr-FR') + ' ' + (m.currency || 'XAF') + ')';
         }
         if (canSubmit) {
           document.getElementById('actions-pm').classList.remove('hidden');
@@ -147,8 +166,59 @@
       }
     });
 
+    document.getElementById('btn-release').addEventListener('click', async () => {
+      if (!currentMilestone) return;
+
+      const amount = Number(currentMilestone.amount);
+      const currency = currentMilestone.currency || 'XAF';
+
+      if (!confirm('Débloquer ' + amount.toLocaleString('fr-FR') + ' ' + currency + ' ?\n\nLe paiement sera libéré vers le prestataire.')) return;
+
+      const btn = document.getElementById('btn-release');
+      btn.disabled = true;
+      btn.textContent = 'Déblocage en cours...';
+
+      try {
+        // 1. Crée la transaction de déblocage
+        await apiPost('transactions', {
+          project_id: currentMilestone.project_id,
+          milestone_id: currentMilestone.id,
+          initiated_by: getCurrentUserId(),
+          transaction_type: 'milestone_release',
+          status: 'released',
+          amount: amount,
+          currency: currency,
+          description: 'Déblocage : ' + currentMilestone.title
+        });
+
+        // 2. Met à jour le jalon → released
+        await apiPatch('milestones', milestoneId, {
+          status: 'released',
+          released_at: new Date().toISOString()
+        });
+
+        // 3. Met à jour le budget dépensé du projet
+        try {
+          const proj = await apiGet('projects', 'id=eq.' + currentMilestone.project_id);
+          if (Array.isArray(proj) && proj[0]) {
+            const spent = Number(proj[0].spent_budget) || 0;
+            await apiPatch('projects', currentMilestone.project_id, {
+              spent_budget: spent + amount
+            });
+          }
+        } catch (e) {}
+
+        showSuccess('Fonds débloqués ! ' + amount.toLocaleString('fr-FR') + ' ' + currency);
+        location.reload();
+      } catch (e) {
+        showError(e.message);
+        btn.disabled = false;
+        btn.textContent = '💰 Débloquer les fonds';
+      }
+    });
+
     document.getElementById('btn-submit').addEventListener('click', () => {
-      alert('Pour soumettre des preuves, allez dans Documents et uploadez vos photos.');
+      alert('Pour soumettre des preuves, allez dans Documents.');
       window.location.href = 'document-ajouter.html';
     });
 
