@@ -190,9 +190,7 @@
 
         renderFiltered();
       } catch (e) {
-        document.getElementById('partners-list').innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur de chargement</p>';
-      }
-    }
+        document.getElementById('partners-list').innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur : ' + e.message + '</p>';
 
     function renderFiltered() {
       if (currentFilter === 'all') renderPartners(allPartners);
