@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caméras du chantier - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <main class="p-4 max-w-2xl mx-auto space-y-4 pt-6">
+
+    <div>
+      <h1 class="text-2xl font-extrabold tracking-tight">Caméras du chantier</h1>
+      <p class="text-sm text-slate-400 mt-1">Suivi vidéo en direct</p>
+    </div>
+
+    <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 flex items-start gap-3">
+      <span class="text-2xl flex-shrink-0">📹</span>
+      <div>
+        <p class="text-sm font-bold text-emerald-300">Vue en direct</p>
+        <p class="text-xs text-emerald-200 mt-1 leading-relaxed">
+          Touchez une caméra pour ouvrir la vue en temps réel. Vous pourrez orienter la caméra à gauche et à droite selon les besoins.
+        </p>
+      </div>
+    </div>
+
+    <div id="project-selector" class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+      <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Chantier concerné</label>
+      <select id="project" class="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm transition">
+        <option value="">Chargement...</option>
+      </select>
+    </div>
+
+    <section class="grid grid-cols-1 gap-3">
+
+      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-400 flex items-center justify-center text-2xl">📷</div>
+            <div>
+              <h3 class="font-extrabold text-sm">Caméra 1 — Entrée</h3>
+              <p class="text-[10px] text-slate-400 mt-0.5">Vue de l'entrée du chantier</p>
+            </div>
+          </div>
+          <span id="status-1" class="text-[10px] bg-slate-500/20 text-slate-400 px-2 py-0.5 rounded-full font-bold">NON INSTALLÉE</span>
+        </div>
+        <button class="camera-btn w-full bg-white/5 border border-white/10 hover:bg-white/10 py-3 rounded-xl text-xs font-semibold opacity-50 cursor-not-allowed" data-camera="1" disabled>
+          🔴 Voir en direct
+        </button>
+      </div>
+
+      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-400 flex items-center justify-center text-2xl">📷</div>
+            <div>
+              <h3 class="font-extrabold text-sm">Caméra 2 — Zone travaux</h3>
+              <p class="text-[10px] text-slate-400 mt-0.5">Vue de la zone principale</p>
+            </div>
+          </div>
+          <span id="status-2" class="text-[10px] bg-slate-500/20 text-slate-400 px-2 py-0.5 rounded-full font-bold">NON INSTALLÉE</span>
+        </div>
+        <button class="camera-btn w-full bg-white/5 border border-white/10 hover:bg-white/10 py-3 rounded-xl text-xs font-semibold opacity-50 cursor-not-allowed" data-camera="2" disabled>
+          🔴 Voir en direct
+        </button>
+      </div>
+
+      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-400 flex items-center justify-center text-2xl">📷</div>
+            <div>
+              <h3 class="font-extrabold text-sm">Caméra 3 — Stock matériaux</h3>
+              <p class="text-[10px] text-slate-400 mt-0.5">Vue des matériaux stockés</p>
+            </div>
+          </div>
+          <span id="status-3" class="text-[10px] bg-slate-500/20 text-slate-400 px-2 py-0.5 rounded-full font-bold">NON INSTALLÉE</span>
+        </div>
+        <button class="camera-btn w-full bg-white/5 border border-white/10 hover:bg-white/10 py-3 rounded-xl text-xs font-semibold opacity-50 cursor-not-allowed" data-camera="3" disabled>
+          🔴 Voir en direct
+        </button>
+      </div>
+
+      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-400 flex items-center justify-center text-2xl">📷</div>
+            <div>
+              <h3 class="font-extrabold text-sm">Caméra 4 — Vue d'ensemble</h3>
+              <p class="text-[10px] text-slate-400 mt-0.5">Vue panoramique du chantier</p>
+            </div>
+          </div>
+          <span id="status-4" class="text-[10px] bg-slate-500/20 text-slate-400 px-2 py-0.5 rounded-full font-bold">NON INSTALLÉE</span>
+        </div>
+        <button class="camera-btn w-full bg-white/5 border border-white/10 hover:bg-white/10 py-3 rounded-xl text-xs font-semibold opacity-50 cursor-not-allowed" data-camera="4" disabled>
+          🔴 Voir en direct
+        </button>
+      </div>
+
+    </section>
+
+    <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4">
+      <p class="text-xs text-amber-200 leading-relaxed">
+        ℹ️ Les caméras seront installées dès le démarrage effectif du chantier. Vous recevrez une notification dès qu'elles seront accessibles.
+      </p>
+    </div>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-investisseur.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
+    <a href="projets.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📁</span>Projets</a>
+    <a href="cameras.html" class="flex flex-col items-center gap-0.5 text-emerald-400 text-[10px]"><span class="text-lg">📹</span>Caméras</a>
+    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
+    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if (!requireLogin()) throw new Error('Not logged');
+
+    async function loadProjects() {
+      const select = document.getElementById('project');
+      try {
+        const members = await apiGet('project_members', 'user_id=eq.' + getCurrentUserId() + '&is_active=eq.true');
+        if (!Array.isArray(members) || members.length === 0) {
+          select.innerHTML = '<option value="">Aucun chantier</option>';
+          return;
+        }
+        const projects = [];
+        for (const m of members) {
+          try {
+            const p = await apiGet('projects', 'id=eq.' + m.project_id);
+            if (Array.isArray(p) && p[0]) projects.push(p[0]);
+          } catch (e) {}
+        }
+        if (projects.length === 0) {
+          select.innerHTML = '<option value="">Aucun projet</option>';
+          return;
+        }
+        select.innerHTML = projects.map(p => '<option value="' + p.id + '">' + escapeHtml(p.title) + '</option>').join('');
+      } catch (e) {
+        select.innerHTML = '<option value="">Erreur</option>';
+      }
+    }
+
+    // Placeholder pour le jour où on branchera les caméras
+    document.querySelectorAll('.camera-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const camNum = this.dataset.camera;
+        alert('Caméra ' + camNum + ' : pas encore installée.\n\nL\'équipe technique vous informera dès qu\'elle sera disponible en direct.');
+      });
+    });
+
+    loadProjects();
+  </script>
+</body>
+</html>
