@@ -107,7 +107,7 @@ const ED_MENUS = {
     { href: 'dashboard-investisseur.html', icon: 'home', label: 'Accueil' },
     { href: 'projets.html', icon: 'folder', label: 'Projets' },
     { href: 'portefeuille.html', icon: 'wallet', label: 'Portefeuille' },
-    { href: 'documents.html', icon: 'file', label: 'Documents' },
+    { href: 'cameras.html', icon: 'video', label: 'Caméras' },
     { href: 'messages.html', icon: 'message', label: 'Messages' },
     { href: 'profil.html', icon: 'user', label: 'Profil' }
   ],
