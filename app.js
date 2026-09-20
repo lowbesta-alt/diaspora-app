@@ -1,6 +1,6 @@
 // ============================================================
 // APP.JS - Boite a outils centrale Espace Diaspora
-// v12.0 : MODE TEST ADMIN (basculer entre les 3 roles)
+// v13.0 : ajout Réalisations dans menu artisan
 // ============================================================
 
 // ---------- Injection du favicon ----------
@@ -45,7 +45,8 @@ const ED_ICONS = {
   users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
   grid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
   list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
-  eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+  eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+  trophy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>'
 };
 
 const ED_EMOJI_MAP = {
@@ -55,7 +56,8 @@ const ED_EMOJI_MAP = {
   '🔒': 'lock', '✅': 'check', '⏳': 'clock', '📸': 'camera',
   '🎥': 'video', '📍': 'mapPin', '⚙️': 'settings', '🔍': 'search',
   '➕': 'plus', '✏️': 'edit', '🗑️': 'trash', '⚠️': 'alert',
-  '🤝': 'handshake', '🎯': 'target', '🏗️': 'building', '🏢': 'building'
+  '🤝': 'handshake', '🎯': 'target', '🏗️': 'building', '🏢': 'building',
+  '🏆': 'trophy'
 };
 
 function edReplaceEmojis() {
@@ -107,15 +109,16 @@ const ED_MENUS = {
     { href: 'dashboard-investisseur.html', icon: 'home', label: 'Accueil' },
     { href: 'projets.html', icon: 'folder', label: 'Projets' },
     { href: 'portefeuille.html', icon: 'wallet', label: 'Portefeuille' },
+    { href: 'documents.html', icon: 'file', label: 'Documents' },
     { href: 'cameras.html', icon: 'video', label: 'Caméras' },
     { href: 'messages.html', icon: 'message', label: 'Messages' },
     { href: 'profil.html', icon: 'user', label: 'Profil' }
   ],
   provider: [
-    { href: 'dashboard-artisan.html', icon: 'home', label: 'Mes chantiers' },
+    { href: 'dashboard-artisan.html', icon: 'home', label: 'Chantiers' },
     { href: 'mes-rapports.html', icon: 'camera', label: 'Rapports' },
+    { href: 'mes-realisations.html', icon: 'trophy', label: 'Réalisations' },
     { href: 'mes-paiements.html', icon: 'wallet', label: 'Paiements' },
-    { href: 'mes-realisations.html', icon: 'target', label: 'Réalisations' },
     { href: 'messages.html', icon: 'message', label: 'Messages' },
     { href: 'profil.html', icon: 'user', label: 'Profil' }
   ],
@@ -131,12 +134,10 @@ const ED_MENUS = {
 
 const ED_MENU_ITEMS = ED_MENUS.investor;
 
-// ---------- Gestion des roles ----------
 function getRealUserRole() {
   return localStorage.getItem('user_role') || 'investor';
 }
 
-// Role "effectif" : ce que l'utilisateur voit. Un admin en mode test voit un autre role.
 function getCurrentUserRole() {
   const realRole = getRealUserRole();
   if (realRole === 'admin') {
@@ -146,7 +147,6 @@ function getCurrentUserRole() {
   return realRole;
 }
 
-// Role "reel" (admin reste admin, meme en mode test)
 function isAdminModeTest() {
   return getRealUserRole() === 'admin' && !!localStorage.getItem('test_role');
 }
@@ -197,7 +197,6 @@ function edInjectTestBanner() {
     window.location.href = 'dashboard-admin.html';
   });
 
-  // Ajoute un padding top pour ne pas cacher le contenu
   setTimeout(function() {
     const header = document.querySelector('.ed-header');
     if (header) header.style.marginTop = '40px';
@@ -214,7 +213,7 @@ function edCurrentPage() {
 
 function edInjectHeader() {
   const current = edCurrentPage();
-  const publicPages = ['index.html', 'inscription.html', 'accueil.html', 'partenariat-btp.html', 'partenaires.html', ''];
+  const publicPages = ['index.html', 'inscription.html', 'accueil.html', 'partenariat-btp.html', 'partenaires.html', 'cgu.html', 'mentions-legales.html', 'contact.html', 'garanties.html', 'realisations.html', ''];
   if (publicPages.includes(current)) return;
   if (document.querySelector('.ed-header')) return;
   if (!getToken()) return;
@@ -314,9 +313,7 @@ function requireLogin() {
 function requireRole(allowedRoles) {
   if (!requireLogin()) return false;
   const realRole = getRealUserRole();
-  // Admin a toujours acces, peu importe son mode test
   if (realRole === 'admin') return true;
-
   const effectiveRole = getCurrentUserRole();
   if (!allowedRoles.includes(effectiveRole)) {
     alert('Acces non autorise');
@@ -349,7 +346,6 @@ function getHeaders(extra) {
   return headers;
 }
 
-// ---------- API ----------
 async function apiGet(table, params) {
   params = params || '';
   const url = SUPABASE_URL + '/rest/v1/' + table + (params ? '?' + params : '');
@@ -417,7 +413,6 @@ async function uploadFile(bucket, path, file) {
   return true;
 }
 
-// ---------- Utilitaires ----------
 function formatAmount(amount, currency) {
   currency = currency || 'XAF';
   return Number(amount || 0).toLocaleString('fr-FR') + ' ' + currency;
@@ -472,9 +467,6 @@ function showSuccess(msg) { alert(msg); }
 
 function setupUserHeader() {}
 
-// ============================================================
-// INIT
-// ============================================================
 function edInit() {
   edInjectTestBanner();
   edInjectHeader();
