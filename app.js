@@ -115,6 +115,7 @@ const ED_MENUS = {
     { href: 'dashboard-artisan.html', icon: 'home', label: 'Mes chantiers' },
     { href: 'mes-rapports.html', icon: 'camera', label: 'Rapports' },
     { href: 'mes-paiements.html', icon: 'wallet', label: 'Paiements' },
+    { href: 'mes-realisations.html', icon: 'target', label: 'Réalisations' },
     { href: 'messages.html', icon: 'message', label: 'Messages' },
     { href: 'profil.html', icon: 'user', label: 'Profil' }
   ],
