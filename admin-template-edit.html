@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modifier le modèle - Administration</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <a href="admin-templates.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm">Modifier le modèle</span>
+    <button id="btn-delete-template" class="text-red-400 text-sm font-bold">🗑️</button>
+  </header>
+
+  <main class="p-4 max-w-3xl mx-auto space-y-4">
+
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-3">
+      <div>
+        <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Nom du modèle *</label>
+        <input type="text" id="name" class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm transition">
+      </div>
+
+      <div>
+        <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Description</label>
+        <textarea id="description" rows="2" class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm transition resize-none"></textarea>
+      </div>
+
+      <div>
+        <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Type de projet</label>
+        <select id="projectType" class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm transition">
+          <option value="construction">Construction</option>
+          <option value="commerce">Commerce</option>
+          <option value="immobilier">Immobilier</option>
+          <option value="agriculture">Agriculture</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Statut du modèle</label>
+        <select id="isActive" class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm transition">
+          <option value="true">✅ Actif (utilisable)</option>
+          <option value="false">⏸️ Inactif (désactivé)</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+      <div class="flex justify-between items-center mb-3">
+        <p class="text-xs font-bold text-amber-300 uppercase tracking-wider">📋 Jalons du modèle</p>
+        <span id="total-percent" class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">0%</span>
+      </div>
+
+      <div id="items-list" class="space-y-3"></div>
+
+      <button type="button" id="btn-add-item" class="w-full mt-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold py-2.5 rounded-xl text-xs transition">
+        + Ajouter un jalon
+      </button>
+    </section>
+
+    <button id="btn-save" class="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-[#0a1838] font-extrabold py-4 rounded-xl text-sm tracking-wide shadow-lg shadow-amber-500/40 transition">
+      Enregistrer les modifications
+    </button>
+
+  </main>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if (!requireRole(['admin'])) throw new Error('Not allowed');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const templateId = urlParams.get('id');
+    if (!templateId) {
+      alert('Aucun modèle sélectionné');
+      window.location.href = 'admin-templates.html';
+    }
+
+    let items = [];
+    let originalItemsIds = [];
+
+    async function loadTemplate() {
+      try {
+        // 1. Charge le modèle
+        const tpl = await apiGet('milestone_templates', 'id=eq.' + templateId);
+        if (!Array.isArray(tpl) || !tpl[0]) {
+          alert('Modèle introuvable');
+          window.location.href = 'admin-templates.html';
+          return;
+        }
+        const t = tpl[0];
+
+        document.getElementById('name').value = t.name || '';
+        document.getElementById('description').value = t.description || '';
+        document.getElementById('projectType').value = t.project_type || 'construction';
+        document.getElementById('isActive').value = t.is_active ? 'true' : 'false';
+
+        // 2. Charge les jalons
+        const its = await apiGet('milestone_template_items', 'template_id=eq.' + templateId + '&order=order_index');
+        items = Array.isArray(its) ? its : [];
+        originalItemsIds = items.map(x => x.id);
+
+        renderItems();
+      } catch (e) {
+        alert('Erreur : ' + e.message);
+      }
+    }
+
+    function renderItems() {
+      const container = document.getElementById('items-list');
+
+      if (items.length === 0) {
+        container.innerHTML = '<p class="text-[11px] text-slate-500 text-center py-4">Aucun jalon. Cliquez sur "+ Ajouter un jalon".</p>';
+        document.getElementById('total-percent').textContent = '0%';
+        return;
+      }
+
+      container.innerHTML = items.map((it, idx) => `
+        <div class="bg-slate-900/50 rounded-xl p-3 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">#${idx + 1}</span>
+            <button type="button" class="remove-item text-red-400 text-xs" data-idx="${idx}">✕ Supprimer</button>
+          </div>
+
+          <input type="text" class="item-title w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition" placeholder="Ex : Fondations & Soubassement" value="${escapeHtml(it.title || '')}" data-idx="${idx}">
+
+          <div>
+            <label class="text-[9px] text-slate-400 uppercase tracking-wider font-bold block mb-1">📝 Détail technique *</label>
+            <textarea class="item-detail w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition resize-none" rows="3" placeholder="Détail des travaux inclus..." data-idx="${idx}">${escapeHtml(it.detailed_description || it.description || '')}</textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[9px] text-slate-400 uppercase tracking-wider font-bold block mb-1">% Budget</label>
+              <input type="number" class="item-percent w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition" value="${it.budget_percent || ''}" data-idx="${idx}" min="0" max="100" step="0.5">
+            </div>
+            <div>
+              <label class="text-[9px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Preuves requises</label>
+              <input type="text" class="item-evidence w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition" value="${escapeHtml(it.required_evidence || '')}" data-idx="${idx}">
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Attache les événements
+      document.querySelectorAll('.item-title').forEach(inp => {
+        inp.addEventListener('input', () => { items[inp.dataset.idx].title = inp.value; });
+      });
+      document.querySelectorAll('.item-detail').forEach(inp => {
+        inp.addEventListener('input', () => { items[inp.dataset.idx].detailed_description = inp.value; });
+      });
+      document.querySelectorAll('.item-percent').forEach(inp => {
+        inp.addEventListener('input', () => {
+          items[inp.dataset.idx].budget_percent = parseFloat(inp.value) || 0;
+          updateTotalPercent();
+        });
+      });
+      document.querySelectorAll('.item-evidence').forEach(inp => {
+        inp.addEventListener('input', () => { items[inp.dataset.idx].required_evidence = inp.value; });
+      });
+      document.querySelectorAll('.remove-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (!confirm('Supprimer ce jalon ?')) return;
+          items.splice(parseInt(btn.dataset.idx), 1);
+          renderItems();
+        });
+      });
+
+      updateTotalPercent();
+    }
+
+    function updateTotalPercent() {
+      const total = items.reduce((s, it) => s + (Number(it.budget_percent) || 0), 0);
+      const el = document.getElementById('total-percent');
+      el.textContent = total.toFixed(1) + '%';
+      if (Math.abs(total - 100) < 0.01) {
+        el.className = 'text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold';
+      } else {
+        el.className = 'text-xs bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full font-bold';
+      }
+    }
+
+    document.getElementById('btn-add-item').addEventListener('click', () => {
+      items.push({ title: '', detailed_description: '', budget_percent: 0, required_evidence: '' });
+      renderItems();
+    });
+
+    // ============================================================
+    // ENREGISTREMENT
+    // ============================================================
+    document.getElementById('btn-save').addEventListener('click', async () => {
+      const name = document.getElementById('name').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const projectType = document.getElementById('projectType').value;
+      const isActive = document.getElementById('isActive').value === 'true';
+
+      if (!name) { alert('Entrez un nom'); return; }
+      if (items.length === 0) { alert('Ajoutez au moins 1 jalon'); return; }
+      if (items.some(it => !it.title || !it.title.trim())) { alert('Tous les jalons doivent avoir un titre'); return; }
+      if (items.some(it => !it.detailed_description || !it.detailed_description.trim())) { alert('Tous les jalons doivent avoir un détail technique'); return; }
+
+      const total = items.reduce((s, it) => s + (Number(it.budget_percent) || 0), 0);
+      if (Math.abs(total - 100) > 0.01) {
+        alert('Le total doit être de 100% (actuellement : ' + total.toFixed(1) + '%)');
+        return;
+      }
+
+      const btn = document.getElementById('btn-save');
+      btn.disabled = true;
+      btn.textContent = 'Enregistrement...';
+
+      try {
+        // 1. Met à jour le modèle
+        await apiPatch('milestone_templates', templateId, {
+          name: name,
+          description: description,
+          project_type: projectType,
+          is_active: isActive
+        });
+
+        // 2. Supprime tous les anciens jalons
+        for (const oldId of originalItemsIds) {
+          try { await apiDelete('milestone_template_items', oldId); } catch (e) {}
+        }
+
+        // 3. Réinsère les jalons actuels
+        for (let i = 0; i < items.length; i++) {
+          const it = items[i];
+          await apiPost('milestone_template_items', {
+            template_id: templateId,
+            order_index: i + 1,
+            title: it.title,
+            description: it.detailed_description,
+            detailed_description: it.detailed_description,
+            budget_percent: Number(it.budget_percent) || 0,
+            required_evidence: it.required_evidence || null
+          });
+        }
+
+        showSuccess('Modèle enregistré !');
+        loadTemplate();
+      } catch (err) {
+        showError(err.message);
+        btn.disabled = false;
+        btn.textContent = 'Enregistrer les modifications';
+      }
+    });
+
+    // ============================================================
+    // SUPPRESSION DU MODÈLE ENTIER
+    // ============================================================
+    document.getElementById('btn-delete-template').addEventListener('click', async () => {
+      if (!confirm('⚠️ Supprimer ce modèle définitivement ?\n\nTous ses jalons seront effacés.')) return;
+      if (!confirm('Confirmation finale : supprimer ce modèle ?')) return;
+
+      try {
+        // Supprime d'abord les jalons (cascade devrait le faire mais on force)
+        for (const oldId of originalItemsIds) {
+          try { await apiDelete('milestone_template_items', oldId); } catch (e) {}
+        }
+        // Puis le modèle
+        await apiDelete('milestone_templates', templateId);
+        showSuccess('Modèle supprimé');
+        window.location.href = 'admin-templates.html';
+      } catch (e) {
+        showError(e.message);
+      }
+    });
+
+    loadTemplate();
+  </script>
+</body>
+</html>
