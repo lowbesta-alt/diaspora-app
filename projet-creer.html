@@ -156,7 +156,7 @@
       if (!rawDescription) { alert('Entrez une description'); return; }
       if (!budget || budget <= 0) { alert('Entrez un budget valide'); return; }
 
-      // Construction de la description enrichie avec les infos foncières pour garder la transparence
+      // Construction de la description enrichie avec les infos foncières
       let finalDescription = rawDescription;
       let extraInfo = [];
       if (landTitle) extraInfo.push(`Titre foncier : ${landTitle}`);
@@ -172,7 +172,7 @@
       btn.textContent = 'Création en cours...';
 
       try {
-        // 1) Création du projet (utilise uniquement les colonnes standard de la base)
+        // 1) Création du projet
         const res = await fetch(SUPABASE_URL + '/rest/v1/projects', {
           method: 'POST',
           headers: authHeaders({ 'Prefer': 'return=representation' }),
@@ -203,13 +203,12 @@
         const created = await res.json();
         const projectId = Array.isArray(created) ? created[0]?.id : created?.id;
 
-        // 2) Insertion automatique des 5 jalons par défaut
+        // 2) Insertion automatique des 5 jalons par défaut (sans le champ order)
         if (projectId) {
-          const milestonesPayload = DEFAULT_MILESTONES.map((m, i) => ({
+          const milestonesPayload = DEFAULT_MILESTONES.map((m) => ({
             project_id: projectId,
             title: m.title,
             description: m.description,
-            order: i + 1,
             status: 'pending'
           }));
 
