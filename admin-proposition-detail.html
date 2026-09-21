@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proposition de jalons - Administration</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <a href="admin-propositions.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm">Proposition de jalons</span>
+    <span class="w-6"></span>
+  </header>
+
+  <main class="p-4 max-w-3xl mx-auto space-y-4">
+
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-5">
+      <h1 id="project-title" class="text-xl font-extrabold tracking-tight mb-2">Chargement...</h1>
+      <p id="project-info" class="text-xs text-slate-400"></p>
+    </section>
+
+    <section id="items-list" class="space-y-3"></section>
+
+    <section id="actions-section" class="space-y-2">
+      <button id="btn-validate" class="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold py-4 rounded-xl text-sm shadow-lg shadow-emerald-500/30 transition">
+        ✅ Valider cette proposition
+      </button>
+      <button id="btn-reject" class="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-extrabold py-4 rounded-xl text-sm shadow-lg shadow-red-500/30 transition">
+        ❌ Refuser avec motif
+      </button>
+    </section>
+
+    <section id="processed-box" class="hidden text-center py-6 bg-white/5 border border-white/10 rounded-2xl">
+      <p class="text-sm text-slate-300">Cette proposition a déjà été traitée.</p>
+    </section>
+
+  </main>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if (!requireRole(['admin'])) throw new Error('Not allowed');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectId = urlParams.get('project_id');
+    if (!projectId) {
+      alert('Aucun projet sélectionné');
+      window.location.href = 'admin-propositions.html';
+    }
+
+    let milestones = [];
+    let canAct = false;
+
+    async function loadProposal() {
+      try {
+        // 1. Charge le projet
+        const p = await apiGet('projects', 'id=eq.' + projectId);
+        if (Array.isArray(p) && p[0]) {
+          document.getElementById('project-title').textContent = p[0].title;
+          const budget = Number(p[0].total_budget) || 0;
+          const currency = p[0].currency || 'XAF';
+          document.getElementById('project-info').textContent = '💰 ' + budget.toLocaleString('fr-FR') + ' ' + currency + ' · 📍 ' + (p[0].city || '') + ', ' + (p[0].country || '');
+        }
+
+        // 2. Charge les jalons
+        const data = await apiGet('milestones', 'project_id=eq.' + projectId + '&proposal_status=not.is.null&order=order_index');
+        milestones = Array.isArray(data) ? data : [];
+
+        if (milestones.length === 0) {
+          document.getElementById('items-list').innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucun jalon</p>';
+          return;
+        }
+
+        // 3. Vérifie si on peut agir (tous en pending)
+        canAct = milestones.every(m => m.proposal_status === 'pending');
+
+        // 4. Affiche les jalons
+        const total = milestones.reduce((s, m) => s + Number(m.amount || 0), 0);
+
+        let html = '';
+        milestones.forEach((m, idx) => {
+          const percent = Number(m.amount) && Number(m.amount) > 0 ? '' : '';
+          html += `
+            <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+              <div class="flex items-start gap-3 mb-2">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xs font-bold flex-shrink-0">${idx + 1}</div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-bold text-sm">${escapeHtml(m.title)}</h3>
+                  <p class="text-[10px] text-slate-400 mt-0.5">💰 ${Number(m.amount).toLocaleString('fr-FR')} ${escapeHtml(m.currency || 'XAF')}</p>
+                </div>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap mt-2">${escapeHtml(m.description || '')}</p>
+            </div>
+          `;
+        });
+
+        html += `
+          <div class="bg-slate-800/50 border border-white/10 rounded-2xl p-4 text-center">
+            <p class="text-xs text-slate-400">Total des montants</p>
+            <p class="text-xl font-extrabold text-emerald-400 mt-1">${total.toLocaleString('fr-FR')} XAF</p>
+          </div>
+        `;
+
+        document.getElementById('items-list').innerHTML = html;
+
+        // 5. Affiche ou cache les boutons
+        if (canAct) {
+          document.getElementById('actions-section').classList.remove('hidden');
+          document.getElementById('processed-box').classList.add('hidden');
+        } else {
+          document.getElementById('actions-section').classList.add('hidden');
+          document.getElementById('processed-box').classList.remove('hidden');
+        }
+
+      } catch (e) {
+        document.getElementById('project-title').textContent = 'Erreur : ' + e.message;
+      }
+    }
+
+    document.getElementById('btn-validate').addEventListener('click', async () => {
+      if (!confirm('Valider ce découpage ?\n\nLes jalons deviendront contractuels et visibles par le client.')) return;
+      await handleAction('validated');
+    });
+
+    document.getElementById('btn-reject').addEventListener('click', async () => {
+      const reason = prompt('Motif du refus (sera transmis à l\'artisan) :');
+      if (!reason) return;
+      await handleAction('rejected', reason);
+    });
+
+    async function handleAction(newStatus, reason) {
+      try {
+        // Met à jour tous les jalons en une fois
+        for (const m of milestones) {
+          await apiPatch('milestones', m.id, {
+            proposal_status: newStatus,
+            status: newStatus === 'validated' ? 'pending' : 'pending',
+            admin_review_notes: reason || null,
+            proposal_validated_at: new Date().toISOString(),
+            proposal_validated_by: getCurrentUserId()
+          });
+        }
+
+        // Trace dans l'audit
+        try {
+          await apiPost('audit_log', {
+            actor_id: getCurrentUserId(),
+            action: 'update',
+            table_name: 'milestones',
+            project_id: projectId,
+            new_data: { proposal_status: newStatus, reason: reason || null, count: milestones.length }
+          });
+        } catch (e) {}
+
+        showSuccess(newStatus === 'validated' ? 'Proposition validée ! Le client peut maintenant la voir.' : 'Proposition refusée. L\'artisan sera notifié.');
+        window.location.href = 'admin-propositions.html';
+      } catch (e) {
+        showError(e.message);
+      }
+    }
+
+    loadProposal();
+  </script>
+</body>
+</html>
