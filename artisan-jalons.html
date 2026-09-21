@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proposer un découpage - Espace Artisan</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <a href="dashboard-artisan.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm">Proposer un découpage</span>
+    <span class="w-6"></span>
+  </header>
+
+  <main class="p-4 max-w-3xl mx-auto space-y-4">
+
+    <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
+      <span class="text-amber-400 text-xl flex-shrink-0">🛡️</span>
+      <p class="text-xs text-amber-200 leading-relaxed">
+        Sélectionnez un <strong>modèle type</strong>, ajustez-le selon les spécificités du chantier, puis <strong>proposez-le à l'administrateur</strong>. Une fois validé, il devient contractuel.
+      </p>
+    </div>
+
+    <!-- ETAPE 1 : Choisir le chantier -->
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-3">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xs font-bold">1</div>
+        <h2 class="text-sm font-extrabold text-amber-300 uppercase tracking-wider">Chantier concerné</h2>
+      </div>
+      <select id="project" class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm transition">
+        <option value="">Sélectionner un chantier</option>
+      </select>
+      <p class="text-[10px] text-slate-500">Seuls les chantiers où vous êtes assigné apparaissent ici.</p>
+    </section>
+
+    <!-- ETAPE 2 : Choisir le modèle -->
+    <section id="template-section" class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-3 hidden">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xs font-bold">2</div>
+        <h2 class="text-sm font-extrabold text-amber-300 uppercase tracking-wider">Modèle type à appliquer</h2>
+      </div>
+      <select id="template" class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm transition">
+        <option value="">Sélectionner un modèle</option>
+      </select>
+      <p class="text-[10px] text-slate-500">Les jalons du modèle seront copiés et vous pourrez les ajuster.</p>
+      <button id="btn-load-template" class="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold py-2.5 rounded-xl text-xs transition">
+        Charger ce modèle
+      </button>
+    </section>
+
+    <!-- ETAPE 3 : Ajuster les jalons -->
+    <section id="items-section" class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-3 hidden">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xs font-bold">3</div>
+        <h2 class="text-sm font-extrabold text-amber-300 uppercase tracking-wider">Ajustez les jalons</h2>
+      </div>
+
+      <div class="flex justify-between items-center mb-3">
+        <p class="text-xs text-slate-400">Modifiez, ajoutez ou supprimez selon le chantier</p>
+        <span id="total-percent" class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">0%</span>
+      </div>
+
+      <div id="items-list" class="space-y-3"></div>
+
+      <button type="button" id="btn-add-item" class="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold py-2.5 rounded-xl text-xs transition">
+        + Ajouter un jalon
+      </button>
+    </section>
+
+    <!-- ETAPE 4 : Notes + soumettre -->
+    <section id="submit-section" class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-3 hidden">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xs font-bold">4</div>
+        <h2 class="text-sm font-extrabold text-amber-300 uppercase tracking-wider">Note pour l'administrateur (optionnel)</h2>
+      </div>
+      <textarea id="proposal-notes" rows="3" placeholder="Ex : Le client souhaite une piscine, j'ai ajouté un jalon spécifique." class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm transition resize-none"></textarea>
+
+      <button id="btn-submit" class="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-[#0a1838] font-extrabold py-4 rounded-xl text-sm tracking-wide shadow-lg shadow-amber-500/40 transition">
+        📤 Proposer ce découpage à l'administrateur
+      </button>
+    </section>
+
+    <!-- HISTORIQUE PROPOSITIONS -->
+    <section id="history-section" class="hidden">
+      <h2 class="text-lg font-extrabold tracking-tight mb-3">Mes propositions en cours</h2>
+      <div id="history-list" class="space-y-2">
+        <p class="text-slate-400 text-sm text-center py-4">Chargement...</p>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-artisan.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Chantiers</a>
+    <a href="artisan-jalons.html" class="flex flex-col items-center gap-0.5 text-amber-400 text-[10px]"><span class="text-lg">🎯</span>Jalons</a>
+    <a href="mes-rapports.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📸</span>Rapports</a>
+    <a href="mes-paiements.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💰</span>Paiements</a>
+    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if (!requireRole(['provider', 'project_manager'])) throw new Error('Not allowed');
+
+    const userId = getCurrentUserId();
+    let items = [];
+    let selectedProjectId = null;
+
+    // ============================================================
+    // CHARGEMENT DES PROJETS
+    // ============================================================
+    async function loadProjects() {
+      const select = document.getElementById('project');
+      try {
+        const members = await apiGet('project_members', 'user_id=eq.' + userId + '&is_active=eq.true');
+        if (!Array.isArray(members) || members.length === 0) {
+          select.innerHTML = '<option value="">Aucun chantier assigné</option>';
+          return;
+        }
+        const projects = [];
+        for (const m of members) {
+          try {
+            const p = await apiGet('projects', 'id=eq.' + m.project_id);
+            if (Array.isArray(p) && p[0]) projects.push(p[0]);
+          } catch (e) {}
+        }
+        select.innerHTML = '<option value="">Sélectionner un chantier</option>' +
+          projects.map(p => '<option value="' + p.id + '">' + escapeHtml(p.title) + '</option>').join('');
+      } catch (e) {
+        select.innerHTML = '<option value="">Erreur</option>';
+      }
+    }
+
+    // ============================================================
+    // CHARGEMENT DES MODÈLES
+    // ============================================================
+    async function loadTemplates() {
+      const select = document.getElementById('template');
+      try {
+        const data = await apiGet('milestone_templates', 'is_active=eq.true&order=name');
+        const valid = Array.isArray(data) ? data : [];
+        if (valid.length === 0) {
+          select.innerHTML = '<option value="">Aucun modèle disponible</option>';
+          return;
+        }
+        select.innerHTML = '<option value="">Sélectionner un modèle</option>' +
+          valid.map(t => '<option value="' + t.id + '">' + escapeHtml(t.name) + '</option>').join('');
+      } catch (e) {
+        select.innerHTML = '<option value="">Erreur</option>';
+      }
+    }
+
+    // ============================================================
+    // SELECTION PROJET
+    // ============================================================
+    document.getElementById('project').addEventListener('change', async (e) => {
+      selectedProjectId = e.target.value;
+      document.getElementById('items-list').innerHTML = '';
+      items = [];
+
+      if (!selectedProjectId) {
+        document.getElementById('template-section').classList.add('hidden');
+        document.getElementById('items-section').classList.add('hidden');
+        document.getElementById('submit-section').classList.add('hidden');
+        return;
+      }
+
+      // Vérifie s'il y a déjà une proposition en cours pour ce projet
+      try {
+        const existing = await apiGet('milestones', 'project_id=eq.' + selectedProjectId + '&proposal_status=eq.pending');
+        if (Array.isArray(existing) && existing.length > 0) {
+          alert('⚠️ Une proposition est déjà en attente de validation pour ce chantier. Attendez la réponse de l\'administrateur.');
+          document.getElementById('template-section').classList.add('hidden');
+          document.getElementById('items-section').classList.add('hidden');
+          document.getElementById('submit-section').classList.add('hidden');
+          return;
+        }
+      } catch (e) {}
+
+      document.getElementById('template-section').classList.remove('hidden');
+      document.getElementById('items-section').classList.add('hidden');
+      document.getElementById('submit-section').classList.add('hidden');
+      document.getElementById('history-section').classList.remove('hidden');
+      loadHistory();
+    });
+
+    // ============================================================
+    // CHARGER LE MODÈLE CHOISI
+    // ============================================================
+    document.getElementById('btn-load-template').addEventListener('click', async () => {
+      const templateId = document.getElementById('template').value;
+      if (!templateId) { alert('Sélectionnez un modèle'); return; }
+
+      try {
+        const its = await apiGet('milestone_template_items', 'template_id=eq.' + templateId + '&order=order_index');
+        const valid = Array.isArray(its) ? its : [];
+        if (valid.length === 0) {
+          alert('Ce modèle est vide');
+          return;
+        }
+
+        items = valid.map(it => ({
+          title: it.title,
+          detailed_description: it.detailed_description || it.description || '',
+          budget_percent: Number(it.budget_percent) || 0,
+          required_evidence: it.required_evidence || ''
+        }));
+
+        renderItems();
+        document.getElementById('items-section').classList.remove('hidden');
+        document.getElementById('submit-section').classList.remove('hidden');
+
+        showSuccess(valid.length + ' jalon(s) chargé(s). Ajustez si besoin.');
+      } catch (e) {
+        showError(e.message);
+      }
+    });
+
+    // ============================================================
+    // AFFICHAGE DES JALONS
+    // ============================================================
+    function renderItems() {
+      const container = document.getElementById('items-list');
+
+      if (items.length === 0) {
+        container.innerHTML = '<p class="text-[11px] text-slate-500 text-center py-4">Aucun jalon.</p>';
+        document.getElementById('total-percent').textContent = '0%';
+        return;
+      }
+
+      container.innerHTML = items.map((it, idx) => `
+        <div class="bg-slate-900/50 rounded-xl p-3 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">#${idx + 1}</span>
+            <button type="button" class="remove-item text-red-400 text-xs" data-idx="${idx}">✕ Supprimer</button>
+          </div>
+
+          <input type="text" class="item-title w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition" value="${escapeHtml(it.title || '')}" data-idx="${idx}">
+
+          <textarea class="item-detail w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition resize-none" rows="2" data-idx="${idx}" placeholder="Détail technique...">${escapeHtml(it.detailed_description || '')}</textarea>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[9px] text-slate-400 uppercase tracking-wider font-bold block mb-1">% Budget</label>
+              <input type="number" class="item-percent w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition" value="${it.budget_percent || ''}" data-idx="${idx}" min="0" max="100" step="0.5">
+            </div>
+            <div>
+              <label class="text-[9px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Preuves</label>
+              <input type="text" class="item-evidence w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition" value="${escapeHtml(it.required_evidence || '')}" data-idx="${idx}">
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      document.querySelectorAll('.item-title').forEach(inp => {
+        inp.addEventListener('input', () => { items[inp.dataset.idx].title = inp.value; });
+      });
+      document.querySelectorAll('.item-detail').forEach(inp => {
+        inp.addEventListener('input', () => { items[inp.dataset.idx].detailed_description = inp.value; });
+      });
+      document.querySelectorAll('.item-percent').forEach(inp => {
+        inp.addEventListener('input', () => {
+          items[inp.dataset.idx].budget_percent = parseFloat(inp.value) || 0;
+          updateTotalPercent();
+        });
+      });
+      document.querySelectorAll('.item-evidence').forEach(inp => {
+        inp.addEventListener('input', () => { items[inp.dataset.idx].required_evidence = inp.value; });
+      });
+      document.querySelectorAll('.remove-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (!confirm('Supprimer ce jalon ?')) return;
+          items.splice(parseInt(btn.dataset.idx), 1);
+          renderItems();
+        });
+      });
+
+      updateTotalPercent();
+    }
+
+    function updateTotalPercent() {
+      const total = items.reduce((s, it) => s + (Number(it.budget_percent) || 0), 0);
+      const el = document.getElementById('total-percent');
+      el.textContent = total.toFixed(1) + '%';
+      if (Math.abs(total - 100) < 0.01) {
+        el.className = 'text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold';
+      } else {
+        el.className = 'text-xs bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full font-bold';
+      }
+    }
+
+    document.getElementById('btn-add-item').addEventListener('click', () => {
+      items.push({ title: '', detailed_description: '', budget_percent: 0, required_evidence: '' });
+      renderItems();
+    });
+
+    // ============================================================
+    // SOUMISSION
+    // ============================================================
+    document.getElementById('btn-submit').addEventListener('click', async () => {
+      if (!selectedProjectId) { alert('Sélectionnez un chantier'); return; }
+      if (items.length === 0) { alert('Aucun jalon à proposer'); return; }
+      if (items.some(it => !it.title || !it.title.trim())) { alert('Tous les jalons doivent avoir un titre'); return; }
+      if (items.some(it => !it.detailed_description || !it.detailed_description.trim())) { alert('Tous les jalons doivent avoir un détail technique'); return; }
+
+      const total = items.reduce((s, it) => s + (Number(it.budget_percent) || 0), 0);
+      if (Math.abs(total - 100) > 0.01) {
+        alert('Le total doit être de 100% (actuellement : ' + total.toFixed(1) + '%)');
+        return;
+      }
+
+      // Récupère le budget du projet pour calculer les montants
+      let projectBudget = 0;
+      let projectCurrency = 'XAF';
+      try {
+        const p = await apiGet('projects', 'id=eq.' + selectedProjectId);
+        if (Array.isArray(p) && p[0]) {
+          projectBudget = Number(p[0].total_budget) || 0;
+          projectCurrency = p[0].currency || 'XAF';
+        }
+      } catch (e) {}
+
+      const notes = document.getElementById('proposal-notes').value.trim();
+      const templateId = document.getElementById('template').value;
+
+      if (!confirm('Proposer ce découpage à l\'administrateur ?\n\n' + items.length + ' jalon(s) · Total ' + total.toFixed(1) + '%')) return;
+
+      const btn = document.getElementById('btn-submit');
+      btn.disabled = true;
+      btn.textContent = 'Envoi en cours...';
+
+      try {
+        // Crée les jalons avec statut pending
+        for (let i = 0; i < items.length; i++) {
+          const it = items[i];
+          const amount = Math.round(projectBudget * (Number(it.budget_percent) || 0) / 100);
+
+          await apiPost('milestones', {
+            project_id: selectedProjectId,
+            template_id: templateId || null,
+            title: it.title,
+            description: it.detailed_description,
+            order_index: i + 1,
+            amount: amount,
+            currency: projectCurrency,
+            status: 'pending',
+            proposed_by: userId,
+            proposal_status: 'pending',
+            proposal_notes: i === 0 ? notes : null
+          });
+        }
+
+        showSuccess('✅ Proposition envoyée ! En attente de validation par l\'administrateur.');
+
+        // Reset
+        document.getElementById('template').value = '';
+        document.getElementById('proposal-notes').value = '';
+        items = [];
+        renderItems();
+        document.getElementById('items-section').classList.add('hidden');
+        document.getElementById('submit-section').classList.add('hidden');
+        document.getElementById('template-section').classList.add('hidden');
+        document.getElementById('project').value = '';
+        selectedProjectId = null;
+        loadHistory();
+
+      } catch (err) {
+        showError(err.message);
+        btn.disabled = false;
+        btn.textContent = '📤 Proposer ce découpage à l\'administrateur';
+      }
+    });
+
+    // ============================================================
+    // HISTORIQUE
+    // ============================================================
+    async function loadHistory() {
+      const list = document.getElementById('history-list');
+      try {
+        const data = await apiGet('milestones', 'proposed_by=eq.' + userId + '&order=created_at.desc&limit=10');
+        const valid = Array.isArray(data) ? data : [];
+
+        // Regroupe par projet + statut
+        if (valid.length === 0) {
+          list.innerHTML = '<div class="text-center py-4 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-xs">Aucune proposition enregistrée</p></div>';
+          return;
+        }
+
+        // Groupe par proposal_status
+        const pending = valid.filter(m => m.proposal_status === 'pending');
+        const validated = valid.filter(m => m.proposal_status === 'validated');
+        const rejected = valid.filter(m => m.proposal_status === 'rejected');
+
+        let html = '';
+
+        if (pending.length > 0) {
+          html += '<div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 mb-2">';
+          html += '<p class="text-xs font-bold text-amber-300 mb-1">⏳ ' + pending.length + ' jalon(s) en attente de validation admin</p>';
+          html += '</div>';
+        }
+
+        if (validated.length > 0) {
+          html += '<div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-3 mb-2">';
+          html += '<p class="text-xs font-bold text-emerald-300 mb-1">✅ ' + validated.length + ' jalon(s) validés</p>';
+          html += '</div>';
+        }
+
+        if (rejected.length > 0) {
+          html += '<div class="bg-red-500/10 border border-red-500/30 rounded-2xl p-3 mb-2">';
+          html += '<p class="text-xs font-bold text-red-300 mb-1">❌ ' + rejected.length + ' jalon(s) refusés</p>';
+          html += '</div>';
+        }
+
+        list.innerHTML = html;
+
+      } catch (e) {
+        list.innerHTML = '<p class="text-slate-400 text-sm text-center py-4">Impossible de charger</p>';
+      }
+    }
+
+    loadProjects();
+    loadTemplates();
+  </script>
+</body>
+</html>
