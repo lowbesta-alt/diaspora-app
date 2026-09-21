@@ -119,6 +119,28 @@
     document.getElementById('btn-add-milestone').href = 'jalon-creer.html?id=' + projectId;
     document.getElementById('btn-docs').href = 'documents.html?id=' + projectId;
 
+    // URL signée pour les fichiers privés
+    async function getSignedUrl(path) {
+      if (!path) return null;
+      try {
+        const res = await fetch(SUPABASE_URL + '/storage/v1/object/sign/project-documents/' + path, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + (getToken() || SUPABASE_KEY),
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ expiresIn: 3600 })
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (data.signedURL) return SUPABASE_URL + '/storage/v1' + data.signedURL;
+        return null;
+      } catch (e) {
+        return null;
+      }
+    }
+
     function statusCircle(status, idx) {
       const colors = {
         'released': 'bg-blue-500', 'approved': 'bg-emerald-500',
@@ -174,7 +196,7 @@
     async function loadMilestones() {
       const list = document.getElementById('milestones-list');
       try {
-        const data = await apiGet('reports', 'project_id=eq.' + projectId + '&status=eq.published&order=created_at.desc');
+        const data = await apiGet('milestones', 'project_id=eq.' + projectId + '&order=order_index');
         const valid = Array.isArray(data) ? data : [];
         if (valid.length === 0) {
           list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucun jalon. Cliquez sur + pour en creer un.</p>';
@@ -205,23 +227,85 @@
     async function loadTimeline() {
       const list = document.getElementById('timeline-list');
       try {
-        const data = await apiGet('reports', 'project_id=eq.' + projectId + '&order=created_at.desc');
+        // Rapports publiés uniquement
+        const data = await apiGet('reports', 'project_id=eq.' + projectId + '&status=eq.published&order=created_at.desc');
         const valid = Array.isArray(data) ? data : [];
+
         if (valid.length === 0) {
-          list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">📭</div><p class="text-slate-400 text-sm">Aucun rapport pour le moment</p><p class="text-slate-500 text-xs mt-2">Les rapports du chef de chantier apparaitront ici.</p></div>';
+          list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">📭</div><p class="text-slate-400 text-sm">Aucun rapport pour le moment</p><p class="text-slate-500 text-xs mt-2">Les rapports validés par Espace Diaspora apparaitront ici.</p></div>';
           return;
         }
-        list.innerHTML = valid.map(r => `
-          <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
-            <div class="flex justify-between items-start mb-2">
-              <h3 class="font-bold text-sm">${escapeHtml(r.title)}</h3>
-              <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">${r.progress_percent || 0}%</span>
+
+        // Pour chaque rapport, charge ses photos et factures
+        const cards = [];
+        for (const r of valid) {
+          let photos = [];
+          let invoices = [];
+          try {
+            const docs = await apiGet('documents', 'report_id=eq.' + r.id + '&order=created_at.asc');
+            if (Array.isArray(docs)) {
+              photos = docs.filter(d => d.document_type === 'photo');
+              invoices = docs.filter(d => d.document_type === 'invoice');
+            }
+          } catch (e) {}
+
+          // Génère les URLs signées des photos
+          const photoUrls = [];
+          for (const p of photos) {
+            const url = await getSignedUrl(p.storage_path);
+            if (url) photoUrls.push({ url: url, title: p.title });
+          }
+
+          // Génère les URLs signées des factures
+          const invoiceUrls = [];
+          for (const inv of invoices) {
+            const url = await getSignedUrl(inv.storage_path);
+            if (url) invoiceUrls.push({ url: url, title: inv.title });
+          }
+
+          cards.push(`
+            <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+              <div class="flex justify-between items-start mb-2 gap-2">
+                <h3 class="font-bold text-sm">${escapeHtml(r.title)}</h3>
+                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold flex-shrink-0">${r.progress_percent || 0}%</span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed mb-3 whitespace-pre-wrap">${escapeHtml(r.content)}</p>
+
+              ${r.blockers ? '<p class="text-[11px] text-red-300 mb-3">⚠️ Blocage : ' + escapeHtml(r.blockers) + '</p>' : ''}
+
+              ${photoUrls.length > 0 ? `
+                <div class="mb-3">
+                  <p class="text-[10px] text-amber-300 uppercase tracking-wider font-bold mb-2">📸 Photos (${photoUrls.length})</p>
+                  <div class="grid grid-cols-2 gap-2">
+                    ${photoUrls.map(p => `
+                      <div class="relative rounded-xl overflow-hidden border border-white/10 bg-slate-800">
+                        <img src="${p.url}" alt="${escapeHtml(p.title)}" class="w-full h-32 object-cover">
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              ${invoiceUrls.length > 0 ? `
+                <div class="mb-3">
+                  <p class="text-[10px] text-emerald-300 uppercase tracking-wider font-bold mb-2">📄 Factures (${invoiceUrls.length})</p>
+                  <div class="space-y-1">
+                    ${invoiceUrls.map(inv => `
+                      <a href="${inv.url}" target="_blank" class="flex items-center gap-2 bg-slate-800/50 rounded-lg p-2 hover:bg-slate-800 transition">
+                        <span class="text-sm">📄</span>
+                        <span class="text-[11px] flex-1 truncate">${escapeHtml(inv.title)}</span>
+                        <span class="text-emerald-400 text-xs">↗</span>
+                      </a>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              <p class="text-[10px] text-slate-500 mt-2">${formatDate(r.created_at)}</p>
             </div>
-            <p class="text-xs text-slate-300 leading-relaxed mb-3">${escapeHtml(r.content)}</p>
-            ${r.blockers ? '<p class="text-[11px] text-red-300 mb-2">⚠️ ' + escapeHtml(r.blockers) + '</p>' : ''}
-            <p class="text-[10px] text-slate-500">${formatDate(r.created_at)}</p>
-          </div>
-        `).join('');
+          `);
+        }
+        list.innerHTML = cards.join('');
       } catch (e) {
         list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Impossible de charger</p>';
       }
