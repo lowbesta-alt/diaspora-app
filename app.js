@@ -117,6 +117,7 @@ const ED_MENUS = {
   provider: [
     { href: 'dashboard-artisan.html', icon: 'home', label: 'Chantiers' },
     { href: 'mes-rapports.html', icon: 'camera', label: 'Rapports' },
+    { href: 'artisan-jalons.html', icon: 'target', label: 'Jalons' },
     { href: 'mes-realisations.html', icon: 'trophy', label: 'Réalisations' },
     { href: 'mes-paiements.html', icon: 'wallet', label: 'Paiements' },
     { href: 'messages.html', icon: 'message', label: 'Messages' },
