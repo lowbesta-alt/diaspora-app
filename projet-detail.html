@@ -174,7 +174,7 @@
     async function loadMilestones() {
       const list = document.getElementById('milestones-list');
       try {
-        const data = await apiGet('milestones', 'project_id=eq.' + projectId + '&order=order_index');
+        const data = await apiGet('reports', 'project_id=eq.' + projectId + '&status=eq.published&order=created_at.desc');
         const valid = Array.isArray(data) ? data : [];
         if (valid.length === 0) {
           list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucun jalon. Cliquez sur + pour en creer un.</p>';
