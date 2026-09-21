@@ -11,12 +11,11 @@
   <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
     <a href="admin-reports.html" class="text-2xl">←</a>
     <span class="font-bold text-sm">Détail du rapport</span>
-    <span class="w-6"></span>
+    <button id="btn-delete" class="text-red-400 text-sm font-bold">🗑️</button>
   </header>
 
   <main class="p-4 max-w-2xl mx-auto space-y-4">
 
-    <!-- TITRE + STATUT -->
     <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-5">
       <div class="flex items-center gap-2 mb-3 flex-wrap">
         <span id="report-status" class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">...</span>
@@ -28,13 +27,11 @@
       <p id="report-author" class="text-xs text-slate-400 mt-1"></p>
     </section>
 
-    <!-- DESCRIPTION COMPLETE -->
     <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-5">
       <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Description complète</h2>
       <p id="report-content" class="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">Chargement...</p>
     </section>
 
-    <!-- PHOTOS -->
     <section id="photos-section" class="hidden">
       <div class="flex items-center gap-2 mb-3">
         <h2 class="text-sm font-bold text-amber-300 uppercase tracking-wider">📸 Photos du chantier</h2>
@@ -43,7 +40,6 @@
       <div id="photos-grid" class="grid grid-cols-2 gap-3"></div>
     </section>
 
-    <!-- FACTURES -->
     <section id="invoices-section" class="hidden">
       <div class="flex items-center gap-2 mb-3">
         <h2 class="text-sm font-bold text-emerald-300 uppercase tracking-wider">📄 Factures</h2>
@@ -52,19 +48,16 @@
       <div id="invoices-list" class="space-y-2"></div>
     </section>
 
-    <!-- POINT BLOQUANT -->
     <section id="blockers-box" class="hidden bg-red-500/10 border border-red-500/30 rounded-2xl p-5">
       <h2 class="text-xs font-bold text-red-300 uppercase tracking-wider mb-3">⚠️ Point bloquant signalé</h2>
       <p id="report-blockers" class="text-sm text-red-200 leading-relaxed"></p>
     </section>
 
-    <!-- REJET EXISTANT -->
     <section id="rejection-box" class="hidden bg-red-500/10 border border-red-500/30 rounded-2xl p-5">
       <h2 class="text-xs font-bold text-red-300 uppercase tracking-wider mb-3">Motif de refus</h2>
       <p id="report-rejection" class="text-sm text-red-200 leading-relaxed"></p>
     </section>
 
-    <!-- ACTIONS -->
     <section id="actions-box" class="space-y-2">
       <button id="btn-publish" class="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold py-4 rounded-xl text-sm shadow-lg shadow-emerald-500/30 transition">
         ✅ Publier au client
@@ -74,9 +67,19 @@
       </button>
     </section>
 
-    <!-- MESSAGE SI DEJA TRAITE -->
     <section id="processed-box" class="hidden text-center py-6 bg-white/5 border border-white/10 rounded-2xl">
       <p class="text-sm text-slate-300">Ce rapport a déjà été traité.</p>
+    </section>
+
+    <!-- ZONE DANGEREUSE -->
+    <section class="mt-6 bg-red-500/5 border border-red-500/20 rounded-2xl p-5">
+      <h2 class="text-xs font-bold text-red-300 uppercase tracking-wider mb-3">⚠️ Zone dangereuse</h2>
+      <p class="text-[11px] text-slate-400 mb-3 leading-relaxed">
+        La suppression est <strong>définitive</strong>. Le rapport et toutes ses photos/factures seront effacés.
+      </p>
+      <button id="btn-delete-bottom" class="w-full bg-red-600/20 border border-red-500/40 hover:bg-red-600/40 text-red-300 font-bold py-3 rounded-xl text-sm transition">
+        🗑️ Supprimer ce rapport définitivement
+      </button>
     </section>
 
   </main>
@@ -95,7 +98,6 @@
 
     let currentReport = null;
 
-    // Génère une URL signée pour un fichier privé
     async function getSignedUrl(path) {
       if (!path) return null;
       try {
@@ -119,7 +121,6 @@
 
     async function loadReport() {
       try {
-        // 1. Charge le rapport
         const data = await apiGet('reports', 'id=eq.' + reportId);
         if (!Array.isArray(data) || !data[0]) {
           document.getElementById('report-title').textContent = 'Rapport introuvable';
@@ -133,7 +134,6 @@
         document.getElementById('report-progress').textContent = (r.progress_percent || 0) + '%';
         document.getElementById('report-content').textContent = r.content || '(Aucune description fournie)';
 
-        // Auteur
         try {
           const authorData = await apiGet('profiles', 'id=eq.' + r.author_id);
           if (Array.isArray(authorData) && authorData[0]) {
@@ -141,7 +141,6 @@
           }
         } catch (e) {}
 
-        // 2. Jalon concerné
         if (r.milestone_id) {
           try {
             const msData = await apiGet('milestones', 'id=eq.' + r.milestone_id);
@@ -153,7 +152,6 @@
           } catch (e) {}
         }
 
-        // 3. Statut badge
         const statusEl = document.getElementById('report-status');
         if (r.status === 'pending_review') {
           statusEl.textContent = 'EN ATTENTE';
@@ -166,19 +164,16 @@
           statusEl.className = 'text-[10px] bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full font-bold';
         }
 
-        // 4. Blocage
         if (r.blockers) {
           document.getElementById('blockers-box').classList.remove('hidden');
           document.getElementById('report-blockers').textContent = r.blockers;
         }
 
-        // 5. Rejet existant
         if (r.status === 'rejected' && r.rejection_reason) {
           document.getElementById('rejection-box').classList.remove('hidden');
           document.getElementById('report-rejection').textContent = r.rejection_reason;
         }
 
-        // 6. Actions visibles uniquement si en attente
         if (r.status === 'pending_review') {
           document.getElementById('actions-box').classList.remove('hidden');
           document.getElementById('processed-box').classList.add('hidden');
@@ -187,7 +182,6 @@
           document.getElementById('processed-box').classList.remove('hidden');
         }
 
-        // 7. Charge les documents liés
         await loadDocuments();
 
       } catch (e) {
@@ -203,23 +197,19 @@
         const photos = valid.filter(d => d.document_type === 'photo');
         const invoices = valid.filter(d => d.document_type === 'invoice');
 
-        // PHOTOS
         if (photos.length > 0) {
           document.getElementById('photos-section').classList.remove('hidden');
           document.getElementById('photos-count').textContent = photos.length;
 
           const grid = document.getElementById('photos-grid');
-          grid.innerHTML = '<p class="col-span-2 text-center text-xs text-slate-500 py-4">Chargement des photos...</p>';
+          grid.innerHTML = '<p class="col-span-2 text-center text-xs text-slate-500 py-4">Chargement...</p>';
 
           const photoCards = [];
           for (const p of photos) {
             const url = await getSignedUrl(p.storage_path);
             photoCards.push(`
               <div class="relative rounded-2xl overflow-hidden border border-white/10 bg-slate-800">
-                ${url ?
-                  `<img src="${url}" alt="${escapeHtml(p.title)}" class="w-full h-40 object-cover">` :
-                  `<div class="w-full h-40 flex items-center justify-center text-slate-500 text-xs">Image indisponible</div>`
-                }
+                ${url ? `<img src="${url}" alt="${escapeHtml(p.title)}" class="w-full h-40 object-cover">` : `<div class="w-full h-40 flex items-center justify-center text-slate-500 text-xs">Indisponible</div>`}
                 <div class="p-2 bg-black/60 backdrop-blur-sm">
                   <p class="text-[10px] text-white font-semibold truncate">${escapeHtml(p.title)}</p>
                   <p class="text-[9px] text-slate-400">${formatDate(p.created_at)}</p>
@@ -230,7 +220,6 @@
           grid.innerHTML = photoCards.join('');
         }
 
-        // FACTURES
         if (invoices.length > 0) {
           document.getElementById('invoices-section').classList.remove('hidden');
           document.getElementById('invoices-count').textContent = invoices.length;
@@ -254,17 +243,17 @@
         }
 
       } catch (e) {
-        console.log('Erreur chargement documents :', e.message);
+        console.log('Erreur documents :', e.message);
       }
     }
 
     document.getElementById('btn-publish').addEventListener('click', async () => {
-      if (!confirm('Publier ce rapport au client ? Il pourra le voir dans sa timeline avec les photos et factures.')) return;
+      if (!confirm('Publier ce rapport au client ?')) return;
       await handleReview('published');
     });
 
     document.getElementById('btn-reject').addEventListener('click', async () => {
-      const reason = prompt('Motif du refus (sera visible par l\'artisan) :');
+      const reason = prompt('Motif du refus :');
       if (!reason) return;
       await handleReview('rejected', reason);
     });
@@ -288,12 +277,52 @@
           });
         } catch (e) {}
 
-        showSuccess(newStatus === 'published' ? 'Rapport publié au client !' : 'Rapport refusé');
+        showSuccess(newStatus === 'published' ? 'Rapport publié !' : 'Rapport refusé');
         window.location.href = 'admin-reports.html';
       } catch (e) {
         showError(e.message);
       }
     }
+
+    // ============================================================
+    // SUPPRESSION DÉFINITIVE (admin)
+    // ============================================================
+    async function deleteReport() {
+      if (!confirm('⚠️ SUPPRESSION DÉFINITIVE\n\nLe rapport et toutes ses photos/factures seront effacés.\n\nConfirmer ?')) return;
+      if (!confirm('Dernière confirmation : supprimer définitivement ce rapport ?')) return;
+
+      try {
+        // Supprime d'abord les documents liés
+        const docs = await apiGet('documents', 'report_id=eq.' + reportId);
+        if (Array.isArray(docs)) {
+          for (const d of docs) {
+            try { await apiDelete('documents', d.id); } catch (e) {}
+          }
+        }
+
+        // Trace dans l'audit
+        try {
+          await apiPost('audit_log', {
+            actor_id: getCurrentUserId(),
+            action: 'delete',
+            table_name: 'reports',
+            record_id: reportId,
+            new_data: { deleted_by_admin: true, title: currentReport ? currentReport.title : 'inconnu' }
+          });
+        } catch (e) {}
+
+        // Supprime le rapport
+        await apiDelete('reports', reportId);
+
+        showSuccess('Rapport supprimé définitivement');
+        window.location.href = 'admin-reports.html';
+      } catch (e) {
+        showError(e.message);
+      }
+    }
+
+    document.getElementById('btn-delete').addEventListener('click', deleteReport);
+    document.getElementById('btn-delete-bottom').addEventListener('click', deleteReport);
 
     loadReport();
   </script>
