@@ -18,7 +18,7 @@
     <div class="bg-amber-500/10 border rounded-2xl p-4 flex items-start gap-3" style="border-color: rgba(245,158,11,0.35);">
       <span class="text-amber-400 text-xl flex-shrink-0">ℹ️</span>
       <p class="text-xs text-amber-200 leading-relaxed">
-        Chaque rapport est <strong>vérifié par Espace Diaspora</strong> avant transmission au client. Ajoutez des <strong>photos horodatées</strong> et <strong>factures</strong> pour prouver votre travail.
+        Chaque rapport est <strong>vérifié par Espace Diaspora</strong> avant transmission au client. Vous pouvez modifier un rapport tant qu'il n'est pas publié.
       </p>
     </div>
 
@@ -31,6 +31,13 @@
 
     <form id="reportForm" class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-4">
 
+      <input type="hidden" id="editingReportId" value="">
+
+      <div class="flex items-center justify-between">
+        <h2 id="form-title" class="text-sm font-extrabold text-amber-300 uppercase tracking-wider">Nouveau rapport</h2>
+        <button type="button" id="btn-cancel-edit" class="hidden text-[10px] text-red-300 underline">Annuler la modification</button>
+      </div>
+
       <div>
         <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Titre du rapport *</label>
         <input type="text" id="title" required placeholder="Ex : Fin des fondations" class="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm placeholder-slate-500 transition">
@@ -38,7 +45,7 @@
 
       <div>
         <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Description du travail effectué *</label>
-        <textarea id="content" required rows="4" placeholder="Décrivez ce qui a été fait, les difficultés éventuelles, les prochaines étapes..." class="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm placeholder-slate-500 transition resize-none"></textarea>
+        <textarea id="content" required rows="4" placeholder="Décrivez ce qui a été fait..." class="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm placeholder-slate-500 transition resize-none"></textarea>
       </div>
 
       <div>
@@ -61,7 +68,6 @@
         <input type="text" id="blockers" placeholder="Ex : Attente livraison ciment" class="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm placeholder-slate-500 transition">
       </div>
 
-      <!-- PHOTOS -->
       <div class="bg-slate-800/50 rounded-2xl p-4">
         <label class="text-xs font-bold text-amber-300 mb-3 block tracking-wider uppercase">📸 Photos du chantier *</label>
         <input type="file" id="photos" accept="image/*" multiple class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-amber-500/20 file:text-amber-300 file:font-semibold">
@@ -69,7 +75,6 @@
         <div id="photos-preview" class="grid grid-cols-3 gap-2 mt-3"></div>
       </div>
 
-      <!-- FACTURES -->
       <div class="bg-slate-800/50 rounded-2xl p-4">
         <label class="text-xs font-bold text-emerald-300 mb-3 block tracking-wider uppercase">📄 Factures (optionnel)</label>
         <input type="file" id="invoices" accept="image/*,application/pdf" multiple class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-emerald-500/20 file:text-emerald-300 file:font-semibold">
@@ -107,24 +112,16 @@
     if (!requireRole(['provider', 'project_manager'])) throw new Error('Not allowed');
 
     const userId = getCurrentUserId();
+    let allReports = [];
 
-    // ============================================================
-    // FONCTION UPLOAD FICHIER (CORRIGÉE)
-    // Chemin : projectId/reports/reportId/filename
-    // ============================================================
     async function uploadFileToStorage(file, projectId, reportId) {
       const ext = file.name.split('.').pop();
       const fileName = Date.now() + '_' + Math.random().toString(36).substring(7) + '.' + ext;
       const path = projectId + '/reports/' + reportId + '/' + fileName;
-
       const token = getToken() || SUPABASE_KEY;
       const res = await fetch(SUPABASE_URL + '/storage/v1/object/project-documents/' + path, {
         method: 'POST',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + token,
-          'Content-Type': file.type
-        },
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': file.type },
         body: file
       });
       if (!res.ok) {
@@ -133,7 +130,6 @@
       }
       return path;
     }
-    // ============================================================
 
     async function loadProjects() {
       const select = document.getElementById('project');
@@ -149,10 +145,6 @@
             const p = await apiGet('projects', 'id=eq.' + m.project_id);
             if (Array.isArray(p) && p[0]) projects.push(p[0]);
           } catch (e) {}
-        }
-        if (projects.length === 0) {
-          select.innerHTML = '<option value="">Aucun chantier</option>';
-          return;
         }
         select.innerHTML = '<option value="">Sélectionner un chantier</option>' +
           projects.map(p => '<option value="' + p.id + '">' + escapeHtml(p.title) + '</option>').join('');
@@ -207,8 +199,12 @@
       });
     });
 
+    // ============================================================
+    // SOUMISSION (création OU modification)
+    // ============================================================
     document.getElementById('reportForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const editingId = document.getElementById('editingReportId').value;
       const projectId = document.getElementById('project').value;
       const title = document.getElementById('title').value.trim();
       const content = document.getElementById('content').value.trim();
@@ -221,107 +217,244 @@
       if (!projectId) { alert('Sélectionnez un chantier'); return; }
       if (!title) { alert('Entrez un titre'); return; }
       if (!content) { alert('Entrez la description'); return; }
-      if (!photoFiles || photoFiles.length === 0) { alert('Ajoutez au moins 1 photo du chantier'); return; }
+
+      // En mode MODIFICATION, photos non obligatoires (on garde les anciennes)
+      if (!editingId && (!photoFiles || photoFiles.length === 0)) {
+        alert('Ajoutez au moins 1 photo du chantier');
+        return;
+      }
 
       const btn = document.getElementById('btnSubmit');
       btn.disabled = true;
       btn.textContent = 'Envoi en cours...';
 
       try {
-        // 1. Crée le rapport
-        const reportData = await apiPost('reports', {
-          project_id: projectId,
-          author_id: userId,
-          milestone_id: milestoneId || null,
-          title: title,
-          content: content,
-          progress_percent: progress,
-          blockers: blockers || null,
-          status: 'pending_review'
-        });
-
-        const reportId = reportData && reportData[0] ? reportData[0].id : null;
-        if (!reportId) throw new Error('Erreur création rapport');
-
-        // 2. Upload photos (avec le bon chemin)
-        for (const file of Array.from(photoFiles)) {
-          const path = await uploadFileToStorage(file, projectId, reportId);
-          await apiPost('documents', {
-            project_id: projectId,
+        if (editingId) {
+          // ============ MODIFICATION ============
+          await apiPatch('reports', editingId, {
+            title: title,
+            content: content,
+            progress_percent: progress,
             milestone_id: milestoneId || null,
-            uploaded_by: userId,
-            document_type: 'photo',
-            title: 'Photo - ' + title,
-            description: 'Photo du rapport : ' + title,
-            storage_bucket: 'project-documents',
-            storage_path: path,
-            file_size: file.size,
-            mime_type: file.type,
-            report_id: reportId
+            blockers: blockers || null,
+            edited_at: new Date().toISOString()
           });
-        }
 
-        // 3. Upload factures (avec le bon chemin)
-        for (const file of Array.from(invoiceFiles)) {
-          const path = await uploadFileToStorage(file, projectId, reportId);
-          await apiPost('documents', {
+          // Upload nouvelle photo si fournie
+          if (photoFiles && photoFiles.length > 0) {
+            for (const file of Array.from(photoFiles)) {
+              const path = await uploadFileToStorage(file, projectId, editingId);
+              await apiPost('documents', {
+                project_id: projectId,
+                milestone_id: milestoneId || null,
+                uploaded_by: userId,
+                document_type: 'photo',
+                title: 'Photo - ' + title,
+                storage_bucket: 'project-documents',
+                storage_path: path,
+                file_size: file.size,
+                mime_type: file.type,
+                report_id: editingId
+              });
+            }
+          }
+
+          // Upload nouvelle facture si fournie
+          if (invoiceFiles && invoiceFiles.length > 0) {
+            for (const file of Array.from(invoiceFiles)) {
+              const path = await uploadFileToStorage(file, projectId, editingId);
+              await apiPost('documents', {
+                project_id: projectId,
+                milestone_id: milestoneId || null,
+                uploaded_by: userId,
+                document_type: 'invoice',
+                title: 'Facture - ' + title,
+                storage_bucket: 'project-documents',
+                storage_path: path,
+                file_size: file.size,
+                mime_type: file.type,
+                report_id: editingId
+              });
+            }
+          }
+
+          showSuccess('Rapport modifié !');
+          cancelEdit();
+        } else {
+          // ============ CRÉATION ============
+          const reportData = await apiPost('reports', {
             project_id: projectId,
+            author_id: userId,
             milestone_id: milestoneId || null,
-            uploaded_by: userId,
-            document_type: 'invoice',
-            title: 'Facture - ' + title,
-            description: 'Facture du rapport : ' + title,
-            storage_bucket: 'project-documents',
-            storage_path: path,
-            file_size: file.size,
-            mime_type: file.type,
-            report_id: reportId
+            title: title,
+            content: content,
+            progress_percent: progress,
+            blockers: blockers || null,
+            status: 'pending_review'
           });
-        }
 
-        showSuccess('Rapport envoyé avec ' + photoFiles.length + ' photo(s) ! En attente de vérification.');
-        document.getElementById('reportForm').reset();
-        document.getElementById('progress-value').textContent = '0%';
-        document.getElementById('photos-preview').innerHTML = '';
-        document.getElementById('invoices-preview').innerHTML = '';
+          const reportId = reportData && reportData[0] ? reportData[0].id : null;
+          if (!reportId) throw new Error('Erreur création');
+
+          for (const file of Array.from(photoFiles)) {
+            const path = await uploadFileToStorage(file, projectId, reportId);
+            await apiPost('documents', {
+              project_id: projectId, milestone_id: milestoneId || null, uploaded_by: userId,
+              document_type: 'photo', title: 'Photo - ' + title,
+              storage_bucket: 'project-documents', storage_path: path,
+              file_size: file.size, mime_type: file.type, report_id: reportId
+            });
+          }
+
+          for (const file of Array.from(invoiceFiles)) {
+            const path = await uploadFileToStorage(file, projectId, reportId);
+            await apiPost('documents', {
+              project_id: projectId, milestone_id: milestoneId || null, uploaded_by: userId,
+              document_type: 'invoice', title: 'Facture - ' + title,
+              storage_bucket: 'project-documents', storage_path: path,
+              file_size: file.size, mime_type: file.type, report_id: reportId
+            });
+          }
+
+          showSuccess('Rapport envoyé !');
+          document.getElementById('reportForm').reset();
+          document.getElementById('progress-value').textContent = '0%';
+          document.getElementById('photos-preview').innerHTML = '';
+          document.getElementById('invoices-preview').innerHTML = '';
+        }
         loadReports();
       } catch (err) {
         showError(err.message);
       }
       btn.disabled = false;
-      btn.textContent = 'Soumettre le rapport';
+      btn.textContent = editingId ? 'Enregistrer les modifications' : 'Soumettre le rapport';
     });
 
+    // ============================================================
+    // MODIFIER UN RAPPORT
+    // ============================================================
+    function startEdit(reportId) {
+      const r = allReports.find(x => x.id === reportId);
+      if (!r) return;
+
+      document.getElementById('editingReportId').value = reportId;
+      document.getElementById('form-title').textContent = 'Modifier le rapport';
+      document.getElementById('btnSubmit').textContent = 'Enregistrer les modifications';
+      document.getElementById('btn-cancel-edit').classList.remove('hidden');
+
+      document.getElementById('project').value = r.project_id;
+      loadMilestones(r.project_id);
+      document.getElementById('title').value = r.title || '';
+      document.getElementById('content').value = r.content || '';
+      document.getElementById('progress').value = r.progress_percent || 0;
+      document.getElementById('progress-value').textContent = (r.progress_percent || 0) + '%';
+      document.getElementById('blockers').value = r.blockers || '';
+
+      setTimeout(() => {
+        document.getElementById('milestone').value = r.milestone_id || '';
+      }, 300);
+
+      // Scroll en haut
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelEdit() {
+      document.getElementById('editingReportId').value = '';
+      document.getElementById('form-title').textContent = 'Nouveau rapport';
+      document.getElementById('btnSubmit').textContent = 'Soumettre le rapport';
+      document.getElementById('btn-cancel-edit').classList.add('hidden');
+      document.getElementById('reportForm').reset();
+      document.getElementById('progress-value').textContent = '0%';
+      document.getElementById('photos-preview').innerHTML = '';
+      document.getElementById('invoices-preview').innerHTML = '';
+    }
+
+    document.getElementById('btn-cancel-edit').addEventListener('click', cancelEdit);
+
+    // ============================================================
+    // SUPPRIMER UN RAPPORT
+    // ============================================================
+    async function deleteReport(reportId) {
+      if (!confirm('Supprimer ce rapport ?\n\nIl sera définitivement effacé.')) return;
+      try {
+        await apiDelete('reports', reportId);
+        showSuccess('Rapport supprimé');
+        loadReports();
+      } catch (e) {
+        showError(e.message);
+      }
+    }
+
+    // ============================================================
+    // AFFICHAGE : LISTE PLIABLE
+    // ============================================================
     async function loadReports() {
       const list = document.getElementById('reports-list');
       try {
-        const reports = await apiGet('reports', 'author_id=eq.' + userId + '&order=created_at.desc&limit=10');
-        const valid = Array.isArray(reports) ? reports : [];
-        if (valid.length === 0) {
+        const reports = await apiGet('reports', 'author_id=eq.' + userId + '&order=created_at.desc&limit=20');
+        allReports = Array.isArray(reports) ? reports : [];
+
+        if (allReports.length === 0) {
           list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun rapport pour le moment</p></div>';
           return;
         }
-        list.innerHTML = valid.map(r => {
+
+        list.innerHTML = allReports.map(r => {
           let badge = '';
           if (r.status === 'pending_review') badge = '<span class="text-[9px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">EN VÉRIFICATION</span>';
           else if (r.status === 'published') badge = '<span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">PUBLIÉ</span>';
           else if (r.status === 'rejected') badge = '<span class="text-[9px] bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full font-bold">REFUSÉ</span>';
 
+          // Modification autorisée seulement si en attente
+          const canEdit = r.status === 'pending_review';
+
           return `
-            <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-3">
-              <div class="flex justify-between items-start mb-1 gap-2">
-                <h3 class="font-bold text-sm">${escapeHtml(r.title)}</h3>
-                ${badge}
+            <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl overflow-hidden">
+              <div class="p-3">
+                <div class="flex justify-between items-start gap-2 mb-1">
+                  <h3 class="font-bold text-sm flex-1">${escapeHtml(r.title)}</h3>
+                  ${badge}
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] text-amber-300 font-semibold">${r.progress_percent || 0}%</span>
+                  <button class="toggle-details text-[10px] text-sky-400 font-bold" data-id="${r.id}">Afficher ▼</button>
+                </div>
               </div>
-              <p class="text-xs text-slate-400 truncate">${escapeHtml(r.content)}</p>
-              <div class="flex justify-between items-center mt-2">
-                <span class="text-[10px] text-amber-300 font-semibold">${r.progress_percent || 0}%</span>
-                <span class="text-[10px] text-slate-500">${formatDate(r.created_at)}</span>
+
+              <div id="details-${r.id}" class="hidden border-t border-white/10 p-3 space-y-2 bg-slate-900/30">
+                <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">${escapeHtml(r.content)}</p>
+                ${r.blockers ? '<p class="text-[11px] text-red-300">⚠️ Blocage : ' + escapeHtml(r.blockers) + '</p>' : ''}
+                ${r.status === 'rejected' && r.rejection_reason ? '<p class="text-[11px] text-red-300">Motif du refus : ' + escapeHtml(r.rejection_reason) + '</p>' : ''}
+                <p class="text-[10px] text-slate-500">${formatDate(r.created_at)}${r.edited_at ? ' · modifié' : ''}</p>
+
+                <div class="flex gap-2 pt-2">
+                  ${canEdit ? `<button class="edit-btn flex-1 bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold py-2.5 rounded-xl text-[11px] transition" data-id="${r.id}">✏️ Modifier</button>` : ''}
+                  <button class="delete-btn flex-1 bg-red-500/20 border border-red-500/40 text-red-300 font-bold py-2.5 rounded-xl text-[11px] transition" data-id="${r.id}">🗑️ Supprimer</button>
+                </div>
               </div>
-              ${r.status === 'rejected' && r.rejection_reason ? '<p class="text-[10px] text-red-300 mt-2">Motif : ' + escapeHtml(r.rejection_reason) + '</p>' : ''}
             </div>
           `;
         }).join('');
+
+        // Attache les événements
+        document.querySelectorAll('.toggle-details').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            const box = document.getElementById('details-' + id);
+            const isHidden = box.classList.contains('hidden');
+            box.classList.toggle('hidden');
+            btn.textContent = isHidden ? 'Masquer ▲' : 'Afficher ▼';
+          });
+        });
+
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+          btn.addEventListener('click', () => startEdit(btn.dataset.id));
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', () => deleteReport(btn.dataset.id));
+        });
+
       } catch (e) {
         list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Impossible de charger</p>';
       }
