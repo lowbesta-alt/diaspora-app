@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -10,232 +9,157 @@
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
 
   <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
-    <a href="dashboard-investisseur.html" class="flex items-center gap-2">
-      <span class="text-lg">←</span>
-      <span class="font-bold text-sm">Retour</span>
-    </a>
-    <div class="flex items-center gap-2">
-      <div class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center text-lg">🏗️</div>
-      <span class="font-bold text-sm">Nouveau projet</span>
-    </div>
+    <a href="projets.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm">Créer un projet</span>
+    <span class="w-6"></span>
   </header>
 
-  <main class="p-4 max-w-2xl mx-auto space-y-5">
+  <main class="p-4 max-w-2xl mx-auto space-y-4">
 
-    <section>
-      <h1 class="text-2xl font-bold">Créer un projet</h1>
-      <p class="text-sm text-slate-400 mt-1">Renseignez votre terrain, puis les informations du projet</p>
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+      <h2 class="text-sm font-bold">Informations générales</h2>
+      <div>
+        <label class="text-[10px] text-slate-400">Titre *</label>
+        <input type="text" id="title" placeholder="Ex : Construction Villa N'Djamena" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+      </div>
+      <div>
+        <label class="text-[10px] text-slate-400">Description *</label>
+        <textarea id="description" rows="3" placeholder="Décrivez votre projet..." class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+      </div>
+      <div>
+        <label class="text-[10px] text-slate-400">Type de projet</label>
+        <select id="projectType" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+          <option value="construction">Construction</option>
+          <option value="commerce">Commerce</option>
+          <option value="agriculture">Agriculture</option>
+          <option value="immobilier">Immobilier</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
     </section>
 
-    <form id="formProjet" class="space-y-5">
-
-      <!-- ════════ Section 1 : Terrain ════════ -->
-      <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-4">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="text-lg">📍</span>
-          <h2 class="font-bold text-sm">Votre terrain</h2>
-        </div>
-
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+      <h2 class="text-sm font-bold">Budget et délais</h2>
+      <div class="grid grid-cols-2 gap-2">
         <div>
-          <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Titre foncier *</label>
-          <input type="text" id="titreFoncier" required placeholder="N° / Référence du titre foncier"
-            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm placeholder-slate-500 transition">
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Superficie (m²) *</label>
-          <input type="text" id="superficie" required placeholder="Ex : 500"
-            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm placeholder-slate-500 transition">
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Localisation du terrain *</label>
-          <input type="text" id="localisation" required placeholder="Ville, quartier, commune"
-            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm placeholder-slate-500 transition">
-        </div>
-      </section>
-
-      <!-- ════════ Section 2 : Projet ════════ -->
-      <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-4">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="text-lg">🏗️</span>
-          <h2 class="font-bold text-sm">Votre projet</h2>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Titre du projet *</label>
-          <input type="text" id="titreProjet" required placeholder="Ex : Villa familiale Douala"
-            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm placeholder-slate-500 transition">
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Description</label>
-          <textarea id="descriptionProjet" rows="3" placeholder="Décrivez votre projet (optionnel)"
-            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm placeholder-slate-500 transition resize-none"></textarea>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-200 mb-2 tracking-wider uppercase">Pays *</label>
-          <select id="country" required
-            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm transition">
-            <option value="Cameroun" class="bg-slate-800">Cameroun</option>
-            <option value="Côte d'Ivoire" class="bg-slate-800">Côte d'Ivoire</option>
-            <option value="Sénégal" class="bg-slate-800">Sénégal</option>
-            <option value="Gabon" class="bg-slate-800">Gabon</option>
-            <option value="Congo" class="bg-slate-800">Congo</option>
-            <option value="Autre" class="bg-slate-800">Autre</option>
+          <label class="text-[10px] text-slate-400">Devise</label>
+          <select id="currency" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+            <option value="XAF">XAF</option>
+            <option value="EUR">EUR</option>
+            <option value="USD">USD</option>
+            <option value="XOF">XOF</option>
           </select>
         </div>
-      </section>
-
-      <!-- ════════ Section 3 : Jalons ════════ -->
-      <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
-        <div class="flex items-center gap-2 mb-3">
-          <span class="text-lg">✅</span>
-          <h2 class="font-bold text-sm">Jalons appliqués automatiquement</h2>
+        <div>
+          <label class="text-[10px] text-slate-400">Budget total *</label>
+          <input type="number" id="budget" placeholder="0" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
         </div>
-        <ul id="listeJalons" class="space-y-2 text-xs text-slate-300"></ul>
-      </section>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="text-[10px] text-slate-400">Date de début</label>
+          <input type="date" id="startDate" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400">Fin estimée</label>
+          <input type="date" id="endDate" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+      </div>
+    </section>
 
-      <p id="errBox" class="hidden text-red-400 text-sm bg-red-500/10 border border-red-500/30 rounded-xl p-3"></p>
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+      <h2 class="text-sm font-bold">Localisation</h2>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="text-[10px] text-slate-400">Pays</label>
+          <select id="country" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+            <option value="TD">Tchad</option>
+            <option value="CM">Cameroun</option>
+            <option value="SN">Sénégal</option>
+            <option value="CI">Côte d'Ivoire</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400">Ville</label>
+          <input type="text" id="city" placeholder="Ex : N'Djamena" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+      </div>
+      <div>
+        <label class="text-[10px] text-slate-400">Adresse complète</label>
+        <input type="text" id="address" placeholder="Quartier, rue..." class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+      </div>
+    </section>
 
-      <button type="submit" id="btnSubmit"
-        class="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold py-4 rounded-2xl text-sm tracking-wide shadow-lg shadow-emerald-500/30 transition">
-        Créer le projet
-      </button>
-
-    </form>
+    <section class="flex gap-2">
+      <a href="projets.html" class="flex-1 bg-white/5 border border-white/10 py-3 rounded-xl font-semibold text-sm text-center">Annuler</a>
+      <button id="btn-create" class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-semibold text-sm">Créer le projet</button>
+    </section>
 
   </main>
 
   <script src="config.js"></script>
   <script>
-    // ════════════════════════════════════════════════════════
-    // JALONS STANDARDISÉS — figés côté client
-    // ════════════════════════════════════════════════════════
-    const JALONS_STANDARD = [
-      { title: 'Fondations',   description: 'Terrassement, semelles, longrines, dalle basse', order_index: 1 },
-      { title: 'Gros œuvre',   description: 'Élévation murs, poteaux, poutres, planchers',    order_index: 2 },
-      { title: 'Toiture',      description: 'Charpente, couverture, étanchéité, gouttières',  order_index: 3 },
-      { title: 'Second œuvre', description: 'Cloisons, électricité, plomberie, menuiseries',  order_index: 4 },
-      { title: 'Finitions',    description: 'Peinture, revêtements, sols, finitions',         order_index: 5 },
-    ];
+    document.getElementById('startDate').valueAsDate = new Date();
 
-    // ════════════════════════════════════════════════════════
-    // SESSION
-    // ════════════════════════════════════════════════════════
-    function getProjectRef() {
-      return SUPABASE_URL.replace('https://', '').split('.')[0];
-    }
+    document.getElementById('btn-create').addEventListener('click', async () => {
+      const userId = localStorage.getItem('user_id');
+      if (!userId) {
+        alert('Vous devez etre connecte pour creer un projet');
+        window.location.href = 'index.html';
+        return;
+      }
 
-    function getSession() {
-      const raw = localStorage.getItem(`sb-${getProjectRef()}-auth-token`);
-      if (!raw) return null;
-      try {
-        const s = JSON.parse(raw);
-        if (s.access_token && s.user?.id) {
-          return { token: s.access_token, userId: s.user.id, user: s.user };
-        }
-      } catch (_) {}
-      return null;
-    }
+      const title = document.getElementById('title').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const projectType = document.getElementById('projectType').value;
+      const currency = document.getElementById('currency').value;
+      const budget = Number(document.getElementById('budget').value);
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      const country = document.getElementById('country').value;
+      const city = document.getElementById('city').value.trim();
+      const address = document.getElementById('address').value.trim();
 
-    async function sbFetch(path, options = {}) {
-      const session = getSession();
-      const headers = {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${session?.token || SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation',
-        ...(options.headers || {}),
-      };
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { ...options, headers });
-      const text = await res.text();
-      const data = text ? JSON.parse(text) : null;
-      if (!res.ok) throw new Error(data?.message || `Erreur ${res.status}`);
-      return data;
-    }
+      if (!title) { alert('Entrez un titre'); return; }
+      if (!description) { alert('Entrez une description'); return; }
+      if (!budget || budget <= 0) { alert('Entrez un budget valide'); return; }
 
-    // ════════════════════════════════════════════════════════
-    // Vérif connexion
-    // ════════════════════════════════════════════════════════
-    const session = getSession();
-    if (!session) {
-      alert('Vous devez être connecté.');
-      window.location.href = 'index.html';
-    }
-
-    // Pré-remplir le pays depuis le profil si dispo
-    if (session?.user?.user_metadata?.country) {
-      const sel = document.getElementById('country');
-      const meta = session.user.user_metadata.country;
-      const match = Array.from(sel.options).find(o => o.value === meta);
-      if (match) sel.value = meta;
-    }
-
-    // ════════════════════════════════════════════════════════
-    // UI : liste des jalons
-    // ════════════════════════════════════════════════════════
-    document.getElementById('listeJalons').innerHTML = JALONS_STANDARD.map(j => `
-      <li class="flex items-start gap-2">
-        <span class="text-emerald-400 font-bold flex-shrink-0">${j.order_index}.</span>
-        <span><strong class="text-white">${j.title}</strong> <span class="text-slate-400">— ${j.description}</span></span>
-      </li>
-    `).join('');
-
-    // ════════════════════════════════════════════════════════
-    // SOUMISSION
-    // ════════════════════════════════════════════════════════
-    document.getElementById('formProjet').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!session) return;
-
-      const errBox = document.getElementById('errBox');
-      errBox.classList.add('hidden');
-
-      const btn = document.getElementById('btnSubmit');
+      const btn = document.getElementById('btn-create');
       btn.disabled = true;
-      btn.textContent = 'Création en cours…';
+      btn.textContent = 'Création en cours...';
 
       try {
-        // 1) Création du projet
-        const projets = await sbFetch('projects', {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/projects', {
           method: 'POST',
+          headers: authHeaders({ 'Prefer': 'return=minimal' }),
           body: JSON.stringify({
-            title: document.getElementById('titreProjet').value.trim(),
-            description: document.getElementById('descriptionProjet').value.trim(),
-            owner_id: session.userId,
-            country: document.getElementById('country').value,
-            currency: 'XAF',
-            total_budget: 0,
-            spent_budget: 0,
+            owner_id: userId,
+            title: title,
+            description: description,
+            project_type: projectType,
+            country: country,
+            city: city,
+            address: address,
+            currency: currency,
+            total_budget: budget,
             status: 'draft',
-            titre_foncier: document.getElementById('titreFoncier').value.trim(),
-            superficie: document.getElementById('superficie').value.trim(),
-            localisation: document.getElementById('localisation').value.trim(),
-          }),
-        });
-        const projet = projets[0];
-
-        // 2) Insertion automatique des 5 jalons
-        await sbFetch('milestones', {
-          method: 'POST',
-          body: JSON.stringify(JALONS_STANDARD.map(j => ({
-            project_id: projet.id,
-            title: j.title,
-            description: j.description,
-            order_index: j.order_index,
-            amount: 0,
-            currency: 'XAF',
-            status: 'pending',
-          }))),
+            start_date: startDate || null,
+            estimated_end_date: endDate || null
+          })
         });
 
-        // 3) Redirection
-        window.location.href = `projet-detail.html?id=${projet.id}`;
-      } catch (err) {
-        errBox.textContent = 'Erreur : ' + err.message;
-        errBox.classList.remove('hidden');
+        if (res.ok) {
+          alert('Projet créé avec succès !');
+          window.location.href = 'projets.html';
+        } else {
+          const err = await res.json();
+          alert('Erreur : ' + (err.message || 'inconnue'));
+          btn.disabled = false;
+          btn.textContent = 'Créer le projet';
+        }
+      } catch (e) {
+        alert('Erreur réseau : ' + e.message);
         btn.disabled = false;
         btn.textContent = 'Créer le projet';
       }
