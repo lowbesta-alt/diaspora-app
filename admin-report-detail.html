@@ -18,18 +18,38 @@
 
     <!-- TITRE + STATUT -->
     <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-5">
-      <div class="flex items-center gap-2 mb-3">
+      <div class="flex items-center gap-2 mb-3 flex-wrap">
         <span id="report-status" class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">...</span>
         <span id="report-progress" class="text-[10px] bg-slate-500/20 text-slate-300 px-2 py-0.5 rounded-full font-bold">0%</span>
+        <span id="report-jalon" class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold hidden"></span>
       </div>
       <h1 id="report-title" class="text-xl font-extrabold tracking-tight mb-2">Chargement...</h1>
       <p id="report-date" class="text-xs text-slate-400"></p>
+      <p id="report-author" class="text-xs text-slate-400 mt-1"></p>
     </section>
 
-    <!-- CONTENU COMPLET -->
+    <!-- DESCRIPTION COMPLETE -->
     <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-5">
       <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Description complète</h2>
       <p id="report-content" class="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">Chargement...</p>
+    </section>
+
+    <!-- PHOTOS -->
+    <section id="photos-section" class="hidden">
+      <div class="flex items-center gap-2 mb-3">
+        <h2 class="text-sm font-bold text-amber-300 uppercase tracking-wider">📸 Photos du chantier</h2>
+        <span id="photos-count" class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">0</span>
+      </div>
+      <div id="photos-grid" class="grid grid-cols-2 gap-3"></div>
+    </section>
+
+    <!-- FACTURES -->
+    <section id="invoices-section" class="hidden">
+      <div class="flex items-center gap-2 mb-3">
+        <h2 class="text-sm font-bold text-emerald-300 uppercase tracking-wider">📄 Factures</h2>
+        <span id="invoices-count" class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">0</span>
+      </div>
+      <div id="invoices-list" class="space-y-2"></div>
     </section>
 
     <!-- POINT BLOQUANT -->
@@ -54,7 +74,7 @@
       </button>
     </section>
 
-    <!-- MESSAGE SI DÉJÀ TRAITÉ -->
+    <!-- MESSAGE SI DEJA TRAITE -->
     <section id="processed-box" class="hidden text-center py-6 bg-white/5 border border-white/10 rounded-2xl">
       <p class="text-sm text-slate-300">Ce rapport a déjà été traité.</p>
     </section>
@@ -75,8 +95,31 @@
 
     let currentReport = null;
 
+    // Génère une URL signée pour un fichier privé
+    async function getSignedUrl(path) {
+      if (!path) return null;
+      try {
+        const res = await fetch(SUPABASE_URL + '/storage/v1/object/sign/project-documents/' + path, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + (getToken() || SUPABASE_KEY),
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ expiresIn: 3600 })
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (data.signedURL) return SUPABASE_URL + '/storage/v1' + data.signedURL;
+        return null;
+      } catch (e) {
+        return null;
+      }
+    }
+
     async function loadReport() {
       try {
+        // 1. Charge le rapport
         const data = await apiGet('reports', 'id=eq.' + reportId);
         if (!Array.isArray(data) || !data[0]) {
           document.getElementById('report-title').textContent = 'Rapport introuvable';
@@ -90,7 +133,27 @@
         document.getElementById('report-progress').textContent = (r.progress_percent || 0) + '%';
         document.getElementById('report-content').textContent = r.content || '(Aucune description fournie)';
 
-        // Statut badge
+        // Auteur
+        try {
+          const authorData = await apiGet('profiles', 'id=eq.' + r.author_id);
+          if (Array.isArray(authorData) && authorData[0]) {
+            document.getElementById('report-author').textContent = 'Par : ' + (authorData[0].full_name || authorData[0].email);
+          }
+        } catch (e) {}
+
+        // 2. Jalon concerné
+        if (r.milestone_id) {
+          try {
+            const msData = await apiGet('milestones', 'id=eq.' + r.milestone_id);
+            if (Array.isArray(msData) && msData[0]) {
+              const badge = document.getElementById('report-jalon');
+              badge.textContent = '🎯 ' + msData[0].title;
+              badge.classList.remove('hidden');
+            }
+          } catch (e) {}
+        }
+
+        // 3. Statut badge
         const statusEl = document.getElementById('report-status');
         if (r.status === 'pending_review') {
           statusEl.textContent = 'EN ATTENTE';
@@ -103,19 +166,19 @@
           statusEl.className = 'text-[10px] bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full font-bold';
         }
 
-        // Blocage
+        // 4. Blocage
         if (r.blockers) {
           document.getElementById('blockers-box').classList.remove('hidden');
           document.getElementById('report-blockers').textContent = r.blockers;
         }
 
-        // Rejet existant
+        // 5. Rejet existant
         if (r.status === 'rejected' && r.rejection_reason) {
           document.getElementById('rejection-box').classList.remove('hidden');
           document.getElementById('report-rejection').textContent = r.rejection_reason;
         }
 
-        // Actions visibles uniquement si en attente
+        // 6. Actions visibles uniquement si en attente
         if (r.status === 'pending_review') {
           document.getElementById('actions-box').classList.remove('hidden');
           document.getElementById('processed-box').classList.add('hidden');
@@ -124,13 +187,79 @@
           document.getElementById('processed-box').classList.remove('hidden');
         }
 
+        // 7. Charge les documents liés
+        await loadDocuments();
+
       } catch (e) {
         document.getElementById('report-title').textContent = 'Erreur : ' + e.message;
       }
     }
 
+    async function loadDocuments() {
+      try {
+        const docs = await apiGet('documents', 'report_id=eq.' + reportId + '&order=created_at.asc');
+        const valid = Array.isArray(docs) ? docs : [];
+
+        const photos = valid.filter(d => d.document_type === 'photo');
+        const invoices = valid.filter(d => d.document_type === 'invoice');
+
+        // PHOTOS
+        if (photos.length > 0) {
+          document.getElementById('photos-section').classList.remove('hidden');
+          document.getElementById('photos-count').textContent = photos.length;
+
+          const grid = document.getElementById('photos-grid');
+          grid.innerHTML = '<p class="col-span-2 text-center text-xs text-slate-500 py-4">Chargement des photos...</p>';
+
+          const photoCards = [];
+          for (const p of photos) {
+            const url = await getSignedUrl(p.storage_path);
+            photoCards.push(`
+              <div class="relative rounded-2xl overflow-hidden border border-white/10 bg-slate-800">
+                ${url ?
+                  `<img src="${url}" alt="${escapeHtml(p.title)}" class="w-full h-40 object-cover">` :
+                  `<div class="w-full h-40 flex items-center justify-center text-slate-500 text-xs">Image indisponible</div>`
+                }
+                <div class="p-2 bg-black/60 backdrop-blur-sm">
+                  <p class="text-[10px] text-white font-semibold truncate">${escapeHtml(p.title)}</p>
+                  <p class="text-[9px] text-slate-400">${formatDate(p.created_at)}</p>
+                </div>
+              </div>
+            `);
+          }
+          grid.innerHTML = photoCards.join('');
+        }
+
+        // FACTURES
+        if (invoices.length > 0) {
+          document.getElementById('invoices-section').classList.remove('hidden');
+          document.getElementById('invoices-count').textContent = invoices.length;
+
+          const list = document.getElementById('invoices-list');
+          const invoiceCards = [];
+          for (const inv of invoices) {
+            const url = await getSignedUrl(inv.storage_path);
+            invoiceCards.push(`
+              <a href="${url || '#'}" target="_blank" class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-3 hover:bg-white/10 transition ${url ? '' : 'opacity-50 pointer-events-none'}">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-lg flex-shrink-0">📄</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold truncate">${escapeHtml(inv.title)}</p>
+                  <p class="text-[10px] text-slate-400">${formatDate(inv.created_at)}</p>
+                </div>
+                <span class="text-emerald-400 text-sm">↗</span>
+              </a>
+            `);
+          }
+          list.innerHTML = invoiceCards.join('');
+        }
+
+      } catch (e) {
+        console.log('Erreur chargement documents :', e.message);
+      }
+    }
+
     document.getElementById('btn-publish').addEventListener('click', async () => {
-      if (!confirm('Publier ce rapport au client ? Il pourra le voir dans sa timeline.')) return;
+      if (!confirm('Publier ce rapport au client ? Il pourra le voir dans sa timeline avec les photos et factures.')) return;
       await handleReview('published');
     });
 
