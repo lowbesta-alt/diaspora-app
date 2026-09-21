@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Détail du rapport - Administration</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <a href="admin-reports.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm">Détail du rapport</span>
+    <span class="w-6"></span>
+  </header>
+
+  <main class="p-4 max-w-2xl mx-auto space-y-4">
+
+    <!-- TITRE + STATUT -->
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span id="report-status" class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">...</span>
+        <span id="report-progress" class="text-[10px] bg-slate-500/20 text-slate-300 px-2 py-0.5 rounded-full font-bold">0%</span>
+      </div>
+      <h1 id="report-title" class="text-xl font-extrabold tracking-tight mb-2">Chargement...</h1>
+      <p id="report-date" class="text-xs text-slate-400"></p>
+    </section>
+
+    <!-- CONTENU COMPLET -->
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-5">
+      <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Description complète</h2>
+      <p id="report-content" class="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">Chargement...</p>
+    </section>
+
+    <!-- POINT BLOQUANT -->
+    <section id="blockers-box" class="hidden bg-red-500/10 border border-red-500/30 rounded-2xl p-5">
+      <h2 class="text-xs font-bold text-red-300 uppercase tracking-wider mb-3">⚠️ Point bloquant signalé</h2>
+      <p id="report-blockers" class="text-sm text-red-200 leading-relaxed"></p>
+    </section>
+
+    <!-- REJET EXISTANT -->
+    <section id="rejection-box" class="hidden bg-red-500/10 border border-red-500/30 rounded-2xl p-5">
+      <h2 class="text-xs font-bold text-red-300 uppercase tracking-wider mb-3">Motif de refus</h2>
+      <p id="report-rejection" class="text-sm text-red-200 leading-relaxed"></p>
+    </section>
+
+    <!-- ACTIONS -->
+    <section id="actions-box" class="space-y-2">
+      <button id="btn-publish" class="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold py-4 rounded-xl text-sm shadow-lg shadow-emerald-500/30 transition">
+        ✅ Publier au client
+      </button>
+      <button id="btn-reject" class="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-extrabold py-4 rounded-xl text-sm shadow-lg shadow-red-500/30 transition">
+        ❌ Refuser avec motif
+      </button>
+    </section>
+
+    <!-- MESSAGE SI DÉJÀ TRAITÉ -->
+    <section id="processed-box" class="hidden text-center py-6 bg-white/5 border border-white/10 rounded-2xl">
+      <p class="text-sm text-slate-300">Ce rapport a déjà été traité.</p>
+    </section>
+
+  </main>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if (!requireRole(['admin'])) throw new Error('Not allowed');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const reportId = urlParams.get('id');
+    if (!reportId) {
+      alert('Aucun rapport sélectionné');
+      window.location.href = 'admin-reports.html';
+    }
+
+    let currentReport = null;
+
+    async function loadReport() {
+      try {
+        const data = await apiGet('reports', 'id=eq.' + reportId);
+        if (!Array.isArray(data) || !data[0]) {
+          document.getElementById('report-title').textContent = 'Rapport introuvable';
+          return;
+        }
+        const r = data[0];
+        currentReport = r;
+
+        document.getElementById('report-title').textContent = r.title;
+        document.getElementById('report-date').textContent = 'Soumis le ' + formatDate(r.created_at);
+        document.getElementById('report-progress').textContent = (r.progress_percent || 0) + '%';
+        document.getElementById('report-content').textContent = r.content || '(Aucune description fournie)';
+
+        // Statut badge
+        const statusEl = document.getElementById('report-status');
+        if (r.status === 'pending_review') {
+          statusEl.textContent = 'EN ATTENTE';
+          statusEl.className = 'text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold';
+        } else if (r.status === 'published') {
+          statusEl.textContent = 'PUBLIÉ';
+          statusEl.className = 'text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold';
+        } else if (r.status === 'rejected') {
+          statusEl.textContent = 'REFUSÉ';
+          statusEl.className = 'text-[10px] bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full font-bold';
+        }
+
+        // Blocage
+        if (r.blockers) {
+          document.getElementById('blockers-box').classList.remove('hidden');
+          document.getElementById('report-blockers').textContent = r.blockers;
+        }
+
+        // Rejet existant
+        if (r.status === 'rejected' && r.rejection_reason) {
+          document.getElementById('rejection-box').classList.remove('hidden');
+          document.getElementById('report-rejection').textContent = r.rejection_reason;
+        }
+
+        // Actions visibles uniquement si en attente
+        if (r.status === 'pending_review') {
+          document.getElementById('actions-box').classList.remove('hidden');
+          document.getElementById('processed-box').classList.add('hidden');
+        } else {
+          document.getElementById('actions-box').classList.add('hidden');
+          document.getElementById('processed-box').classList.remove('hidden');
+        }
+
+      } catch (e) {
+        document.getElementById('report-title').textContent = 'Erreur : ' + e.message;
+      }
+    }
+
+    document.getElementById('btn-publish').addEventListener('click', async () => {
+      if (!confirm('Publier ce rapport au client ? Il pourra le voir dans sa timeline.')) return;
+      await handleReview('published');
+    });
+
+    document.getElementById('btn-reject').addEventListener('click', async () => {
+      const reason = prompt('Motif du refus (sera visible par l\'artisan) :');
+      if (!reason) return;
+      await handleReview('rejected', reason);
+    });
+
+    async function handleReview(newStatus, reason) {
+      try {
+        await apiPatch('reports', reportId, {
+          status: newStatus,
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: getCurrentUserId(),
+          rejection_reason: reason || null
+        });
+
+        try {
+          await apiPost('audit_log', {
+            actor_id: getCurrentUserId(),
+            action: 'update',
+            table_name: 'reports',
+            record_id: reportId,
+            new_data: { status: newStatus, reason: reason || null }
+          });
+        } catch (e) {}
+
+        showSuccess(newStatus === 'published' ? 'Rapport publié au client !' : 'Rapport refusé');
+        window.location.href = 'admin-reports.html';
+      } catch (e) {
+        showError(e.message);
+      }
+    }
+
+    loadReport();
+  </script>
+</body>
+</html>
