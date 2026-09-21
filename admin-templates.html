@@ -23,7 +23,7 @@
     <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 flex items-start gap-3">
       <span class="text-emerald-400 text-xl flex-shrink-0">🛡️</span>
       <p class="text-xs text-emerald-200 leading-relaxed">
-        Les modèles sont <strong>immuables pour les clients</strong>. Seul l'administrateur peut les créer et les modifier. Les artisans les sélectionnent, les clients les valident.
+        Les modèles sont <strong>immuables pour les clients</strong>. Seul l'administrateur peut les créer. Les artisans les sélectionnent, les clients les valident.
       </p>
     </div>
 
@@ -50,7 +50,7 @@
 
         <div>
           <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Description</label>
-          <textarea id="description" rows="2" placeholder="Ex : Modèle adapté pour une villa familiale de 4 chambres avec jardin" class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm placeholder-slate-500 transition resize-none"></textarea>
+          <textarea id="description" rows="2" placeholder="Ex : Modèle adapté pour une villa familiale de 4 chambres" class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm placeholder-slate-500 transition resize-none"></textarea>
         </div>
 
         <div>
@@ -111,17 +111,20 @@
         const valid = Array.isArray(templates) ? templates : [];
 
         if (valid.length === 0) {
-          list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">📋</div><p class="text-slate-400 text-sm">Aucun modèle créé</p><p class="text-slate-500 text-xs mt-2">Créez votre premier modèle avec le bouton "+ Nouveau".</p></div>';
+          list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">📋</div><p class="text-slate-400 text-sm">Aucun modèle créé</p></div>';
           return;
         }
 
-        // Pour chaque modèle, compte les jalons
         const cards = [];
         for (const t of valid) {
           let itemCount = 0;
+          let totalPercent = 0;
           try {
             const its = await apiGet('milestone_template_items', 'template_id=eq.' + t.id);
-            itemCount = Array.isArray(its) ? its.length : 0;
+            if (Array.isArray(its)) {
+              itemCount = its.length;
+              totalPercent = its.reduce((s, it) => s + Number(it.budget_percent || 0), 0);
+            }
           } catch (e) {}
 
           const typeLabels = {
@@ -144,7 +147,7 @@
               <p class="text-xs text-slate-400 mb-2 line-clamp-2">${escapeHtml(t.description || '')}</p>
               <div class="flex justify-between items-center text-[11px]">
                 <span class="text-slate-400">${typeLabel}</span>
-                <span class="text-amber-300 font-bold">${itemCount} jalon(s)</span>
+                <span class="text-amber-300 font-bold">${itemCount} jalon(s) · ${totalPercent}%</span>
               </div>
             </a>
           `);
@@ -195,10 +198,15 @@
         <div class="bg-slate-900/50 rounded-xl p-3 space-y-2">
           <div class="flex justify-between items-center">
             <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">#${idx + 1}</span>
-            <button type="button" class="remove-item text-red-400 text-xs" data-idx="${idx}">✕</button>
+            <button type="button" class="remove-item text-red-400 text-xs" data-idx="${idx}">✕ Supprimer</button>
           </div>
 
-          <input type="text" class="item-title w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition" placeholder="Ex : Fondations" value="${escapeHtml(it.title || '')}" data-idx="${idx}">
+          <input type="text" class="item-title w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition" placeholder="Ex : Fondations & Soubassement" value="${escapeHtml(it.title || '')}" data-idx="${idx}">
+
+          <div>
+            <label class="text-[9px] text-slate-400 uppercase tracking-wider font-bold block mb-1">📝 Détail technique des travaux inclus *</label>
+            <textarea class="item-detail w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition resize-none" rows="3" placeholder="Ex : Implantation, fouilles, béton de propreté, armatures, coulage, soubassement..." data-idx="${idx}">${escapeHtml(it.detailed_description || '')}</textarea>
+          </div>
 
           <div class="grid grid-cols-2 gap-2">
             <div>
@@ -210,16 +218,14 @@
               <input type="text" class="item-evidence w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition" placeholder="Ex : Photos + Factures" value="${escapeHtml(it.required_evidence || '')}" data-idx="${idx}">
             </div>
           </div>
-
-          <textarea class="item-description w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition resize-none" rows="2" placeholder="Description du jalon..." data-idx="${idx}">${escapeHtml(it.description || '')}</textarea>
         </div>
       `).join('');
 
-      // Attache les événements
       document.querySelectorAll('.item-title').forEach(inp => {
-        inp.addEventListener('input', () => {
-          items[inp.dataset.idx].title = inp.value;
-        });
+        inp.addEventListener('input', () => { items[inp.dataset.idx].title = inp.value; });
+      });
+      document.querySelectorAll('.item-detail').forEach(inp => {
+        inp.addEventListener('input', () => { items[inp.dataset.idx].detailed_description = inp.value; });
       });
       document.querySelectorAll('.item-percent').forEach(inp => {
         inp.addEventListener('input', () => {
@@ -228,14 +234,7 @@
         });
       });
       document.querySelectorAll('.item-evidence').forEach(inp => {
-        inp.addEventListener('input', () => {
-          items[inp.dataset.idx].required_evidence = inp.value;
-        });
-      });
-      document.querySelectorAll('.item-description').forEach(inp => {
-        inp.addEventListener('input', () => {
-          items[inp.dataset.idx].description = inp.value;
-        });
+        inp.addEventListener('input', () => { items[inp.dataset.idx].required_evidence = inp.value; });
       });
       document.querySelectorAll('.remove-item').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -259,7 +258,7 @@
     }
 
     document.getElementById('btn-add-item').addEventListener('click', () => {
-      items.push({ title: '', description: '', budget_percent: 0, required_evidence: '' });
+      items.push({ title: '', detailed_description: '', budget_percent: 0, required_evidence: '' });
       renderItems();
     });
 
@@ -274,10 +273,11 @@
       if (!name) { alert('Entrez un nom pour le modèle'); return; }
       if (items.length === 0) { alert('Ajoutez au moins 1 jalon'); return; }
       if (items.some(it => !it.title || !it.title.trim())) { alert('Tous les jalons doivent avoir un titre'); return; }
+      if (items.some(it => !it.detailed_description || !it.detailed_description.trim())) { alert('Tous les jalons doivent avoir un détail technique'); return; }
 
       const total = items.reduce((s, it) => s + (Number(it.budget_percent) || 0), 0);
       if (Math.abs(total - 100) > 0.01) {
-        alert('Le total des pourcentages doit être égal à 100% (actuellement : ' + total.toFixed(1) + '%)');
+        alert('Le total doit être de 100% (actuellement : ' + total.toFixed(1) + '%)');
         return;
       }
 
@@ -286,7 +286,6 @@
       btn.textContent = 'Création...';
 
       try {
-        // 1. Crée le modèle
         const templateData = await apiPost('milestone_templates', {
           name: name,
           description: description,
@@ -297,14 +296,14 @@
         const templateId = templateData && templateData[0] ? templateData[0].id : null;
         if (!templateId) throw new Error('Erreur création modèle');
 
-        // 2. Ajoute les jalons
         for (let i = 0; i < items.length; i++) {
           const it = items[i];
           await apiPost('milestone_template_items', {
             template_id: templateId,
             order_index: i + 1,
             title: it.title,
-            description: it.description || null,
+            description: it.detailed_description,
+            detailed_description: it.detailed_description,
             budget_percent: Number(it.budget_percent) || 0,
             required_evidence: it.required_evidence || null
           });
@@ -333,4 +332,4 @@
     }
   </style>
 </body>
-  </html>
+</html>
