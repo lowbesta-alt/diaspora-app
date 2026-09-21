@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -36,25 +35,6 @@
           <option value="immobilier">Immobilier</option>
           <option value="autre">Autre</option>
         </select>
-      </div>
-    </section>
-
-    <!-- Informations foncières -->
-    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
-      <h2 class="text-sm font-bold">Informations foncières</h2>
-      <div>
-        <label class="text-[10px] text-slate-400">Titre foncier</label>
-        <input type="text" id="landTitle" placeholder="Ex : TF-1234/N'Djamena" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
-      </div>
-      <div class="grid grid-cols-2 gap-2">
-        <div>
-          <label class="text-[10px] text-slate-400">Superficie (m²)</label>
-          <input type="number" id="area" placeholder="Ex : 500" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
-        </div>
-        <div>
-          <label class="text-[10px] text-slate-400">Localisation</label>
-          <input type="text" id="location" placeholder="Ex : Chagoua, 7e arr." class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
-        </div>
       </div>
     </section>
 
@@ -122,15 +102,6 @@
   <script>
     document.getElementById('startDate').valueAsDate = new Date();
 
-    // Jalons par défaut insérés automatiquement à la création du projet
-    const DEFAULT_MILESTONES = [
-      { title: 'Étude et planification',        description: 'Analyse du besoin, études techniques et validation du plan.' },
-      { title: 'Mobilisation et préparation',   description: 'Préparation du site, approvisionnement et installation du chantier.' },
-      { title: 'Fondations et gros œuvre',      description: 'Terrassement, fondations, élévation des murs et structure.' },
-      { title: 'Second œuvre et finitions',     description: 'Électricité, plomberie, peinture et finitions intérieures/extérieures.' },
-      { title: 'Réception et livraison',        description: 'Contrôle qualité, levée des réserves et remise des clés.' }
-    ];
-
     document.getElementById('btn-create').addEventListener('click', async () => {
       const userId = localStorage.getItem('user_id');
       if (!userId) {
@@ -139,20 +110,16 @@
         return;
       }
 
-      const title        = document.getElementById('title').value.trim();
-      const description  = document.getElementById('description').value.trim();
-      const projectType  = document.getElementById('projectType').value;
-      const landTitle    = document.getElementById('landTitle').value.trim();
-      const areaRaw      = document.getElementById('area').value;
-      const area         = areaRaw ? Number(areaRaw) : null;
-      const location     = document.getElementById('location').value.trim();
-      const currency     = document.getElementById('currency').value;
-      const budget       = Number(document.getElementById('budget').value);
-      const startDate    = document.getElementById('startDate').value;
-      const endDate      = document.getElementById('endDate').value;
-      const country      = document.getElementById('country').value;
-      const city         = document.getElementById('city').value.trim();
-      const address      = document.getElementById('address').value.trim();
+      const title = document.getElementById('title').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const projectType = document.getElementById('projectType').value;
+      const currency = document.getElementById('currency').value;
+      const budget = Number(document.getElementById('budget').value);
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      const country = document.getElementById('country').value;
+      const city = document.getElementById('city').value.trim();
+      const address = document.getElementById('address').value.trim();
 
       if (!title) { alert('Entrez un titre'); return; }
       if (!description) { alert('Entrez une description'); return; }
@@ -163,18 +130,14 @@
       btn.textContent = 'Création en cours...';
 
       try {
-        // 1) Création du projet
         const res = await fetch(SUPABASE_URL + '/rest/v1/projects', {
           method: 'POST',
-          headers: authHeaders({ 'Prefer': 'return=representation' }),
+          headers: authHeaders({ 'Prefer': 'return=minimal' }),
           body: JSON.stringify({
             owner_id: userId,
             title: title,
             description: description,
             project_type: projectType,
-            land_title: landTitle || null,
-            area: area,
-            location: location || null,
             country: country,
             city: city,
             address: address,
@@ -186,44 +149,15 @@
           })
         });
 
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
+        if (res.ok) {
+          alert('Projet créé avec succès !');
+          window.location.href = 'projets.html';
+        } else {
+          const err = await res.json();
           alert('Erreur : ' + (err.message || 'inconnue'));
           btn.disabled = false;
           btn.textContent = 'Créer le projet';
-          return;
         }
-
-        const created = await res.json();
-        const projectId = Array.isArray(created) ? created[0]?.id : created?.id;
-
-        // 2) Insertion des 5 jalons par défaut
-        if (projectId) {
-          const milestonesPayload = DEFAULT_MILESTONES.map((m, i) => ({
-            project_id: projectId,
-            title: m.title,
-            description: m.description, // Corrigé pour correspondre à ta table Supabase
-            order: i + 1,
-            status: 'pending'
-          }));
-
-          const resM = await fetch(SUPABASE_URL + '/rest/v1/milestones', {
-            method: 'POST',
-            headers: authHeaders({ 'Prefer': 'return=minimal' }),
-            body: JSON.stringify(milestonesPayload)
-          });
-
-          if (!resM.ok) {
-            const errM = await resM.json().catch(() => ({}));
-            alert('Projet créé, mais les jalons n\'ont pas pu être ajoutés : ' + (errM.message || 'inconnue'));
-            window.location.href = 'projets.html';
-            return;
-          }
-        }
-
-        alert('Projet créé avec succès !');
-        window.location.href = 'projets.html';
-
       } catch (e) {
         alert('Erreur réseau : ' + e.message);
         btn.disabled = false;
