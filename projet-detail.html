@@ -119,7 +119,8 @@
     document.getElementById('btn-add-milestone').href = 'jalon-creer.html?id=' + projectId;
     document.getElementById('btn-docs').href = 'documents.html?id=' + projectId;
 
-    // URL signée pour les fichiers privés
+    let allTimelineReports = [];
+
     async function getSignedUrl(path) {
       if (!path) return null;
       try {
@@ -224,57 +225,76 @@
       }
     }
 
+    // ============================================================
+    // TIMELINE (rapports publiés, non masqués par le client)
+    // ============================================================
     async function loadTimeline() {
       const list = document.getElementById('timeline-list');
       try {
-        // Rapports publiés uniquement
         const data = await apiGet('reports', 'project_id=eq.' + projectId + '&status=eq.published&order=created_at.desc');
         const valid = Array.isArray(data) ? data : [];
 
-        if (valid.length === 0) {
-          list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">📭</div><p class="text-slate-400 text-sm">Aucun rapport pour le moment</p><p class="text-slate-500 text-xs mt-2">Les rapports validés par Espace Diaspora apparaitront ici.</p></div>';
+        // Filtre les rapports masqués par le client
+        allTimelineReports = valid.filter(r => !r.deleted_by_client);
+
+        if (allTimelineReports.length === 0) {
+          list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">📭</div><p class="text-slate-400 text-sm">Aucun rapport pour le moment</p><p class="text-slate-500 text-xs mt-2">Les rapports validés apparaitront ici.</p></div>';
           return;
         }
 
-        // Pour chaque rapport, charge ses photos et factures
-        const cards = [];
-        for (const r of valid) {
-          let photos = [];
-          let invoices = [];
-          try {
-            const docs = await apiGet('documents', 'report_id=eq.' + r.id + '&order=created_at.asc');
-            if (Array.isArray(docs)) {
-              photos = docs.filter(d => d.document_type === 'photo');
-              invoices = docs.filter(d => d.document_type === 'invoice');
-            }
-          } catch (e) {}
+        renderTimeline(allTimelineReports);
+      } catch (e) {
+        list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Impossible de charger</p>';
+      }
+    }
 
-          // Génère les URLs signées des photos
-          const photoUrls = [];
-          for (const p of photos) {
-            const url = await getSignedUrl(p.storage_path);
-            if (url) photoUrls.push({ url: url, title: p.title });
+    async function renderTimeline(reports) {
+      const list = document.getElementById('timeline-list');
+      const cards = [];
+
+      for (const r of reports) {
+        let photos = [];
+        let invoices = [];
+        try {
+          const docs = await apiGet('documents', 'report_id=eq.' + r.id + '&order=created_at.asc');
+          if (Array.isArray(docs)) {
+            photos = docs.filter(d => d.document_type === 'photo');
+            invoices = docs.filter(d => d.document_type === 'invoice');
           }
+        } catch (e) {}
 
-          // Génère les URLs signées des factures
-          const invoiceUrls = [];
-          for (const inv of invoices) {
-            const url = await getSignedUrl(inv.storage_path);
-            if (url) invoiceUrls.push({ url: url, title: inv.title });
-          }
+        const photoUrls = [];
+        for (const p of photos) {
+          const url = await getSignedUrl(p.storage_path);
+          if (url) photoUrls.push({ url: url, title: p.title });
+        }
 
-          cards.push(`
-            <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+        const invoiceUrls = [];
+        for (const inv of invoices) {
+          const url = await getSignedUrl(inv.storage_path);
+          if (url) invoiceUrls.push({ url: url, title: inv.title });
+        }
+
+        cards.push(`
+          <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl overflow-hidden">
+            <div class="p-4">
               <div class="flex justify-between items-start mb-2 gap-2">
-                <h3 class="font-bold text-sm">${escapeHtml(r.title)}</h3>
+                <h3 class="font-bold text-sm flex-1">${escapeHtml(r.title)}</h3>
                 <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold flex-shrink-0">${r.progress_percent || 0}%</span>
               </div>
-              <p class="text-xs text-slate-300 leading-relaxed mb-3 whitespace-pre-wrap">${escapeHtml(r.content)}</p>
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] text-slate-500">${formatDate(r.created_at)}</span>
+                <button class="toggle-tl text-[10px] text-sky-400 font-bold" data-id="${r.id}">Afficher ▼</button>
+              </div>
+            </div>
 
-              ${r.blockers ? '<p class="text-[11px] text-red-300 mb-3">⚠️ Blocage : ' + escapeHtml(r.blockers) + '</p>' : ''}
+            <div id="tl-${r.id}" class="hidden border-t border-white/10 p-4 space-y-3 bg-slate-900/30">
+              <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">${escapeHtml(r.content)}</p>
+
+              ${r.blockers ? '<p class="text-[11px] text-red-300">⚠️ Blocage : ' + escapeHtml(r.blockers) + '</p>' : ''}
 
               ${photoUrls.length > 0 ? `
-                <div class="mb-3">
+                <div>
                   <p class="text-[10px] text-amber-300 uppercase tracking-wider font-bold mb-2">📸 Photos (${photoUrls.length})</p>
                   <div class="grid grid-cols-2 gap-2">
                     ${photoUrls.map(p => `
@@ -287,7 +307,7 @@
               ` : ''}
 
               ${invoiceUrls.length > 0 ? `
-                <div class="mb-3">
+                <div>
                   <p class="text-[10px] text-emerald-300 uppercase tracking-wider font-bold mb-2">📄 Factures (${invoiceUrls.length})</p>
                   <div class="space-y-1">
                     ${invoiceUrls.map(inv => `
@@ -301,13 +321,41 @@
                 </div>
               ` : ''}
 
-              <p class="text-[10px] text-slate-500 mt-2">${formatDate(r.created_at)}</p>
+              <div class="pt-2 border-t border-white/10">
+                <button class="hide-btn w-full bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 font-bold py-2.5 rounded-xl text-[11px] transition" data-id="${r.id}">
+                  🗑️ Masquer ce rapport
+                </button>
+              </div>
             </div>
-          `);
-        }
-        list.innerHTML = cards.join('');
+          </div>
+        `);
+      }
+
+      list.innerHTML = cards.join('');
+
+      document.querySelectorAll('.toggle-tl').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          const box = document.getElementById('tl-' + id);
+          const isHidden = box.classList.contains('hidden');
+          box.classList.toggle('hidden');
+          btn.textContent = isHidden ? 'Masquer ▲' : 'Afficher ▼';
+        });
+      });
+
+      document.querySelectorAll('.hide-btn').forEach(btn => {
+        btn.addEventListener('click', () => hideReport(btn.dataset.id));
+      });
+    }
+
+    async function hideReport(reportId) {
+      if (!confirm('Masquer ce rapport de votre vue ?\n\nLe rapport restera dans la plateforme mais ne sera plus visible pour vous.')) return;
+      try {
+        await apiPatch('reports', reportId, { deleted_by_client: true });
+        showSuccess('Rapport masqué');
+        loadTimeline();
       } catch (e) {
-        list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Impossible de charger</p>';
+        showError(e.message);
       }
     }
 
@@ -351,4 +399,4 @@
     loadTeam();
   </script>
 </body>
-</html>
+  </html>
