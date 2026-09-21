@@ -12,7 +12,7 @@
 
     <div>
       <h1 class="text-2xl font-extrabold tracking-tight">Rapports à vérifier</h1>
-      <p class="text-sm text-slate-400 mt-1">Validez les rapports avant transmission aux clients</p>
+      <p class="text-sm text-slate-400 mt-1">Touchez un rapport pour lire le contenu complet avant de valider</p>
     </div>
 
     <section class="grid grid-cols-3 gap-2 text-center">
@@ -36,6 +36,53 @@
 
   </main>
 
+  <!-- MODALE -->
+  <div id="modal" class="hidden fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div class="bg-[#0f2252] w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-t-3xl md:rounded-3xl border-t md:border" style="border-color: rgba(16,185,129,0.4);">
+
+      <!-- EN-TETE MODALE -->
+      <div class="sticky top-0 bg-[#0f2252] border-b p-4 flex justify-between items-center z-10" style="border-color: rgba(16,185,129,0.25);">
+        <h2 id="modal-title" class="font-extrabold text-base pr-3 flex-1">Rapport</h2>
+        <button id="modal-close" class="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-lg">✕</button>
+      </div>
+
+      <!-- CONTENU MODALE -->
+      <div class="p-5 space-y-4">
+
+        <div class="flex justify-between items-center">
+          <span id="modal-date" class="text-xs text-slate-400"></span>
+          <span id="modal-progress" class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold"></span>
+        </div>
+
+        <div class="bg-slate-800/50 rounded-2xl p-4">
+          <p class="text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-2">Description complète</p>
+          <p id="modal-content" class="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap"></p>
+        </div>
+
+        <div id="modal-blockers-box" class="hidden bg-red-500/10 border border-red-500/30 rounded-2xl p-4">
+          <p class="text-[10px] text-red-300 uppercase tracking-wider font-bold mb-2">⚠️ Point bloquant signalé</p>
+          <p id="modal-blockers" class="text-sm text-red-200 leading-relaxed"></p>
+        </div>
+
+        <div id="modal-rejection-box" class="hidden bg-red-500/10 border border-red-500/30 rounded-2xl p-4">
+          <p class="text-[10px] text-red-300 uppercase tracking-wider font-bold mb-2">Motif de refus</p>
+          <p id="modal-rejection" class="text-sm text-red-200 leading-relaxed"></p>
+        </div>
+
+        <!-- BOUTONS DANS MODALE -->
+        <div id="modal-actions" class="grid grid-cols-2 gap-2 pt-2">
+          <button id="modal-publish" class="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold py-3.5 rounded-xl text-sm transition shadow-lg shadow-emerald-500/30">
+            ✅ Publier au client
+          </button>
+          <button id="modal-reject" class="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-extrabold py-3.5 rounded-xl text-sm transition shadow-lg shadow-red-500/30">
+            ❌ Refuser
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
     <a href="dashboard-admin.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🎯</span>Contrôle</a>
     <a href="admin-validations.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">✅</span>Validations</a>
@@ -49,28 +96,30 @@
   <script>
     if (!requireRole(['admin'])) throw new Error('Not allowed');
 
+    let allReports = [];
+    let currentReportId = null;
+
     async function loadReports() {
       const list = document.getElementById('reports-list');
       try {
         const data = await apiGet('reports', 'order=created_at.desc');
-        const valid = Array.isArray(data) ? data : [];
+        allReports = Array.isArray(data) ? data : [];
 
-        document.getElementById('stat-pending').textContent = valid.filter(r => r.status === 'pending_review').length;
-        document.getElementById('stat-published').textContent = valid.filter(r => r.status === 'published').length;
-        document.getElementById('stat-rejected').textContent = valid.filter(r => r.status === 'rejected').length;
+        document.getElementById('stat-pending').textContent = allReports.filter(r => r.status === 'pending_review').length;
+        document.getElementById('stat-published').textContent = allReports.filter(r => r.status === 'published').length;
+        document.getElementById('stat-rejected').textContent = allReports.filter(r => r.status === 'rejected').length;
 
-        if (valid.length === 0) {
+        if (allReports.length === 0) {
           list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">📭</div><p class="text-slate-400 text-sm">Aucun rapport</p></div>';
           return;
         }
 
-        // En attente d'abord
-        valid.sort((a, b) => {
+        allReports.sort((a, b) => {
           const order = { 'pending_review': 0, 'published': 1, 'rejected': 2 };
           return (order[a.status] || 3) - (order[b.status] || 3);
         });
 
-        list.innerHTML = valid.map(r => {
+        list.innerHTML = allReports.map(r => {
           const isPending = r.status === 'pending_review';
           const isPublished = r.status === 'published';
           const isRejected = r.status === 'rejected';
@@ -81,44 +130,25 @@
           else if (isRejected) badge = '<span class="text-[10px] bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full font-bold">REFUSÉ</span>';
 
           return `
-            <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
-              <div class="flex justify-between items-start gap-3 mb-3">
+            <div class="report-card bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 hover:bg-white/10 active:bg-white/15 transition cursor-pointer" data-id="${r.id}">
+              <div class="flex justify-between items-start gap-3 mb-2">
                 <h3 class="font-extrabold text-sm flex-1">${escapeHtml(r.title)}</h3>
                 ${badge}
               </div>
 
-              <p class="text-xs text-slate-300 leading-relaxed mb-3">${escapeHtml(r.content)}</p>
+              <p class="text-xs text-slate-400 leading-relaxed mb-3 line-clamp-2">${escapeHtml(r.content)}</p>
 
-              <div class="flex justify-between items-center text-[11px] text-slate-400 mb-3">
-                <span>📊 Avancement : <span class="text-amber-300 font-bold">${r.progress_percent || 0}%</span></span>
-                <span>${formatDate(r.created_at)}</span>
+              <div class="flex justify-between items-center text-[11px]">
+                <span class="text-slate-400">📊 <span class="text-amber-300 font-bold">${r.progress_percent || 0}%</span></span>
+                <span class="text-sky-400 font-bold">Lire le rapport →</span>
               </div>
-
-              ${r.blockers ? `<p class="text-[11px] text-red-300 mb-3">⚠️ Blocage : ${escapeHtml(r.blockers)}</p>` : ''}
-
-              ${isPending ? `
-                <div class="grid grid-cols-2 gap-2">
-                  <button class="publish-btn w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold py-3 rounded-xl text-xs transition" data-id="${r.id}">
-                    ✅ Publier au client
-                  </button>
-                  <button class="reject-btn w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-bold py-3 rounded-xl text-xs transition" data-id="${r.id}">
-                    ❌ Refuser
-                  </button>
-                </div>
-              ` : ''}
-
-              ${isRejected && r.rejection_reason ? `
-                <p class="text-[10px] text-red-300 mt-2">Motif : ${escapeHtml(r.rejection_reason)}</p>
-              ` : ''}
             </div>
           `;
         }).join('');
 
-        document.querySelectorAll('.publish-btn').forEach(btn => {
-          btn.addEventListener('click', () => handleReview(btn.dataset.id, 'published'));
-        });
-        document.querySelectorAll('.reject-btn').forEach(btn => {
-          btn.addEventListener('click', () => handleReview(btn.dataset.id, 'rejected'));
+        // Click sur une carte → ouvre la modale
+        document.querySelectorAll('.report-card').forEach(card => {
+          card.addEventListener('click', () => openModal(card.dataset.id));
         });
 
       } catch (e) {
@@ -126,21 +156,85 @@
       }
     }
 
-    async function handleReview(reportId, newStatus) {
-      let reason = null;
-      if (newStatus === 'rejected') {
-        reason = prompt('Motif du refus (sera visible par l\'artisan) :');
-        if (!reason) return;
+    function openModal(reportId) {
+      const r = allReports.find(x => x.id === reportId);
+      if (!r) return;
+
+      currentReportId = reportId;
+
+      document.getElementById('modal-title').textContent = r.title;
+      document.getElementById('modal-date').textContent = formatDate(r.created_at);
+      document.getElementById('modal-progress').textContent = (r.progress_percent || 0) + '%';
+      document.getElementById('modal-content').textContent = r.content || '(Aucune description)';
+
+      // Blocage
+      const blockersBox = document.getElementById('modal-blockers-box');
+      if (r.blockers) {
+        blockersBox.classList.remove('hidden');
+        document.getElementById('modal-blockers').textContent = r.blockers;
       } else {
-        if (!confirm('Publier ce rapport ? Le client pourra le voir.')) return;
+        blockersBox.classList.add('hidden');
       }
 
+      // Rejet
+      const rejectionBox = document.getElementById('modal-rejection-box');
+      if (r.status === 'rejected' && r.rejection_reason) {
+        rejectionBox.classList.remove('hidden');
+        document.getElementById('modal-rejection').textContent = r.rejection_reason;
+      } else {
+        rejectionBox.classList.add('hidden');
+      }
+
+      // Boutons d'action : visibles seulement si en attente
+      const actions = document.getElementById('modal-actions');
+      if (r.status === 'pending_review') {
+        actions.classList.remove('hidden');
+      } else {
+        actions.classList.add('hidden');
+      }
+
+      // Affiche la modale
+      document.getElementById('modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+      document.body.style.overflow = '';
+      currentReportId = null;
+    }
+
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+
+    // Clic en dehors de la modale → ferme
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target.id === 'modal') closeModal();
+    });
+
+    // Bouton PUBLIER dans la modale
+    document.getElementById('modal-publish').addEventListener('click', async () => {
+      if (!currentReportId) return;
+      if (!confirm('Publier ce rapport au client ? Il pourra le voir dans sa timeline.')) return;
+      await handleReview(currentReportId, 'published');
+      closeModal();
+    });
+
+    // Bouton REFUSER dans la modale
+    document.getElementById('modal-reject').addEventListener('click', async () => {
+      if (!currentReportId) return;
+      const reason = prompt('Motif du refus (sera visible par l\'artisan) :');
+      if (!reason) return;
+      await handleReview(currentReportId, 'rejected', reason);
+      closeModal();
+    });
+
+    async function handleReview(reportId, newStatus, reason) {
       try {
         await apiPatch('reports', reportId, {
           status: newStatus,
           reviewed_at: new Date().toISOString(),
           reviewed_by: getCurrentUserId(),
-          rejection_reason: reason
+          rejection_reason: reason || null
         });
 
         try {
@@ -149,7 +243,7 @@
             action: 'update',
             table_name: 'reports',
             record_id: reportId,
-            new_data: { status: newStatus, reason: reason }
+            new_data: { status: newStatus, reason: reason || null }
           });
         } catch (e) {}
 
@@ -162,5 +256,14 @@
 
     loadReports();
   </script>
+
+  <style>
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
 </body>
 </html>
