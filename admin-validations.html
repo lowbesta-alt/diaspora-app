@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Validations - Administration</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <main class="p-4 max-w-3xl mx-auto space-y-4 pt-6">
+
+    <div>
+      <h1 class="text-2xl font-extrabold tracking-tight">Validations clients</h1>
+      <p class="text-sm text-slate-400 mt-1">Vérifiez les dossiers avant activation</p>
+    </div>
+
+    <section class="grid grid-cols-3 gap-2 text-center">
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-lg font-bold text-amber-400" id="stat-pending">0</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">En attente</div>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-lg font-bold text-emerald-400" id="stat-approved">0</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Approuvés</div>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-lg font-bold text-red-400" id="stat-rejected">0</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Refusés</div>
+      </div>
+    </section>
+
+    <div id="profiles-list" class="space-y-3">
+      <p class="text-slate-400 text-sm text-center py-8">Chargement...</p>
+    </div>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-admin.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🎯</span>Contrôle</a>
+    <a href="admin-validations.html" class="flex flex-col items-center gap-0.5 text-sky-400 text-[10px]"><span class="text-lg">✅</span>Validations</a>
+    <a href="admin-chantiers.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏗️</span>Chantiers</a>
+    <a href="admin-partenaires.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🤝</span>Partenaires</a>
+    <a href="admin-utilisateurs.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👥</span>Users</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if (!requireRole(['admin'])) throw new Error('Not allowed');
+
+    async function loadProfiles() {
+      const list = document.getElementById('profiles-list');
+      try {
+        const data = await apiGet('profiles', 'order=created_at.desc');
+        const valid = Array.isArray(data) ? data : [];
+
+        document.getElementById('stat-pending').textContent = valid.filter(p => p.account_status === 'pending').length;
+        document.getElementById('stat-approved').textContent = valid.filter(p => p.account_status === 'approved').length;
+        document.getElementById('stat-rejected').textContent = valid.filter(p => p.account_status === 'rejected').length;
+
+        if (valid.length === 0) {
+          list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">📭</div><p class="text-slate-400 text-sm">Aucun utilisateur</p></div>';
+          return;
+        }
+
+        // Trier : en attente d'abord
+        valid.sort((a, b) => {
+          const order = { 'pending': 0, 'approved': 1, 'rejected': 2 };
+          return (order[a.account_status] || 3) - (order[b.account_status] || 3);
+        });
+
+        list.innerHTML = valid.map(p => {
+          const isPending = p.account_status === 'pending';
+          const isApproved = p.account_status === 'approved';
+          const isRejected = p.account_status === 'rejected';
+
+          let badge = '';
+          if (isPending) badge = '<span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">EN ATTENTE</span>';
+          else if (isApproved) badge = '<span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">APPROUVÉ</span>';
+          else if (isRejected) badge = '<span class="text-[10px] bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full font-bold">REFUSÉ</span>';
+
+          const landLabels = {
+            'titre_foncier': '✅ Titre Foncier',
+            'lettre_attribution': '⚠️ Lettre attribution',
+            'en_cours': '⏳ En cours',
+            'pas_de_terrain': '❌ Pas de terrain'
+          };
+          const landLabel = landLabels[p.land_status] || '—';
+
+          const roleLabels = {
+            'investor': 'Client',
+            'provider': 'Artisan',
+            'project_manager': 'Chef chantier',
+            'admin': 'Admin'
+          };
+          const roleLabel = roleLabels[p.default_role] || p.default_role || '—';
+
+          return `
+            <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+              <div class="flex justify-between items-start gap-3 mb-3">
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-extrabold text-sm truncate">${escapeHtml(p.full_name || 'Sans nom')}</h3>
+                  <p class="text-[11px] text-slate-400 truncate">${escapeHtml(p.email || '')}</p>
+                </div>
+                ${badge}
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-300 mb-3">
+                <div>👤 Rôle : <span class="text-white font-semibold">${roleLabel}</span></div>
+                <div>📍 ${escapeHtml(p.country || '—')}</div>
+                <div class="col-span-2">🏘️ Terrain : ${landLabel}</div>
+                ${p.land_title_number ? `<div class="col-span-2">🔖 N° TF : <span class="font-mono text-amber-300">${escapeHtml(p.land_title_number)}</span></div>` : ''}
+                ${p.project_budget ? `<div class="col-span-2">💰 Budget prévisionnel : <span class="text-emerald-400 font-bold">${Number(p.project_budget).toLocaleString('fr-FR')} XAF</span></div>` : ''}
+                <div class="col-span-2">🔒 Séquestre : ${p.escrow_accepted ? '✅ Accepté' : '❌ Non accepté'}</div>
+              </div>
+
+              ${isPending ? `
+                <div class="grid grid-cols-2 gap-2">
+                  <button class="approve-btn w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold py-3 rounded-xl text-xs transition" data-id="${p.id}">
+                    ✅ Approuver
+                  </button>
+                  <button class="reject-btn w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-bold py-3 rounded-xl text-xs transition" data-id="${p.id}">
+                    ❌ Refuser
+                  </button>
+                </div>
+              ` : ''}
+
+              ${isRejected && p.rejection_reason ? `
+                <p class="text-[10px] text-red-300 mt-2">Motif : ${escapeHtml(p.rejection_reason)}</p>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+
+        // Actions
+        document.querySelectorAll('.approve-btn').forEach(btn => {
+          btn.addEventListener('click', () => handleValidation(btn.dataset.id, 'approved'));
+        });
+        document.querySelectorAll('.reject-btn').forEach(btn => {
+          btn.addEventListener('click', () => handleValidation(btn.dataset.id, 'rejected'));
+        });
+
+      } catch (e) {
+        list.innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur : ' + e.message + '</p>';
+      }
+    }
+
+    async function handleValidation(profileId, newStatus) {
+      let reason = null;
+      if (newStatus === 'rejected') {
+        reason = prompt('Motif du refus (visible par l\'utilisateur) :');
+        if (!reason) return;
+      } else {
+        if (!confirm('Approuver ce profil ? L\'utilisateur pourra créer des projets.')) return;
+      }
+
+      try {
+        await apiPatch('profiles', profileId, {
+          account_status: newStatus,
+          validated_at: new Date().toISOString(),
+          validated_by: getCurrentUserId(),
+          rejection_reason: reason
+        });
+
+        // Trace dans l'audit log
+        try {
+          await apiPost('audit_log', {
+            actor_id: getCurrentUserId(),
+            action: newStatus === 'approved' ? 'milestone_validated' : 'update',
+            table_name: 'profiles',
+            record_id: profileId,
+            new_data: { status: newStatus, reason: reason }
+          });
+        } catch (e) {}
+
+        showSuccess(newStatus === 'approved' ? 'Profil approuvé !' : 'Profil refusé');
+        loadProfiles();
+      } catch (e) {
+        showError(e.message);
+      }
+    }
+
+    loadProfiles();
+  </script>
+</body>
+</html>
