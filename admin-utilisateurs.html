@@ -75,17 +75,20 @@
         const initials = (u.full_name || u.email || 'U').substring(0, 2).toUpperCase();
         const kycBadge = u.kyc_status === 'verified' ? '✅' : u.kyc_status === 'pending' ? '⏳' : '';
         return `
-          <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
-            <div class="flex items-center gap-3">
+          <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+            <div class="flex items-center gap-3 min-w-0">
               <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500 to-sky-400 flex items-center justify-center font-extrabold text-sm flex-shrink-0">
                 ${initials}
               </div>
-              <div class="flex-1 min-w-0">
+              <div class="min-w-0">
                 <h3 class="font-extrabold text-sm truncate">${escapeHtml(u.full_name || 'Sans nom')} ${kycBadge}</h3>
                 <p class="text-xs text-slate-400 truncate">${escapeHtml(u.email)}</p>
                 <span class="inline-block text-[10px] ${role.bg} ${role.color} px-2 py-0.5 rounded-full font-bold mt-1">${role.label}</span>
               </div>
             </div>
+            <button onclick="deleteUser('${u.id}')" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 p-2.5 rounded-xl text-sm transition flex-shrink-0 ml-2" title="Supprimer l'utilisateur">
+              🗑️
+            </button>
           </div>
         `;
       }).join('');
@@ -107,6 +110,32 @@
       }
       render(allUsers);
       updateStats(allUsers);
+    }
+
+    // Fonction de suppression d'un utilisateur
+    async function deleteUser(userId) {
+      if (!confirm("Voulez-vous vraiment supprimer cet utilisateur test ?")) return;
+
+      try {
+        const token = localStorage.getItem('access_token');
+        const res = await fetch(SUPABASE_URL + '/rest/v1/profiles?id=eq.' + userId, {
+          method: 'DELETE',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (res.ok || res.status === 204) {
+          alert("Utilisateur supprimé avec succès !");
+          load(); // Recharge la liste automatiquement
+        } else {
+          alert("Erreur lors de la suppression.");
+        }
+      } catch (err) {
+        alert("Erreur réseau : " + err.message);
+      }
     }
 
     document.getElementById('searchInput').addEventListener('input', (e) => {
