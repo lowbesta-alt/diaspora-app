@@ -88,7 +88,7 @@
       btn.disabled = true;
       btn.textContent = 'Connexion...';
 
-      try {
+            try {
         // 1. Authentification Supabase
         const res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
           method: 'POST',
@@ -110,30 +110,46 @@
         localStorage.setItem('user_email', data.user.email);
 
         // 3. Vérification Admin en priorité
-        if (ADMIN_EMAILS.includes(email) || data.user.user_metadata?.role === 'admin') {
+        if (ADMIN_EMAILS.includes(email)) {
           localStorage.setItem('user_role', 'admin');
           window.location.href = 'dashboard-admin.html';
           return;
         }
 
-        // 4. Vérifier le rôle exact dans les métadonnées de l'utilisateur ou la table profiles
-        const userRole = data.user.user_metadata?.role || data.user.user_metadata?.default_role;
+        // 4. Interroger la table des profils (ou partnerships) pour connaître le vrai rôle dans la base
+        let userRole = 'investor'; // Par défaut
 
-        if (userRole === 'provider' || userRole === 'partner') {
-          localStorage.setItem('user_role', 'provider');
-          window.location.href = 'dashboard-artisan.html'; // Vers le tableau de bord artisan / partenaire
-          return;
+        try {
+          const profileRes = await fetch(SUPABASE_URL + '/rest/v1/partnership_requests?email=eq.' + encodeURIComponent(email) + '&select=status', {
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': 'Bearer ' + data.access_token
+            }
+          });
+          const profileData = await profileRes.json();
+          
+          // Si l'e-mail existe dans les demandes approuvées de partenaires/artisans
+          if (Array.isArray(profileData) && profileData.length > 0) {
+            userRole = 'provider';
+          }
+        } catch (err) {
+          console.log("Vérification rôle alternative...");
         }
 
-        // 5. Sinon, par défaut -> espace investisseur
-        localStorage.setItem('user_role', 'investor');
-        window.location.href = 'dashboard-investisseur.html';
+        // 5. Redirection finale selon le rôle détecté
+        if (userRole === 'provider') {
+          localStorage.setItem('user_role', 'provider');
+          window.location.href = 'dashboard-artisan.html';
+        } else {
+          localStorage.setItem('user_role', 'investor');
+          window.location.href = 'dashboard-investisseur.html';
+        }
 
       } catch (err) {
         alert('Erreur reseau : ' + err.message);
         btn.disabled = false;
         btn.innerHTML = originalText;
-      }
+            }
     });
     </script>
 </body>
