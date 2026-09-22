@@ -1,3 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partenaires BTP - Administration</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <main class="p-4 max-w-3xl mx-auto space-y-4 pt-6">
+
+    <div>
+      <h1 class="text-2xl font-extrabold tracking-tight">Candidatures partenaires</h1>
+      <p class="text-sm text-slate-400 mt-1">Approuvez ou refusez les entreprises BTP</p>
+    </div>
+
+    <section class="grid grid-cols-3 gap-2 text-center">
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-lg font-bold text-amber-400" id="stat-pending">0</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">En attente</div>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-lg font-bold text-emerald-400" id="stat-approved">0</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Approuvés</div>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-lg font-bold text-red-400" id="stat-rejected">0</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Refusés</div>
+      </div>
+    </section>
+
+    <div id="partners-list" class="space-y-3">
+      <div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl">
+        <p class="text-slate-400 text-sm">Chargement...</p>
+      </div>
+    </div>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-admin.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🎯</span>Contrôle</a>
+    <a href="admin-leads.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📋</span>Leads</a>
+    <a href="admin-chantiers.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏗️</span>Chantiers</a>
+    <a href="admin-partenaires.html" class="flex flex-col items-center gap-0.5 text-sky-400 text-[10px]"><span class="text-lg">🤝</span>Partenaires</a>
+    <a href="admin-utilisateurs.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👥</span>Users</a>
+  </nav>
+
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script>
@@ -6,7 +54,7 @@
 
       try {
         const token = localStorage.getItem('access_token');
-        const res = swiftFetch = await fetch(
+        const res = await fetch(
           SUPABASE_URL + '/rest/v1/partnership_requests?select=*&order=created_at.desc',
           {
             headers: {
@@ -91,7 +139,6 @@
       try {
         const token = localStorage.getItem('access_token');
         
-        // 1. Mettre à jour le statut dans partnership_requests
         const res = await fetch(SUPABASE_URL + '/rest/v1/partnership_requests?id=eq.' + id, {
           method: 'PATCH',
           headers: {
@@ -109,9 +156,8 @@
           return;
         }
 
-        // 2. Si c'est approuvé, créer le compte utilisateur via l'API Admin de Supabase Auth
         if (newStatus === 'approved' && email) {
-          const tempPassword = 'BTP' + Math.floor(1000 + Math.random() * 9000) + '!'; // Mot de passe généré automatiquement (ex: BTP4829!)
+          const tempPassword = 'BTP' + Math.floor(1000 + Math.random() * 9000) + '!';
           
           const createUserRes = await fetch(SUPABASE_URL + '/auth/v1/signup', {
             method: 'POST',
@@ -122,12 +168,12 @@
             body: JSON.stringify({
               email: email,
               password: tempPassword,
-              data: { role: 'partner' } // On peut stocker son rôle dans les métadonnées
+              data: { role: 'partner' }
             })
           });
 
           if (createUserRes.ok) {
-            alert('Candidature approuvée ET compte créé avec succès !\n\nIdentifiants générés pour l\'artisan :\nEmail : ' + email + '\nMot de passe provisoire : ' + tempPassword + '\n\n(Pensez à lui transmettre ces identifiants)');
+            alert('Candidature approuvée ET compte créé avec succès !\n\nIdentifiants générés pour l\'artisan :\nEmail : ' + email + '\nMot de passe provisoire : ' + tempPassword);
           } else {
             const errJson = await createUserRes.json();
             alert('Statut mis à jour, mais attention pour le compte : ' + (errJson.msg || errJson.error_description || 'Ce compte existe peut-être déjà.'));
@@ -136,7 +182,7 @@
           alert('Statut mis à jour avec succès !');
         }
 
-        loadPartners(); // Recharger la liste
+        loadPartners();
       } catch (e) {
         alert('Erreur réseau : ' + e.message);
       }
@@ -144,3 +190,5 @@
 
     loadPartners();
   </script>
+</body>
+</html>
