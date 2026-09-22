@@ -159,7 +159,7 @@
         if (newStatus === 'approved' && email) {
           const tempPassword = 'BTP' + Math.floor(1000 + Math.random() * 9000) + '!';
           
-          const createUserRes = await fetch(SUPABASE_URL + '/auth/v1/signup', {
+                    const createUserRes = await fetch(SUPABASE_URL + '/auth/v1/signup', {
             method: 'POST',
             headers: {
               'apikey': SUPABASE_KEY,
@@ -168,7 +168,7 @@
             body: JSON.stringify({
               email: email,
               password: tempPassword,
-              data: { role: 'partner' }
+              data: { default_role: 'provider', role: 'provider' } // On force le rôle artisan (provider)
             })
           });
 
