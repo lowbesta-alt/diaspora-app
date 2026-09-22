@@ -61,7 +61,7 @@
 
   <script src="config.js"></script>
   <script src="app.js"></script>
-  <script>
+    <script>
     // ============================================================
     // LISTE DES ADMINS (à completer si plusieurs admins)
     // ============================================================
@@ -104,19 +104,28 @@
           return;
         }
 
-        // 2. Stocke les infos
+        // 2. Stocke les infos de base
         localStorage.setItem('access_token', data.access_token);
         localStorage.setItem('user_id', data.user.id);
         localStorage.setItem('user_email', data.user.email);
 
-        // 3. Si email dans la liste admin → redirection admin
-        if (ADMIN_EMAILS.includes(email)) {
+        // 3. Vérification Admin en priorité
+        if (ADMIN_EMAILS.includes(email) || data.user.user_metadata?.role === 'admin') {
           localStorage.setItem('user_role', 'admin');
           window.location.href = 'dashboard-admin.html';
           return;
         }
 
-        // 4. Sinon → redirection par defaut (investisseur)
+        // 4. Vérifier le rôle exact dans les métadonnées de l'utilisateur ou la table profiles
+        const userRole = data.user.user_metadata?.role || data.user.user_metadata?.default_role;
+
+        if (userRole === 'provider' || userRole === 'partner') {
+          localStorage.setItem('user_role', 'provider');
+          window.location.href = 'dashboard-provider.html'; // Vers le tableau de bord artisan / partenaire
+          return;
+        }
+
+        // 5. Sinon, par défaut -> espace investisseur
         localStorage.setItem('user_role', 'investor');
         window.location.href = 'dashboard-investisseur.html';
 
@@ -126,6 +135,6 @@
         btn.innerHTML = originalText;
       }
     });
-  </script>
+    </script>
 </body>
 </html>
