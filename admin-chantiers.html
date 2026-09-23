@@ -58,16 +58,22 @@
     let allProjects = [];
     let artisansList = [];
 
-    async function loadArtisans() {
+        async function loadArtisans() {
       try {
-        // On récupère les profils
+        // On récupère l'intégralité des profils pour voir ce qui est stocké
         const data = await apiGet('profiles');
+        console.log("Profils récupérés de Supabase :", data);
+        
         if (Array.isArray(data)) {
-          // On filtre pour cibler 'provider' ou 'industry'
-          artisansList = data.filter(u => {
-            const role = (u.role || '').toLowerCase().trim();
-            return role === 'provider' || role === 'industry' || role === 'artisan' || role === 'prestataire';
-          });
+          // On accepte TOUS les profils qui ne sont pas administrateurs, ou on prend tout le monde pour tester
+          artisansList = data; 
+        } else {
+          artisansList = [];
+        }
+      } catch (e) {
+        console.warn("Erreur chargement profils :", e);
+        artisansList = [];
+      }
         }
       } catch (e) {
         console.warn("Erreur mineure chargement artisans (non bloquante) :", e);
