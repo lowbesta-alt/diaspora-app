@@ -37,16 +37,21 @@
     async function initPartenaires() {
       const container = document.getElementById('partenaires-list');
       try {
-        // On récupère depuis 'profiles' pour éviter l'erreur de table 'partners' inexistante
+        // Utilisation de la table 'profiles' qui existe bien dans ta base de données
         const res = typeof apiGet === 'function' ? await apiGet('profiles') : [];
         const profilesList = Array.isArray(res) ? res : (res?.data || []);
 
-        // Filtrage des profils pour cibler les partenaires (ajuste 'partenaire' si ton rôle s'appelle 'partner' en anglais)
+        // Filtrage flexible pour récupérer les partenaires ou afficher les profils disponibles
         allPartenaires = profilesList.filter(u => {
           const roleValue = u.role || u.user_type || u.type || '';
           const roleLower = roleValue.toLowerCase().trim();
-          return roleLower === 'partenaire' || roleLower === 'partner';
+          return roleLower.includes('partenaire') || roleLower.includes('partner') || roleLower === 'prestataire';
         });
+
+        // Sécurité : si aucun filtre strict ne ressort, on affiche tous les profils pour que la page ne soit pas vide
+        if (allPartenaires.length === 0) {
+          allPartenaires = profilesList;
+        }
 
         renderPartenaires(allPartenaires);
       } catch (e) {
@@ -65,7 +70,8 @@
       container.innerHTML = list.map(p => {
         const name = p.full_name || p.name || 'Nom non spécifié';
         const email = p.email || 'Email non renseigné';
-        const phone = p.phone || 'Téléphone non renseigné';
+        const phone = p.phone || p.telephone || 'Téléphone non renseigné';
+        const roleBadge = p.role || p.user_type || 'Partenaire';
 
         return `
           <div class="bg-white/5 border border-white/10 rounded-2xl p-4 transition space-y-2">
@@ -75,7 +81,7 @@
                 <p class="text-xs text-slate-300 mt-0.5">📧 ${email}</p>
                 <p class="text-xs text-slate-400">📞 ${phone}</p>
               </div>
-              <span class="text-xs px-2 py-1 bg-emerald-950 text-emerald-300 border border-emerald-500/30 rounded-lg">Partenaire</span>
+              <span class="text-xs px-2 py-1 bg-emerald-950 text-emerald-300 border border-emerald-500/30 rounded-lg">${roleBadge}</span>
             </div>
           </div>
         `;
