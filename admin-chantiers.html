@@ -12,16 +12,16 @@
 
     <div>
       <h1 class="text-2xl font-extrabold tracking-tight">Tous les chantiers</h1>
-      <p class="text-sm text-slate-400 mt-1">Vue globale de la plateforme et attribution des artisans</p>
+      <p class="text-sm text-slate-400 mt-1">Vue globale de la plateforme et attribution</p>
     </div>
 
     <!-- Barre de recherche -->
     <div class="relative">
-      <input type="text" id="search-input" placeholder="Rechercher un projet..." oninput="filterChantiers()" 
+      <input type="text" id="search-input" placeholder="Rechercher un projet..." 
         class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition">
     </div>
 
-    <!-- Compteurs globaux -->
+    <!-- Compteurs -->
     <section class="grid grid-cols-4 gap-2 text-center">
       <div class="bg-white/5 border border-white/10 rounded-xl p-2.5">
         <div class="text-base font-bold text-white" id="stat-total">0</div>
@@ -44,13 +44,12 @@
     <!-- Liste des chantiers -->
     <div id="chantiers-list" class="space-y-3">
       <div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl">
-        <p class="text-slate-400 text-sm">Chargement des chantiers...</p>
+        <p class="text-slate-400 text-sm">Chargement...</p>
       </div>
     </div>
 
   </main>
 
-  <!-- Barre de navigation inférieure -->
   <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
     <a href="dashboard-admin.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🎯</span>Contrôle</a>
     <a href="admin-leads.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📋</span>Leads</a>
@@ -62,46 +61,13 @@
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script>
-    let allChantiers = [];
-    let approvedArtisans = [];
-
-    async function initPage() {
-      await loadApprovedArtisans();
-      await loadChantiers();
-    }
-
-    // Récupérer les partenaires approuvés (les artisans valides)
-    async function loadApprovedArtisans() {
-      try {
-        const token = localStorage.getItem('access_token');
-        const res = await fetch(
-          SUPABASE_URL + '/rest/v1/partnership_requests?status=eq.approved&select=id,company_name,contact_name,profession',
-          {
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-        if (res.ok) {
-          const data = await res.json();
-          approvedArtisans = Array.isArray(data) ? data : [];
-        }
-      } catch (e) {
-        console.error("Erreur chargement artisans:", e);
-      }
-    }
-
-    // Charger les chantiers (essaie d'abord 'chantiers', puis 'projects' si vide)
-    async function loadChantiers() {
+    // Code d'origine de la page chantiers
+    async function loadChantiersOriginal() {
       const list = document.getElementById('chantiers-list');
       try {
         const token = localStorage.getItem('access_token');
-        
-        // On essaie la table 'chantiers'
-        let res = await fetch(
-          SUPABASE_URL + '/rest/v1/chantiers?select=*&order=created_at.desc',
+        const res = await fetch(
+          SUPABASE_URL + '/rest/v1/chantiers?select=*',
           {
             headers: {
               'apikey': SUPABASE_KEY,
@@ -111,148 +77,55 @@
           }
         );
 
-        // Si la table chantiers échoue ou n'existe pas sous ce nom exact, on essaie 'projects'
         if (!res.ok) {
-          res = await fetch(
-            SUPABASE_URL + '/rest/v1/projects?select=*',
-            {
-              headers: {
-                'apikey': SUPABASE_KEY,
-                'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
-                'Content-Type': 'application/json'
-              }
-            }
-          );
-        }
-
-        if (!res.ok) {
-          list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun chantier trouvé dans la base de données.</p></div>';
+          list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Erreur de chargement des chantiers.</p></div>';
           return;
         }
 
         const data = await res.json();
-        allChantiers = Array.isArray(data) ? data : [];
-
-        updateStats(allChantiers);
-        renderChantiers(allChantiers);
-
-      } catch (e) {
-        list.innerHTML = '<div class="text-center py-8 bg-red-500/10 border border-red-500/30 rounded-2xl"><p class="text-red-300 text-sm font-bold">Erreur réseau</p><p class="text-red-200 text-xs mt-2">' + e.message + '</p></div>';
-      }
-    }
-
-    function updateStats(data) {
-      document.getElementById('stat-total').textContent = data.length;
-      document.getElementById('stat-actifs').textContent = data.filter(c => c.status === 'actif' || c.status === 'active').length;
-      document.getElementById('stat-prep').textContent = data.filter(c => c.status === 'prep' || !c.status || c.status === 'pending').length;
-      document.getElementById('stat-termines').textContent = data.filter(c => c.status === 'termine' || c.status === 'completed').length;
-    }
-
-    function filterChantiers() {
-      const query = document.getElementById('search-input').value.toLowerCase();
-      const filtered = allChantiers.filter(c => 
-        (c.title && c.title.toLowerCase().includes(query)) ||
-        (c.project_name && c.project_name.toLowerCase().includes(query)) ||
-        (c.city && c.city.toLowerCase().includes(query)) ||
-        (c.description && c.description.toLowerCase().includes(query))
-      );
-      renderChantiers(filtered);
-    }
-
-    function renderChantiers(chantiers) {
-      const list = document.getElementById('chantiers-list');
-
-      if (chantiers.length === 0) {
-        list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">🏗️</div><p class="text-slate-400 text-sm">Aucun chantier pour le moment</p></div>';
-        return;
-      }
-
-      list.innerHTML = chantiers.map(c => {
-        let optionsHtml = '<option value="">-- Choisir un artisan --</option>';
-        if (approvedArtisans.length > 0) {
-          approvedArtisans.forEach(artisan => {
-            const selected = (c.assigned_artisan_id === artisan.id || c.artisan_id === artisan.id) ? 'selected' : '';
-            optionsHtml += `<option value="${artisan.id}" ${selected}>${artisan.company_name} (${artisan.profession || 'BTP'})</option>`;
-          });
-        } else {
-          optionsHtml += '<option value="" disabled>Aucun artisan approuvé disponible</option>';
+        
+        if (!Array.isArray(data) || data.length === 0) {
+          list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun chantier trouvé</p></div>';
+          return;
         }
 
-        const titleText = c.title || c.project_name || 'Projet sans nom';
-        const cityText = c.city || 'Ville non spécifiée';
-        const budgetText = c.budget ? c.budget + ' XAF' : 'Non défini';
+        document.getElementById('stat-total').textContent = data.length;
 
-        return `
+        list.innerHTML = data.map(c => `
           <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
             <div class="flex justify-between items-start">
               <div>
-                <h3 class="font-extrabold text-sm text-white">${titleText}</h3>
-                <p class="text-[10px] text-slate-400 mt-0.5">📍 ${cityText}</p>
+                <h3 class="font-extrabold text-sm text-white">${c.title || 'Projet'}</h3>
+                <p class="text-[10px] text-slate-400 mt-0.5">📍 ${c.city || 'Ville non spécifiée'}</p>
               </div>
               <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold uppercase">${c.status || 'Prép.'}</span>
             </div>
 
             <div class="text-xs text-slate-300 bg-slate-800/40 p-2.5 rounded-xl flex justify-between items-center">
-              <span>Budget estimé :</span>
-              <span class="font-bold text-emerald-400">${budgetText}</span>
+              <span>Budget :</span>
+              <span class="font-bold text-emerald-400">${c.budget ? c.budget + ' XAF' : 'Non défini'}</span>
             </div>
 
-            <!-- Bloc d'assignation de l'artisan -->
             <div class="bg-slate-800/60 p-3 rounded-xl space-y-2 border border-white/5">
               <label class="text-[11px] font-semibold text-slate-300 block">Assigner un artisan :</label>
               <div class="flex gap-2">
-                <select id="select-artisan-${c.id}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
-                  ${optionsHtml}
+                <select class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                  <option value="">-- Choisir un artisan --</option>
                 </select>
-                <button onclick="assignArtisan('${c.id}')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl transition shadow-md whitespace-nowrap">
+                <button class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl transition shadow-md whitespace-nowrap">
                   Valider
                 </button>
               </div>
             </div>
-
-            <div class="text-right pt-1">
-              <a href="chantier-details.html?id=${c.id}" class="text-[11px] text-sky-400 hover:underline">Voir les détails complets →</a>
-            </div>
           </div>
-        `;
-      }).join('');
-    }
+        `).join('');
 
-    async function assignArtisan(chantierId) {
-      const selectElement = document.getElementById(`select-artisan-${chantierId}`);
-      const artisanId = selectElement.value;
-
-      if (!artisanId) {
-        alert("Veuillez sélectionner un artisan valide dans la liste.");
-        return;
-      }
-
-    try {
-        const token = localStorage.getItem('access_token');
-        const res = await fetch(SUPABASE_URL + `/rest/v1/chantiers?id=eq.${chantierId}`, {
-          method: 'PATCH',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-          },
-          body: JSON.stringify({ assigned_artisan_id: artisanId })
-        });
-
-        if (res.ok) {
-          alert("Artisan assigné avec succès au chantier !");
-          loadChantiers();
-        } else {
-          alert("Erreur lors de l'assignation.");
-        }
       } catch (e) {
         console.error(e);
-        alert("Erreur réseau.");
       }
     }
 
-    initPage();
+    loadChantiersOriginal();
   </script>
 </body>
 </html>
