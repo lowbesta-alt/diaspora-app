@@ -53,114 +53,47 @@
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script>
-    try {
-      if (typeof requireRole === 'function') requireRole(['admin']);
-    } catch (err) {
-      console.warn("Vérification des rôles ignorée :", err);
-    }
-
     let allProjects = [];
-    let artisansList = [];
-
-    // Valeurs possibles d'un prestataire / artisan
-    const PRESTATAIRE_ROLES = ['artisan', 'prestataire', 'provider', 'pro', 'worker', 'entrepreneur', 'industry', 'partenaire'];
-
-    // Helper : récupère le rôle brut quelle que soit la structure
-    function extractRole(profile) {
-      if (!profile) return '';
-      const raw =
-        profile.role ??
-        profile.user_type ??
-        profile.type ??
-        profile.account_type ??
-        profile.user_role ??
-        (typeof profile.roles === 'object' ? profile.roles?.name : profile.roles) ??
-        '';
-      return String(raw).toLowerCase().trim();
-    }
-
-    // Convertisseur sécurisé pour formater les réponses Supabase en tableau
-    function toArray(res) {
-      if (Array.isArray(res)) return res;
-      if (res && Array.isArray(res.data)) return res.data;
-      return [];
-    }
-
-    const ROLE_LABELS = {
-      artisan: 'ARTISAN',
-      prestataire: 'PRESTATAIRE',
-      provider: 'PRESTATAIRE',
-      pro: 'PRO',
-      worker: 'ARTISAN',
-      entrepreneur: 'ENTREPRENEUR',
-      industry: 'INDUSTRIE',
-      partenaire: 'PARTENAIRE'
-    };
+    let profilesList = [];
 
     async function initPage() {
       const container = document.getElementById('projets-list');
       
       try {
-        if (typeof apiGet === 'function') {
-          allProjects = toArray(await apiGet('projects', 'order=created_at.desc'));
-        } else {
-          container.innerHTML = '<p class="text-red-400 text-center">Erreur : config.js ou app.js non chargé.</p>';
-          return;
-        }
+        // Chargement direct des projets
+        const projRes = typeof apiGet === 'function' ? await apiGet('projects', 'order=created_at.desc') : [];
+        allProjects = Array.isArray(projRes) ? projRes : (projRes?.data || []);
 
-        try {
-          const profilesRaw = await apiGet('profiles');
-          const profiles = toArray(profilesRaw);
-
-          // 🐞 DEBUG dans la console du navigateur pour inspection
-          console.log('[DEBUG] 1er profil brut :', profiles[0]);
-          console.log('[DEBUG] rôles distincts trouvés :', [...new Set(profiles.map(extractRole))]);
-
-          // Filtrage intelligent
-          artisansList = profiles.filter(p => PRESTATAIRE_ROLES.includes(extractRole(p)));
-          
-          // Sécurité : si le filtre strict ne trouve rien, on prend tout le monde sauf les admins
-          if (artisansList.length === 0) {
-            artisansList = profiles.filter(p => extractRole(p) !== 'admin');
-          }
-
-          console.log(`[DEBUG] ${artisansList.length}/${profiles.length} prestataires retenus`);
-        } catch (e) {
-          console.warn("Impossible de charger les profils :", e);
-        }
+        // Chargement direct des profils (sans filtre artificiel)
+        const profRes = typeof apiGet === 'function' ? await apiGet('profiles') : [];
+        profilesList = Array.isArray(profRes) ? profRes : (profRes?.data || []);
 
         renderProjects(allProjects);
         updateStats(allProjects);
 
       } catch (e) {
-        console.error("Erreur critique au chargement :", e);
-        container.innerHTML = `<div class="text-center py-8 text-red-400 text-xs">Erreur de chargement : ${e.message}</div>`;
+        console.error("Erreur critique :", e);
+        container.innerHTML = `<div class="text-center py-8 text-red-400 text-xs">Erreur : ${e.message}</div>`;
       }
     }
 
     function renderProjects(list) {
       const container = document.getElementById('projets-list');
       if (!list || list.length === 0) {
-        container.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">🏗️</div><p class="text-slate-400 text-sm">Aucun projet trouvé</p></div>';
+        container.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun projet trouvé</p></div>';
         return;
       }
 
-      // Préparation de la liste des options une seule fois pour optimiser
-      const optionsBase = artisansList.length === 0 ? [] : artisansList.map(a => {
-        const roleKey = extractRole(a);
-        const roleLabel = ROLE_LABELS[roleKey] || (roleKey ? roleKey.toUpperCase() : 'PRESTATAIRE');
-        const userName = a.full_name || a.name || a.email || 'Sans nom';
-        return { id: a.id, userName, roleLabel };
-      });
-
       container.innerHTML = list.map(p => {
-        let optionsHtml = '<option value="">-- Choisir un prestataire --</option>';
-        if (optionsBase.length === 0) {
-          optionsHtml += '<option value="" disabled>Aucun prestataire disponible</option>';
-        } else {
-          optionsHtml += optionsBase.map(a => 
-            `<option value="${a.id}" ${p.artisan_id === a.id ? 'selected' : ''}>${a.userName} [${a.roleLabel}]</option>`
-          ).join('');
+        // Construction simple et transparente du menu déroulant
+        let optionsHtml = '<option value="">-- Choisir un intervenant --</option>';
+        if (profilesList.length > 0) {
+          optionsHtml += profilesList.map(u => {
+            const name = u.full_name || u.name || u.email || 'Sans nom';
+            // Affiche exactement ce qui est stocké dans u.role, sans forcer un mot par défaut
+            const roleInfo = u.role ? ` (${u.role})` : '';
+            return `<option value="${u.id}" ${p.artisan_id === u.id ? 'selected' : ''}>${name}${roleInfo}</option>`;
+          }).join('');
         }
 
         const titleText = p.title || 'Sans titre';
@@ -184,9 +117,9 @@
               <span>${budgetText}</span>
             </div>
 
-            <!-- Bloc d'assignation -->
+            <!-- Bloc d'assignation simple -->
             <div class="bg-slate-900/90 p-3 rounded-xl border border-emerald-500/40 space-y-2">
-              <label class="block text-xs font-medium text-emerald-400">Assigner un prestataire :</label>
+              <label class="block text-xs font-medium text-emerald-400">Assigner un intervenant :</label>
               <div class="flex gap-2">
                 <select id="artisan-select-${p.id}" class="flex-1 bg-white/10 border border-white/20 rounded-lg p-2 text-xs text-white focus:outline-none bg-slate-800">
                   ${optionsHtml}
@@ -218,7 +151,7 @@
       const artisanId = selectElem.value;
 
       if (!artisanId) {
-        alert("Veuillez sélectionner un prestataire dans la liste.");
+        alert("Veuillez sélectionner quelqu'un dans la liste.");
         return;
       }
 
