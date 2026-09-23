@@ -50,7 +50,6 @@
 
   </main>
 
-  <!-- Barre de navigation -->
   <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
     <a href="dashboard-admin.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🎯</span>Contrôle</a>
     <a href="admin-leads.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📋</span>Leads</a>
@@ -70,7 +69,7 @@
       await loadChantiers();
     }
 
-    // Charger les artisans approuvés depuis la table partnership_requests
+    // 1. Chargement des artisans (partenaires approuvés)
     async function loadApprovedArtisans() {
       try {
         const token = localStorage.getItem('access_token');
@@ -93,13 +92,13 @@
       }
     }
 
-    // Charger les chantiers et afficher les cartes
+    // 2. Chargement des chantiers (exactement comme ta version qui marchait)
     async function loadChantiers() {
       const list = document.getElementById('chantiers-list');
       try {
         const token = localStorage.getItem('access_token');
         const res = await fetch(
-          SUPABASE_URL + '/rest/v1/chantiers?select=*&order=created_at.desc',
+          SUPABASE_URL + '/rest/v1/chantiers?select=*',
           {
             headers: {
               'apikey': SUPABASE_KEY,
@@ -122,20 +121,18 @@
           return;
         }
 
-        updateStats(allChantiers);
+        // Mise à jour des compteurs
+        document.getElementById('stat-total').textContent = allChantiers.length;
+        document.getElementById('stat-actifs').textContent = allChantiers.filter(c => c.status === 'actif' || c.status === 'active').length;
+        document.getElementById('stat-prep').textContent = allChantiers.filter(c => c.status === 'prep' || !c.status || c.status === 'En préparation' || c.status === 'en préparation').length;
+        document.getElementById('stat-termines').textContent = allChantiers.filter(c => c.status === 'termine' || c.status === 'completed').length;
+
         renderChantiers(allChantiers);
 
       } catch (e) {
         console.error(e);
-        list.innerHTML = '<div class="text-center py-8 bg-red-500/10 border border-red-500/30 rounded-2xl"><p class="text-red-300 text-sm">Erreur de connexion</p></div>';
+        list.innerHTML = '<div class="text-center py-8 bg-red-500/10 border border-red-500/30 rounded-2xl"><p class="text-red-300 text-sm">Erreur réseau</p></div>';
       }
-    }
-
-    function updateStats(data) {
-      document.getElementById('stat-total').textContent = data.length;
-      document.getElementById('stat-actifs').textContent = data.filter(c => c.status === 'actif' || c.status === 'active').length;
-      document.getElementById('stat-prep').textContent = data.filter(c => c.status === 'prep' || !c.status || c.status === 'en préparation').length;
-      document.getElementById('stat-termines').textContent = data.filter(c => c.status === 'termine' || c.status === 'completed').length;
     }
 
     function filterChantiers() {
@@ -157,24 +154,26 @@
       }
 
       list.innerHTML = chantiers.map(c => {
-        // Options du menu déroulant pour les artisans
+        // Construction dynamique du menu déroulant des artisans
         let artisanOptions = '<option value="">-- Choisir un artisan --</option>';
-        approvedArtisans.forEach(artisan => {
-          const isSelected = (c.assigned_artisan_id === artisan.id || c.artisan_id === artisan.id) ? 'selected' : '';
-          artisanOptions += `<option value="${artisan.id}" ${isSelected}>${artisan.company_name} (${artisan.profession || 'BTP'})</option>`;
-        });
+        if (approvedArtisans.length > 0) {
+          approvedArtisans.forEach(artisan => {
+            const isSelected = (c.assigned_artisan_id === artisan.id || c.artisan_id === artisan.id) ? 'selected' : '';
+            artisanOptions += `<option value="${artisan.id}" ${isSelected}>${artisan.company_name} (${artisan.profession || 'BTP'})</option>`;
+          });
+        }
 
         return `
           <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
             <div class="flex justify-between items-start">
               <div>
-                <h3 class="font-extrabold text-sm text-white">${c.title || 'Projet sans nom'}</h3>
+                <h3 class="font-extrabold text-sm text-white">${c.title || 'Projet'}</h3>
                 <p class="text-[10px] text-slate-400 mt-0.5">📍 ${c.city || 'Ville non spécifiée'}</p>
               </div>
               <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold uppercase">${c.status || 'En préparation'}</span>
             </div>
 
-            <!-- Détails de la description initiale du chantier -->
+            <!-- Description d'origine -->
             ${c.description ? `<p class="text-xs text-slate-300 bg-slate-800/20 p-2 rounded-lg">${c.description}</p>` : ''}
 
             <div class="text-xs text-slate-300 bg-slate-800/40 p-2.5 rounded-xl flex justify-between items-center">
@@ -182,7 +181,7 @@
               <span class="font-bold text-emerald-400">${c.budget ? c.budget + ' XAF' : 'Non défini'}</span>
             </div>
 
-            <!-- Bloc d'assignation d'artisan -->
+            <!-- Bloc d'assignation propre -->
             <div class="bg-slate-800/60 p-3 rounded-xl space-y-2 border border-white/5">
               <label class="text-[11px] font-semibold text-slate-300 block">Assigner un prestataire :</label>
               <div class="flex gap-2">
@@ -204,7 +203,7 @@
       const artisanId = selectEl.value;
 
       if (!artisanId) {
-        alert("Veuillez sélectionner un artisan valide dans la liste.");
+        alert("Veuillez sélectionner un artisan.");
         return;
       }
 
@@ -222,7 +221,7 @@
         });
 
         if (res.ok) {
-          alert("Prestataire assigné avec succès au chantier !");
+          alert("Prestataire assigné avec succès !");
           loadChantiers();
         } else {
           alert("Erreur lors de l'assignation.");
