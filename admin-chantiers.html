@@ -58,31 +58,23 @@
     let allProjects = [];
     let artisansList = [];
 
-            async function loadArtisans() {
+    async function loadArtisans() {
       try {
+        // On récupère les profils
         const data = await apiGet('profiles');
-        console.log("Données brutes des profils reçues de Supabase :", data); // <- Regarde ce que ça donne
-        
         if (Array.isArray(data)) {
-          // On prend TOUS les utilisateurs qui ne sont PAS des clients (ou on élargit large pour être sûr de voir tes providers)
+          // On filtre pour cibler 'provider' ou 'industry'
           artisansList = data.filter(u => {
-            const r = (u.role || '').toLowerCase().trim();
-            console.log(`Utilisateur ${u.full_name || u.email} a le rôle : "${r}"`);
-            return r === 'provider' || r === 'artisan' || r === 'industry' || r === 'prestataire' || r === 'admin';
+            const role = (u.role || '').toLowerCase().trim();
+            return role === 'provider' || role === 'industry' || role === 'artisan' || role === 'prestataire';
           });
         }
-        console.log("Artisans filtrés retenus :", artisansList);
       } catch (e) {
-        console.error("Erreur critique chargement profils :", e);
+        console.warn("Erreur mineure chargement artisans (non bloquante) :", e);
         artisansList = [];
       }
     }
 
-      } catch (e) {
-        console.warn("Impossible de charger les profils d'artisans :", e);
-        artisansList = [];
-      }
-        }
     function render(list) {
       const container = document.getElementById('projets-list');
       if (!list || list.length === 0) {
@@ -91,15 +83,17 @@
       }
 
       container.innerHTML = list.map(p => {
-        let optionsHtml = '<option value="">-- Choisir un artisan --</option>';
+        let optionsHtml = '<option value="">-- Choisir un prestataire --</option>';
         if (artisansList.length > 0) {
           optionsHtml += artisansList.map(a => 
-            `<option value="${a.id}" ${p.artisan_id === a.id ? 'selected' : ''}>${escapeHtml(a.full_name || a.email || 'Artisan')}</option>`
+            `<option value="${a.id}" ${p.artisan_id === a.id ? 'selected' : ''}>${escapeHtml(a.full_name || a.email || 'Prestataire')} (${a.role || 'provider'})</option>`
           ).join('');
+        } else {
+          optionsHtml += '<option value="" disabled>Aucun prestataire trouvé (Vérifier table profiles)</option>';
         }
 
         return `
-          <div class="project-card-wrapper bg-white/5 border border-white/10 rounded-2xl p-4 transition space-y-3" data-project-id="${p.id}">
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-4 transition space-y-3" data-project-id="${p.id}">
             <div class="flex justify-between items-start">
               <div>
                 <h3 class="font-extrabold text-sm">${escapeHtml(p.title || 'Sans titre')}</h3>
@@ -113,9 +107,9 @@
               <span>${typeof formatAmount === 'function' ? formatAmount(p.total_budget, p.currency) : (p.total_budget || 0) + ' XAF'}</span>
             </div>
 
-            <!-- Bloc d'assignation direct -->
+            <!-- Bloc d'assignation direct et sécurisé -->
             <div class="bg-slate-900/90 p-3 rounded-xl border border-emerald-500/40 space-y-2 relative z-10" onclick="event.stopPropagation();">
-              <label class="block text-xs font-medium text-emerald-400">Assigner un artisan :</label>
+              <label class="block text-xs font-medium text-emerald-400">Assigner un prestataire :</label>
               <div class="flex gap-2">
                 <select id="artisan-select-${p.id}" class="flex-1 bg-white/10 border border-white/20 rounded-lg p-2 text-xs text-white focus:outline-none">
                   ${optionsHtml}
@@ -147,7 +141,7 @@
       const artisanId = selectElem.value;
 
       if (!artisanId) {
-        alert("Veuillez sélectionner un artisan dans la liste.");
+        alert("Veuillez sélectionner un prestataire dans la liste.");
         return;
       }
 
@@ -166,6 +160,7 @@
 
     async function load() {
       try {
+        // On charge d'abord les artisans sans bloquer le rendu global en cas d'erreur
         await loadArtisans();
         const data = await apiGet('projects', 'order=created_at.desc');
         allProjects = Array.isArray(data) ? data : [];
