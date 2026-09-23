@@ -77,19 +77,8 @@
         try {
           const profilesData = await apiGet('profiles');
           if (Array.isArray(profilesData)) {
-            // Filtrage strict pour ne garder que les profils de type prestataire/artisan/partenaire/industrie
-            artisansList = profilesData.filter(u => {
-              const r = (u.role || '').toLowerCase().trim();
-              return r === 'provider' || r === 'artisan' || r === 'prestataire' || r === 'industry' || r === 'partenaire';
-            });
-            
-            // Sécurité : si aucun profil ne match exactement, on prend tous ceux qui ne sont pas administrateurs
-            if (artisansList.length === 0) {
-              artisansList = profilesData.filter(u => {
-                const r = (u.role || '').toLowerCase().trim();
-                return r !== 'admin';
-              });
-            }
+            // On charge tous les profils pour que tu puisses voir les vraies valeurs dans le menu
+            artisansList = profilesData;
           }
         } catch (e) {
           console.warn("Impossible de charger les profils :", e);
@@ -115,7 +104,9 @@
         let optionsHtml = '<option value="">-- Choisir un prestataire --</option>';
         if (artisansList.length > 0) {
           optionsHtml += artisansList.map(a => {
-            const roleName = a.role ? a.role.toUpperCase() : 'PRESTATAIRE';
+            // Récupération sécurisée du vrai rôle stocké en base
+            const roleVal = a.role || a.user_type || a.type || a.account_type || '';
+            const roleName = roleVal ? roleVal.toUpperCase() : 'NON DÉFINI';
             const userName = escapeHtml ? escapeHtml(a.full_name || a.email || 'Sans nom') : (a.full_name || a.email);
             return `<option value="${a.id}" ${p.artisan_id === a.id ? 'selected' : ''}>${userName} [${roleName}]</option>`;
           }).join('');
@@ -182,7 +173,7 @@
         return;
       }
 
-    try {
+      try {
         await apiPatch('projects', projectId, { 
           artisan_id: artisanId, 
           status: 'assigne' 
