@@ -17,7 +17,7 @@
 
     <!-- Barre de recherche -->
     <div class="relative">
-      <input type="text" id="search-input" placeholder="Rechercher un projet..." oninput="filterChantiers()" 
+      <input type="text" id="search-input" placeholder="Rechercher un projet..." oninput="filtrerChantiers()" 
         class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition">
     </div>
 
@@ -61,105 +61,79 @@
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script>
-    let allChantiers = [];
-    let approvedArtisans = [];
+    let globalChantiers = [];
+    let globalArtisans = [];
 
-    async function initPage() {
-      await loadApprovedArtisans();
-      await loadChantiers();
-    }
-
-    // 1. Chargement des artisans (partenaires approuvés)
-    async function loadApprovedArtisans() {
-      try {
-        const token = localStorage.getItem('access_token');
-        const res = await fetch(
-          SUPABASE_URL + '/rest/v1/partnership_requests?status=eq.approved&select=id,company_name,contact_name,profession',
-          {
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-        if (res.ok) {
-          const data = await res.json();
-          approvedArtisans = Array.isArray(data) ? data : [];
-        }
-      } catch (e) {
-        console.error("Erreur chargement artisans:", e);
-      }
-    }
-
-    // 2. Chargement des chantiers (exactement comme ta version qui marchait)
-    async function loadChantiers() {
+    // Fonction principale de chargement robuste
+    async function chargerDonnees() {
       const list = document.getElementById('chantiers-list');
-      try {
-        const token = localStorage.getItem('access_token');
-        const res = await fetch(
-          SUPABASE_URL + '/rest/v1/chantiers?select=*',
-          {
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
-              'Content-Type': 'application/json'
-            }
-          }
-        );
+      const token = localStorage.getItem('access_token');
+      const headers = {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
+        'Content-Type': 'application/json'
+      };
 
-        if (!res.ok) {
-          list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Erreur de chargement des chantiers.</p></div>';
+      try {
+        // 1. Charger en premier les artisans (si ça échoue, les chantiers s'afficheront quand même)
+        try {
+          const resArtisans = await fetch(SUPABASE_URL + '/rest/v1/partnership_requests?status=eq.approved&select=id,company_name,contact_name,profession', { headers });
+          if (resArtisans.ok) {
+            globalArtisans = await resArtisans.json();
+          }
+        } catch (err) {
+          console.warn("Impossible de charger les artisans pour l'instant:", err);
+        }
+
+        // 2. Charger les chantiers
+        const resChantiers = await fetch(SUPABASE_URL + '/rest/v1/chantiers?select=*', { headers });
+        
+        if (!resChantiers.ok) {
+          throwErreur("Erreur HTTP: " + resChantiers.status);
           return;
         }
 
-        const data = await res.json();
-        allChantiers = Array.isArray(data) ? data : [];
-
-        if (allChantiers.length === 0) {
+        const data = await resChantiers.json();
+        
+        if (!Array.isArray(data) || data.length === 0) {
           list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun chantier trouvé</p></div>';
           return;
         }
 
-        // Mise à jour des compteurs
-        document.getElementById('stat-total').textContent = allChantiers.length;
-        document.getElementById('stat-actifs').textContent = allChantiers.filter(c => c.status === 'actif' || c.status === 'active').length;
-        document.getElementById('stat-prep').textContent = allChantiers.filter(c => c.status === 'prep' || !c.status || c.status === 'En préparation' || c.status === 'en préparation').length;
-        document.getElementById('stat-termines').textContent = allChantiers.filter(c => c.status === 'termine' || c.status === 'completed').length;
-
-        renderChantiers(allChantiers);
+        globalChantiers = data;
+        afficherChantiers(globalChantiers);
 
       } catch (e) {
-        console.error(e);
-        list.innerHTML = '<div class="text-center py-8 bg-red-500/10 border border-red-500/30 rounded-2xl"><p class="text-red-300 text-sm">Erreur réseau</p></div>';
+        console.error("Erreur critique:", e);
+        list.innerHTML = '<div class="text-center py-8 bg-red-500/10 border border-red-500/30 rounded-2xl"><p class="text-red-300 text-sm">Erreur de chargement des chantiers.</p></div>';
       }
     }
 
-    function filterChantiers() {
-      const query = document.getElementById('search-input').value.toLowerCase();
-      const filtered = allChantiers.filter(c => 
-        (c.title && c.title.toLowerCase().includes(query)) ||
-        (c.city && c.city.toLowerCase().includes(query)) ||
-        (c.description && c.description.toLowerCase().includes(query))
-      );
-      renderChantiers(filtered);
+    function throwErreur(msg) {
+      document.getElementById('chantiers-list').innerHTML = `<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">${msg}</p></div>`;
     }
 
-    function renderChantiers(chantiers) {
+    function afficherChantiers(chantiers) {
       const list = document.getElementById('chantiers-list');
 
+      // Mise à jour des compteurs
+      document.getElementById('stat-total').textContent = chantiers.length;
+      document.getElementById('stat-actifs').textContent = chantiers.filter(c => c.status === 'actif' || c.status === 'active').length;
+      document.getElementById('stat-prep').textContent = chantiers.filter(c => !c.status || c.status === 'prep' || c.status.toLowerCase().includes('préparation')).length;
+      document.getElementById('stat-termines').textContent = chantiers.filter(c => c.status === 'termine' || c.status === 'completed').length;
+
       if (chantiers.length === 0) {
-        list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun chantier correspondant</p></div>';
+        list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun résultat</p></div>';
         return;
       }
 
       list.innerHTML = chantiers.map(c => {
-        // Construction dynamique du menu déroulant des artisans
-        let artisanOptions = '<option value="">-- Choisir un artisan --</option>';
-        if (approvedArtisans.length > 0) {
-          approvedArtisans.forEach(artisan => {
-            const isSelected = (c.assigned_artisan_id === artisan.id || c.artisan_id === artisan.id) ? 'selected' : '';
-            artisanOptions += `<option value="${artisan.id}" ${isSelected}>${artisan.company_name} (${artisan.profession || 'BTP'})</option>`;
+        // Options de la liste déroulante des artisans
+        let optionsHtml = '<option value="">-- Choisir un prestataire --</option>';
+        if (Array.isArray(globalArtisans)) {
+          globalArtisans.forEach(art => {
+            const selected = (c.assigned_artisan_id === art.id || c.artisan_id === art.id) ? 'selected' : '';
+            optionsHtml += `<option value="${art.id}" ${selected}>${art.company_name || art.contact_name || 'Artisan'} (${art.profession || 'BTP'})</option>`;
           });
         }
 
@@ -173,7 +147,6 @@
               <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold uppercase">${c.status || 'En préparation'}</span>
             </div>
 
-            <!-- Description d'origine -->
             ${c.description ? `<p class="text-xs text-slate-300 bg-slate-800/20 p-2 rounded-lg">${c.description}</p>` : ''}
 
             <div class="text-xs text-slate-300 bg-slate-800/40 p-2.5 rounded-xl flex justify-between items-center">
@@ -181,14 +154,14 @@
               <span class="font-bold text-emerald-400">${c.budget ? c.budget + ' XAF' : 'Non défini'}</span>
             </div>
 
-            <!-- Bloc d'assignation propre -->
+            <!-- Menu d'assignation -->
             <div class="bg-slate-800/60 p-3 rounded-xl space-y-2 border border-white/5">
               <label class="text-[11px] font-semibold text-slate-300 block">Assigner un prestataire :</label>
               <div class="flex gap-2">
                 <select id="select-artisan-${c.id}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
-                  ${artisanOptions}
+                  ${optionsHtml}
                 </select>
-                <button onclick="assignArtisan('${c.id}')" class="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl transition whitespace-nowrap shadow">
+                <button onclick="enregistrerAssignation('${c.id}')" class="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl transition whitespace-nowrap shadow">
                   Valider
                 </button>
               </div>
@@ -198,9 +171,19 @@
       }).join('');
     }
 
-    async function assignArtisan(chantierId) {
-      const selectEl = document.getElementById(`select-artisan-${chantierId}`);
-      const artisanId = selectEl.value;
+    function filtrerChantiers() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      const filtered = globalChantiers.filter(c => 
+        (c.title && c.title.toLowerCase().includes(query)) ||
+        (c.city && c.city.toLowerCase().includes(query)) ||
+        (c.description && c.description.toLowerCase().includes(query))
+      );
+      afficherChantiers(filtered);
+    }
+
+    async function enregistrerAssignation(chantierId) {
+      const select = document.getElementById(`select-artisan-${chantierId}`);
+      const artisanId = select.value;
 
       if (!artisanId) {
         alert("Veuillez sélectionner un artisan.");
@@ -222,9 +205,9 @@
 
         if (res.ok) {
           alert("Prestataire assigné avec succès !");
-          loadChantiers();
+          chargerDonnees();
         } else {
-          alert("Erreur lors de l'assignation.");
+          alert("Erreur lors de l'enregistrement de l'assignation.");
         }
       } catch (e) {
         console.error(e);
@@ -232,7 +215,8 @@
       }
     }
 
-    initPage();
+    // Lancement automatique dès le chargement de la page
+    chargerDonnees();
   </script>
 </body>
 </html>
