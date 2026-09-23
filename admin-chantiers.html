@@ -64,7 +64,6 @@
     let globalChantiers = [];
     let globalArtisans = [];
 
-    // Fonction principale de chargement robuste
     async function chargerDonnees() {
       const list = document.getElementById('chantiers-list');
       const token = localStorage.getItem('access_token');
@@ -75,25 +74,25 @@
       };
 
       try {
-        // 1. Charger en premier les artisans (si ça échoue, les chantiers s'afficheront quand même)
+        // 1. Charger les artisans approuvés
         try {
           const resArtisans = await fetch(SUPABASE_URL + '/rest/v1/partnership_requests?status=eq.approved&select=id,company_name,contact_name,profession', { headers });
           if (resArtisans.ok) {
             globalArtisans = await resArtisans.json();
           }
         } catch (err) {
-          console.warn("Impossible de charger les artisans pour l'instant:", err);
+          console.warn("Impossible de charger les artisans:", err);
         }
 
-        // 2. Charger les chantiers
-        const resChantiers = await fetch(SUPABASE_URL + '/rest/v1/chantiers?select=*', { headers });
+        // 2. Charger les chantiers depuis la table "projects"
+        const resProjects = await fetch(SUPABASE_URL + '/rest/v1/projects?select=*', { headers });
         
-        if (!resChantiers.ok) {
-          throwErreur("Erreur HTTP: " + resChantiers.status);
+        if (!resProjects.ok) {
+          throwErreur("Erreur HTTP: " + resProjects.status);
           return;
         }
 
-        const data = await resChantiers.json();
+        const data = await resProjects.json();
         
         if (!Array.isArray(data) || data.length === 0) {
           list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun chantier trouvé</p></div>';
@@ -116,7 +115,7 @@
     function afficherChantiers(chantiers) {
       const list = document.getElementById('chantiers-list');
 
-      // Mise à jour des compteurs
+      // Compteurs
       document.getElementById('stat-total').textContent = chantiers.length;
       document.getElementById('stat-actifs').textContent = chantiers.filter(c => c.status === 'actif' || c.status === 'active').length;
       document.getElementById('stat-prep').textContent = chantiers.filter(c => !c.status || c.status === 'prep' || c.status.toLowerCase().includes('préparation')).length;
@@ -128,7 +127,6 @@
       }
 
       list.innerHTML = chantiers.map(c => {
-        // Options de la liste déroulante des artisans
         let optionsHtml = '<option value="">-- Choisir un prestataire --</option>';
         if (Array.isArray(globalArtisans)) {
           globalArtisans.forEach(art => {
@@ -141,8 +139,8 @@
           <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
             <div class="flex justify-between items-start">
               <div>
-                <h3 class="font-extrabold text-sm text-white">${c.title || 'Projet'}</h3>
-                <p class="text-[10px] text-slate-400 mt-0.5">📍 ${c.city || 'Ville non spécifiée'}</p>
+                <h3 class="font-extrabold text-sm text-white">${c.title || c.name || 'Projet'}</h3>
+                <p class="text-[10px] text-slate-400 mt-0.5">📍 ${c.city || c.location || 'Ville non spécifiée'}</p>
               </div>
               <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold uppercase">${c.status || 'En préparation'}</span>
             </div>
@@ -154,7 +152,6 @@
               <span class="font-bold text-emerald-400">${c.budget ? c.budget + ' XAF' : 'Non défini'}</span>
             </div>
 
-            <!-- Menu d'assignation -->
             <div class="bg-slate-800/60 p-3 rounded-xl space-y-2 border border-white/5">
               <label class="text-[11px] font-semibold text-slate-300 block">Assigner un prestataire :</label>
               <div class="flex gap-2">
@@ -175,6 +172,7 @@
       const query = document.getElementById('search-input').value.toLowerCase();
       const filtered = globalChantiers.filter(c => 
         (c.title && c.title.toLowerCase().includes(query)) ||
+        (c.name && c.name.toLowerCase().includes(query)) ||
         (c.city && c.city.toLowerCase().includes(query)) ||
         (c.description && c.description.toLowerCase().includes(query))
       );
@@ -192,7 +190,7 @@
 
       try {
         const token = localStorage.getItem('access_token');
-        const res = await fetch(SUPABASE_URL + `/rest/v1/chantiers?id=eq.${chantierId}`, {
+        const res = await fetch(SUPABASE_URL + `/rest/v1/projects?id=eq.${chantierId}`, {
           method: 'PATCH',
           headers: {
             'apikey': SUPABASE_KEY,
@@ -215,7 +213,6 @@
       }
     }
 
-    // Lancement automatique dès le chargement de la page
     chargerDonnees();
   </script>
 </body>
