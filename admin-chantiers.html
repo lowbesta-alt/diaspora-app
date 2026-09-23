@@ -3,70 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestion des Chantiers - Administration</title>
+  <title>Espace Artisan - Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-24">
 
-  <main class="p-4 max-w-3xl mx-auto space-y-4 pt-6">
-
-    <div>
-      <h1 class="text-2xl font-extrabold tracking-tight">Tous les chantiers</h1>
-      <p class="text-sm text-slate-400 mt-1">Vue globale de la plateforme et attribution</p>
+  <!-- En-tête -->
+  <header class="p-4 flex justify-between items-center border-b border-white/10 bg-slate-900/50 backdrop-blur-md sticky top-0 z-40">
+    <div class="flex items-center gap-2">
+      <div class="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-lg">🏗️</div>
+      <div>
+        <h1 class="text-xs font-bold text-slate-400 tracking-wider uppercase">Espace Diaspora</h1>
+        <p class="text-sm font-extrabold text-white">ESPACE ARTISAN</p>
+      </div>
     </div>
+    <div class="flex items-center gap-2">
+      <button class="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300">🔔</button>
+      <div id="user-avatar-badge" class="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 font-extrabold flex items-center justify-center text-xs shadow">KR</div>
+    </div>
+  </header>
 
-    <!-- Barre de recherche -->
-    <div class="relative">
-      <input type="text" id="search-input" placeholder="Rechercher un projet..." oninput="filtrerChantiers()" 
-        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition">
+  <main class="p-4 max-w-3xl mx-auto space-y-4 pt-4">
+
+    <!-- Carte de Bienvenue -->
+    <div class="bg-gradient-to-r from-amber-500/20 via-amber-500/10 to-transparent border border-amber-500/30 rounded-2xl p-4 space-y-1">
+      <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 text-xl font-bold mb-2 shadow">🏢</div>
+      <h2 class="text-base font-extrabold text-white">Bonjour <span id="artisan-name">Artisan</span> 👷</h2>
+      <p class="text-xs text-slate-300">Voici les chantiers qui vous sont assignés par la plateforme.</p>
     </div>
 
     <!-- Compteurs -->
-    <section class="grid grid-cols-4 gap-2 text-center">
-      <div class="bg-white/5 border border-white/10 rounded-xl p-2.5">
-        <div class="text-base font-bold text-white" id="stat-total">0</div>
-        <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Total</div>
+    <section class="grid grid-cols-3 gap-2 text-center">
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-3 shadow-inner">
+        <div class="text-xl font-extrabold text-white" id="count-chantiers">0</div>
+        <div class="text-[9px] text-slate-400 uppercase tracking-wider font-bold mt-0.5">Chantiers</div>
       </div>
-      <div class="bg-white/5 border border-white/10 rounded-xl p-2.5">
-        <div class="text-base font-bold text-emerald-400" id="stat-actifs">0</div>
-        <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Actifs</div>
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-3 shadow-inner">
+        <div class="text-xl font-extrabold text-amber-400" id="count-jalons">0</div>
+        <div class="text-[9px] text-slate-400 uppercase tracking-wider font-bold mt-0.5">Jalons en cours</div>
       </div>
-      <div class="bg-white/5 border border-white/10 rounded-xl p-2.5">
-        <div class="text-base font-bold text-amber-400" id="stat-prep">0</div>
-        <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Prép.</div>
-      </div>
-      <div class="bg-white/5 border border-white/10 rounded-xl p-2.5">
-        <div class="text-base font-bold text-sky-400" id="stat-termines">0</div>
-        <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Terminés</div>
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-3 shadow-inner">
+        <div class="text-xl font-extrabold text-emerald-400" id="count-fcfa">0</div>
+        <div class="text-[9px] text-slate-400 uppercase tracking-wider font-bold mt-0.5">FCFA Reçus</div>
       </div>
     </section>
 
-    <!-- Liste des chantiers -->
-    <div id="chantiers-list" class="space-y-3">
-      <div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl">
-        <p class="text-slate-400 text-sm">Chargement...</p>
+    <!-- Bouton Soumettre un rapport -->
+    <a href="artisan-rapport.html" class="block bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold p-4 rounded-2xl shadow-lg transition flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-black/10 flex items-center justify-center text-xl">📷</div>
+        <div>
+          <div class="text-sm font-extrabold">Soumettre un rapport</div>
+          <div class="text-[11px] opacity-80 font-medium">Envoyez photos, vidéos et avancement</div>
+        </div>
+      </div>
+      <span class="text-lg font-bold">→</span>
+    </a>
+
+    <!-- Liste de ses chantiers assignés -->
+    <div class="space-y-3 pt-2">
+      <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Mes chantiers assignés</h3>
+      
+      <div id="mes-chantiers-list" class="space-y-3">
+        <div class="text-center py-10 bg-white/5 border border-white/10 rounded-2xl">
+          <p class="text-slate-400 text-xs">Chargement de vos chantiers...</p>
+        </div>
       </div>
     </div>
 
   </main>
 
+  <!-- Navigation Basse -->
   <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
-    <a href="dashboard-admin.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🎯</span>Contrôle</a>
-    <a href="admin-leads.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📋</span>Leads</a>
-    <a href="admin-chantiers.html" class="flex flex-col items-center gap-0.5 text-emerald-400 text-[10px]"><span class="text-lg">🏗️</span>Chantiers</a>
-    <a href="admin-partenaires.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🤝</span>Partenaires</a>
-    <a href="admin-utilisateurs.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👥</span>Users</a>
+    <a href="dashboard-artisan.html" class="flex flex-col items-center gap-0.5 text-amber-400 text-[10px] font-bold"><span class="text-lg">🏗️</span>Chantiers</a>
+    <a href="artisan-rapports.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📷</span>Rapports</a>
+    <a href="artisan-paiements.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💳</span>Paiements</a>
+    <a href="artisan-messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
+    <a href="artisan-profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
   </nav>
 
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script>
-    let globalChantiers = [];
-    let globalArtisans = [];
-
-    async function chargerDonnees() {
-      const list = document.getElementById('chantiers-list');
+    async function chargerEspaceArtisan() {
       const token = localStorage.getItem('access_token');
+      const userEmail = localStorage.getItem('user_email'); // ou l'ID stocké lors de la connexion
+      const listContainer = document.getElementById('mes-chantiers-list');
+      
       const headers = {
         'apikey': SUPABASE_KEY,
         'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
@@ -74,148 +97,81 @@
       };
 
       try {
-        // 1. Charger les artisans approuvés
-        try {
-          const resArtisans = await fetch(SUPABASE_URL + '/rest/v1/partnership_requests?status=eq.approved&select=id,company_name,contact_name,profession', { headers });
-          if (resArtisans.ok) {
-            globalArtisans = await resArtisans.json();
+        // 1. Récupérer le profil ou la demande de partenariat de l'artisan connecté
+        // On cherche d'abord dans partnership_requests par email si disponible, ou l'utilisateur courant
+        let artisanId = null;
+        let artisanNom = "Artisan";
+
+        const resPartenaire = await fetch(SUPABASE_URL + `/rest/v1/partnership_requests?select=*`, { headers });
+        if (resPartenaire.ok) {
+          const partenaires = await resPartenaire.json();
+          // On essaie de retrouver l'artisan connecté (par exemple via le localStorage ou le premier approuvé pour test)
+          const currentArtisan = partenaires.find(p => p.email === userEmail) || partenaires[0]; 
+          
+          if (currentArtisan) {
+            artisanId = currentArtisan.id;
+            artisanNom = currentArtisan.company_name || currentArtisan.contact_name || "Artisan";
+            document.getElementById('artisan-name').textContent = artisanNom;
+            
+            // Initiales pour le badge
+            const initials = artisanNom.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            document.getElementById('user-avatar-badge').textContent = initials || 'KR';
           }
-        } catch (err) {
-          console.warn("Impossible de charger les artisans:", err);
         }
 
-        // 2. Charger les chantiers depuis la table "projects"
-        const resProjects = await fetch(SUPABASE_URL + '/rest/v1/projects?select=*', { headers });
+        if (!artisanId) {
+          listContainer.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-xs">Aucun profil artisan associé trouvé.</p></div>';
+          return;
+        }
+
+        // 2. Charger les chantiers assignés à cet artisan spécifique dans la table projects
+        const resProjects = await fetch(SUPABASE_URL + `/rest/v1/projects?assigned_artisan_id=eq.${artisanId}&select=*`, { headers });
         
         if (!resProjects.ok) {
-          throwErreur("Erreur HTTP: " + resProjects.status);
+          throw new Error("Erreur lors du chargement des chantiers assignés");
+        }
+
+        const chantiers = await resProjects.json();
+
+        // Mettre à jour les compteurs
+        document.getElementById('count-chantiers').textContent = chantiers.length;
+
+        if (!Array.isArray(chantiers) || chantiers.length === 0) {
+          listContainer.innerHTML = `
+            <div class="text-center py-10 bg-white/5 border border-white/10 rounded-2xl space-y-2">
+              <span class="text-2xl">📭</span>
+              <p class="text-slate-400 text-xs">Aucun chantier ne vous a encore été assigné.</p>
+            </div>`;
           return;
         }
 
-        const data = await resProjects.json();
-        
-        if (!Array.isArray(data) || data.length === 0) {
-          list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun chantier trouvé</p></div>';
-          return;
-        }
-
-        globalChantiers = data;
-        afficherChantiers(globalChantiers);
-
-      } catch (e) {
-        console.error("Erreur critique:", e);
-        list.innerHTML = '<div class="text-center py-8 bg-red-500/10 border border-red-500/30 rounded-2xl"><p class="text-red-300 text-sm">Erreur de chargement des chantiers.</p></div>';
-      }
-    }
-
-    function throwErreur(msg) {
-      document.getElementById('chantiers-list').innerHTML = `<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">${msg}</p></div>`;
-    }
-
-    function afficherChantiers(chantiers) {
-      const list = document.getElementById('chantiers-list');
-
-      // Compteurs
-      document.getElementById('stat-total').textContent = chantiers.length;
-      document.getElementById('stat-actifs').textContent = chantiers.filter(c => c.status === 'actif' || c.status === 'active').length;
-      document.getElementById('stat-prep').textContent = chantiers.filter(c => !c.status || c.status === 'prep' || c.status.toLowerCase().includes('préparation')).length;
-      document.getElementById('stat-termines').textContent = chantiers.filter(c => c.status === 'termine' || c.status === 'completed').length;
-
-      if (chantiers.length === 0) {
-        list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun résultat</p></div>';
-        return;
-      }
-
-      list.innerHTML = chantiers.map(c => {
-        let optionsHtml = '<option value="">-- Choisir un prestataire --</option>';
-        if (Array.isArray(globalArtisans)) {
-          globalArtisans.forEach(art => {
-            const selected = (c.assigned_artisan_id === art.id || c.artisan_id === art.id) ? 'selected' : '';
-            optionsHtml += `<option value="${art.id}" ${selected}>${art.company_name || art.contact_name || 'Artisan'} (${art.profession || 'BTP'})</option>`;
-          });
-        }
-
-        return `
-          <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+        // Afficher la liste des chantiers
+        listContainer.innerHTML = chantiers.map(c => `
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 shadow-lg">
             <div class="flex justify-between items-start">
               <div>
-                <h3 class="font-extrabold text-sm text-white">${c.title || c.name || 'Projet'}</h3>
-                <p class="text-[10px] text-slate-400 mt-0.5">📍 ${c.city || c.location || 'Ville non spécifiée'}</p>
+                <h4 class="font-extrabold text-sm text-white">${c.title || c.name || 'Projet'}</h4>
+                <p class="text-[11px] text-slate-400 mt-0.5">📍 ${c.city || c.location || 'Localisation non spécifiée'}</p>
               </div>
-              <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold uppercase">${c.status || 'En préparation'}</span>
+              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold uppercase">${c.status || 'Actif'}</span>
             </div>
 
-            ${c.description ? `<p class="text-xs text-slate-300 bg-slate-800/20 p-2 rounded-lg">${c.description}</p>` : ''}
+            ${c.description ? `<p class="text-xs text-slate-300 bg-slate-800/30 p-2.5 rounded-xl border border-white/5">${c.description}</p>` : ''}
 
-            <div class="text-xs text-slate-300 bg-slate-800/40 p-2.5 rounded-xl flex justify-between items-center">
-              <span>Budget :</span>
+            <div class="flex justify-between items-center text-xs bg-slate-800/50 p-2.5 rounded-xl border border-white/5">
+              <span class="text-slate-400">Budget du projet :</span>
               <span class="font-bold text-emerald-400">${c.budget || c.total_budget ? (c.budget || c.total_budget) + ' XAF' : 'Non défini'}</span>
             </div>
-
-            <div class="bg-slate-800/60 p-3 rounded-xl space-y-2 border border-white/5">
-              <label class="text-[11px] font-semibold text-slate-300 block">Assigner un prestataire :</label>
-              <div class="flex gap-2">
-                <select id="select-artisan-${c.id}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
-                  ${optionsHtml}
-                </select>
-                <button onclick="enregistrerAssignation('${c.id}')" class="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl transition whitespace-nowrap shadow">
-                  Valider
-                </button>
-              </div>
-            </div>
           </div>
-        `;
-      }).join('');
-    }
+        `).join('');
 
-    function filtrerChantiers() {
-      const query = document.getElementById('search-input').value.toLowerCase();
-      const filtered = globalChantiers.filter(c => 
-        (c.title && c.title.toLowerCase().includes(query)) ||
-        (c.name && c.name.toLowerCase().includes(query)) ||
-        (c.city && c.city.toLowerCase().includes(query)) ||
-        (c.description && c.description.toLowerCase().includes(query))
-      );
-      afficherChantiers(filtered);
-    }
-
-    async function enregistrerAssignation(chantierId) {
-      const select = document.getElementById(`select-artisan-${chantierId}`);
-      const artisanId = select.value;
-
-      if (!artisanId) {
-        alert("Veuillez sélectionner un artisan.");
-        return;
-      }
-
-      try {
-        const token = localStorage.getItem('access_token');
-        const res = await fetch(SUPABASE_URL + `/rest/v1/projects?id=eq.${chantierId}`, {
-          method: 'PATCH',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
-            'Content-Type': 'application/json',
-            'Prefer': 'return=representation'
-          },
-          body: JSON.stringify({ assigned_artisan_id: artisanId })
-        });
-
-        if (res.ok) {
-          alert("Prestataire assigné avec succès !");
-          chargerDonnees();
-        } else {
-          const errData = await res.json();
-          console.error("Détail erreur Supabase:", errData);
-          alert("Erreur Supabase : " + (errData.message || JSON.stringify(errData)));
-        }
-      } catch (e) {
-        console.error(e);
-        alert("Erreur réseau : " + e.message);
+      } catch (err) {
+        console.error(err);
+        listContainer.innerHTML = '<div class="text-center py-8 bg-red-500/10 border border-red-500/30 rounded-2xl"><p class="text-red-300 text-xs">Erreur de chargement des données.</p></div>';
       }
     }
 
-    chargerDonnees();
+    chargerEspaceArtisan();
   </script>
 </body>
 </html>
