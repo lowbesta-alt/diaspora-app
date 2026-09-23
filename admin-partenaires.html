@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Partenaires BTP - Administration</title>
+  <title>Chantiers - Administration</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
@@ -11,29 +11,33 @@
   <main class="p-4 max-w-3xl mx-auto space-y-4 pt-6">
 
     <div>
-      <h1 class="text-2xl font-extrabold tracking-tight">Candidatures partenaires</h1>
-      <p class="text-sm text-slate-400 mt-1">Approuvez ou refusez les entreprises BTP</p>
+      <h1 class="text-2xl font-extrabold tracking-tight">Tous les chantiers</h1>
+      <p class="text-sm text-slate-400 mt-1">Vue globale de la plateforme et attribution</p>
     </div>
 
-    <section class="grid grid-cols-3 gap-2 text-center">
+    <input type="text" id="searchInput" placeholder="🔍 Rechercher un projet..." class="w-full px-4 py-3 rounded-xl bg-white/5 text-sm placeholder-slate-500 focus:outline-none transition" style="border: 1px solid rgba(16,185,129,0.3);">
+
+    <section class="grid grid-cols-4 gap-2 text-center">
       <div class="bg-white/5 border border-white/10 rounded-xl p-3">
-        <div class="text-lg font-bold text-amber-400" id="stat-pending">0</div>
-        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">En attente</div>
+        <div class="text-base font-bold" id="stat-total">0</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Total</div>
       </div>
       <div class="bg-white/5 border border-white/10 rounded-xl p-3">
-        <div class="text-lg font-bold text-emerald-400" id="stat-approved">0</div>
-        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Approuvés</div>
+        <div class="text-base font-bold text-emerald-400" id="stat-active">0</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Actifs</div>
       </div>
       <div class="bg-white/5 border border-white/10 rounded-xl p-3">
-        <div class="text-lg font-bold text-red-400" id="stat-rejected">0</div>
-        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Refusés</div>
+        <div class="text-base font-bold text-orange-400" id="stat-draft">0</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Prep.</div>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-base font-bold text-slate-400" id="stat-done">0</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Termines</div>
       </div>
     </section>
 
-    <div id="partners-list" class="space-y-3">
-      <div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl">
-        <p class="text-slate-400 text-sm">Chargement...</p>
-      </div>
+    <div id="projets-list" class="space-y-3">
+      <p class="text-slate-400 text-sm text-center py-8">Chargement en cours...</p>
     </div>
 
   </main>
@@ -41,154 +45,141 @@
   <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
     <a href="dashboard-admin.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🎯</span>Contrôle</a>
     <a href="admin-leads.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📋</span>Leads</a>
-    <a href="admin-chantiers.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏗️</span>Chantiers</a>
-    <a href="admin-partenaires.html" class="flex flex-col items-center gap-0.5 text-sky-400 text-[10px]"><span class="text-lg">🤝</span>Partenaires</a>
+    <a href="admin-chantiers.html" class="flex flex-col items-center gap-0.5 text-sky-400 text-[10px]"><span class="text-lg">🏗️</span>Chantiers</a>
+    <a href="admin-partenaires.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🤝</span>Partenaires</a>
     <a href="admin-utilisateurs.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👥</span>Users</a>
   </nav>
 
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script>
-    async function loadPartners() {
-      const list = document.getElementById('partners-list');
+    let allProjects = [];
+    let artisansList = [];
 
+    async function initPage() {
+      const container = document.getElementById('projets-list');
+      
       try {
-        const token = localStorage.getItem('access_token');
-        const res = await fetch(
-          SUPABASE_URL + '/rest/v1/partnership_requests?select=*&order=created_at.desc',
-          {
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
-              'Content-Type': 'application/json'
-            }
-          }
-        );
+        // Chargement des projets
+        const projRes = typeof apiGet === 'function' ? await apiGet('projects', 'order=created_at.desc') : [];
+        allProjects = Array.isArray(projRes) ? projRes : (projRes?.data || []);
 
-        if (!res.ok) {
-          const txt = await res.text();
-          list.innerHTML = '<div class="text-center py-8 bg-red-500/10 border border-red-500/30 rounded-2xl"><p class="text-red-300 text-sm font-bold">Erreur HTTP ' + res.status + '</p><p class="text-red-200 text-xs mt-2">' + txt.substring(0, 200) + '</p></div>';
-          return;
-        }
+        // Chargement des profils
+        const profRes = typeof apiGet === 'function' ? await apiGet('profiles') : [];
+        const profilesList = Array.isArray(profRes) ? profRes : (profRes?.data || []);
 
-        const data = await res.json();
-        const valid = Array.isArray(data) ? data : [];
-
-        document.getElementById('stat-pending').textContent = valid.filter(p => p.status === 'pending').length;
-        document.getElementById('stat-approved').textContent = valid.filter(p => p.status === 'approved').length;
-        document.getElementById('stat-rejected').textContent = valid.filter(p => p.status === 'rejected').length;
-
-        if (valid.length === 0) {
-          list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">📭</div><p class="text-slate-400 text-sm">Aucune candidature pour le moment</p><p class="text-slate-500 text-xs mt-2">Les candidatures BTP apparaitront ici.</p></div>';
-          return;
-        }
-
-        list.innerHTML = valid.map(c => {
-          const isPending = c.status === 'pending';
-          const isApproved = c.status === 'approved';
-          const isRejected = c.status === 'rejected';
-
-          let badge = '';
-          if (isPending) badge = '<span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">EN ATTENTE</span>';
-          else if (isApproved) badge = '<span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">APPROUVÉ & COMPTE CRÉÉ</span>';
-          else if (isRejected) badge = '<span class="text-[10px] bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full font-bold">REFUSÉ</span>';
-
-          let actionsHtml = '';
-          if (isPending) {
-            actionsHtml = `
-              <div class="flex gap-2 mt-4 pt-3 border-t border-white/10">
-                <button onclick='updateStatus("${c.id}", "approved", ${JSON.stringify(c.email)})' class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-xs transition shadow-md">
-                  ✓ Approuver & Créer le compte
-                </button>
-                <button onclick='updateStatus("${c.id}", "rejected", ${JSON.stringify(c.email)})' class="flex-1 bg-red-600/80 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-xl text-xs transition shadow-md">
-                  ✕ Refuser
-                </button>
-              </div>
-            `;
-          }
-
-          return '<div class="bg-white/5 border border-white/10 rounded-2xl p-4">' +
-            '<div class="flex justify-between items-start mb-3">' +
-              '<div>' +
-                '<h3 class="font-extrabold text-sm">' + (c.company_name || 'Sans nom') + '</h3>' +
-                '<p class="text-[10px] text-amber-300 font-semibold uppercase tracking-wider mt-1">' + (c.profession || '') + '</p>' +
-              '</div>' +
-              badge +
-            '</div>' +
-            '<div class="grid grid-cols-2 gap-2 text-[11px] text-slate-400 mb-3">' +
-              '<div>👤 ' + (c.contact_name || '-') + '</div>' +
-              '<div>📍 ' + (c.city || '') + ', ' + (c.country || '') + '</div>' +
-              '<div>✉️ ' + (c.email || '-') + '</div>' +
-              '<div>📞 ' + (c.phone || '-') + '</div>' +
-            '</div>' +
-            '<p class="text-xs text-slate-300 leading-relaxed bg-slate-800/40 rounded-xl p-3">' + (c.description || '') + '</p>' +
-            actionsHtml +
-          '</div>';
-        }).join('');
-
-      } catch (e) {
-        list.innerHTML = '<div class="text-center py-8 bg-red-500/10 border border-red-500/30 rounded-2xl"><p class="text-red-300 text-sm font-bold">Erreur reseau</p><p class="text-red-200 text-xs mt-2">' + e.message + '</p></div>';
-      }
-    }
-
-    async function updateStatus(id, newStatus, email) {
-      if (!confirm(newStatus === 'approved' 
-        ? 'Voulez-vous approuver cette candidature ET créer automatiquement son compte de connexion ?' 
-        : 'Voulez-vous vraiment refuser cette candidature ?')) return;
-
-      try {
-        const token = localStorage.getItem('access_token');
-        
-        const res = await fetch(SUPABASE_URL + '/rest/v1/partnership_requests?id=eq.' + id, {
-          method: 'PATCH',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-          },
-          body: JSON.stringify({ status: newStatus })
+        // FILTRE STRICT : On ne garde que ceux dont le rôle correspond à "artisan" (minuscule ou majuscule)
+        artisansList = profilesList.filter(u => {
+          const r = (u.role || '').toLowerCase().trim();
+          return r === 'artisan';
         });
 
-        if (!res.ok) {
-          const errData = await res.text();
-          alert('Erreur lors de la mise à jour du statut : ' + errData);
-          return;
-        }
+        renderProjects(allProjects);
+        updateStats(allProjects);
 
-        if (newStatus === 'approved' && email) {
-          const tempPassword = 'BTP' + Math.floor(1000 + Math.random() * 9000) + '!';
-          
-                    const createUserRes = await fetch(SUPABASE_URL + '/auth/v1/signup', {
-            method: 'POST',
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              email: email,
-              password: tempPassword,
-              data: { default_role: 'provider', role: 'provider' } // On force le rôle artisan (provider)
-            })
-          });
-
-          if (createUserRes.ok) {
-            alert('Candidature approuvée ET compte créé avec succès !\n\nIdentifiants générés pour l\'artisan :\nEmail : ' + email + '\nMot de passe provisoire : ' + tempPassword);
-          } else {
-            const errJson = await createUserRes.json();
-            alert('Statut mis à jour, mais attention pour le compte : ' + (errJson.msg || errJson.error_description || 'Ce compte existe peut-être déjà.'));
-          }
-        } else {
-          alert('Statut mis à jour avec succès !');
-        }
-
-        loadPartners();
       } catch (e) {
-        alert('Erreur réseau : ' + e.message);
+        console.error("Erreur critique :", e);
+        container.innerHTML = `<div class="text-center py-8 text-red-400 text-xs">Erreur : ${e.message}</div>`;
       }
     }
 
-    loadPartners();
+    function renderProjects(list) {
+      const container = document.getElementById('projets-list');
+      if (!list || list.length === 0) {
+        container.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun projet trouvé</p></div>';
+        return;
+      }
+
+      container.innerHTML = list.map(p => {
+        // Construction du menu déroulant uniquement avec les vrais artisans filtrés
+        let optionsHtml = '<option value="">-- Choisir un artisan --</option>';
+        if (artisansList.length > 0) {
+          optionsHtml += artisansList.map(a => {
+            const name = a.full_name || a.name || a.email || 'Sans nom';
+            return `<option value="${a.id}" ${p.artisan_id === a.id ? 'selected' : ''}>${name} [ARTISAN]</option>`;
+          }).join('');
+        } else {
+          optionsHtml += '<option value="" disabled>Aucun artisan disponible</option>';
+        }
+
+        const titleText = p.title || 'Sans titre';
+        const descText = p.description || '';
+        const cityText = p.city || 'Ville non spécifiée';
+        const countryText = p.country || '';
+        const budgetText = typeof formatAmount === 'function' ? formatAmount(p.total_budget, p.currency) : (p.total_budget || 0) + ' XAF';
+
+        return `
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-4 transition space-y-3">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="font-extrabold text-sm">${titleText}</h3>
+                <p class="text-xs text-slate-400 mt-1">${descText}</p>
+              </div>
+              <div>${typeof renderStatusBadge === 'function' ? renderStatusBadge(p.status) : '<span class="text-xs px-2 py-1 bg-slate-700 rounded">' + (p.status || 'en cours') + '</span>'}</div>
+            </div>
+
+            <div class="flex justify-between text-[11px] text-slate-400 border-t border-white/5 pt-2">
+              <span>📍 ${cityText}, ${countryText}</span>
+              <span>${budgetText}</span>
+            </div>
+
+            <!-- Bloc d'assignation -->
+            <div class="bg-slate-900/90 p-3 rounded-xl border border-emerald-500/40 space-y-2">
+              <label class="block text-xs font-medium text-emerald-400">Assigner un artisan :</label>
+              <div class="flex gap-2">
+                <select id="artisan-select-${p.id}" class="flex-1 bg-white/10 border border-white/20 rounded-lg p-2 text-xs text-white focus:outline-none bg-slate-800">
+                  ${optionsHtml}
+                </select>
+                <button type="button" onclick="assignArtisan('${p.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3 py-2 rounded-lg text-xs transition cursor-pointer">
+                  Valider
+                </button>
+              </div>
+            </div>
+
+            <div class="text-right pt-1">
+              <a href="projet-detail.html?id=${p.id}" class="text-xs text-sky-400 hover:underline">Voir les détails complets →</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateStats(list) {
+      document.getElementById('stat-total').textContent = list.length;
+      document.getElementById('stat-active').textContent = list.filter(p => p.status === 'active' || p.status === 'assigne').length;
+      document.getElementById('stat-draft').textContent = list.filter(p => p.status === 'draft').length;
+      document.getElementById('stat-done').textContent = list.filter(p => p.status === 'completed').length;
+    }
+
+    async function assignArtisan(projectId) {
+      const selectElem = document.getElementById(`artisan-select-${projectId}`);
+      if (!selectElem) return;
+      const artisanId = selectElem.value;
+
+      if (!artisanId) {
+        alert("Veuillez sélectionner un artisan dans la liste.");
+        return;
+      }
+
+      try {
+        await apiPatch('projects', projectId, { 
+          artisan_id: artisanId, 
+          status: 'assigne' 
+        });
+        alert("Chantier assigné avec succès !");
+        initPage();
+      } catch (e) {
+        console.error("Erreur lors de l'assignation :", e);
+        alert("Erreur lors de l'assignation du chantier.");
+      }
+    }
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      renderProjects(allProjects.filter(p => (p.title || '').toLowerCase().includes(q)));
+    });
+
+    initPage();
   </script>
 </body>
 </html>
