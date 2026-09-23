@@ -58,16 +58,26 @@
     let allProjects = [];
     let artisansList = [];
 
-        async function loadArtisans() {
+            async function loadArtisans() {
       try {
         const data = await apiGet('profiles');
+        console.log("Données brutes des profils reçues de Supabase :", data); // <- Regarde ce que ça donne
+        
         if (Array.isArray(data)) {
-          // On filtre explicitement pour récupérer ceux qui ont le rôle 'provider', 'artisan' ou 'industry'
+          // On prend TOUS les utilisateurs qui ne sont PAS des clients (ou on élargit large pour être sûr de voir tes providers)
           artisansList = data.filter(u => {
-            const r = (u.role || '').toLowerCase();
-            return r === 'provider' || r === 'artisan' || r === 'industry' || r === 'prestataire';
+            const r = (u.role || '').toLowerCase().trim();
+            console.log(`Utilisateur ${u.full_name || u.email} a le rôle : "${r}"`);
+            return r === 'provider' || r === 'artisan' || r === 'industry' || r === 'prestataire' || r === 'admin';
           });
         }
+        console.log("Artisans filtrés retenus :", artisansList);
+      } catch (e) {
+        console.error("Erreur critique chargement profils :", e);
+        artisansList = [];
+      }
+    }
+
       } catch (e) {
         console.warn("Impossible de charger les profils d'artisans :", e);
         artisansList = [];
