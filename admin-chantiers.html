@@ -9,7 +9,6 @@
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
 
   <main class="p-4 max-w-3xl mx-auto space-y-4 pt-6">
-
     <div>
       <h1 class="text-2xl font-extrabold tracking-tight">Tous les chantiers</h1>
       <p class="text-sm text-slate-400 mt-1">Vue globale de la plateforme et attribution</p>
@@ -39,7 +38,6 @@
     <div id="projets-list" class="space-y-3">
       <p class="text-slate-400 text-sm text-center py-8">Chargement en cours...</p>
     </div>
-
   </main>
 
   <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
@@ -54,23 +52,25 @@
   <script src="app.js"></script>
   <script>
     let allProjects = [];
-    let profilesList = [];
+    let artisansList = [];
 
     async function initPage() {
       const container = document.getElementById('projets-list');
-      
       try {
-        // Chargement direct des projets
         const projRes = typeof apiGet === 'function' ? await apiGet('projects', 'order=created_at.desc') : [];
         allProjects = Array.isArray(projRes) ? projRes : (projRes?.data || []);
 
-        // Chargement direct des profils (sans filtre artificiel)
         const profRes = typeof apiGet === 'function' ? await apiGet('profiles') : [];
-        profilesList = Array.isArray(profRes) ? profRes : (profRes?.data || []);
+        const profilesList = Array.isArray(profRes) ? profRes : (profRes?.data || []);
+
+        // Filtrage spécifique pour ne garder que les artisans dans la liste des chantiers
+        artisansList = profilesList.filter(u => {
+          const roleValue = u.role || u.user_type || u.type || '';
+          return roleValue.toLowerCase().trim() === 'artisan';
+        });
 
         renderProjects(allProjects);
         updateStats(allProjects);
-
       } catch (e) {
         console.error("Erreur critique :", e);
         container.innerHTML = `<div class="text-center py-8 text-red-400 text-xs">Erreur : ${e.message}</div>`;
@@ -85,15 +85,14 @@
       }
 
       container.innerHTML = list.map(p => {
-        // Construction simple et transparente du menu déroulant
-        let optionsHtml = '<option value="">-- Choisir un intervenant --</option>';
-        if (profilesList.length > 0) {
-          optionsHtml += profilesList.map(u => {
-            const name = u.full_name || u.name || u.email || 'Sans nom';
-            // Affiche exactement ce qui est stocké dans u.role, sans forcer un mot par défaut
-            const roleInfo = u.role ? ` (${u.role})` : '';
-            return `<option value="${u.id}" ${p.artisan_id === u.id ? 'selected' : ''}>${name}${roleInfo}</option>`;
+        let optionsHtml = '<option value="">-- Choisir un artisan --</option>';
+        if (artisansList.length > 0) {
+          optionsHtml += artisansList.map(a => {
+            const name = a.full_name || a.name || a.email || 'Sans nom';
+            return `<option value="${a.id}" ${p.artisan_id === a.id ? 'selected' : ''}>${name} [ARTISAN]</option>`;
           }).join('');
+        } else {
+          optionsHtml += '<option value="" disabled>Aucun artisan disponible</option>';
         }
 
         const titleText = p.title || 'Sans titre';
@@ -117,9 +116,8 @@
               <span>${budgetText}</span>
             </div>
 
-            <!-- Bloc d'assignation simple -->
             <div class="bg-slate-900/90 p-3 rounded-xl border border-emerald-500/40 space-y-2">
-              <label class="block text-xs font-medium text-emerald-400">Assigner un intervenant :</label>
+              <label class="block text-xs font-medium text-emerald-400">Assigner un artisan :</label>
               <div class="flex gap-2">
                 <select id="artisan-select-${p.id}" class="flex-1 bg-white/10 border border-white/20 rounded-lg p-2 text-xs text-white focus:outline-none bg-slate-800">
                   ${optionsHtml}
@@ -151,7 +149,7 @@
       const artisanId = selectElem.value;
 
       if (!artisanId) {
-        alert("Veuillez sélectionner quelqu'un dans la liste.");
+        alert("Veuillez sélectionner un artisan dans la liste.");
         return;
       }
 
