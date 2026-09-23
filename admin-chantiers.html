@@ -149,7 +149,7 @@
 
             <div class="text-xs text-slate-300 bg-slate-800/40 p-2.5 rounded-xl flex justify-between items-center">
               <span>Budget :</span>
-              <span class="font-bold text-emerald-400">${c.budget ? c.budget + ' XAF' : 'Non défini'}</span>
+              <span class="font-bold text-emerald-400">${c.budget || c.total_budget ? (c.budget || c.total_budget) + ' XAF' : 'Non défini'}</span>
             </div>
 
             <div class="bg-slate-800/60 p-3 rounded-xl space-y-2 border border-white/5">
@@ -196,7 +196,7 @@
             'apikey': SUPABASE_KEY,
             'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
             'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
+            'Prefer': 'return=representation'
           },
           body: JSON.stringify({ assigned_artisan_id: artisanId })
         });
@@ -205,11 +205,13 @@
           alert("Prestataire assigné avec succès !");
           chargerDonnees();
         } else {
-          alert("Erreur lors de l'enregistrement de l'assignation.");
+          const errData = await res.json();
+          console.error("Détail erreur Supabase:", errData);
+          alert("Erreur Supabase : " + (errData.message || JSON.stringify(errData)));
         }
       } catch (e) {
         console.error(e);
-        alert("Erreur réseau.");
+        alert("Erreur réseau : " + e.message);
       }
     }
 
