@@ -37,14 +37,21 @@
     async function initPartenaires() {
       const container = document.getElementById('partenaires-list');
       try {
-        // Chargement de la table dédiée aux partenaires (ou profils selon ta structure)
-        const res = typeof apiGet === 'function' ? await apiGet('partners') : [];
-        allPartenaires = Array.isArray(res) ? res : (res?.data || []);
+        // On récupère depuis 'profiles' pour éviter l'erreur de table 'partners' inexistante
+        const res = typeof apiGet === 'function' ? await apiGet('profiles') : [];
+        const profilesList = Array.isArray(res) ? res : (res?.data || []);
+
+        // Filtrage des profils pour cibler les partenaires (ajuste 'partenaire' si ton rôle s'appelle 'partner' en anglais)
+        allPartenaires = profilesList.filter(u => {
+          const roleValue = u.role || u.user_type || u.type || '';
+          const roleLower = roleValue.toLowerCase().trim();
+          return roleLower === 'partenaire' || roleLower === 'partner';
+        });
 
         renderPartenaires(allPartenaires);
       } catch (e) {
         console.error("Erreur chargement partenaires :", e);
-        container.innerHTML = `<div class="text-center py-8 text-red-400 text-xs">Erreur de chargement des partenaires : ${e.message}</div>`;
+        container.innerHTML = `<div class="text-center py-8 text-red-400 text-xs">Erreur de chargement : ${e.message}</div>`;
       }
     }
 
@@ -56,7 +63,7 @@
       }
 
       container.innerHTML = list.map(p => {
-        const name = p.name || p.full_name || 'Nom non spécifié';
+        const name = p.full_name || p.name || 'Nom non spécifié';
         const email = p.email || 'Email non renseigné';
         const phone = p.phone || 'Téléphone non renseigné';
 
@@ -78,7 +85,7 @@
     document.getElementById('searchPartenaire')?.addEventListener('input', (e) => {
       const q = e.target.value.toLowerCase();
       renderPartenaires(allPartenaires.filter(p => {
-        const name = (p.name || p.full_name || '').toLowerCase();
+        const name = (p.full_name || p.name || '').toLowerCase();
         const email = (p.email || '').toLowerCase();
         return name.includes(q) || email.includes(q);
       }));
