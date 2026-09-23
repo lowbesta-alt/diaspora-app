@@ -58,18 +58,21 @@
     let allProjects = [];
     let artisansList = [];
 
-    async function loadArtisans() {
+        async function loadArtisans() {
       try {
         const data = await apiGet('profiles');
         if (Array.isArray(data)) {
-          artisansList = data.filter(u => u.role === 'artisan' || u.role === 'provider' || u.role === 'prestataire');
+          // On filtre explicitement pour récupérer ceux qui ont le rôle 'provider', 'artisan' ou 'industry'
+          artisansList = data.filter(u => {
+            const r = (u.role || '').toLowerCase();
+            return r === 'provider' || r === 'artisan' || r === 'industry' || r === 'prestataire';
+          });
         }
       } catch (e) {
         console.warn("Impossible de charger les profils d'artisans :", e);
         artisansList = [];
       }
-    }
-
+        }
     function render(list) {
       const container = document.getElementById('projets-list');
       if (!list || list.length === 0) {
