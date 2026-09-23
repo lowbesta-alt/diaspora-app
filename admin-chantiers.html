@@ -53,7 +53,6 @@
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script>
-    // Sécurité optionnelle pour ne pas bloquer si la fonction n'existe pas
     try {
       if (typeof requireRole === 'function') requireRole(['admin']);
     } catch (err) {
@@ -67,7 +66,6 @@
       const container = document.getElementById('projets-list');
       
       try {
-        // Chargement des projets
         if (typeof apiGet === 'function') {
           const data = await apiGet('projects', 'order=created_at.desc');
           allProjects = Array.isArray(data) ? data : [];
@@ -76,11 +74,22 @@
           return;
         }
 
-        // Chargement des prestataires (en arrière-plan sécurisé)
         try {
           const profilesData = await apiGet('profiles');
           if (Array.isArray(profilesData)) {
-            artisansList = profilesData;
+            // Filtrage strict pour ne garder que les profils de type prestataire/artisan/partenaire/industrie
+            artisansList = profilesData.filter(u => {
+              const r = (u.role || '').toLowerCase().trim();
+              return r === 'provider' || r === 'artisan' || r === 'prestataire' || r === 'industry' || r === 'partenaire';
+            });
+            
+            // Sécurité : si aucun profil ne match exactement, on prend tous ceux qui ne sont pas administrateurs
+            if (artisansList.length === 0) {
+              artisansList = profilesData.filter(u => {
+                const r = (u.role || '').toLowerCase().trim();
+                return r !== 'admin';
+              });
+            }
           }
         } catch (e) {
           console.warn("Impossible de charger les profils :", e);
@@ -105,11 +114,13 @@
       container.innerHTML = list.map(p => {
         let optionsHtml = '<option value="">-- Choisir un prestataire --</option>';
         if (artisansList.length > 0) {
-          optionsHtml += artisansList.map(a => 
-            `<option value="${a.id}" ${p.artisan_id === a.id ? 'selected' : ''}>${escapeHtml ? escapeHtml(a.full_name || a.email || 'Prestataire') : (a.full_name || a.email)} (${a.role || 'rôle'})</option>`
-          ).join('');
+          optionsHtml += artisansList.map(a => {
+            const roleName = a.role ? a.role.toUpperCase() : 'PRESTATAIRE';
+            const userName = escapeHtml ? escapeHtml(a.full_name || a.email || 'Sans nom') : (a.full_name || a.email);
+            return `<option value="${a.id}" ${p.artisan_id === a.id ? 'selected' : ''}>${userName} [${roleName}]</option>`;
+          }).join('');
         } else {
-          optionsHtml += '<option value="" disabled>Aucun profil dans la table</option>';
+          optionsHtml += '<option value="" disabled>Aucun prestataire trouvé</option>';
         }
 
         const titleText = escapeHtml ? escapeHtml(p.title || 'Sans titre') : (p.title || 'Sans titre');
@@ -171,7 +182,7 @@
         return;
       }
 
-      try {
+    try {
         await apiPatch('projects', projectId, { 
           artisan_id: artisanId, 
           status: 'assigne' 
@@ -189,7 +200,6 @@
       renderProjects(allProjects.filter(p => (p.title || '').toLowerCase().includes(q)));
     });
 
-    // Lancement direct
     initPage();
   </script>
 </body>
