@@ -70,7 +70,7 @@
       await loadChantiers();
     }
 
-    // 1. Récupérer uniquement les partenaires approuvés (les artisans valides)
+    // Récupérer les partenaires approuvés (les artisans valides)
     async function loadApprovedArtisans() {
       try {
         const token = localStorage.getItem('access_token');
@@ -89,16 +89,18 @@
           approvedArtisans = Array.isArray(data) ? data : [];
         }
       } catch (e) {
-        console.error("Erreur chargement artisans approuvés:", e);
+        console.error("Erreur chargement artisans:", e);
       }
     }
 
-    // 2. Charger les chantiers depuis Supabase
+    // Charger les chantiers (essaie d'abord 'chantiers', puis 'projects' si vide)
     async function loadChantiers() {
       const list = document.getElementById('chantiers-list');
       try {
         const token = localStorage.getItem('access_token');
-        const res = await fetch(
+        
+        // On essaie la table 'chantiers'
+        let res = await fetch(
           SUPABASE_URL + '/rest/v1/chantiers?select=*&order=created_at.desc',
           {
             headers: {
@@ -109,9 +111,22 @@
           }
         );
 
+        // Si la table chantiers échoue ou n'existe pas sous ce nom exact, on essaie 'projects'
         if (!res.ok) {
-          // Si la table s'appelle autrement ou renvoie une erreur
-          list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun chantier trouvé ou table non configurée.</p></div>';
+          res = await fetch(
+            SUPABASE_URL + '/rest/v1/projects?select=*',
+            {
+              headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+        }
+
+        if (!res.ok) {
+          list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun chantier trouvé dans la base de données.</p></div>';
           return;
         }
 
@@ -137,6 +152,7 @@
       const query = document.getElementById('search-input').value.toLowerCase();
       const filtered = allChantiers.filter(c => 
         (c.title && c.title.toLowerCase().includes(query)) ||
+        (c.project_name && c.project_name.toLowerCase().includes(query)) ||
         (c.city && c.city.toLowerCase().includes(query)) ||
         (c.description && c.description.toLowerCase().includes(query))
       );
@@ -152,30 +168,33 @@
       }
 
       list.innerHTML = chantiers.map(c => {
-        // Construction des options du menu déroulant avec les artisans approuvés
         let optionsHtml = '<option value="">-- Choisir un artisan --</option>';
         if (approvedArtisans.length > 0) {
           approvedArtisans.forEach(artisan => {
-            const selected = c.assigned_artisan_id === artisan.id ? 'selected' : '';
+            const selected = (c.assigned_artisan_id === artisan.id || c.artisan_id === artisan.id) ? 'selected' : '';
             optionsHtml += `<option value="${artisan.id}" ${selected}>${artisan.company_name} (${artisan.profession || 'BTP'})</option>`;
           });
         } else {
           optionsHtml += '<option value="" disabled>Aucun artisan approuvé disponible</option>';
         }
 
+        const titleText = c.title || c.project_name || 'Projet sans nom';
+        const cityText = c.city || 'Ville non spécifiée';
+        const budgetText = c.budget ? c.budget + ' XAF' : 'Non défini';
+
         return `
           <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
             <div class="flex justify-between items-start">
               <div>
-                <h3 class="font-extrabold text-sm text-white">${c.title || c.project_name || 'Projet sans nom'}</h3>
-                <p class="text-[10px] text-slate-400 mt-0.5">📍 ${c.city || 'Ville non spécifiée'}, ${c.country || 'CM'}</p>
+                <h3 class="font-extrabold text-sm text-white">${titleText}</h3>
+                <p class="text-[10px] text-slate-400 mt-0.5">📍 ${cityText}</p>
               </div>
               <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold uppercase">${c.status || 'Prép.'}</span>
             </div>
 
             <div class="text-xs text-slate-300 bg-slate-800/40 p-2.5 rounded-xl flex justify-between items-center">
               <span>Budget estimé :</span>
-              <span class="font-bold text-emerald-400">${c.budget ? c.budget + ' XAF' : 'Non défini'}</span>
+              <span class="font-bold text-emerald-400">${budgetText}</span>
             </div>
 
             <!-- Bloc d'assignation de l'artisan -->
@@ -199,7 +218,6 @@
       }).join('');
     }
 
-    // Fonction pour enregistrer l'assignation de l'artisan dans Supabase
     async function assignArtisan(chantierId) {
       const selectElement = document.getElementById(`select-artisan-${chantierId}`);
       const artisanId = selectElement.value;
@@ -209,7 +227,7 @@
         return;
       }
 
-      try {
+    try {
         const token = localStorage.getItem('access_token');
         const res = await fetch(SUPABASE_URL + `/rest/v1/chantiers?id=eq.${chantierId}`, {
           method: 'PATCH',
@@ -226,16 +244,14 @@
           alert("Artisan assigné avec succès au chantier !");
           loadChantiers();
         } else {
-          const errText = await res.text();
-          alert("Erreur lors de l'assignation : " + errText);
+          alert("Erreur lors de l'assignation.");
         }
       } catch (e) {
         console.error(e);
-        alert("Erreur réseau lors de l'enregistrement.");
+        alert("Erreur réseau.");
       }
     }
 
-    // Lancement au démarrage
     initPage();
   </script>
 </body>
