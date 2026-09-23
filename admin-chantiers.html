@@ -58,27 +58,30 @@
     let allProjects = [];
     let artisansList = [];
 
-        async function loadArtisans() {
+    async function load() {
+      // 1. On charge d'abord les projets pour que l'écran s'affiche immédiatement
       try {
-        // On récupère l'intégralité des profils pour voir ce qui est stocké
-        const data = await apiGet('profiles');
-        console.log("Profils récupérés de Supabase :", data);
-        
-        if (Array.isArray(data)) {
-          // On accepte TOUS les profils qui ne sont pas administrateurs, ou on prend tout le monde pour tester
-          artisansList = data; 
-        } else {
-          artisansList = [];
+        const data = await apiGet('projects', 'order=created_at.desc');
+        allProjects = Array.isArray(data) ? data : [];
+      } catch (e) {
+        console.error("Erreur chargement projets :", e);
+        allProjects = [];
+      }
+
+      // 2. On essaie de charger les profils en arrière-plan sans bloquer
+      try {
+        const profilesData = await apiGet('profiles');
+        if (Array.isArray(profilesData)) {
+          artisansList = profilesData;
         }
       } catch (e) {
-        console.warn("Erreur chargement profils :", e);
+        console.warn("Impossible de charger les profils :", e);
         artisansList = [];
       }
-        }
-      } catch (e) {
-        console.warn("Erreur mineure chargement artisans (non bloquante) :", e);
-        artisansList = [];
-      }
+
+      // 3. On affiche tout
+      render(allProjects);
+      updateStats(allProjects);
     }
 
     function render(list) {
@@ -92,10 +95,10 @@
         let optionsHtml = '<option value="">-- Choisir un prestataire --</option>';
         if (artisansList.length > 0) {
           optionsHtml += artisansList.map(a => 
-            `<option value="${a.id}" ${p.artisan_id === a.id ? 'selected' : ''}>${escapeHtml(a.full_name || a.email || 'Prestataire')} (${a.role || 'provider'})</option>`
+            `<option value="${a.id}" ${p.artisan_id === a.id ? 'selected' : ''}>${escapeHtml(a.full_name || a.email || 'Prestataire')} (${a.role || 'rôle inconnu'})</option>`
           ).join('');
         } else {
-          optionsHtml += '<option value="" disabled>Aucun prestataire trouvé (Vérifier table profiles)</option>';
+          optionsHtml += '<option value="" disabled>⚠️ Table profiles vide ou inaccessible</option>';
         }
 
         return `
@@ -113,7 +116,7 @@
               <span>${typeof formatAmount === 'function' ? formatAmount(p.total_budget, p.currency) : (p.total_budget || 0) + ' XAF'}</span>
             </div>
 
-            <!-- Bloc d'assignation direct et sécurisé -->
+            <!-- Bloc d'assignation -->
             <div class="bg-slate-900/90 p-3 rounded-xl border border-emerald-500/40 space-y-2 relative z-10" onclick="event.stopPropagation();">
               <label class="block text-xs font-medium text-emerald-400">Assigner un prestataire :</label>
               <div class="flex gap-2">
@@ -162,20 +165,6 @@
         console.error("Erreur lors de l'assignation :", e);
         alert("Erreur lors de l'assignation du chantier.");
       }
-    }
-
-    async function load() {
-      try {
-        // On charge d'abord les artisans sans bloquer le rendu global en cas d'erreur
-        await loadArtisans();
-        const data = await apiGet('projects', 'order=created_at.desc');
-        allProjects = Array.isArray(data) ? data : [];
-      } catch (e) {
-        console.error("Erreur chargement projets :", e);
-        allProjects = [];
-      }
-      render(allProjects);
-      updateStats(allProjects);
     }
 
     document.getElementById('searchInput').addEventListener('input', (e) => {
