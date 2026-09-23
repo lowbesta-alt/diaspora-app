@@ -6,15 +6,16 @@
   <title>Partenaires BTP - Administration</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-24">
 
   <main class="p-4 max-w-3xl mx-auto space-y-4 pt-6">
 
     <div>
       <h1 class="text-2xl font-extrabold tracking-tight">Candidatures partenaires</h1>
-      <p class="text-sm text-slate-400 mt-1">Approuvez ou refusez les entreprises BTP</p>
+      <p class="text-sm text-slate-400 mt-1">Approuvez, gérez ou supprimez les entreprises BTP</p>
     </div>
 
+    <!-- Compteurs -->
     <section class="grid grid-cols-3 gap-2 text-center">
       <div class="bg-white/5 border border-white/10 rounded-xl p-3">
         <div class="text-lg font-bold text-amber-400" id="stat-pending">0</div>
@@ -30,10 +31,26 @@
       </div>
     </section>
 
+    <!-- Filtres rapides -->
+    <div class="flex gap-2 overflow-x-auto pb-1 text-xs">
+      <button onclick="filterPartners('all')" id="btn-all" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold transition">Tous</button>
+      <button onclick="filterPartners('pending')" id="btn-pending" class="px-3 py-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/10 transition">En attente</button>
+      <button onclick="filterPartners('approved')" id="btn-approved" class="px-3 py-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/10 transition">Approuvés</button>
+      <button onclick="filterPartners('rejected')" id="btn-rejected" class="px-3 py-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/10 transition">Refusés</button>
+    </div>
+
+    <!-- Liste des partenaires -->
     <div id="partners-list" class="space-y-3">
       <div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl">
         <p class="text-slate-400 text-sm">Chargement...</p>
       </div>
+    </div>
+
+    <!-- Pagination / Contrôle d'affichage pliable -->
+    <div id="pagination-controls" class="flex justify-between items-center pt-2 hidden">
+      <button onclick="changePage(-1)" id="prev-page" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-slate-300 disabled:opacity-30">← Précédent</button>
+      <span id="page-info" class="text-xs text-slate-400">Page 1 / 1</span>
+      <button onclick="changePage(1)" id="next-page" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-slate-300 disabled:opacity-30">Suivant →</button>
     </div>
 
   </main>
@@ -49,9 +66,13 @@
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script>
-    (async function() {
-      const list = document.getElementById('partners-list');
+    let allPartners = [];
+    let currentFilter = 'all';
+    let currentPage = 1;
+    const itemsPerPage = 4; // Nombre de blocs affichés par page pour éviter l'encombrement
 
+    async function loadPartners() {
+      const list = document.getElementById('partners-list');
       try {
         const token = localStorage.getItem('access_token');
         const res = await fetch(
@@ -67,54 +88,187 @@
 
         if (!res.ok) {
           const txt = await res.text();
-          list.innerHTML = '<div class="text-center py-8 bg-red-500/10 border border-red-500/30 rounded-2xl"><p class="text-red-300 text-sm font-bold">Erreur HTTP ' + res.status + '</p><p class="text-red-200 text-xs mt-2">' + txt.substring(0, 200) + '</p></div>';
+          list.innerHTML = '<div class="text-center py-8 bg-red-500/10 border border-red-500/30 rounded-2xl"><p class="text-red-300 text-sm font-bold">Erreur HTTP ' + res.status + '</p></div>';
           return;
         }
 
         const data = await res.json();
-        const valid = Array.isArray(data) ? data : [];
+        allPartners = Array.isArray(data) ? data : [];
 
-        document.getElementById('stat-pending').textContent = valid.filter(p => p.status === 'pending').length;
-        document.getElementById('stat-approved').textContent = valid.filter(p => p.status === 'approved').length;
-        document.getElementById('stat-rejected').textContent = valid.filter(p => p.status === 'rejected').length;
-
-        if (valid.length === 0) {
-          list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">📭</div><p class="text-slate-400 text-sm">Aucune candidature pour le moment</p><p class="text-slate-500 text-xs mt-2">Les candidatures BTP apparaîtront ici.</p></div>';
-          return;
-        }
-
-        list.innerHTML = valid.map(c => {
-          const isPending = c.status === 'pending';
-          const isApproved = c.status === 'approved';
-          const isRejected = c.status === 'rejected';
-
-          let badge = '';
-          if (isPending) badge = '<span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">EN ATTENTE</span>';
-          else if (isApproved) badge = '<span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">APPROUVÉ</span>';
-          else if (isRejected) badge = '<span class="text-[10px] bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full font-bold">REFUSÉ</span>';
-
-          return '<div class="bg-white/5 border border-white/10 rounded-2xl p-4">' +
-            '<div class="flex justify-between items-start mb-3">' +
-              '<div>' +
-                '<h3 class="font-extrabold text-sm">' + (c.company_name || 'Sans nom') + '</h3>' +
-                '<p class="text-[10px] text-amber-300 font-semibold uppercase tracking-wider mt-1">' + (c.profession || '') + '</p>' +
-              '</div>' +
-              badge +
-            '</div>' +
-            '<div class="grid grid-cols-2 gap-2 text-[11px] text-slate-400 mb-3">' +
-              '<div>👤 ' + (c.contact_name || '-') + '</div>' +
-              '<div>📍 ' + (c.city || '') + ', ' + (c.country || '') + '</div>' +
-              '<div>✉️ ' + (c.email || '-') + '</div>' +
-              '<div>📞 ' + (c.phone || '-') + '</div>' +
-            '</div>' +
-            '<p class="text-xs text-slate-300 leading-relaxed bg-slate-800/40 rounded-xl p-3">' + (c.description || '') + '</p>' +
-          '</div>';
-        }).join('');
+        updateStats();
+        renderPartners();
 
       } catch (e) {
         list.innerHTML = '<div class="text-center py-8 bg-red-500/10 border border-red-500/30 rounded-2xl"><p class="text-red-300 text-sm font-bold">Erreur réseau</p><p class="text-red-200 text-xs mt-2">' + e.message + '</p></div>';
       }
-    })();
+    }
+
+    function updateStats() {
+      document.getElementById('stat-pending').textContent = allPartners.filter(p => p.status === 'pending').length;
+      document.getElementById('stat-approved').textContent = allPartners.filter(p => p.status === 'approved').length;
+      document.getElementById('stat-rejected').textContent = allPartners.filter(p => p.status === 'rejected').length;
+    }
+
+    function filterPartners(status) {
+      currentFilter = status;
+      currentPage = 1;
+
+      // Style des boutons de filtre
+      ['all', 'pending', 'approved', 'rejected'].forEach(s => {
+        const btn = document.getElementById(`btn-${s}`);
+        if (s === status) {
+          btn.className = "px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold transition";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/10 transition";
+        }
+      });
+
+      renderPartners();
+    }
+
+    function renderPartners() {
+      const list = document.getElementById('partners-list');
+      const paginationControls = document.getElementById('pagination-controls');
+
+      let filtered = allPartners;
+      if (currentFilter !== 'all') {
+        filtered = allPartners.filter(p => p.status === currentFilter);
+      }
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">📭</div><p class="text-slate-400 text-sm">Aucune candidature trouvée</p></div>';
+        paginationControls.classList.add('hidden');
+        return;
+      }
+
+      // Gestion de la pagination (4 éléments max par page)
+      const totalPages = Math.ceil(filtered.length / itemsPerPage);
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const start = (currentPage - 1) * itemsPerPage;
+      const pageItems = filtered.slice(start, start + itemsPerPage);
+
+      if (totalPages > 1) {
+        paginationControls.classList.remove('hidden');
+        document.getElementById('page-info').textContent = `Page ${currentPage} / ${totalPages}`;
+        document.getElementById('prev-page').disabled = currentPage === 1;
+        document.getElementById('next-page').disabled = currentPage === totalPages;
+      } else {
+        paginationControls.classList.add('hidden');
+      }
+
+      list.innerHTML = pageItems.map(c => {
+        const isPending = c.status === 'pending';
+        const isApproved = c.status === 'approved';
+        const isRejected = c.status === 'rejected';
+
+        let badge = '';
+        if (isPending) badge = '<span class="text-[10px] bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-full font-bold">EN ATTENTE</span>';
+        else if (isApproved) badge = '<span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full font-bold">APPROUVÉ</span>';
+        else if (isRejected) badge = '<span class="text-[10px] bg-red-500/20 text-red-300 px-2.5 py-1 rounded-full font-bold">REFUSÉ</span>';
+
+        return `
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 transition">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="font-extrabold text-sm text-white">${c.company_name || 'Sans nom'}</h3>
+                <p class="text-[10px] text-amber-300 font-semibold uppercase tracking-wider mt-0.5">${c.profession || 'BTP'}</p>
+              </div>
+              ${badge}
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-300 bg-slate-800/30 p-2.5 rounded-xl">
+              <div>👤 ${c.contact_name || '-'}</div>
+              <div>📍 ${c.city || ''}, ${c.country || ''}</div>
+              <div>✉️ ${c.email || '-'}</div>
+              <div>📞 ${c.phone || '-'}</div>
+            </div>
+
+            ${c.description ? `<p class="text-xs text-slate-300 leading-relaxed bg-slate-800/50 rounded-xl p-3">${c.description}</p>` : ''}
+
+            <!-- Boutons d'action : Basculer statut & Supprimer -->
+            <div class="flex flex-wrap gap-2 pt-2 border-t border-white/5 justify-between items-center">
+              <div class="flex gap-1.5">
+                ${!isApproved ? `<button onclick="updateStatus('${c.id}', 'approved')" class="px-2.5 py-1 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/30 rounded-lg text-[11px] font-semibold transition">Approuver</button>` : ''}
+                ${!isRejected ? `<button onclick="updateStatus('${c.id}', 'rejected')" class="px-2.5 py-1 bg-red-600/30 hover:bg-red-600/50 text-red-300 border border-red-500/30 rounded-lg text-[11px] font-semibold transition">Refuser</button>` : ''}
+              </div>
+              <button onclick="deletePartner('${c.id}', '${escapeHtml(c.company_name)}')" class="px-2.5 py-1 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 rounded-lg text-[11px] font-semibold transition">🗑️ Supprimer</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function changePage(direction) {
+      currentPage += direction;
+      renderPartners();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function updateStatus(id, newStatus) {
+      try {
+        const token = localStorage.getItem('access_token');
+        const res = await fetch(SUPABASE_URL + `/rest/v1/partnership_requests?id=eq.${id}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({ status: newStatus })
+        });
+
+        if (res.ok) {
+          const partner = allPartners.find(p => p.id === id);
+          if (partner) partner.status = newStatus;
+          updateStats();
+          renderPartners();
+        } else {
+          alert("Erreur lors de la mise à jour du statut.");
+        }
+      } catch (e) {
+        console.error(e);
+        alert("Erreur réseau.");
+      }
+    }
+
+    async function deletePartner(id, name) {
+      if (!confirm(`Voulez-vous vraiment supprimer définitivement le partenaire "${name || 'cette entreprise'}" ?`)) {
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('access_token');
+        const res = await fetch(SUPABASE_URL + `/rest/v1/partnership_requests?id=eq.${id}`, {
+          method: 'DELETE',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (res.ok) {
+          allPartners = allPartners.filter(p => p.id !== id);
+          updateStats();
+          renderPartners();
+        } else {
+          alert("Erreur lors de la suppression.");
+        }
+      } catch (e) {
+        console.error(e);
+        alert("Erreur réseau.");
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/'/g, "\\'");
+    }
+
+    loadPartners();
   </script>
 </body>
 </html>
