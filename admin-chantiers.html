@@ -12,7 +12,7 @@
 
     <div>
       <h1 class="text-2xl font-extrabold tracking-tight">Tous les chantiers</h1>
-      <p class="text-sm text-slate-400 mt-1">Vue globale de la plateforme</p>
+      <p class="text-sm text-slate-400 mt-1">Assignez les artisans aux projets validés</p>
     </div>
 
     <input type="text" id="searchInput" placeholder="🔍 Rechercher un projet..." class="w-full px-4 py-3 rounded-xl bg-white/5 text-sm placeholder-slate-500 focus:outline-none transition" style="border: 1px solid rgba(16,185,129,0.3);">
@@ -55,29 +55,305 @@
   <script>
     if (!requireRole(['admin'])) throw new Error('Not allowed');
 
+    // ------------------------------------------------------------
+    // VARIABLES GLOBALES
+    // ------------------------------------------------------------
     let allProjects = [];
+    let approvedArtisans = [];              // [{ partnership, profileId, displayName, profession, email, hasProfile }]
+    const artisansById = {};                // { profileId: artisan }
 
+    // ============================================================
+    // CHARGEMENT DES ARTISANS APPROUVÉS
+    // ------------------------------------------------------------
+    // On charge les partnership_requests approuvées, puis on fait
+    // la liaison avec les profils Supabase via l'email.
+    // ============================================================
+    async function loadApprovedArtisans() {
+      try {
+        // 1. Toutes les candidatures approuvées
+        const partnerships = await apiGet(
+          'partnership_requests',
+          'status=eq.approved&order=company_name'
+        );
+        const validPartnerships = Array.isArray(partnerships) ? partnerships : [];
+
+        // 2. Tous les profils (pour retrouver les UUID par email)
+        const profiles = await apiGet(
+          'profiles',
+          'select=id,email,full_name,default_role'
+        );
+        const validProfiles = Array.isArray(profiles) ? profiles : [];
+
+        // 3. Index des profils par email (en minuscules)
+        const profilesByEmail = {};
+        for (const p of validProfiles) {
+          if (p.email) {
+            profilesByEmail[p.email.toLowerCase().trim()] = p;
+          }
+        }
+
+        // 4. Fusion : on lie chaque partnership à son profil
+        approvedArtisans = validPartnerships.map(part => {
+          const emailKey = (part.email || '').toLowerCase().trim();
+          const profile = profilesByEmail[emailKey] || null;
+          const artisan = {
+            partnership: part,
+            profileId: profile ? profile.id : null,
+            displayName: part.company_name || part.contact_name || 'Artisan sans nom',
+            profession: part.profession || '',
+            email: part.email || '',
+            hasProfile: !!profile
+          };
+          if (artisan.profileId) {
+            artisansById[artisan.profileId] = artisan;
+          }
+          return artisan;
+        });
+
+        // 5. Alerte informative : artistes approuvés sans compte Supabase
+        const orphans = approvedArtisans.filter(a => !a.hasProfile);
+        if (orphans.length > 0) {
+          console.warn(
+            '[admin-chantiers] ' + orphans.length + ' artisan(s) approuvé(s) sans profil Supabase lié :',
+            orphans.map(a => a.email)
+          );
+        }
+      } catch (e) {
+        console.error('Erreur chargement artisans :', e);
+        approvedArtisans = [];
+      }
+    }
+
+    // ============================================================
+    // AFFICHAGE D'UNE CARTE PROJET
+    // ============================================================
+    function renderProjectCard(p) {
+      // --- Badge artisan assigné ---
+      let assignedHtml = '';
+      if (p.assigned_artisan_id) {
+        const artisan = artisansById[p.assigned_artisan_id];
+        if (artisan) {
+          assignedHtml = `
+            <div class="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-3 py-2 mb-2">
+              <span class="text-emerald-400">✓</span>
+              <span class="text-[11px] text-emerald-200">
+                Artisan assigné : <strong>${escapeHtml(artisan.displayName)}</strong>
+              </span>
+            </div>
+          `;
+        } else {
+          assignedHtml = `
+            <div class="flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2 mb-2">
+              <span class="text-amber-400">⚠</span>
+              <span class="text-[11px] text-amber-200">Artisan assigné (profil introuvable)</span>
+            </div>
+          `;
+        }
+      }
+
+      // --- Menu déroulant + bouton ---
+      let optionsHtml = '<option value="">— Choisir un artisan —</option>';
+      for (const a of approvedArtisans) {
+        const isSelected = a.profileId === p.assigned_artisan_id;
+        const label = a.displayName + (a.profession ? ' — ' + a.profession : '');
+        const disabledAttr = a.hasProfile ? '' : ' disabled';
+        const profileTag = a.hasProfile ? '' : ' (sans compte)';
+        optionsHtml += `<option value="${a.profileId || ''}" ${isSelected ? 'selected' : ''}${disabledAttr}>${escapeHtml(label)}${profileTag}</option>`;
+      }
+
+      const assignBtnLabel = p.assigned_artisan_id ? 'Changer' : 'Assigner';
+
+      return `
+        <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+          <a href="projet-detail.html?id=${p.id}" class="block p-4 hover:bg-white/10 transition">
+            <div class="flex justify-between items-start mb-2">
+              <h3 class="font-extrabold text-sm">${escapeHtml(p.title)}</h3>
+              ${renderStatusBadge(p.status)}
+            </div>
+            <p class="text-xs text-slate-400 mb-3">${escapeHtml(p.description || '')}</p>
+            <div class="flex justify-between text-[11px] text-slate-400">
+              <span>📍 ${escapeHtml(p.city || '')}, ${escapeHtml(p.country || '')}</span>
+              <span>${formatAmount(p.total_budget, p.currency)}</span>
+            </div>
+          </a>
+
+          <div class="px-4 pb-4 pt-3 border-t border-white/10">
+            ${assignedHtml}
+            <div class="flex gap-2 items-center">
+              <select
+                id="artisan-select-${p.id}"
+                class="flex-1 px-3 py-2.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-xs transition"
+                ${approvedArtisans.length === 0 ? 'disabled' : ''}
+              >
+                ${approvedArtisans.length === 0
+                  ? '<option value="">Aucun artisan approuvé</option>'
+                  : optionsHtml}
+              </select>
+              <button
+                id="btn-assign-${p.id}"
+                data-project-id="${p.id}"
+                data-old-artisan="${p.assigned_artisan_id || ''}"
+                class="assign-btn bg-amber-500 hover:bg-amber-400 text-[#0a1838] font-extrabold py-2.5 px-4 rounded-xl text-xs transition disabled:opacity-50 disabled:cursor-not-allowed"
+                ${approvedArtisans.length === 0 ? 'disabled' : ''}
+              >
+                ${assignBtnLabel}
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ============================================================
+    // RENDU DE LA LISTE
+    // ============================================================
     function render(list) {
       const container = document.getElementById('projets-list');
       if (list.length === 0) {
         container.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">🏗️</div><p class="text-slate-400 text-sm">Aucun projet</p></div>';
         return;
       }
-      container.innerHTML = list.map(p => `
-        <a href="projet-detail.html?id=${p.id}" class="block bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition">
-          <div class="flex justify-between items-start mb-2">
-            <h3 class="font-extrabold text-sm">${escapeHtml(p.title)}</h3>
-            ${renderStatusBadge(p.status)}
-          </div>
-          <p class="text-xs text-slate-400 mb-3">${escapeHtml(p.description || '')}</p>
-          <div class="flex justify-between text-[11px] text-slate-400">
-            <span>📍 ${escapeHtml(p.city || '')}, ${escapeHtml(p.country || '')}</span>
-            <span>${formatAmount(p.total_budget, p.currency)}</span>
-          </div>
-        </a>
-      `).join('');
+      container.innerHTML = list.map(renderProjectCard).join('');
+
+      // Attache les événements aux boutons
+      document.querySelectorAll('.assign-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const projectId = btn.dataset.projectId;
+          const oldArtisanId = btn.dataset.oldArtisan || null;
+          const select = document.getElementById('artisan-select-' + projectId);
+          const newArtisanId = select ? select.value : '';
+          assignArtisan(projectId, newArtisanId, oldArtisanId, btn);
+        });
+      });
     }
 
+    // ============================================================
+    // ASSIGNATION D'UN ARTISAN
+    // ============================================================
+    async function assignArtisan(projectId, artisanProfileId, oldAssignedId, btn) {
+      // --- Validations ---
+      if (!artisanProfileId) {
+        alert('Veuillez sélectionner un artisan.');
+        return;
+      }
+      if (artisanProfileId === oldAssignedId) {
+        alert('Cet artisan est déjà assigné à ce projet.');
+        return;
+      }
+
+      const artisan = artisansById[artisanProfileId];
+      const artisanName = artisan ? artisan.displayName : 'cet artisan';
+
+      if (!confirm('Confirmer l\'assignation de « ' + artisanName + ' » à ce projet ?')) return;
+
+      // --- UI : désactive le bouton ---
+      btn.disabled = true;
+      const originalLabel = btn.textContent;
+      btn.textContent = 'Assignation...';
+
+      let projectMemberCreated = null;  // pour rollback si besoin
+
+      try {
+        // --------------------------------------------------------
+        // ÉTAPE 1 : Désactiver l'ancien artisan dans project_members
+        // --------------------------------------------------------
+        if (oldAssignedId && oldAssignedId !== artisanProfileId) {
+          try {
+            const oldRows = await apiGet(
+              'project_members',
+              'project_id=eq.' + projectId + '&user_id=eq.' + oldAssignedId + '&is_active=eq.true'
+            );
+            if (Array.isArray(oldRows)) {
+              for (const row of oldRows) {
+                await apiPatch('project_members', row.id, { is_active: false });
+              }
+            }
+          } catch (e) {
+            console.warn('Impossible de désactiver l\'ancien artisan :', e.message);
+          }
+        }
+
+        // --------------------------------------------------------
+        // ÉTAPE 2 : Insérer / réactiver l'artisan dans project_members
+        // --------------------------------------------------------
+        const existingRows = await apiGet(
+          'project_members',
+          'project_id=eq.' + projectId + '&user_id=eq.' + artisanProfileId
+        );
+        const existingList = Array.isArray(existingRows) ? existingRows : [];
+        const activeRow = existingList.find(r => r.is_active === true);
+
+        if (activeRow) {
+          // Déjà actif → rien à faire
+          projectMemberCreated = null;
+        } else if (existingList.length > 0) {
+          // Existe mais inactif → réactiver
+          await apiPatch('project_members', existingList[0].id, {
+            is_active: true,
+            role: 'provider'
+          });
+          projectMemberCreated = null;
+        } else {
+          // Nouveau → créer
+          const created = await apiPost('project_members', {
+            project_id: projectId,
+            user_id: artisanProfileId,
+            role: 'provider',
+            is_active: true
+          });
+          projectMemberCreated = Array.isArray(created) && created[0] ? created[0].id : null;
+        }
+
+        // --------------------------------------------------------
+        // ÉTAPE 3 : Mettre à jour projects.assigned_artisan_id
+        // --------------------------------------------------------
+        await apiPatch('projects', projectId, {
+          assigned_artisan_id: artisanProfileId,
+          updated_at: new Date().toISOString()
+        });
+
+        // --------------------------------------------------------
+        // ÉTAPE 4 : Trace dans audit_log (non bloquant)
+        // --------------------------------------------------------
+        try {
+          await apiPost('audit_log', {
+            actor_id: getCurrentUserId(),
+            action: 'assign_artisan',
+            table_name: 'projects',
+            record_id: projectId,
+            new_data: {
+              assigned_artisan_id: artisanProfileId,
+              previous_assigned_artisan_id: oldAssignedId || null
+            }
+          });
+        } catch (e) {
+          console.warn('Audit non enregistré :', e.message);
+        }
+
+        // --------------------------------------------------------
+        // SUCCÈS
+        // --------------------------------------------------------
+        showSuccess('✅ Artisan assigné avec succès.');
+        await load();  // recharge les projets et les badges
+
+      } catch (err) {
+        // --- ROLLBACK en cas d'erreur ---
+        if (projectMemberCreated) {
+          try {
+            await apiDelete('project_members', projectMemberCreated);
+          } catch (e) {
+            console.warn('Rollback project_members échoué :', e.message);
+          }
+        }
+        showError('Assignation échouée : ' + err.message);
+        btn.disabled = false;
+        btn.textContent = originalLabel;
+      }
+    }
+
+    // ============================================================
+    // STATS
+    // ============================================================
     function updateStats(list) {
       document.getElementById('stat-total').textContent = list.length;
       document.getElementById('stat-active').textContent = list.filter(p => p.status === 'active').length;
@@ -85,23 +361,40 @@
       document.getElementById('stat-done').textContent = list.filter(p => p.status === 'completed').length;
     }
 
+    // ============================================================
+    // CHARGEMENT PRINCIPAL
+    // ============================================================
     async function load() {
       try {
         const data = await apiGet('projects', 'order=created_at.desc');
         allProjects = Array.isArray(data) ? data : [];
       } catch (e) {
         allProjects = [];
+        console.error('Erreur chargement projets :', e);
       }
       render(allProjects);
       updateStats(allProjects);
     }
 
+    // ============================================================
+    // RECHERCHE
+    // ============================================================
     document.getElementById('searchInput').addEventListener('input', (e) => {
-      const q = e.target.value.toLowerCase();
-      render(allProjects.filter(p => p.title.toLowerCase().includes(q)));
+      const q = e.target.value.toLowerCase().trim();
+      if (!q) {
+        render(allProjects);
+        return;
+      }
+      render(allProjects.filter(p => (p.title || '').toLowerCase().includes(q)));
     });
 
-    load();
+    // ============================================================
+    // INIT
+    // ============================================================
+    (async function init() {
+      await loadApprovedArtisans();
+      await load();
+    })();
   </script>
 </body>
 </html>
