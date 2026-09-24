@@ -61,35 +61,52 @@
 
   <script src="config.js"></script>
   <script src="app.js"></script>
-    <script>
+  <script>
     // ============================================================
-    // LISTE DES ADMINS (à completer si plusieurs admins)
+    // FALLBACK TEMPORAIRE POUR LES ADMINS
+    // ------------------------------------------------------------
+    // Si un profil en base n'a PAS encore default_role='admin',
+    // ces emails seront quand même reconnus comme admins.
+    // Une fois que tous les admins ont default_role='admin' dans
+    // la table "profiles", cette liste peut être supprimée.
     // ============================================================
-    const ADMIN_EMAILS = [
+    const ADMIN_EMAILS_FALLBACK = [
       'lowbesta@gmail.com',
       'mnkong123@gmail.com'
     ];
-    // ============================================================
 
+    // ============================================================
+    // Toggle affichage du mot de passe
+    // ============================================================
     document.getElementById('togglePassword').addEventListener('click', function() {
       const input = document.getElementById('password');
       input.type = input.type === 'password' ? 'text' : 'password';
       this.textContent = input.type === 'password' ? '👁️' : '🙈';
     });
 
+    // ============================================================
+    // CONNEXION
+    // ============================================================
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
+
       const email = document.getElementById('email').value.trim().toLowerCase();
       const password = document.getElementById('password').value;
-      if (!email || !password) { alert('Remplis email et mot de passe'); return; }
+
+      if (!email || !password) {
+        alert('Remplis email et mot de passe');
+        return;
+      }
 
       const btn = document.getElementById('btnSubmit');
       const originalText = btn.innerHTML;
       btn.disabled = true;
       btn.textContent = 'Connexion...';
 
-            try {
-        // 1. Authentification Supabase
+      try {
+        // ------------------------------------------------------
+        // ÉTAPE 1 : Authentification Supabase
+        // ------------------------------------------------------
         const res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
           method: 'POST',
           headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
@@ -104,53 +121,76 @@
           return;
         }
 
-        // 2. Stocke les infos de base
+        // ------------------------------------------------------
+        // ÉTAPE 2 : Stocke les infos de session
+        // ------------------------------------------------------
         localStorage.setItem('access_token', data.access_token);
         localStorage.setItem('user_id', data.user.id);
         localStorage.setItem('user_email', data.user.email);
 
-        // 3. Vérification Admin en priorité
-        if (ADMIN_EMAILS.includes(email)) {
-          localStorage.setItem('user_role', 'admin');
-          window.location.href = 'dashboard-admin.html';
-          return;
-        }
-
-        // 4. Interroger la table des profils (ou partnerships) pour connaître le vrai rôle dans la base
-        let userRole = 'investor'; // Par défaut
+        // ------------------------------------------------------
+        // ÉTAPE 3 : Récupère le vrai rôle depuis "profiles"
+        // ------------------------------------------------------
+        let realRole = 'investor';
+        let userName = '';
 
         try {
-          const profileRes = await fetch(SUPABASE_URL + '/rest/v1/partnership_requests?email=eq.' + encodeURIComponent(email) + '&select=status', {
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': 'Bearer ' + data.access_token
+          const profileRes = await fetch(
+            SUPABASE_URL + '/rest/v1/profiles?id=eq.' + data.user.id + '&select=default_role,full_name,email',
+            {
+              headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': 'Bearer ' + data.access_token,
+                'Content-Type': 'application/json'
+              }
             }
-          });
+          );
           const profileData = await profileRes.json();
-          
-          // Si l'e-mail existe dans les demandes approuvées de partenaires/artisans
-          if (Array.isArray(profileData) && profileData.length > 0) {
-            userRole = 'provider';
+
+          if (Array.isArray(profileData) && profileData[0]) {
+            const p = profileData[0];
+            if (p.default_role) realRole = p.default_role;
+            if (p.full_name) userName = p.full_name;
           }
-        } catch (err) {
-          console.log("Vérification rôle alternative...");
+        } catch (profileErr) {
+          console.log('Profil non trouvé, fallback par défaut', profileErr);
         }
 
-        // 5. Redirection finale selon le rôle détecté
-        if (userRole === 'provider') {
-          localStorage.setItem('user_role', 'provider');
+        // ------------------------------------------------------
+        // ÉTAPE 4 : Fallback admin (temporaire)
+        // ------------------------------------------------------
+        if (ADMIN_EMAILS_FALLBACK.includes(email) && realRole !== 'admin') {
+          realRole = 'admin';
+        }
+
+        // ------------------------------------------------------
+        // ÉTAPE 5 : Si pas de nom, on dérive depuis l'email
+        // ------------------------------------------------------
+        if (!userName) {
+          userName = email.split('@')[0];
+        }
+
+        // ------------------------------------------------------
+        // ÉTAPE 6 : Stockage final + redirection selon rôle
+        // ------------------------------------------------------
+        localStorage.setItem('user_role', realRole);
+        localStorage.setItem('user_name', userName);
+
+        // Redirection intelligente
+        if (realRole === 'admin') {
+          window.location.href = 'dashboard-admin.html';
+        } else if (realRole === 'provider' || realRole === 'project_manager') {
           window.location.href = 'dashboard-artisan.html';
         } else {
-          localStorage.setItem('user_role', 'investor');
           window.location.href = 'dashboard-investisseur.html';
         }
 
       } catch (err) {
-        alert('Erreur reseau : ' + err.message);
+        alert('Erreur réseau : ' + err.message);
         btn.disabled = false;
         btn.innerHTML = originalText;
-            }
+      }
     });
-    </script>
+  </script>
 </body>
 </html>
