@@ -38,7 +38,6 @@
       </div>
     </section>
 
-    <!-- Informations foncières (intégrées proprement dans la description) -->
     <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
       <h2 class="text-sm font-bold">Informations foncières</h2>
       <div>
@@ -121,13 +120,41 @@
   <script>
     document.getElementById('startDate').valueAsDate = new Date();
 
-    // Jalons par défaut insérés automatiquement à la création du projet
+    // ============================================================
+    // JALONS STANDARDS avec % de référence
+    // Ces 5 jalons sont créés automatiquement à chaque nouveau projet
+    // ============================================================
     const DEFAULT_MILESTONES = [
-      { title: 'Étude et planification',        description: 'Analyse du besoin, études techniques et validation du plan.' },
-      { title: 'Mobilisation et préparation',   description: 'Préparation du site, approvisionnement et installation du chantier.' },
-      { title: 'Fondations et gros œuvre',      description: 'Terrassement, fondations, élévation des murs et structure.' },
-      { title: 'Second œuvre et finitions',     description: 'Électricité, plomberie, peinture et finitions intérieures/extérieures.' },
-      { title: 'Réception et livraison',        description: 'Contrôle qualité, levée des réserves et remise des clés.' }
+      {
+        title: 'Études, Implantation et Terrassement',
+        description: 'Validation des plans d\'exécution, piquetage du terrain, nettoyage et premiers mouvements de terre.',
+        standard_percent: 10,
+        order_index: 1
+      },
+      {
+        title: 'Fondation et Élévation des Murs',
+        description: 'Coulage de la fondation, soubassement et élévation des murs principaux du gros œuvre.',
+        standard_percent: 25,
+        order_index: 2
+      },
+      {
+        title: 'Dalle / Charpente et Toiture',
+        description: 'Coulage de la dalle haute (le cas échéant) ou pose de la charpente et installation complète de la couverture de toiture.',
+        standard_percent: 25,
+        order_index: 3
+      },
+      {
+        title: 'Second Œuvre et Cloisons',
+        description: 'Pose des menuiseries (portes et fenêtres), cloisons intérieures, et passage des gaines techniques (électricité et plomberie).',
+        standard_percent: 20,
+        order_index: 4
+      },
+      {
+        title: 'Finitions, Peinture et Remise des Clés',
+        description: 'Enduits, carrelage, peintures intérieures et extérieures, installation des équipements sanitaires et réception définitive du chantier.',
+        standard_percent: 20,
+        order_index: 5
+      }
     ];
 
     document.getElementById('btn-create').addEventListener('click', async () => {
@@ -156,13 +183,13 @@
       if (!rawDescription) { alert('Entrez une description'); return; }
       if (!budget || budget <= 0) { alert('Entrez un budget valide'); return; }
 
-      // Construction de la description enrichie avec les infos foncières
+      // Description enrichie
       let finalDescription = rawDescription;
       let extraInfo = [];
       if (landTitle) extraInfo.push(`Titre foncier : ${landTitle}`);
       if (area) extraInfo.push(`Superficie : ${area} m²`);
       if (locationDetail) extraInfo.push(`Zone / Localisation : ${locationDetail}`);
-      
+
       if (extraInfo.length > 0) {
         finalDescription += "\n\n--- Informations Foncier ---\n" + extraInfo.join(" | ");
       }
@@ -203,14 +230,26 @@
         const created = await res.json();
         const projectId = Array.isArray(created) ? created[0]?.id : created?.id;
 
-        // 2) Insertion automatique des 5 jalons par défaut (sans le champ order)
+        // ============================================================
+        // 2) Insertion des 5 jalons standards avec TOUS les champs
+        // ============================================================
         if (projectId) {
-          const milestonesPayload = DEFAULT_MILESTONES.map((m) => ({
-            project_id: projectId,
-            title: m.title,
-            description: m.description,
-            status: 'pending'
-          }));
+          const milestonesPayload = DEFAULT_MILESTONES.map((m) => {
+            const amount = Math.round(budget * m.standard_percent / 100);
+            return {
+              project_id: projectId,
+              title: m.title,
+              description: m.description,
+              order_index: m.order_index,
+              standard_percent: m.standard_percent,
+              budget_percent: m.standard_percent,
+              amount: amount,
+              currency: currency,
+              status: 'pending',
+              proposal_status: 'pending',
+              required_evidence: null
+            };
+          });
 
           const resM = await fetch(SUPABASE_URL + '/rest/v1/milestones', {
             method: 'POST',
@@ -226,7 +265,7 @@
           }
         }
 
-        alert('Projet créé avec succès !');
+        alert('✅ Projet créé avec succès !\n\nLes 5 jalons standards ont été générés automatiquement.');
         window.location.href = 'projets.html';
 
       } catch (e) {
