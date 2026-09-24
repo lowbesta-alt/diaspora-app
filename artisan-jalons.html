@@ -19,7 +19,7 @@
     <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
       <span class="text-amber-400 text-xl flex-shrink-0">🛡️</span>
       <p class="text-xs text-amber-200 leading-relaxed">
-        Les <strong>5 jalons standards</strong> sont pré-chargés. Attribuez un <strong>pourcentage de budget</strong> à chaque jalon. Le total doit être de <strong>100%</strong>. Vous pouvez ajuster les titres, ajouter ou supprimer des jalons.
+        Les <strong>5 jalons standards</strong> avec leurs <strong>pourcentages de référence</strong> sont pré-chargés. Vous pouvez les ajuster selon les spécificités du chantier, mais le total doit être de <strong>100%</strong>.
       </p>
     </div>
 
@@ -43,7 +43,7 @@
       </div>
 
       <div class="flex justify-between items-center mb-3">
-        <p class="text-xs text-slate-400">Attribuez un % de budget à chaque jalon</p>
+        <p class="text-xs text-slate-400">Ajustez si nécessaire</p>
         <span id="total-percent" class="text-xs bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full font-bold">0%</span>
       </div>
 
@@ -83,11 +83,47 @@
     if (!requireRole(['provider', 'project_manager'])) throw new Error('Not allowed');
 
     const userId = getCurrentUserId();
-    let items = [];                // jalons actuels (existants + nouveaux)
-    let originalIds = [];          // IDs des jalons qui existaient déjà
+    let items = [];
+    let originalIds = [];
     let selectedProjectId = null;
     let projectBudget = 0;
     let projectCurrency = 'XAF';
+
+    // ============================================================
+    // JALONS STANDARDS (avec % de référence BTP mondial)
+    // ============================================================
+    const STANDARD_MILESTONES = [
+      {
+        title: 'Études, Implantation et Terrassement',
+        detailed_description: 'Validation des plans d\'exécution, piquetage du terrain, nettoyage et premiers mouvements de terre.',
+        budget_percent: 10,
+        required_evidence: ''
+      },
+      {
+        title: 'Fondation et Élévation des Murs',
+        detailed_description: 'Coulage de la fondation, soubassement et élévation des murs principaux du gros œuvre.',
+        budget_percent: 25,
+        required_evidence: ''
+      },
+      {
+        title: 'Dalle / Charpente et Toiture',
+        detailed_description: 'Coulage de la dalle haute (le cas échéant) ou pose de la charpente et installation complète de la couverture de toiture.',
+        budget_percent: 25,
+        required_evidence: ''
+      },
+      {
+        title: 'Second Œuvre et Cloisons',
+        detailed_description: 'Pose des menuiseries (portes et fenêtres), cloisons intérieures, et passage des gaines techniques (électricité et plomberie).',
+        budget_percent: 20,
+        required_evidence: ''
+      },
+      {
+        title: 'Finitions, Peinture et Remise des Clés',
+        detailed_description: 'Enduits, carrelage, peintures intérieures et extérieures, installation des équipements sanitaires et réception définitive du chantier.',
+        budget_percent: 20,
+        required_evidence: ''
+      }
+    ];
 
     // ============================================================
     // CHARGEMENT DES PROJETS
@@ -142,24 +178,27 @@
         const valid = Array.isArray(existing) ? existing : [];
 
         if (valid.length > 0) {
-          items = valid.map(m => ({
-            id: m.id,
-            title: m.title || '',
-            detailed_description: m.description || '',
-            budget_percent: m.budget_percent || 0,
-            required_evidence: m.required_evidence || '',
-            _existing: true
-          }));
+          // Jalons déjà en base → on les charge
+          // Si le budget_percent n'est pas défini, on applique le standard par ordre
+          items = valid.map((m, idx) => {
+            let percent = Number(m.budget_percent) || 0;
+            // Si percent = 0, on applique le standard selon l'index
+            if (percent === 0 && STANDARD_MILESTONES[idx]) {
+              percent = STANDARD_MILESTONES[idx].budget_percent;
+            }
+            return {
+              id: m.id,
+              title: m.title || '',
+              detailed_description: m.description || '',
+              budget_percent: percent,
+              required_evidence: m.required_evidence || '',
+              _existing: true
+            };
+          });
           originalIds = valid.map(m => m.id);
         } else {
-          // Aucun jalon → proposer les 5 standards en partant de zéro
-          items = [
-            { title: 'Études, Implantation et Terrassement', detailed_description: 'Validation des plans d\'exécution, piquetage du terrain, nettoyage et premiers mouvements de terre.', budget_percent: 0, required_evidence: '' },
-            { title: 'Fondation et Élévation des Murs', detailed_description: 'Coulage de la fondation, soubassement et élévation des murs principaux du gros œuvre.', budget_percent: 0, required_evidence: '' },
-            { title: 'Dalle / Charpente et Toiture', detailed_description: 'Coulage de la dalle haute (le cas échéant) ou pose de la charpente et installation complète de la couverture de toiture.', budget_percent: 0, required_evidence: '' },
-            { title: 'Second Œuvre et Cloisons', detailed_description: 'Pose des menuiseries (portes et fenêtres), cloisons intérieures, et passage des gaines techniques (électricité et plomberie).', budget_percent: 0, required_evidence: '' },
-            { title: 'Finitions, Peinture et Remise des Clés', detailed_description: 'Enduits, carrelage, peintures intérieures et extérieures, installation des équipements sanitaires et réception définitive du chantier.', budget_percent: 0, required_evidence: '' }
-          ];
+          // Aucun jalon → on charge les 5 standards avec leurs %
+          items = STANDARD_MILESTONES.map(m => ({ ...m }));
         }
 
         renderItems();
@@ -186,7 +225,7 @@
       container.innerHTML = items.map((it, idx) => {
         const amount = projectBudget * (Number(it.budget_percent) || 0) / 100;
         return `
-        <div class="bg-slate-900/50 rounded-xl p-3 space-y-2">
+        <div class="bg-slate-900/50 rounded-xl p-3 space-y-2" data-item-idx="${idx}">
           <div class="flex justify-between items-center">
             <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">#${idx + 1}</span>
             <button type="button" class="remove-item text-red-400 text-xs" data-idx="${idx}">✕ Supprimer</button>
@@ -203,7 +242,7 @@
             </div>
             <div>
               <label class="text-[9px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Montant estimé</label>
-              <div class="w-full px-3 py-2 rounded-lg bg-slate-800/30 border border-white/5 text-amber-300 text-xs font-bold">
+              <div class="amount-display w-full px-3 py-2 rounded-lg bg-slate-800/30 border border-white/5 text-amber-300 text-xs font-bold">
                 ${formatAmount(Math.round(amount), projectCurrency)}
               </div>
             </div>
@@ -219,12 +258,17 @@
       });
       document.querySelectorAll('.item-percent').forEach(inp => {
         inp.addEventListener('input', () => {
-          items[inp.dataset.idx].budget_percent = parseFloat(inp.value) || 0;
+          const idx = parseInt(inp.dataset.idx);
+          items[idx].budget_percent = parseFloat(inp.value) || 0;
           updateTotalPercent();
+
           // Met à jour le montant affiché
           const amount = projectBudget * (Number(inp.value) || 0) / 100;
-          const amountEl = inp.closest('div').parentElement.querySelector('.grid-cols-2 > div:last-child > div');
-          if (amountEl) amountEl.textContent = formatAmount(Math.round(amount), projectCurrency);
+          const card = document.querySelector('[data-item-idx="' + idx + '"]');
+          if (card) {
+            const amountEl = card.querySelector('.amount-display');
+            if (amountEl) amountEl.textContent = formatAmount(Math.round(amount), projectCurrency);
+          }
         });
       });
       document.querySelectorAll('.remove-item').forEach(btn => {
@@ -305,10 +349,8 @@
           };
 
           if (it.id) {
-            // Mise à jour
             await apiPatch('milestones', it.id, data);
           } else {
-            // Création
             await apiPost('milestones', data);
           }
         }
