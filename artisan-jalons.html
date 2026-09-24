@@ -19,11 +19,10 @@
     <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
       <span class="text-amber-400 text-xl flex-shrink-0">🛡️</span>
       <p class="text-xs text-amber-200 leading-relaxed">
-        Les <strong>5 jalons standards</strong> avec leurs <strong>pourcentages de référence</strong> sont pré-chargés. Vous pouvez les ajuster selon les spécificités du chantier, mais le total doit être de <strong>100%</strong>.
+        Les <strong>5 jalons standards</strong> avec leurs <strong>pourcentages de référence</strong> sont pré-chargés. Si vous modifiez un pourcentage, un <strong>avertissement rouge</strong> s'affichera et l'écart sera signalé à l'administrateur.
       </p>
     </div>
 
-    <!-- ÉTAPE 1 : Chantier -->
     <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-3">
       <div class="flex items-center gap-3 mb-2">
         <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xs font-bold">1</div>
@@ -35,7 +34,6 @@
       <p class="text-[10px] text-slate-500">Seuls les chantiers où vous êtes assigné apparaissent ici.</p>
     </section>
 
-    <!-- ÉTAPE 2 : Jalons -->
     <section id="items-section" class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-3 hidden">
       <div class="flex items-center gap-3 mb-2">
         <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xs font-bold">2</div>
@@ -54,13 +52,12 @@
       </button>
     </section>
 
-    <!-- ÉTAPE 3 : Notes + Submit -->
     <section id="submit-section" class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-3 hidden">
       <div class="flex items-center gap-3 mb-2">
         <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xs font-bold">3</div>
         <h2 class="text-sm font-extrabold text-amber-300 uppercase tracking-wider">Note pour l'administrateur (optionnel)</h2>
       </div>
-      <textarea id="proposal-notes" rows="3" placeholder="Ex : Le client souhaite une piscine, j'ai ajouté un jalon spécifique." class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm transition resize-none"></textarea>
+      <textarea id="proposal-notes" rows="3" placeholder="Ex : Terrain difficile, j'ai ajusté le % du jalon 1." class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm transition resize-none"></textarea>
 
       <button id="btn-submit" class="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-[#0a1838] font-extrabold py-4 rounded-xl text-sm tracking-wide shadow-lg shadow-amber-500/40 transition">
         📤 Proposer ce découpage à l'administrateur
@@ -89,45 +86,14 @@
     let projectBudget = 0;
     let projectCurrency = 'XAF';
 
-    // ============================================================
-    // JALONS STANDARDS (avec % de référence BTP mondial)
-    // ============================================================
     const STANDARD_MILESTONES = [
-      {
-        title: 'Études, Implantation et Terrassement',
-        detailed_description: 'Validation des plans d\'exécution, piquetage du terrain, nettoyage et premiers mouvements de terre.',
-        budget_percent: 10,
-        required_evidence: ''
-      },
-      {
-        title: 'Fondation et Élévation des Murs',
-        detailed_description: 'Coulage de la fondation, soubassement et élévation des murs principaux du gros œuvre.',
-        budget_percent: 25,
-        required_evidence: ''
-      },
-      {
-        title: 'Dalle / Charpente et Toiture',
-        detailed_description: 'Coulage de la dalle haute (le cas échéant) ou pose de la charpente et installation complète de la couverture de toiture.',
-        budget_percent: 25,
-        required_evidence: ''
-      },
-      {
-        title: 'Second Œuvre et Cloisons',
-        detailed_description: 'Pose des menuiseries (portes et fenêtres), cloisons intérieures, et passage des gaines techniques (électricité et plomberie).',
-        budget_percent: 20,
-        required_evidence: ''
-      },
-      {
-        title: 'Finitions, Peinture et Remise des Clés',
-        detailed_description: 'Enduits, carrelage, peintures intérieures et extérieures, installation des équipements sanitaires et réception définitive du chantier.',
-        budget_percent: 20,
-        required_evidence: ''
-      }
+      { title: 'Études, Implantation et Terrassement', detailed_description: 'Validation des plans d\'exécution, piquetage du terrain, nettoyage et premiers mouvements de terre.', standard_percent: 10, required_evidence: '' },
+      { title: 'Fondation et Élévation des Murs', detailed_description: 'Coulage de la fondation, soubassement et élévation des murs principaux du gros œuvre.', standard_percent: 25, required_evidence: '' },
+      { title: 'Dalle / Charpente et Toiture', detailed_description: 'Coulage de la dalle haute (le cas échéant) ou pose de la charpente et installation complète de la couverture de toiture.', standard_percent: 25, required_evidence: '' },
+      { title: 'Second Œuvre et Cloisons', detailed_description: 'Pose des menuiseries (portes et fenêtres), cloisons intérieures, et passage des gaines techniques (électricité et plomberie).', standard_percent: 20, required_evidence: '' },
+      { title: 'Finitions, Peinture et Remise des Clés', detailed_description: 'Enduits, carrelage, peintures intérieures et extérieures, installation des équipements sanitaires et réception définitive du chantier.', standard_percent: 20, required_evidence: '' }
     ];
 
-    // ============================================================
-    // CHARGEMENT DES PROJETS
-    // ============================================================
     async function loadProjects() {
       const select = document.getElementById('project');
       try {
@@ -150,12 +116,8 @@
       }
     }
 
-    // ============================================================
-    // CHARGEMENT DU PROJET + JALONS EXISTANTS
-    // ============================================================
     document.getElementById('project').addEventListener('change', async (e) => {
       selectedProjectId = e.target.value;
-
       document.getElementById('items-section').classList.add('hidden');
       document.getElementById('submit-section').classList.add('hidden');
       items = [];
@@ -163,7 +125,6 @@
 
       if (!selectedProjectId) return;
 
-      // Charge le budget du projet
       try {
         const p = await apiGet('projects', 'id=eq.' + selectedProjectId);
         if (Array.isArray(p) && p[0]) {
@@ -172,33 +133,35 @@
         }
       } catch (e) {}
 
-      // Charge les jalons existants
       try {
         const existing = await apiGet('milestones', 'project_id=eq.' + selectedProjectId + '&order=order_index');
         const valid = Array.isArray(existing) ? existing : [];
 
         if (valid.length > 0) {
-          // Jalons déjà en base → on les charge
-          // Si le budget_percent n'est pas défini, on applique le standard par ordre
           items = valid.map((m, idx) => {
-            let percent = Number(m.budget_percent) || 0;
-            // Si percent = 0, on applique le standard selon l'index
-            if (percent === 0 && STANDARD_MILESTONES[idx]) {
-              percent = STANDARD_MILESTONES[idx].budget_percent;
-            }
+            const standard = Number(m.standard_percent) || (STANDARD_MILESTONES[idx] ? STANDARD_MILESTONES[idx].standard_percent : 0);
+            const current = m.budget_percent !== null && m.budget_percent !== undefined
+              ? Number(m.budget_percent)
+              : standard;
             return {
               id: m.id,
               title: m.title || '',
               detailed_description: m.description || '',
-              budget_percent: percent,
+              budget_percent: current,
+              standard_percent: standard,
               required_evidence: m.required_evidence || '',
               _existing: true
             };
           });
           originalIds = valid.map(m => m.id);
         } else {
-          // Aucun jalon → on charge les 5 standards avec leurs %
-          items = STANDARD_MILESTONES.map(m => ({ ...m }));
+          items = STANDARD_MILESTONES.map(m => ({
+            title: m.title,
+            detailed_description: m.detailed_description,
+            budget_percent: m.standard_percent,
+            standard_percent: m.standard_percent,
+            required_evidence: ''
+          }));
         }
 
         renderItems();
@@ -210,9 +173,6 @@
       }
     });
 
-    // ============================================================
-    // AFFICHAGE DES JALONS
-    // ============================================================
     function renderItems() {
       const container = document.getElementById('items-list');
 
@@ -225,10 +185,13 @@
       container.innerHTML = items.map((it, idx) => {
         const amount = projectBudget * (Number(it.budget_percent) || 0) / 100;
         return `
-        <div class="bg-slate-900/50 rounded-xl p-3 space-y-2" data-item-idx="${idx}">
+        <div class="rounded-xl p-3 space-y-2 border border-white/10 bg-slate-900/50" data-item-idx="${idx}">
           <div class="flex justify-between items-center">
             <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">#${idx + 1}</span>
-            <button type="button" class="remove-item text-red-400 text-xs" data-idx="${idx}">✕ Supprimer</button>
+            <div class="flex items-center gap-2">
+              <span class="badge-container"></span>
+              <button type="button" class="remove-item text-red-400 text-xs" data-idx="${idx}">✕ Supprimer</button>
+            </div>
           </div>
 
           <input type="text" class="item-title w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition" value="${escapeHtml(it.title || '')}" data-idx="${idx}" placeholder="Titre du jalon">
@@ -237,7 +200,9 @@
 
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="text-[9px] text-slate-400 uppercase tracking-wider font-bold block mb-1">% Budget</label>
+              <label class="text-[9px] text-slate-400 uppercase tracking-wider font-bold block mb-1">
+                % Budget ${it.standard_percent > 0 ? `<span class="text-slate-500">(std: ${it.standard_percent}%)</span>` : ''}
+              </label>
               <input type="number" class="item-percent w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition" value="${it.budget_percent || ''}" data-idx="${idx}" min="0" max="100" step="1">
             </div>
             <div>
@@ -247,9 +212,12 @@
               </div>
             </div>
           </div>
+
+          <div class="trace-container"></div>
         </div>
       `}).join('');
 
+      // Attache les événements
       document.querySelectorAll('.item-title').forEach(inp => {
         inp.addEventListener('input', () => { items[inp.dataset.idx].title = inp.value; });
       });
@@ -261,14 +229,7 @@
           const idx = parseInt(inp.dataset.idx);
           items[idx].budget_percent = parseFloat(inp.value) || 0;
           updateTotalPercent();
-
-          // Met à jour le montant affiché
-          const amount = projectBudget * (Number(inp.value) || 0) / 100;
-          const card = document.querySelector('[data-item-idx="' + idx + '"]');
-          if (card) {
-            const amountEl = card.querySelector('.amount-display');
-            if (amountEl) amountEl.textContent = formatAmount(Math.round(amount), projectCurrency);
-          }
+          updateCardVisuals(idx);
         });
       });
       document.querySelectorAll('.remove-item').forEach(btn => {
@@ -280,6 +241,79 @@
       });
 
       updateTotalPercent();
+      // Applique l'état visuel initial (au cas où certains sont déjà modifiés)
+      items.forEach((_, idx) => updateCardVisuals(idx));
+    }
+
+    // ============================================================
+    // MET À JOUR L'ASPECT VISUEL D'UNE CARTE (sans re-render)
+    // ============================================================
+    function updateCardVisuals(idx) {
+      const it = items[idx];
+      const card = document.querySelector('[data-item-idx="' + idx + '"]');
+      if (!card) return;
+
+      const standardPct = Number(it.standard_percent) || 0;
+      const currentPct = Number(it.budget_percent) || 0;
+      const isModified = standardPct > 0 && currentPct !== standardPct;
+      const diff = currentPct - standardPct;
+
+      const inp = card.querySelector('.item-percent');
+      const badgeContainer = card.querySelector('.badge-container');
+      const traceContainer = card.querySelector('.trace-container');
+
+      // Mise à jour du montant
+      const amount = projectBudget * currentPct / 100;
+      const amountEl = card.querySelector('.amount-display');
+      if (amountEl) amountEl.textContent = formatAmount(Math.round(amount), projectCurrency);
+
+      // Bordure de la carte
+      if (isModified) {
+        card.classList.remove('border-white/10', 'bg-slate-900/50');
+        card.classList.add('border-red-500/60', 'bg-red-950/20');
+      } else {
+        card.classList.remove('border-red-500/60', 'bg-red-950/20');
+        card.classList.add('border-white/10', 'bg-slate-900/50');
+      }
+
+      // Champ % : rouge si modifié
+      if (inp) {
+        if (isModified) {
+          inp.classList.remove('bg-slate-800/50', 'border-white/10', 'text-white');
+          inp.classList.add('bg-red-950/40', 'border-red-500/60', 'text-red-200');
+        } else {
+          inp.classList.remove('bg-red-950/40', 'border-red-500/60', 'text-red-200');
+          inp.classList.add('bg-slate-800/50', 'border-white/10', 'text-white');
+        }
+      }
+
+      // Badge MODIFIÉ
+      if (badgeContainer) {
+        badgeContainer.innerHTML = isModified
+          ? '<span class="text-[9px] bg-red-500/30 text-red-200 px-2 py-0.5 rounded-full font-bold">⚠️ MODIFIÉ</span>'
+          : '';
+      }
+
+      // Bloc de traçabilité
+      if (traceContainer) {
+        if (isModified) {
+          traceContainer.innerHTML = `
+            <div class="mt-2 bg-red-500/10 border border-red-500/40 rounded-lg p-2 space-y-1">
+              <p class="text-[10px] text-red-300 font-bold leading-tight">⚠️ Écart au standard</p>
+              <div class="flex justify-between text-[10px] text-red-200">
+                <span>Standard : <strong>${standardPct}%</strong></span>
+                <span>Votre valeur : <strong>${currentPct}%</strong></span>
+              </div>
+              <div class="flex justify-between text-[10px] text-red-300">
+                <span>Écart : <strong>${diff > 0 ? '+' : ''}${diff} pts</strong></span>
+                <span>${formatAmount(Math.abs(Math.round(projectBudget * diff / 100)), projectCurrency)}</span>
+              </div>
+            </div>
+          `;
+        } else {
+          traceContainer.innerHTML = '';
+        }
+      }
     }
 
     function updateTotalPercent() {
@@ -294,13 +328,10 @@
     }
 
     document.getElementById('btn-add-item').addEventListener('click', () => {
-      items.push({ title: '', detailed_description: '', budget_percent: 0, required_evidence: '' });
+      items.push({ title: '', detailed_description: '', budget_percent: 0, standard_percent: 0, required_evidence: '' });
       renderItems();
     });
 
-    // ============================================================
-    // SOUMISSION
-    // ============================================================
     document.getElementById('btn-submit').addEventListener('click', async () => {
       if (!selectedProjectId) { alert('Sélectionnez un chantier'); return; }
       if (items.length === 0) { alert('Aucun jalon à proposer'); return; }
@@ -313,16 +344,30 @@
         return;
       }
 
-      const notes = document.getElementById('proposal-notes').value.trim();
+      const modified = items.filter(it => {
+        const s = Number(it.standard_percent) || 0;
+        const c = Number(it.budget_percent) || 0;
+        return s > 0 && c !== s;
+      });
 
-      if (!confirm('Proposer ce découpage à l\'administrateur ?\n\n' + items.length + ' jalon(s) · Total 100%')) return;
+      let confirmMsg = 'Proposer ce découpage à l\'administrateur ?\n\n' + items.length + ' jalon(s) · Total 100%';
+      if (modified.length > 0) {
+        confirmMsg += '\n\n⚠️ ' + modified.length + ' jalon(s) s\'écartent du standard :\n';
+        modified.forEach(m => {
+          confirmMsg += '• ' + m.title.substring(0, 30) + '... : ' + m.standard_percent + '% → ' + m.budget_percent + '%\n';
+        });
+        confirmMsg += '\nCes écarts seront signalés à l\'administrateur.';
+      }
+
+      if (!confirm(confirmMsg)) return;
+
+      const notes = document.getElementById('proposal-notes').value.trim();
 
       const btn = document.getElementById('btn-submit');
       btn.disabled = true;
       btn.textContent = 'Envoi en cours...';
 
       try {
-        // 1. Supprimer les jalons retirés
         const currentIds = items.filter(it => it.id).map(it => it.id);
         for (const oldId of originalIds) {
           if (!currentIds.includes(oldId)) {
@@ -330,7 +375,6 @@
           }
         }
 
-        // 2. Mettre à jour ou créer
         for (let i = 0; i < items.length; i++) {
           const it = items[i];
           const amount = Math.round(projectBudget * (Number(it.budget_percent) || 0) / 100);
@@ -345,7 +389,9 @@
             status: 'pending',
             proposed_by: userId,
             proposal_status: 'pending',
-            proposal_notes: i === 0 ? notes : null
+            proposal_notes: i === 0 ? notes : null,
+            standard_percent: Number(it.standard_percent) || null,
+            budget_percent: Number(it.budget_percent) || 0
           };
 
           if (it.id) {
