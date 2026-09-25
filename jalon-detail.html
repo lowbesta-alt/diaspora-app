@@ -26,7 +26,6 @@
       <p id="jalon-date" class="text-xs text-slate-400"></p>
     </section>
 
-    <!-- ACTIONS INVESTISSEUR (statut submitted) -->
     <section id="actions-investor" class="space-y-2 hidden">
       <button id="btn-approve" class="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 py-3 rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/30">
         ✅ Valider le jalon
@@ -36,7 +35,6 @@
       </button>
     </section>
 
-    <!-- ACTION DEBLOCAGE (statut approved) -->
     <section id="actions-release" class="hidden">
       <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 mb-3">
         <p class="text-xs text-emerald-200 leading-relaxed">
@@ -44,11 +42,10 @@
         </p>
       </div>
       <button id="btn-release" class="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-[#0a1838] py-4 rounded-xl font-extrabold text-sm shadow-lg shadow-amber-500/40">
-        💰 Débloquer les fonds (300 000 XAF)
+        💰 Débloquer les fonds
       </button>
     </section>
 
-    <!-- ACTIONS CHEF DE CHANTIER -->
     <section id="actions-pm" class="hidden">
       <button id="btn-submit" class="w-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 py-3 rounded-xl font-bold text-sm">
         📸 Soumettre de nouvelles preuves
@@ -84,6 +81,27 @@
 
     let currentMilestone = null;
     let projectOwnerId = null;
+    let currentProject = null;
+
+    // ============================================================
+    // Crée une notification pour un utilisateur
+    // ============================================================
+    async function notifyUser(userId, type, title, message, link, projectId, milestoneId) {
+      if (!userId) return;
+      try {
+        await apiPost('notifications', {
+          user_id: userId,
+          type: type,
+          title: title,
+          message: message,
+          link: link,
+          project_id: projectId || null,
+          milestone_id: milestoneId || null
+        });
+      } catch (e) {
+        console.warn('Notification non envoyée :', e.message);
+      }
+    }
 
     async function loadMilestone() {
       try {
@@ -105,9 +123,11 @@
 
         document.getElementById('btn-back').href = 'jalons.html?id=' + m.project_id;
 
+        // Récupère le projet
         try {
           const projData = await apiGet('projects', 'id=eq.' + m.project_id);
           if (Array.isArray(projData) && projData[0]) {
+            currentProject = projData[0];
             projectOwnerId = projData[0].owner_id;
           }
         } catch (e) {}
@@ -199,16 +219,72 @@
 
         // 3. Met à jour le budget dépensé du projet
         try {
-          const proj = await apiGet('projects', 'id=eq.' + currentMilestone.project_id);
-          if (Array.isArray(proj) && proj[0]) {
-            const spent = Number(proj[0].spent_budget) || 0;
+          if (currentProject) {
+            const spent = Number(currentProject.spent_budget) || 0;
             await apiPatch('projects', currentMilestone.project_id, {
               spent_budget: spent + amount
             });
           }
         } catch (e) {}
 
-        showSuccess('Fonds débloqués ! ' + amount.toLocaleString('fr-FR') + ' ' + currency);
+        // ============================================================
+        // 4. NOTIFICATIONS
+        // ============================================================
+
+        // 4a. Notifier l'artisan assigné au projet
+        try {
+          const artisanId = currentProject ? currentProject.assigned_artisan_id : null;
+          if (artisanId) {
+            await notifyUser(
+              artisanId,
+              'payment_received',
+              '💰 Paiement reçu : ' + amount.toLocaleString('fr-FR') + ' ' + currency,
+              'Le client a débloqué les fonds pour le jalon "' + currentMilestone.title + '" du projet "' + (currentProject.title || '') + '".',
+              'jalon-detail.html?id=' + currentMilestone.id,
+              currentMilestone.project_id,
+              currentMilestone.id
+            );
+          }
+        } catch (e) {
+          console.warn('Notif artisan échouée:', e);
+        }
+
+        // 4b. Notifier tous les admins
+        try {
+          const admins = await apiGet('profiles', 'default_role=eq.admin');
+          if (Array.isArray(admins)) {
+            for (const admin of admins) {
+              await notifyUser(
+                admin.id,
+                'payment_released',
+                '💰 Déblocage : ' + amount.toLocaleString('fr-FR') + ' ' + currency,
+                'Le client a débloqué les fonds sur le jalon "' + currentMilestone.title + '" du projet "' + (currentProject.title || '') + '".',
+                'admin-chantiers.html',
+                currentMilestone.project_id,
+                currentMilestone.id
+              );
+            }
+          }
+        } catch (e) {
+          console.warn('Notif admin échouée:', e);
+        }
+
+        // 5. Trace dans audit_log
+        try {
+          await apiPost('audit_log', {
+            actor_id: getCurrentUserId(),
+            action: 'milestone_released',
+            table_name: 'milestones',
+            record_id: milestoneId,
+            new_data: {
+              amount: amount,
+              currency: currency,
+              title: currentMilestone.title
+            }
+          });
+        } catch (e) {}
+
+        showSuccess('💰 Fonds débloqués ! ' + amount.toLocaleString('fr-FR') + ' ' + currency);
         location.reload();
       } catch (e) {
         showError(e.message);
