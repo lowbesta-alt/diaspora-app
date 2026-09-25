@@ -120,10 +120,6 @@
   <script>
     document.getElementById('startDate').valueAsDate = new Date();
 
-    // ============================================================
-    // JALONS STANDARDS avec % de référence
-    // Ces 5 jalons sont créés automatiquement à chaque nouveau projet
-    // ============================================================
     const DEFAULT_MILESTONES = [
       {
         title: 'Études, Implantation et Terrassement',
@@ -183,7 +179,6 @@
       if (!rawDescription) { alert('Entrez une description'); return; }
       if (!budget || budget <= 0) { alert('Entrez un budget valide'); return; }
 
-      // Description enrichie
       let finalDescription = rawDescription;
       let extraInfo = [];
       if (landTitle) extraInfo.push(`Titre foncier : ${landTitle}`);
@@ -231,7 +226,8 @@
         const projectId = Array.isArray(created) ? created[0]?.id : created?.id;
 
         // ============================================================
-        // 2) Insertion des 5 jalons standards avec TOUS les champs
+        // 2) Insertion des 5 jalons standards
+        // NOTE : required_evidence RETIRÉ (colonne inexistante)
         // ============================================================
         if (projectId) {
           const milestonesPayload = DEFAULT_MILESTONES.map((m) => {
@@ -246,8 +242,7 @@
               amount: amount,
               currency: currency,
               status: 'pending',
-              proposal_status: 'pending',
-              required_evidence: null
+              proposal_status: 'pending'
             };
           });
 
