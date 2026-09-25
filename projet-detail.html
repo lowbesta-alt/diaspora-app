@@ -119,7 +119,7 @@
     document.getElementById('btn-add-milestone').href = 'jalon-creer.html?id=' + projectId;
     document.getElementById('btn-docs').href = 'documents.html?id=' + projectId;
 
-    // Le bouton "+" n'est visible que pour l'admin (les clients et artisans ne créent pas de jalons ici)
+    // Le bouton "+" n'est visible que pour l'admin
     if (getCurrentUserRole() === 'admin') {
       document.getElementById('btn-add-milestone').classList.remove('hidden');
     }
@@ -199,29 +199,73 @@
       }
     }
 
+    // ============================================================
+    // JALONS — Visibilité selon le rôle
+    // - Client (investor) : voit uniquement les jalons validés
+    // - Admin / Artisan : voit tous les jalons
+    // ============================================================
     async function loadMilestones() {
       const list = document.getElementById('milestones-list');
+      const role = getCurrentUserRole();
+      const isClient = (role === 'investor');
+
       try {
-        const data = await apiGet('milestones', 'project_id=eq.' + projectId + '&order=order_index');
+        let params = 'project_id=eq.' + projectId + '&order=order_index';
+        if (isClient) {
+          params += '&proposal_status=eq.validated';
+        }
+
+        const data = await apiGet('milestones', params);
         const valid = Array.isArray(data) ? data : [];
 
-        // Aucun jalon : message d'attente
+        // Aucun jalon à afficher
         if (valid.length === 0) {
-          list.innerHTML = `
-            <div class="text-center py-10 bg-white/5 border border-white/10 rounded-2xl">
-              <div class="text-5xl mb-4 opacity-40">⏳</div>
-              <h3 class="text-base font-bold mb-2">En attente des jalons de l'artisan</h3>
-              <p class="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
-                Notre équipe désigne actuellement un artisan qualifié pour votre projet. Il découpera le chantier en jalons, qui seront ensuite validés par l'administration.
-              </p>
-            </div>
-          `;
+          if (isClient) {
+            list.innerHTML = `
+              <div class="text-center py-10 bg-white/5 border border-white/10 rounded-2xl">
+                <div class="text-5xl mb-4 opacity-40">⏳</div>
+                <h3 class="text-base font-bold mb-2">En attente des jalons de l'artisan</h3>
+                <p class="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
+                  L'artisan travaille actuellement sur le découpage de votre chantier. Les jalons apparaîtront ici dès leur validation par notre équipe.
+                </p>
+              </div>
+            `;
+          } else {
+            list.innerHTML = `
+              <div class="text-center py-10 bg-white/5 border border-white/10 rounded-2xl">
+                <div class="text-5xl mb-4 opacity-40">📋</div>
+                <h3 class="text-base font-bold mb-2">Aucun jalon</h3>
+                <p class="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
+                  L'artisan n'a pas encore proposé de découpage pour ce chantier.
+                </p>
+              </div>
+            `;
+          }
           document.getElementById('progress-text').textContent = '0%';
           document.getElementById('progress-bar').style.width = '0%';
           return;
         }
 
-        list.innerHTML = valid.map((m, i) => `
+        // Bandeau d'info pour le client s'il y a des jalons en attente
+        let infoBanner = '';
+        if (isClient) {
+          try {
+            const pendingData = await apiGet('milestones', 'project_id=eq.' + projectId + '&proposal_status=eq.pending');
+            const pendingCount = Array.isArray(pendingData) ? pendingData.length : 0;
+            if (pendingCount > 0) {
+              infoBanner = `
+                <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex items-start gap-2 mb-2">
+                  <span class="text-amber-400 text-sm flex-shrink-0">⏳</span>
+                  <p class="text-[11px] text-amber-200 leading-relaxed">
+                    <strong>${pendingCount} jalon(s)</strong> en cours de validation par notre équipe. Ils apparaîtront ici dès validation.
+                  </p>
+                </div>
+              `;
+            }
+          } catch (e) {}
+        }
+
+        list.innerHTML = infoBanner + valid.map((m, i) => `
           <a href="jalon-detail.html?id=${m.id}" class="flex gap-3 bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition">
             ${statusCircle(m.status, m.order_index || i + 1)}
             <div class="flex-1 min-w-0">
@@ -236,7 +280,7 @@
         `).join('');
 
         const validated = valid.filter(m => m.status === 'approved' || m.status === 'released').length;
-        const progress = Math.round((validated / valid.length) * 100);
+        const progress = valid.length > 0 ? Math.round((validated / valid.length) * 100) : 0;
         document.getElementById('progress-text').textContent = progress + '%';
         document.getElementById('progress-bar').style.width = progress + '%';
       } catch (e) {
