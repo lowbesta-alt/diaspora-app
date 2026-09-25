@@ -128,6 +128,7 @@ const ED_MENUS = {
     { href: 'admin-validations.html', icon: 'check', label: 'Validations' },
 { href: 'admin-leads.html', icon: 'list', label: 'Leads' },
     { href: 'admin-chantiers.html', icon: 'building', label: 'Chantiers' },
+    { href: 'admin-propositions.html', icon: 'clipboard', label: 'Propositions' },
     { href: 'admin-templates.html', icon: 'clipboard', label: 'Modèles' },
     { href: 'admin-propositions.html', icon: 'list', label: 'Propositions' },
     { href: 'admin-reports.html', icon: 'camera', label: 'Rapports' },
