@@ -15,7 +15,7 @@
       <p class="text-sm text-slate-400 mt-1">Suivez vos fonds en temps réel</p>
     </div>
 
-    <!-- Carte solde principale -->
+    <!-- Carte solde -->
     <section class="relative overflow-hidden rounded-3xl border border-sky-500/30 shadow-2xl shadow-sky-500/20">
       <div class="absolute inset-0 bg-gradient-to-br from-sky-600 via-sky-700 to-blue-900"></div>
       <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-20 translate-x-20 blur-3xl"></div>
@@ -35,7 +35,7 @@
       </div>
     </section>
 
-    <!-- Stats secondaires -->
+    <!-- Stats -->
     <section class="grid grid-cols-2 gap-3">
       <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
         <div class="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center mb-3">
@@ -53,11 +53,22 @@
       </div>
     </section>
 
-    <!-- Historique -->
+    <!-- NOTIFICATIONS DE PAIEMENT -->
     <section>
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-base font-extrabold tracking-tight">Historique</h2>
-        <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Transactions récentes</span>
+        <h2 class="text-base font-extrabold tracking-tight">🔔 Notifications</h2>
+        <span id="notif-badge" class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold hidden">0</span>
+      </div>
+      <div id="notifications-list" class="space-y-2">
+        <p class="text-slate-400 text-sm text-center py-4">Chargement...</p>
+      </div>
+    </section>
+
+    <!-- Historique transactions -->
+    <section>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-base font-extrabold tracking-tight">📊 Historique</h2>
+        <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Transactions</span>
       </div>
       <div id="transactions-list" class="space-y-2">
         <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
@@ -79,12 +90,15 @@
   <script>
     if (!requireLogin()) throw new Error('Not logged');
 
+    const userId = getCurrentUserId();
+
+    // Icons pour les transactions
     function txIcon(type) {
       const map = {
-        'deposit': { ic: '➕', bg: 'bg-emerald-500/20', color: 'text-emerald-300' },
-        'escrow_hold': { ic: '🔒', bg: 'bg-orange-500/20', color: 'text-orange-300' },
-        'milestone_release': { ic: '✅', bg: 'bg-sky-500/20', color: 'text-sky-300' },
-        'refund': { ic: '↩️', bg: 'bg-red-500/20', color: 'text-red-300' }
+        'deposit': { ic: '➕', bg: 'bg-emerald-500/20' },
+        'escrow_hold': { ic: '🔒', bg: 'bg-orange-500/20' },
+        'milestone_release': { ic: '✅', bg: 'bg-sky-500/20' },
+        'refund': { ic: '↩️', bg: 'bg-red-500/20' }
       };
       return map[type] || map.deposit;
     }
@@ -92,8 +106,71 @@
     function txSign(type) { return type === 'deposit' ? '+' : '−'; }
     function txColorClass(type) { return type === 'deposit' ? 'text-emerald-400' : 'text-orange-400'; }
 
+    // Icons pour les notifications
+    function notifIcon(type) {
+      const map = {
+        'payment_received': { ic: '💰', bg: 'bg-emerald-500/20' },
+        'payment_released': { ic: '💸', bg: 'bg-blue-500/20' },
+        'milestone_validated': { ic: '✅', bg: 'bg-emerald-500/20' },
+        'milestone_rejected': { ic: '❌', bg: 'bg-red-500/20' },
+        'report_submitted': { ic: '📸', bg: 'bg-amber-500/20' },
+        'report_validated': { ic: '✅', bg: 'bg-emerald-500/20' }
+      };
+      return map[type] || { ic: '🔔', bg: 'bg-slate-500/20' };
+    }
+
+    // ============================================================
+    // CHARGER LES NOTIFICATIONS
+    // ============================================================
+    async function loadNotifications() {
+      const list = document.getElementById('notifications-list');
+      const badge = document.getElementById('notif-badge');
+      try {
+        const data = await apiGet('notifications', 'user_id=eq.' + userId + '&order=created_at.desc&limit=10');
+        const valid = Array.isArray(data) ? data : [];
+
+        if (valid.length === 0) {
+          list.innerHTML = '<div class="text-center py-6 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-xs">Aucune notification</p></div>';
+          badge.classList.add('hidden');
+          return;
+        }
+
+        const unreadCount = valid.filter(n => !n.read_at).length;
+        if (unreadCount > 0) {
+          badge.textContent = unreadCount;
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+
+        list.innerHTML = valid.map(n => {
+          const { ic, bg } = notifIcon(n.type);
+          const isUnread = !n.read_at;
+          return `
+            <div class="flex gap-3 bg-white/5 border border-white/10 rounded-2xl p-3 ${isUnread ? 'ring-1 ring-emerald-500/30' : ''}">
+              <div class="w-10 h-10 rounded-full ${bg} flex items-center justify-center text-lg flex-shrink-0">${ic}</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-start gap-2">
+                  <h3 class="font-semibold text-sm leading-tight">${escapeHtml(n.title)}</h3>
+                  ${isUnread ? '<span class="w-2 h-2 bg-emerald-400 rounded-full mt-1.5 flex-shrink-0"></span>' : ''}
+                </div>
+                ${n.message ? `<p class="text-xs text-slate-300 mt-1 leading-relaxed">${escapeHtml(n.message)}</p>` : ''}
+                <span class="text-[10px] text-slate-500 mt-1.5 inline-block">${formatDate(n.created_at)}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (e) {
+        list.innerHTML = '<div class="text-center py-4 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-500 text-xs">Aucune notification</p></div>';
+        badge.classList.add('hidden');
+      }
+    }
+
+    // ============================================================
+    // CHARGER LES TRANSACTIONS + CALCULER LE SOLDE
+    // ============================================================
     async function loadTransactions() {
-      const userId = getCurrentUserId();
       const list = document.getElementById('transactions-list');
 
       try {
@@ -101,7 +178,7 @@
         const valid = Array.isArray(txs) ? txs : [];
 
         if (valid.length === 0) {
-          list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">💰</div><p class="text-slate-400 text-sm">Aucune transaction</p><p class="text-slate-500 text-xs mt-1">Vos mouvements apparaîtront ici.</p></div>';
+          list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">💰</div><p class="text-slate-400 text-sm">Aucune transaction</p></div>';
           document.getElementById('solde').textContent = '0';
           document.getElementById('stat-escrow').textContent = '0';
           document.getElementById('stat-invested').textContent = '0';
@@ -116,13 +193,17 @@
           if (t.transaction_type === 'milestone_release') released += amt;
         });
 
-        const solde = deposits - escrow;
-        document.getElementById('solde').textContent = solde.toLocaleString('fr-FR');
-        document.getElementById('stat-escrow').textContent = escrow.toLocaleString('fr-FR');
+        // NOUVEAU CALCUL : le solde = dépôts - sorties (released + escrow actif)
+        // L'argent débloqué sort du portefeuille
+        const solde = deposits - released - escrow;
+        const escrowRestant = Math.max(0, escrow - released);
+
+        document.getElementById('solde').textContent = Math.max(0, solde).toLocaleString('fr-FR');
+        document.getElementById('stat-escrow').textContent = escrowRestant.toLocaleString('fr-FR');
         document.getElementById('stat-invested').textContent = (escrow + released).toLocaleString('fr-FR');
 
         list.innerHTML = valid.map(t => {
-          const { ic, bg, color } = txIcon(t.transaction_type);
+          const { ic, bg } = txIcon(t.transaction_type);
           return `
             <div class="flex items-center gap-3 bg-white/5 hover:bg-white/[0.08] border border-white/10 rounded-2xl p-3.5 transition">
               <div class="w-11 h-11 rounded-xl ${bg} flex items-center justify-center flex-shrink-0 text-lg">${ic}</div>
@@ -140,6 +221,7 @@
       }
     }
 
+    loadNotifications();
     loadTransactions();
   </script>
 </body>
