@@ -83,9 +83,7 @@
     let projectOwnerId = null;
     let currentProject = null;
 
-    // ============================================================
-    // Crée une notification pour un utilisateur
-    // ============================================================
+    // Fonction pour créer une notification
     async function notifyUser(userId, type, title, message, link, projectId, milestoneId) {
       if (!userId) return;
       try {
@@ -123,7 +121,6 @@
 
         document.getElementById('btn-back').href = 'jalons.html?id=' + m.project_id;
 
-        // Récupère le projet
         try {
           const projData = await apiGet('projects', 'id=eq.' + m.project_id);
           if (Array.isArray(projData) && projData[0]) {
@@ -217,7 +214,7 @@
           released_at: new Date().toISOString()
         });
 
-        // 3. Met à jour le budget dépensé du projet
+        // 3. Met à jour le budget dépensé
         try {
           if (currentProject) {
             const spent = Number(currentProject.spent_budget) || 0;
@@ -227,11 +224,7 @@
           }
         } catch (e) {}
 
-        // ============================================================
-        // 4. NOTIFICATIONS
-        // ============================================================
-
-        // 4a. Notifier l'artisan assigné au projet
+        // 4. Notification pour l'artisan assigné
         try {
           const artisanId = currentProject ? currentProject.assigned_artisan_id : null;
           if (artisanId) {
@@ -249,7 +242,7 @@
           console.warn('Notif artisan échouée:', e);
         }
 
-        // 4b. Notifier tous les admins
+        // 5. Notification pour les admins
         try {
           const admins = await apiGet('profiles', 'default_role=eq.admin');
           if (Array.isArray(admins)) {
@@ -269,7 +262,7 @@
           console.warn('Notif admin échouée:', e);
         }
 
-        // 5. Trace dans audit_log
+        // 6. Trace audit
         try {
           await apiPost('audit_log', {
             actor_id: getCurrentUserId(),
