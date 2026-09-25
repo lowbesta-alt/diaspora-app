@@ -83,8 +83,7 @@
     let projectOwnerId = null;
     let currentProject = null;
 
-    // Fonction pour créer une notification
-    async function notifyUser(userId, type, title, message, link, projectId, milestoneId) {
+    async function notifyUser(userId, type, title, message, link, projectId, milestoneIdArg) {
       if (!userId) return;
       try {
         await apiPost('notifications', {
@@ -94,10 +93,10 @@
           message: message,
           link: link,
           project_id: projectId || null,
-          milestone_id: milestoneId || null
+          milestone_id: milestoneIdArg || null
         });
       } catch (e) {
-        console.warn('Notification non envoyée :', e.message);
+        console.warn('Notification non envoyee :', e.message);
       }
     }
 
@@ -116,7 +115,7 @@
         document.getElementById('jalon-number').textContent = 'Jalon n°' + (m.order_index || '?');
         document.getElementById('jalon-status').textContent = getStatusLabel(m.status);
         document.getElementById('jalon-status').className = 'text-[10px] ' + getStatusBadgeClass(m.status) + ' px-2 py-0.5 rounded-full font-semibold';
-        if (m.due_date) document.getElementById('jalon-date').textContent = 'Échéance : ' + formatDate(m.due_date);
+        if (m.due_date) document.getElementById('jalon-date').textContent = 'Echeance : ' + formatDate(m.due_date);
         if (m.description) document.getElementById('description-content').textContent = m.description;
 
         document.getElementById('btn-back').href = 'jalons.html?id=' + m.project_id;
@@ -141,7 +140,7 @@
         if (canRelease) {
           document.getElementById('actions-release').classList.remove('hidden');
           const btnRelease = document.getElementById('btn-release');
-          btnRelease.textContent = '💰 Débloquer les fonds (' + Number(m.amount).toLocaleString('fr-FR') + ' ' + (m.currency || 'XAF') + ')';
+          btnRelease.textContent = 'Debloquer les fonds (' + Number(m.amount).toLocaleString('fr-FR') + ' ' + (m.currency || 'XAF') + ')';
         }
         if (canSubmit) {
           document.getElementById('actions-pm').classList.remove('hidden');
@@ -159,7 +158,7 @@
           validated_at: new Date().toISOString(),
           validated_by: getCurrentUserId()
         });
-        showSuccess('Jalon validé !');
+        showSuccess('Jalon valide !');
         location.reload();
       } catch (e) {
         showError(e.message);
@@ -176,7 +175,7 @@
           validated_at: new Date().toISOString(),
           validated_by: getCurrentUserId()
         });
-        showSuccess('Jalon refusé');
+        showSuccess('Jalon refuse');
         location.reload();
       } catch (e) {
         showError(e.message);
@@ -189,14 +188,13 @@
       const amount = Number(currentMilestone.amount);
       const currency = currentMilestone.currency || 'XAF';
 
-      if (!confirm('Débloquer ' + amount.toLocaleString('fr-FR') + ' ' + currency + ' ?\n\nLe paiement sera libéré vers le prestataire.')) return;
+      if (!confirm('Debloquer ' + amount.toLocaleString('fr-FR') + ' ' + currency + ' ?')) return;
 
       const btn = document.getElementById('btn-release');
       btn.disabled = true;
-      btn.textContent = 'Déblocage en cours...';
+      btn.textContent = 'Deblocage en cours...';
 
       try {
-        // 1. Crée la transaction de déblocage
         await apiPost('transactions', {
           project_id: currentMilestone.project_id,
           milestone_id: currentMilestone.id,
@@ -205,16 +203,14 @@
           status: 'released',
           amount: amount,
           currency: currency,
-          description: 'Déblocage : ' + currentMilestone.title
+          description: 'Deblocage : ' + currentMilestone.title
         });
 
-        // 2. Met à jour le jalon → released
         await apiPatch('milestones', milestoneId, {
           status: 'released',
           released_at: new Date().toISOString()
         });
 
-        // 3. Met à jour le budget dépensé
         try {
           if (currentProject) {
             const spent = Number(currentProject.spent_budget) || 0;
@@ -224,25 +220,23 @@
           }
         } catch (e) {}
 
-        // 4. Notification pour l'artisan assigné
         try {
           const artisanId = currentProject ? currentProject.assigned_artisan_id : null;
           if (artisanId) {
             await notifyUser(
               artisanId,
               'payment_received',
-              '💰 Paiement reçu : ' + amount.toLocaleString('fr-FR') + ' ' + currency,
-              'Le client a débloqué les fonds pour le jalon "' + currentMilestone.title + '" du projet "' + (currentProject.title || '') + '".',
+              'Paiement recu : ' + amount.toLocaleString('fr-FR') + ' ' + currency,
+              'Le client a debloque les fonds pour le jalon "' + currentMilestone.title + '" du projet "' + (currentProject.title || '') + '".',
               'jalon-detail.html?id=' + currentMilestone.id,
               currentMilestone.project_id,
               currentMilestone.id
             );
           }
         } catch (e) {
-          console.warn('Notif artisan échouée:', e);
+          console.warn('Notif artisan echouee:', e);
         }
 
-        // 5. Notification pour les admins
         try {
           const admins = await apiGet('profiles', 'default_role=eq.admin');
           if (Array.isArray(admins)) {
@@ -250,8 +244,8 @@
               await notifyUser(
                 admin.id,
                 'payment_released',
-                '💰 Déblocage : ' + amount.toLocaleString('fr-FR') + ' ' + currency,
-                'Le client a débloqué les fonds sur le jalon "' + currentMilestone.title + '" du projet "' + (currentProject.title || '') + '".',
+                'Deblocage : ' + amount.toLocaleString('fr-FR') + ' ' + currency,
+                'Le client a debloque les fonds sur le jalon "' + currentMilestone.title + '" du projet "' + (currentProject.title || '') + '".',
                 'admin-chantiers.html',
                 currentMilestone.project_id,
                 currentMilestone.id
@@ -259,10 +253,9 @@
             }
           }
         } catch (e) {
-          console.warn('Notif admin échouée:', e);
+          console.warn('Notif admin echouee:', e);
         }
 
-        // 6. Trace audit
         try {
           await apiPost('audit_log', {
             actor_id: getCurrentUserId(),
@@ -277,12 +270,12 @@
           });
         } catch (e) {}
 
-        showSuccess('💰 Fonds débloqués ! ' + amount.toLocaleString('fr-FR') + ' ' + currency);
+        showSuccess('Fonds debloques ! ' + amount.toLocaleString('fr-FR') + ' ' + currency);
         location.reload();
       } catch (e) {
         showError(e.message);
         btn.disabled = false;
-        btn.textContent = '💰 Débloquer les fonds';
+        btn.textContent = 'Debloquer les fonds';
       }
     });
 
