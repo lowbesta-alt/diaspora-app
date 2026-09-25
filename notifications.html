@@ -16,7 +16,7 @@
 
   <main class="p-4 max-w-2xl mx-auto space-y-4">
 
-    <span id="unread-count" class="inline-block text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full font-semibold">...</span>
+    <span id="unread-count" class="inline-block text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full font-semibold">Chargement...</span>
 
     <div class="flex gap-2 overflow-x-auto pb-1">
       <button data-filter="all" class="filter-btn bg-emerald-600 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">Toutes</button>
@@ -34,7 +34,7 @@
     <a href="projets.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📁</span>Projets</a>
     <a href="portefeuille.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💰</span>Portefeuille</a>
     <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
-    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-emerald-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
+    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
   </nav>
 
   <script src="config.js"></script>
@@ -44,67 +44,87 @@
 
     const userId = getCurrentUserId();
     let allNotifs = [];
-    let readIds = JSON.parse(localStorage.getItem('read_notifs') || '[]');
 
-    function actionToIcon(action) {
+    // Icône selon le type de notification
+    function typeToIcon(type) {
       const map = {
+        'payment_received': { ic: '💰', color: 'bg-emerald-500/20' },
+        'payment_released': { ic: '💰', color: 'bg-blue-500/20' },
         'milestone_validated': { ic: '✅', color: 'bg-emerald-500/20' },
-        'funds_released': { ic: '💰', color: 'bg-blue-500/20' },
-        'insert': { ic: '📋', color: 'bg-slate-500/20' },
-        'update': { ic: '✏️', color: 'bg-orange-500/20' },
-        'delete': { ic: '🗑️', color: 'bg-red-500/20' },
-        'contract_signed': { ic: '📝', color: 'bg-purple-500/20' },
-        'kyc_approved': { ic: '🛡️', color: 'bg-emerald-500/20' }
+        'milestone_rejected': { ic: '❌', color: 'bg-red-500/20' },
+        'milestone_created': { ic: '📋', color: 'bg-slate-500/20' },
+        'report_submitted': { ic: '📸', color: 'bg-amber-500/20' },
+        'report_validated': { ic: '✅', color: 'bg-emerald-500/20' },
+        'report_rejected': { ic: '❌', color: 'bg-red-500/20' },
+        'invitation_sent': { ic: '🎫', color: 'bg-purple-500/20' },
+        'account_activated': { ic: '🎉', color: 'bg-purple-500/20' }
       };
-      return map[action] || { ic: '🔔', color: 'bg-slate-500/20' };
-    }
-
-    function actionToText(action) {
-      const map = {
-        'milestone_validated': 'Jalon validé',
-        'funds_released': 'Fonds débloqués',
-        'insert': 'Nouvel élément créé',
-        'update': 'Modification enregistrée',
-        'delete': 'Suppression',
-        'contract_signed': 'Contrat signé',
-        'kyc_approved': 'Vérification approuvée'
-      };
-      return map[action] || action;
+      return map[type] || { ic: '🔔', color: 'bg-slate-500/20' };
     }
 
     function renderNotifs(list) {
       const container = document.getElementById('notif-list');
       if (list.length === 0) {
-        container.innerHTML = '<div class="text-center py-8"><p class="text-slate-400 text-sm">Aucune notification</p></div>';
+        container.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">🔔</div><p class="text-slate-400 text-sm">Aucune notification</p><p class="text-slate-500 text-xs mt-1">Vos notifications apparaîtront ici.</p></div>';
         return;
       }
       container.innerHTML = list.map(n => {
-        const { ic, color } = actionToIcon(n.action);
-        const isUnread = !readIds.includes(n.id);
+        const { ic, color } = typeToIcon(n.type);
+        const isUnread = !n.read_at;
+        const clickable = !!n.link;
         return `
-          <div class="flex gap-3 bg-white/5 border border-white/10 rounded-2xl p-3 ${isUnread ? 'ring-1 ring-emerald-500/30' : ''}">
+          <div class="notif-item flex gap-3 bg-white/5 border border-white/10 rounded-2xl p-3 ${isUnread ? 'ring-1 ring-emerald-500/30' : ''} ${clickable ? 'cursor-pointer hover:bg-white/10' : ''} transition" data-id="${n.id}" data-link="${n.link || ''}">
             <div class="w-10 h-10 rounded-full ${color} flex items-center justify-center text-lg flex-shrink-0">${ic}</div>
             <div class="flex-1 min-w-0">
               <div class="flex justify-between items-start gap-2">
-                <h3 class="font-semibold text-sm">${escapeHtml(actionToText(n.action))}</h3>
+                <h3 class="font-semibold text-sm leading-tight">${escapeHtml(n.title)}</h3>
                 ${isUnread ? '<span class="w-2 h-2 bg-emerald-400 rounded-full mt-1.5 flex-shrink-0"></span>' : ''}
               </div>
-              <p class="text-xs text-slate-300 mt-0.5 truncate">${escapeHtml(n.table_name || '')}</p>
-              <span class="text-[10px] text-slate-500">${formatDate(n.created_at)}</span>
+              ${n.message ? `<p class="text-xs text-slate-300 mt-1 leading-relaxed">${escapeHtml(n.message)}</p>` : ''}
+              <span class="text-[10px] text-slate-500 mt-1.5 inline-block">${formatDate(n.created_at)}</span>
             </div>
           </div>
         `;
       }).join('');
+
+      // Attache les événements de clic
+      document.querySelectorAll('.notif-item').forEach(el => {
+        el.addEventListener('click', async () => {
+          const notifId = el.dataset.id;
+          const link = el.dataset.link;
+
+          // Marquer comme lu
+          try {
+            await apiPatch('notifications', notifId, {
+              read_at: new Date().toISOString()
+            });
+          } catch (e) {}
+
+          // Rediriger
+          if (link) {
+            window.location.href = link;
+          } else {
+            loadNotifs();
+          }
+        });
+      });
     }
 
     function updateUnread() {
-      const unread = allNotifs.filter(n => !readIds.includes(n.id)).length;
-      document.getElementById('unread-count').textContent = unread + ' non lue' + (unread > 1 ? 's' : '');
+      const unread = allNotifs.filter(n => !n.read_at).length;
+      const el = document.getElementById('unread-count');
+      if (unread === 0) {
+        el.textContent = 'Aucune non lue';
+        el.className = 'inline-block text-xs bg-slate-500/20 text-slate-300 px-3 py-1 rounded-full font-semibold';
+      } else {
+        el.textContent = unread + ' non lue' + (unread > 1 ? 's' : '');
+        el.className = 'inline-block text-xs bg-amber-500/20 text-amber-300 px-3 py-1 rounded-full font-semibold';
+      }
     }
 
     async function loadNotifs() {
       try {
-        const data = await apiGet('audit_log', 'order=created_at.desc&limit=30');
+        const data = await apiGet('notifications', 'user_id=eq.' + userId + '&order=created_at.desc&limit=50');
         allNotifs = Array.isArray(data) ? data : [];
       } catch (e) {
         allNotifs = [];
@@ -123,18 +143,25 @@
         btn.classList.remove('bg-white/5', 'border', 'border-white/10');
         const f = btn.dataset.filter;
         if (f === 'unread') {
-          renderNotifs(allNotifs.filter(n => !readIds.includes(n.id)));
+          renderNotifs(allNotifs.filter(n => !n.read_at));
         } else {
           renderNotifs(allNotifs);
         }
       });
     });
 
-    document.getElementById('btn-mark-all').addEventListener('click', () => {
-      readIds = allNotifs.map(n => n.id);
-      localStorage.setItem('read_notifs', JSON.stringify(readIds));
-      renderNotifs(allNotifs);
-      updateUnread();
+    document.getElementById('btn-mark-all').addEventListener('click', async () => {
+      const unread = allNotifs.filter(n => !n.read_at);
+      if (unread.length === 0) return;
+
+      for (const n of unread) {
+        try {
+          await apiPatch('notifications', n.id, {
+            read_at: new Date().toISOString()
+          });
+        } catch (e) {}
+      }
+      await loadNotifs();
     });
 
     loadNotifs();
