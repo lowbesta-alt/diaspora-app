@@ -1,6 +1,6 @@
 // ============================================================
 // APP.JS - Boite a outils centrale Espace Diaspora
-// v13.0 : ajout Réalisations dans menu artisan
+// v14.0 : ajout notifications automatiques
 // ============================================================
 
 // ---------- Injection du favicon ----------
@@ -117,7 +117,6 @@ const ED_MENUS = {
   provider: [
     { href: 'dashboard-artisan.html', icon: 'home', label: 'Chantiers' },
     { href: 'mes-rapports.html', icon: 'camera', label: 'Rapports' },
-    { href: 'artisan-jalons.html', icon: 'target', label: 'Jalons' },
     { href: 'mes-realisations.html', icon: 'trophy', label: 'Réalisations' },
     { href: 'mes-paiements.html', icon: 'wallet', label: 'Paiements' },
     { href: 'messages.html', icon: 'message', label: 'Messages' },
@@ -125,13 +124,9 @@ const ED_MENUS = {
   ],
   admin: [
     { href: 'dashboard-admin.html', icon: 'home', label: 'Tour de controle' },
-    { href: 'admin-validations.html', icon: 'check', label: 'Validations' },
-{ href: 'admin-leads.html', icon: 'list', label: 'Leads' },
+    { href: 'admin-leads.html', icon: 'list', label: 'Leads' },
     { href: 'admin-chantiers.html', icon: 'building', label: 'Chantiers' },
     { href: 'admin-propositions.html', icon: 'clipboard', label: 'Propositions' },
-    { href: 'admin-templates.html', icon: 'clipboard', label: 'Modèles' },
-    { href: 'admin-propositions.html', icon: 'list', label: 'Propositions' },
-    { href: 'admin-reports.html', icon: 'camera', label: 'Rapports' },
     { href: 'admin-partenaires.html', icon: 'handshake', label: 'Partenaires' },
     { href: 'admin-utilisateurs.html', icon: 'users', label: 'Utilisateurs' },
     { href: 'profil.html', icon: 'user', label: 'Profil' }
@@ -219,7 +214,7 @@ function edCurrentPage() {
 
 function edInjectHeader() {
   const current = edCurrentPage();
-  const publicPages = ['index.html', 'inscription.html', 'accueil.html', 'partenariat-btp.html', 'partenaires.html', 'cgu.html', 'mentions-legales.html', 'contact.html', 'garanties.html', 'realisations.html', ''];
+  const publicPages = ['index.html', 'inscription.html', 'inscription-artisan.html', 'accueil.html', 'partenariat-btp.html', 'partenaires.html', 'cgu.html', 'mentions-legales.html', 'contact.html', 'garanties.html', 'realisations.html', ''];
   if (publicPages.includes(current)) return;
   if (document.querySelector('.ed-header')) return;
   if (!getToken()) return;
@@ -257,7 +252,7 @@ function edInjectHeader() {
         '</a>' +
         '<nav class="ed-menu">' + menuItems + '</nav>' +
         '<div class="ed-header-actions">' +
-          '<a href="notifications.html" class="ed-bell">' + ED_ICONS.bell + '</a>' +
+          '<a href="notifications.html" class="ed-bell" id="edBellBtn">' + ED_ICONS.bell + '</a>' +
           '<a href="profil.html" class="ed-avatar">' + initials + '</a>' +
           '<button class="ed-burger" id="edBurger" aria-label="Menu">☰</button>' +
         '</div>' +
@@ -435,7 +430,7 @@ function getStatusLabel(status) {
     'paused': 'En pause', 'cancelled': 'Annule', 'disputed': 'En litige',
     'released': 'Debloque', 'approved': 'Valide', 'submitted': 'En attente',
     'pending': 'A venir', 'rejected': 'Refuse', 'in_progress': 'En cours',
-    'pending_review': 'En attente de validation'
+    'pending_review': 'En attente de validation', 'published': 'Publie'
   };
   return map[status] || status;
 }
@@ -454,7 +449,8 @@ function getStatusBadgeClass(status) {
     'pending': 'bg-slate-500/20 text-slate-300',
     'rejected': 'bg-red-500/20 text-red-300',
     'in_progress': 'bg-yellow-500/20 text-yellow-300',
-    'pending_review': 'bg-amber-500/20 text-amber-300'
+    'pending_review': 'bg-amber-500/20 text-amber-300',
+    'published': 'bg-emerald-500/20 text-emerald-300'
   };
   return map[status] || 'bg-slate-500/20 text-slate-300';
 }
@@ -473,9 +469,105 @@ function showSuccess(msg) { alert(msg); }
 
 function setupUserHeader() {}
 
+// ============================================================
+// NOTIFICATIONS AUTOMATIQUES
+// Affiche une bannière pour les notifications non lues
+// ============================================================
+async function edCheckNotifications() {
+  if (!getToken()) return;
+  const userId = getCurrentUserId();
+  if (!userId) return;
+
+  // Éviter les doublons dans la même session
+  if (window._edNotifShown) return;
+  window._edNotifShown = true;
+
+  try {
+    const url = SUPABASE_URL + '/rest/v1/notifications?user_id=eq.' + userId + '&read_at=is.null&order=created_at.desc&limit=3';
+    const res = await fetch(url, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + (getToken() || SUPABASE_KEY),
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!res.ok) return;
+    const notifs = await res.json();
+    if (!Array.isArray(notifs) || notifs.length === 0) return;
+
+    // Mettre à jour le badge de la cloche
+    edUpdateBellBadge(notifs.length);
+
+    edShowNotificationBanner(notifs);
+  } catch (e) {
+    console.warn('Notif check failed:', e);
+  }
+}
+
+function edUpdateBellBadge(count) {
+  // Attend que le header soit injecté
+  setTimeout(() => {
+    const bell = document.getElementById('edBellBtn');
+    if (!bell) return;
+    if (bell.querySelector('.ed-bell-badge')) return;
+    const badge = document.createElement('span');
+    badge.className = 'ed-bell-badge';
+    badge.style.cssText = 'position:absolute;top:-4px;right:-4px;background:#ef4444;color:white;font-size:9px;font-weight:800;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;';
+    badge.textContent = count > 9 ? '9+' : count;
+    bell.style.position = 'relative';
+    bell.appendChild(badge);
+  }, 300);
+}
+
+function edShowNotificationBanner(notifs) {
+  if (document.getElementById('edNotifBanner')) return;
+
+  const first = notifs[0];
+  const count = notifs.length;
+
+  const banner = document.createElement('div');
+  banner.id = 'edNotifBanner';
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:70;background:linear-gradient(135deg,#10b981,#059669);color:white;padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 16px rgba(16,185,129,0.5);animation:edSlideDown 0.3s ease;cursor:pointer;';
+
+  banner.innerHTML =
+    '<span style="font-size:20px;">🔔</span>' +
+    '<div style="flex:1;font-size:13px;line-height:1.3;">' +
+      '<div style="font-weight:800;">' + (count > 1 ? count + ' nouvelles notifications' : 'Nouvelle notification') + '</div>' +
+      '<div style="font-size:11px;opacity:0.95;margin-top:2px;">' + escapeHtml(first.title || 'Nouvelle activite') + '</div>' +
+    '</div>' +
+    '<button id="edNotifClose" style="background:rgba(255,255,255,0.25);border:none;color:white;padding:6px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;">✕</button>';
+
+  banner.addEventListener('click', (e) => {
+    if (e.target.id === 'edNotifClose') return;
+    if (first.link) window.location.href = first.link;
+  });
+
+  document.body.appendChild(banner);
+
+  document.getElementById('edNotifClose').addEventListener('click', (e) => {
+    e.stopPropagation();
+    banner.remove();
+  });
+
+  // Auto-disparition après 10 secondes
+  setTimeout(() => {
+    const el = document.getElementById('edNotifBanner');
+    if (el) el.remove();
+  }, 10000);
+}
+
+// Animation CSS
+if (!document.getElementById('edNotifStyle')) {
+  const style = document.createElement('style');
+  style.id = 'edNotifStyle';
+  style.textContent = '@keyframes edSlideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }';
+  document.head.appendChild(style);
+}
+
 function edInit() {
   edInjectTestBanner();
   edInjectHeader();
+  edCheckNotifications();
   setTimeout(edReplaceEmojis, 500);
 }
 
