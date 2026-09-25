@@ -101,7 +101,7 @@
 
   </main>
 
-  <a id="btn-add-milestone" href="#" class="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-emerald-600 to-emerald-500 rounded-full flex items-center justify-center text-2xl shadow-2xl shadow-emerald-500/40 z-40 hover:scale-110 transition">+</a>
+  <a id="btn-add-milestone" href="#" class="hidden fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-emerald-600 to-emerald-500 rounded-full flex items-center justify-center text-2xl shadow-2xl shadow-emerald-500/40 z-40 hover:scale-110 transition">+</a>
 
   <script src="config.js"></script>
   <script src="app.js"></script>
@@ -118,6 +118,11 @@
     document.getElementById('btn-edit').href = 'projet-modifier.html?id=' + projectId;
     document.getElementById('btn-add-milestone').href = 'jalon-creer.html?id=' + projectId;
     document.getElementById('btn-docs').href = 'documents.html?id=' + projectId;
+
+    // Le bouton "+" n'est visible que pour l'admin (les clients et artisans ne créent pas de jalons ici)
+    if (getCurrentUserRole() === 'admin') {
+      document.getElementById('btn-add-milestone').classList.remove('hidden');
+    }
 
     let allTimelineReports = [];
 
@@ -199,10 +204,23 @@
       try {
         const data = await apiGet('milestones', 'project_id=eq.' + projectId + '&order=order_index');
         const valid = Array.isArray(data) ? data : [];
+
+        // Aucun jalon : message d'attente
         if (valid.length === 0) {
-          list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucun jalon. Cliquez sur + pour en creer un.</p>';
+          list.innerHTML = `
+            <div class="text-center py-10 bg-white/5 border border-white/10 rounded-2xl">
+              <div class="text-5xl mb-4 opacity-40">⏳</div>
+              <h3 class="text-base font-bold mb-2">En attente des jalons de l'artisan</h3>
+              <p class="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
+                Notre équipe désigne actuellement un artisan qualifié pour votre projet. Il découpera le chantier en jalons, qui seront ensuite validés par l'administration.
+              </p>
+            </div>
+          `;
+          document.getElementById('progress-text').textContent = '0%';
+          document.getElementById('progress-bar').style.width = '0%';
           return;
         }
+
         list.innerHTML = valid.map((m, i) => `
           <a href="jalon-detail.html?id=${m.id}" class="flex gap-3 bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition">
             ${statusCircle(m.status, m.order_index || i + 1)}
@@ -211,7 +229,7 @@
                 <h3 class="font-bold text-sm leading-tight">${escapeHtml(m.title)}</h3>
                 ${renderStatusBadge(m.status)}
               </div>
-              ${m.description ? `<p class="text-[11px] text-slate-300 leading-relaxed mb-2 line-clamp-3">${escapeHtml(m.description)}</p>` : ''}
+              ${m.description ? `<p class="text-[11px] text-slate-300 leading-relaxed mb-2">${escapeHtml(m.description)}</p>` : ''}
               <p class="text-[11px] text-slate-400 font-semibold">💰 ${formatAmount(m.amount, m.currency)}</p>
             </div>
           </a>
