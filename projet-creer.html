@@ -109,11 +109,10 @@
       </div>
     </section>
 
-    <!-- MESSAGE INFO -->
     <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 flex items-start gap-3">
       <span class="text-emerald-400 text-xl flex-shrink-0">ℹ️</span>
       <p class="text-xs text-emerald-200 leading-relaxed">
-        Après la création, votre projet sera transmis à notre équipe qui <strong>désignera un artisan qualifié</strong>. C'est <strong>l'artisan</strong> qui découpera votre chantier en jalons, avec validation par notre équipe. Vous recevrez une notification à ce moment-là.
+        Après la création, votre budget sera <strong>séquestré dans votre portefeuille</strong>. L'équipe désignera un artisan qualifié qui découpera le chantier en jalons. Vous débloquerez les fonds jalon par jalon.
       </p>
     </div>
 
@@ -130,25 +129,21 @@
 
     document.getElementById('btn-create').addEventListener('click', async () => {
       const userId = localStorage.getItem('user_id');
-      if (!userId) {
-        alert('Vous devez etre connecte pour creer un projet');
-        window.location.href = 'index.html';
-        return;
-      }
+      if (!userId) { alert('Vous devez etre connecte pour creer un projet'); window.location.href = 'index.html'; return; }
 
-      const rawTitle        = document.getElementById('title').value.trim();
-      const rawDescription  = document.getElementById('description').value.trim();
-      const projectType     = document.getElementById('projectType').value;
-      const landTitle       = document.getElementById('landTitle').value.trim();
-      const area            = document.getElementById('area').value.trim();
-      const locationDetail  = document.getElementById('locationDetail').value.trim();
-      const currency        = document.getElementById('currency').value;
-      const budget          = Number(document.getElementById('budget').value);
-      const startDate       = document.getElementById('startDate').value;
-      const endDate         = document.getElementById('endDate').value;
-      const country         = document.getElementById('country').value;
-      const city            = document.getElementById('city').value.trim();
-      const address         = document.getElementById('address').value.trim();
+      const rawTitle = document.getElementById('title').value.trim();
+      const rawDescription = document.getElementById('description').value.trim();
+      const projectType = document.getElementById('projectType').value;
+      const landTitle = document.getElementById('landTitle').value.trim();
+      const area = document.getElementById('area').value.trim();
+      const locationDetail = document.getElementById('locationDetail').value.trim();
+      const currency = document.getElementById('currency').value;
+      const budget = Number(document.getElementById('budget').value);
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      const country = document.getElementById('country').value;
+      const city = document.getElementById('city').value.trim();
+      const address = document.getElementById('address').value.trim();
 
       if (!rawTitle) { alert('Entrez un titre'); return; }
       if (!rawDescription) { alert('Entrez une description'); return; }
@@ -159,17 +154,14 @@
       if (landTitle) extraInfo.push(`Titre foncier : ${landTitle}`);
       if (area) extraInfo.push(`Superficie : ${area} m²`);
       if (locationDetail) extraInfo.push(`Zone / Localisation : ${locationDetail}`);
-
-      if (extraInfo.length > 0) {
-        finalDescription += "\n\n--- Informations Foncier ---\n" + extraInfo.join(" | ");
-      }
+      if (extraInfo.length > 0) finalDescription += "\n\n--- Informations Foncier ---\n" + extraInfo.join(" | ");
 
       const btn = document.getElementById('btn-create');
       btn.disabled = true;
       btn.textContent = 'Création en cours...';
 
       try {
-        // Création du projet SANS jalons
+        // 1) Création du projet
         const res = await fetch(SUPABASE_URL + '/rest/v1/projects', {
           method: 'POST',
           headers: authHeaders({ 'Prefer': 'return=representation' }),
@@ -197,8 +189,32 @@
           return;
         }
 
-        // Succès : aucun jalon créé
-        alert('✅ Projet créé avec succès !\n\nNotre équipe va maintenant désigner un artisan qualifié.\nLes jalons seront créés par l\'artisan.');
+        const created = await res.json();
+        const projectId = Array.isArray(created) ? created[0]?.id : created?.id;
+
+        // 2) Création automatique du DÉPÔT (séquestre du budget)
+        if (projectId) {
+          try {
+            await fetch(SUPABASE_URL + '/rest/v1/transactions', {
+              method: 'POST',
+              headers: authHeaders({ 'Prefer': 'return=minimal' }),
+              body: JSON.stringify({
+                project_id: projectId,
+                milestone_id: null,
+                initiated_by: userId,
+                transaction_type: 'deposit',
+                status: 'completed',
+                amount: budget,
+                currency: currency,
+                description: 'Dépôt initial : ' + rawTitle
+              })
+            });
+          } catch (e) {
+            console.warn('Erreur création dépôt :', e);
+          }
+        }
+
+        alert('✅ Projet créé avec succès !\n\nVotre budget de ' + budget.toLocaleString('fr-FR') + ' ' + currency + ' a été séquestré.\n\nL\'équipe va maintenant désigner un artisan.');
         window.location.href = 'projets.html';
 
       } catch (e) {
