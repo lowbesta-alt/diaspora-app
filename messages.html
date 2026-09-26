@@ -10,6 +10,7 @@
 
   <main class="p-4 max-w-2xl mx-auto space-y-4 pt-6">
 
+    <!-- Visite en direct -->
     <section class="relative overflow-hidden rounded-3xl border border-red-500/30">
       <div class="absolute inset-0 bg-gradient-to-br from-red-900/40 via-slate-900/60 to-orange-900/30"></div>
       <div class="relative p-6">
@@ -41,7 +42,7 @@
       </div>
     </section>
 
-    <!-- Section Support / Admin -->
+    <!-- Carte Support Admin -->
     <a id="support-link" href="#" class="block bg-gradient-to-br from-sky-600/20 to-blue-900/20 border border-sky-500/40 rounded-2xl p-4 hover:bg-sky-500/10 transition">
       <div class="flex items-center gap-3">
         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-sky-500/30">
@@ -55,6 +56,7 @@
       </div>
     </a>
 
+    <!-- Recherche -->
     <div class="relative">
       <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">🔍</span>
       <input type="text" id="searchInput" placeholder="Rechercher une conversation..." class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-sm placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:bg-white/[0.07] transition">
@@ -85,19 +87,19 @@
     const userId = getCurrentUserId();
     const role = getCurrentUserRole();
 
-    // Lien Support → trouver l'admin
+    // Carte Support
     (async function initSupport() {
       const adminId = await getAdminUserId();
       if (!adminId) {
         document.getElementById('support-link').style.display = 'none';
         return;
       }
-      document.getElementById('support-link').href = 'message-direct.html?to=' + adminId;
       if (role === 'admin') {
         document.getElementById('support-subtitle').textContent = 'Vous êtes administrateur';
-        document.getElementById('support-link').href = '#';
         document.getElementById('support-link').style.opacity = '0.6';
         document.getElementById('support-link').style.pointerEvents = 'none';
+      } else {
+        document.getElementById('support-link').href = 'message-direct.html?to=' + adminId;
       }
     })();
 
@@ -106,19 +108,19 @@
     document.getElementById('btn-start-live').addEventListener('click', () => {
       const roomName = getLiveRoomName();
       const liveUrl = 'https://meet.jit.si/' + roomName;
-      const message = "🎥 VISITE EN DIRECT DU CHANTIER\n\nBonjour,\nJe vais démarrer une visite vidéo en direct du chantier.\n\nCliquez sur ce lien pour rejoindre :\n" + liveUrl + "\n\nÀ tout de suite !";
+      const message = "VISITE EN DIRECT DU CHANTIER\n\nBonjour,\nJe vais demarrer une visite video en direct du chantier.\n\nCliquez sur ce lien pour rejoindre :\n" + liveUrl + "\n\nA tout de suite !";
       if (navigator.clipboard) navigator.clipboard.writeText(liveUrl).catch(() => {});
       localStorage.setItem('live_url', liveUrl);
-      const choice = prompt("Lien de visite créé !\n\nTapez :\n1 = Envoyer par WhatsApp\n2 = Ouvrir la caméra\n3 = Copier le lien");
+      const choice = prompt("Lien de visite cree !\n\nTapez :\n1 = Envoyer par WhatsApp\n2 = Ouvrir la camera\n3 = Copier le lien");
       if (choice === '1') window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
       else if (choice === '2') window.open(liveUrl, '_blank');
-      else if (choice === '3') showSuccess('Lien copié !');
+      else if (choice === '3') showSuccess('Lien copie !');
     });
 
     document.getElementById('btn-join-live').addEventListener('click', () => {
       let liveUrl = localStorage.getItem('live_url');
       if (!liveUrl) {
-        const entered = prompt("Collez ici le lien reçu par WhatsApp ou Email :");
+        const entered = prompt("Collez ici le lien recu par WhatsApp ou Email :");
         if (!entered) return;
         liveUrl = entered;
       }
