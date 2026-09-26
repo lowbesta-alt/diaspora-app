@@ -1,6 +1,6 @@
 // ============================================================
 // APP.JS - Boite a outils centrale Espace Diaspora
-// v14.2 : notifications automatiques (version finale)
+// v15.0 : notifications automatiques + menu portefeuille admin
 // ============================================================
 
 // ---------- Injection du favicon ----------
@@ -471,7 +471,7 @@ function showSuccess(msg) { alert(msg); }
 function setupUserHeader() {}
 
 // ============================================================
-// NOTIFICATIONS AUTOMATIQUES - VERSION FINALE
+// NOTIFICATIONS AUTOMATIQUES
 // ============================================================
 async function edCheckNotifications() {
   if (!getToken()) return;
