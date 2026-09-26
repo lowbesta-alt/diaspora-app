@@ -10,6 +10,9 @@
 
   <main class="p-4 max-w-2xl mx-auto space-y-4 pt-6">
 
+    <!-- Marqueur de version -->
+    <div style="text-align:center; font-size:0.6rem; color:rgba(52,211,153,0.5); font-family:monospace;">build v3</div>
+
     <!-- VISITE EN DIRECT -->
     <section class="relative overflow-hidden rounded-3xl border border-red-500/30">
       <div class="absolute inset-0 bg-gradient-to-br from-red-900/40 via-slate-900/60 to-orange-900/30"></div>
@@ -42,11 +45,12 @@
       </div>
     </section>
 
-    <!-- CARTE SUPPORT : style forcé en inline -->
-    <a id="support-link" href="#" style="display:none; background:linear-gradient(135deg, rgba(2,132,199,0.30) 0%, rgba(30,58,138,0.30) 100%); border:1px solid rgba(14,165,233,0.6); border-radius:1rem; padding:1rem; text-decoration:none; color:#fff;">
+    <!-- CARTE SUPPORT -->
+    <a id="support-link" href="#" style="display:none; background:linear-gradient(135deg, rgba(2,132,199,0.30) 0%, rgba(30,58,138,0.30) 100%); border:1px solid rgba(14,165,233,0.6); border-radius:1rem; padding:1rem; text-decoration:none; color:#fff; position:relative;">
       <div style="display:flex; align-items:center; gap:0.75rem;">
-        <div style="width:3rem; height:3rem; border-radius:1rem; background:linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 4px 14px rgba(14,165,233,0.4);">
+        <div style="width:3rem; height:3rem; border-radius:1rem; background:linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 4px 14px rgba(14,165,233,0.4); position:relative;">
           <span style="font-size:1.5rem;">🎧</span>
+          <span id="support-unread-dot" style="display:none; position:absolute; top:-4px; right:-4px; width:12px; height:12px; background:#ef4444; border:2px solid #0f172a; border-radius:9999px; animation:pulse 2s infinite;"></span>
         </div>
         <div style="flex:1; min-width:0;">
           <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
@@ -55,6 +59,7 @@
           </div>
           <p style="font-size:0.7rem; color:#cbd5e1; margin:0.25rem 0 0 0;" id="support-subtitle">Chargement…</p>
         </div>
+        <span id="support-badge" style="display:none; background:#ef4444; color:#fff; font-size:0.7rem; font-weight:700; padding:0.2rem 0.55rem; border-radius:9999px; margin-right:0.25rem;"></span>
         <span style="color:#38bdf8; font-size:1.5rem;">›</span>
       </div>
     </a>
@@ -92,6 +97,13 @@
     <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
   </nav>
 
+  <style>
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.15); }
+    }
+  </style>
+
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script>
@@ -100,14 +112,37 @@
 
     const userId = getCurrentUserId();
     const role = getCurrentUserRole();
+    const isAdmin = role === 'admin';
+
+    let unreadByProject = {}; // { projectId: count }
+    let adminId = null;
+
+    /* ============ UTILITAIRE : compter les non-lus par projet ============ */
+    async function loadUnreadByProject() {
+      try {
+        const msgs = await apiGet('chat_messages',
+          'sender_id=neq.' + userId + '&read_at=is.null&limit=500');
+        if (Array.isArray(msgs)) {
+          for (const m of msgs) {
+            if (m.project_id) {
+              unreadByProject[m.project_id] = (unreadByProject[m.project_id] || 0) + 1;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('[unread chat]', e);
+      }
+    }
 
     /* ============ CARTE SUPPORT ============ */
     (async function initSupport() {
       const card = document.getElementById('support-link');
       const subtitle = document.getElementById('support-subtitle');
       const debugBox = document.getElementById('debug-info');
+      const badge = document.getElementById('support-badge');
+      const dot = document.getElementById('support-unread-dot');
 
-      if (role === 'admin') {
+      if (isAdmin) {
         card.style.display = 'none';
         debugBox.textContent = 'Vous êtes admin — carte masquée';
         loadAdminInbox();
@@ -117,48 +152,49 @@
       card.style.display = 'block';
 
       try {
-        // On charge TOUS les profils (max 20) pour trouver l'admin
         const allProfiles = await apiGet('profiles', 'limit=20');
-        console.log('[support] profiles =', allProfiles);
-
         if (!Array.isArray(allProfiles) || allProfiles.length === 0) {
-          subtitle.textContent = 'Aucun profil trouvé dans la base';
+          subtitle.textContent = 'Aucun profil trouvé';
           debugBox.textContent = 'profiles vide';
           card.href = '#';
           return;
         }
 
-        // On cherche un admin en essayant plusieurs noms de colonnes possibles
         let admin = allProfiles.find(p => p.default_role === 'admin');
         if (!admin) admin = allProfiles.find(p => p.role === 'admin');
-        if (!admin) admin = allProfiles.find(p => p.user_role === 'admin');
-        if (!admin) admin = allProfiles.find(p => p.is_admin === true);
         if (!admin) admin = allProfiles.find(p => (p.email || '').includes('lowbesta'));
 
         if (!admin) {
-          // Aucun admin : on affiche la liste pour comprendre
-          const summary = allProfiles.map(p =>
-            (p.full_name || p.email || p.id.substring(0, 8)) +
-            ' · role=' + (p.role || '-') +
-            ' · default_role=' + (p.default_role || '-')
-          ).join('<br>');
-          debugBox.innerHTML = '<div style="background:rgba(220,38,38,0.15); border:1px solid rgba(239,68,68,0.4); border-radius:0.5rem; padding:0.75rem; text-align:left;">' +
-            '<strong style="color:#fca5a5;">⚠ Aucun admin trouvé</strong><br><br>' + summary + '</div>';
-          subtitle.textContent = 'Admin non trouvé — voir la liste ci-dessous';
+          subtitle.textContent = 'Admin non trouvé';
+          debugBox.textContent = 'Aucun admin dans la base';
           card.href = '#';
           return;
         }
 
-        // Admin trouvé
-        card.href = 'message-direct.html?to=' + admin.id + '&v=2';
+        adminId = admin.id;
+        card.href = 'message-direct.html?to=' + adminId + '&v=2';
         subtitle.textContent = 'Canal privé avec ' + (admin.full_name || admin.email || 'l\'admin');
-        debugBox.textContent = 'Admin trouvé : ' + (admin.full_name || admin.email) + ' (id ' + admin.id.substring(0, 8) + ')';
-        debugBox.style.color = '#34d399';
+        debugBox.textContent = 'Admin trouvé : ' + (admin.full_name || admin.email);
+
+        // Compter les messages non lus avec l'admin
+        try {
+          const unreadDirect = await apiGet('direct_messages',
+            'recipient_id=eq.' + userId + '&sender_id=eq.' + adminId + '&read_at=is.null&limit=100');
+          const count = Array.isArray(unreadDirect) ? unreadDirect.length : 0;
+          if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = 'inline-block';
+            dot.style.display = 'block';
+            card.style.borderColor = 'rgba(239,68,68,0.7)';
+            card.style.boxShadow = '0 0 20px rgba(239,68,68,0.25)';
+          }
+        } catch (e) {
+          console.warn('[unread support]', e);
+        }
 
       } catch (e) {
         console.error('[support]', e);
         subtitle.textContent = 'Erreur : ' + (e && e.message ? e.message : e);
-        debugBox.textContent = String(e);
         card.href = '#';
       }
     })();
@@ -200,9 +236,11 @@
           const init = name.substring(0, 2).toUpperCase();
           const roleLbl = ({ admin:'Administrateur', investor:'Client', provider:'Artisan', project_manager:'Chef de projet' })[p && p.default_role] || 'Utilisateur';
           const preview = (info.lastMsg.content || '').substring(0, 50);
-          const badge = info.unread > 0 ? '<span class="ml-2 text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">' + info.unread + '</span>' : '';
+          const hasUnread = info.unread > 0;
+          const badge = hasUnread ? '<span class="ml-2 text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">' + info.unread + '</span>' : '';
+          const borderCls = hasUnread ? 'border-red-500/50 bg-red-500/[0.06]' : 'border-white/10 bg-white/5';
           return `
-            <a href="message-direct.html?to=${senderId}&v=2" class="group flex items-center gap-3 bg-white/5 hover:bg-white/[0.08] border border-white/10 rounded-2xl p-3.5 transition">
+            <a href="message-direct.html?to=${senderId}&v=2" class="group flex items-center gap-3 ${borderCls} hover:bg-white/[0.08] border rounded-2xl p-3.5 transition">
               <div class="relative flex-shrink-0">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-500 flex items-center justify-center font-extrabold text-sm shadow-lg shadow-emerald-500/30">${escapeHtml(init)}</div>
                 <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-slate-900"></span>
@@ -252,7 +290,7 @@
       const list = document.getElementById('conversations-list');
       try {
         let projects = [];
-        if (role === 'admin') {
+        if (isAdmin) {
           const all = await apiGet('projects', 'order=created_at.desc');
           projects = (Array.isArray(all) ? all : []).map(p => ({ projectId: p.id, projectTitle: p.title, city: p.city, role: 'admin' }));
         } else {
@@ -270,23 +308,42 @@
             } catch (e) {}
           }
         }
+
         if (projects.length === 0) {
           list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucune conversation</p>';
           return;
         }
-        list.innerHTML = projects.map(c => `
-          <a href="message-detail.html?id=${c.projectId}" class="group flex items-center gap-3 bg-white/5 hover:bg-white/[0.08] border border-white/10 rounded-2xl p-3.5 transition">
-            <div class="relative flex-shrink-0">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-600 to-sky-500 flex items-center justify-center font-extrabold text-sm shadow-lg shadow-sky-500/30">${escapeHtml(c.projectTitle.substring(0, 2).toUpperCase())}</div>
-              <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-slate-900"></span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <h3 class="font-bold text-sm truncate">${escapeHtml(c.projectTitle)}</h3>
-              <p class="text-[10px] text-sky-400 font-semibold uppercase tracking-wider mt-0.5">${escapeHtml(c.role)}</p>
-              <p class="text-xs text-slate-400 truncate mt-0.5">${c.city ? '📍 ' + escapeHtml(c.city) + ' — ' : ''}Touchez pour ouvrir</p>
-            </div>
-            <span class="text-slate-500 group-hover:text-sky-400 transition">›</span>
-          </a>`).join('');
+
+        list.innerHTML = projects.map(c => {
+          const unread = unreadByProject[c.projectId] || 0;
+          const hasUnread = unread > 0;
+          const badge = hasUnread
+            ? `<span class="ml-2 text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">${unread}</span>`
+            : '';
+          const borderCls = hasUnread
+            ? 'border-red-500/50 bg-red-500/[0.06]'
+            : 'border-white/10 bg-white/5';
+          const dot = hasUnread
+            ? '<span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-slate-900 animate-pulse"></span>'
+            : '<span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-slate-900"></span>';
+
+          return `
+            <a href="message-detail.html?id=${c.projectId}" class="group flex items-center gap-3 ${borderCls} hover:bg-white/[0.08] border rounded-2xl p-3.5 transition">
+              <div class="relative flex-shrink-0">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-600 to-sky-500 flex items-center justify-center font-extrabold text-sm shadow-lg shadow-sky-500/30">${escapeHtml(c.projectTitle.substring(0, 2).toUpperCase())}</div>
+                ${dot}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center">
+                  <h3 class="font-bold text-sm truncate">${escapeHtml(c.projectTitle)}</h3>
+                  ${badge}
+                </div>
+                <p class="text-[10px] text-sky-400 font-semibold uppercase tracking-wider mt-0.5">${escapeHtml(c.role)}</p>
+                <p class="text-xs text-slate-400 truncate mt-0.5">${c.city ? '📍 ' + escapeHtml(c.city) + ' — ' : ''}Touchez pour ouvrir</p>
+              </div>
+              <span class="text-slate-500 group-hover:text-sky-400 transition">›</span>
+            </a>`;
+        }).join('');
       } catch (e) {
         list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><p class="text-red-400 text-sm">Erreur de chargement</p></div>';
       }
@@ -299,7 +356,14 @@
       });
     });
 
-    loadConversations();
+    /* ============ LANCEMENT ============ */
+    (async function boot() {
+      // Charge les non-lus AVANT d'afficher les conversations
+      if (!isAdmin) {
+        await loadUnreadByProject();
+      }
+      loadConversations();
+    })();
   </script>
 </body>
 </html>
