@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversation - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white">
+
+  <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <a href="messages.html" class="text-2xl">←</a>
+    <div class="flex-1 text-center">
+      <div id="project-title" class="font-bold text-sm truncate">Chargement...</div>
+      <div id="project-subtitle" class="text-[10px] text-slate-400"></div>
+    </div>
+    <span class="w-6"></span>
+  </header>
+
+  <main class="pt-20 pb-24 px-4 max-w-2xl mx-auto">
+    <div id="messages-list" class="space-y-3">
+      <p class="text-slate-400 text-sm text-center py-8">Chargement...</p>
+    </div>
+  </main>
+
+  <div class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 p-3">
+    <div class="max-w-2xl mx-auto flex gap-2 items-end">
+      <textarea id="message-input" rows="1" placeholder="Votre message..." class="flex-1 bg-slate-800/50 border border-white/10 rounded-2xl px-4 py-3 text-sm resize-none focus:outline-none focus:border-sky-500 max-h-32"></textarea>
+      <button id="btn-send" class="w-12 h-12 rounded-2xl bg-sky-600 hover:bg-sky-500 flex items-center justify-center text-xl shadow-lg shadow-sky-500/30 transition flex-shrink-0">
+        ➤
+      </button>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if (!requireLogin()) throw new Error('Not logged');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectId = urlParams.get('id');
+    if (!projectId) {
+      alert('Aucune conversation sélectionnée');
+      window.location.href = 'messages.html';
+    }
+
+    const userId = getCurrentUserId();
+    let projectData = null;
+
+    async function loadProject() {
+      try {
+        const data = await apiGet('projects', 'id=eq.' + projectId);
+        if (Array.isArray(data) && data[0]) {
+          projectData = data[0];
+          document.getElementById('project-title').textContent = projectData.title;
+          document.getElementById('project-subtitle').textContent = projectData.city ? '📍 ' + projectData.city : '';
+        }
+      } catch (e) {}
+    }
+
+    async function loadMessages() {
+      const list = document.getElementById('messages-list');
+      try {
+        const data = await apiGet('chat_messages', 'project_id=eq.' + projectId + '&order=created_at.asc&limit=100');
+        const valid = Array.isArray(data) ? data : [];
+
+        if (valid.length === 0) {
+          list.innerHTML = '<div class="text-center py-12"><div class="text-4xl mb-3 opacity-40">💬</div><p class="text-slate-400 text-sm">Aucun message</p><p class="text-slate-500 text-xs mt-1">Envoyez le premier message</p></div>';
+          return;
+        }
+
+        const senderIds = [...new Set(valid.map(m => m.sender_id).filter(Boolean))];
+        const profiles = {};
+        for (const id of senderIds) {
+          try {
+            const p = await apiGet('profiles', 'id=eq.' + id);
+            if (Array.isArray(p) && p[0]) profiles[id] = p[0];
+          } catch (e) {}
+        }
+
+        list.innerHTML = valid.map(m => {
+          const isMine = m.sender_id === userId;
+          const profile = profiles[m.sender_id];
+          const senderName = profile ? (profile.full_name || profile.email) : 'Utilisateur';
+
+          return `
+            <div class="flex ${isMine ? 'justify-end' : 'justify-start'}">
+              <div class="max-w-[80%] ${isMine ? 'bg-sky-600 rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl' : 'bg-white/10 rounded-tl-2xl rounded-tr-2xl rounded-br-2xl'} px-4 py-2.5">
+                ${!isMine ? `<p class="text-[10px] text-slate-400 font-bold mb-1">${escapeHtml(senderName)}</p>` : ''}
+                <p class="text-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(m.content)}</p>
+                <p class="text-[9px] ${isMine ? 'text-sky-100' : 'text-slate-500'} mt-1 text-right">${formatDate(m.created_at)}</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        for (const m of valid) {
+          if (m.sender_id !== userId && !m.read_at) {
+            try { await apiPatch('chat_messages', m.id, { read_at: new Date().toISOString() }); } catch (e) {}
+          }
+        }
+
+        setTimeout(() => { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }, 100);
+
+      } catch (e) {
+        list.innerHTML = '<p class="text-red-400 text-sm text-center py-8">Erreur : ' + e.message + '</p>';
+      }
+    }
+
+    document.getElementById('btn-send').addEventListener('click', sendMessage);
+    document.getElementById('message-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+
+    async function sendMessage() {
+      const input = document.getElementById('message-input');
+      const content = input.value.trim();
+      if (!content) return;
+
+      const btn = document.getElementById('btn-send');
+      btn.disabled = true;
+
+      try {
+        await apiPost('chat_messages', {
+          project_id: projectId,
+          sender_id: userId,
+          content: content
+        });
+        input.value = '';
+        await loadMessages();
+      } catch (e) {
+        showError(e.message);
+      }
+      btn.disabled = false;
+    }
+
+    loadProject();
+    loadMessages();
+  </script>
+</body>
+</html>
