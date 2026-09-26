@@ -6,134 +6,289 @@
   <title>Vérification d'identité - Espace Diaspora</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 flex items-center justify-center min-h-screen p-4">
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
 
-  <div class="w-full max-w-xl bg-white/95 backdrop-blur-md p-6 rounded-2xl shadow-2xl my-8">
-    <div class="text-center mb-6">
-      <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 font-bold text-xl mb-3">🌍</div>
-      <h1 class="text-2xl font-bold text-slate-900">Vérification d'identité</h1>
-      <p class="text-sm text-slate-600 mt-1">Vos documents sont chiffrés et confidentiels</p>
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <a href="dashboard-investisseur.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm">Vérification d'identité</span>
+    <span class="w-6"></span>
+  </header>
+
+  <main class="p-4 max-w-xl mx-auto space-y-4">
+
+    <!-- Bandeau info -->
+    <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 flex items-start gap-3">
+      <span class="text-xl">🔒</span>
+      <div class="flex-1">
+        <p class="text-sm font-bold text-emerald-200">Documents chiffrés et confidentiels</p>
+        <p class="text-[11px] text-emerald-100/70 mt-1 leading-relaxed">
+          Vos pièces sont visibles uniquement par l'équipe Espace Diaspora. Elles servent à sécuriser vos transactions.
+        </p>
+      </div>
     </div>
 
+    <!-- Statut (rempli dynamiquement) -->
+    <div id="statusBox" class="hidden"></div>
+
+    <!-- Formulaire -->
     <form id="kycForm" class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">Type de document</label>
-        <select id="documentType" required class="w-full px-4 py-3 rounded-xl border border-slate-300 text-slate-800 bg-slate-50">
+
+      <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
+        <label class="text-xs font-semibold text-slate-300 mb-2 block">Type de document *</label>
+        <select id="documentType" required class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
           <option value="" disabled selected>Sélectionnez un document</option>
-          <option value="Passeport">Passeport</option>
-          <option value="Carte d'identité">Carte d'identité</option>
-          <option value="Permis de conduire">Permis de conduire</option>
-          <option value="Titre de séjour">Titre de séjour</option>
+          <option value="Passeport">🛂 Passeport</option>
+          <option value="Carte d'identité">🪪 Carte d'identité</option>
+          <option value="Permis de conduire">🚗 Permis de conduire</option>
+          <option value="Titre de séjour">📄 Titre de séjour</option>
         </select>
-      </div>
+      </section>
 
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">Pièce - Recto</label>
-        <input type="file" id="frontDoc" accept="image/*,.pdf" required class="w-full text-sm text-slate-500 border border-slate-300 rounded-xl p-2">
-      </div>
+      <!-- Recto -->
+      <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
+        <label class="text-xs font-semibold text-slate-300 mb-2 block">Pièce — Recto *</label>
+        <label for="frontDoc" id="frontLabel" class="block border-2 border-dashed border-white/20 rounded-2xl p-4 text-center cursor-pointer hover:border-emerald-500 transition">
+          <div class="text-3xl mb-1">📷</div>
+          <p class="text-xs font-semibold">Cliquez pour prendre en photo</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">Face avant de votre pièce</p>
+        </label>
+        <input type="file" id="frontDoc" accept="image/*,.pdf" required class="hidden">
+        <div id="frontPreview" class="hidden mt-2"></div>
+      </section>
 
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">Pièce - Verso</label>
-        <input type="file" id="backDoc" accept="image/*,.pdf" required class="w-full text-sm text-slate-500 border border-slate-300 rounded-xl p-2">
-      </div>
+      <!-- Verso -->
+      <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
+        <label class="text-xs font-semibold text-slate-300 mb-2 block">Pièce — Verso *</label>
+        <label for="backDoc" id="backLabel" class="block border-2 border-dashed border-white/20 rounded-2xl p-4 text-center cursor-pointer hover:border-emerald-500 transition">
+          <div class="text-3xl mb-1">📷</div>
+          <p class="text-xs font-semibold">Cliquez pour prendre en photo</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">Face arrière (ou 2e page)</p>
+        </label>
+        <input type="file" id="backDoc" accept="image/*,.pdf" required class="hidden">
+        <div id="backPreview" class="hidden mt-2"></div>
+      </section>
 
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">Selfie avec la pièce</label>
-        <input type="file" id="selfieDoc" accept="image/*" required class="w-full text-sm text-slate-500 border border-slate-300 rounded-xl p-2">
-      </div>
+      <!-- Selfie -->
+      <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
+        <label class="text-xs font-semibold text-slate-300 mb-2 block">Selfie avec la pièce *</label>
+        <p class="text-[10px] text-slate-400 mb-2">Tenez votre pièce à côté de votre visage. Le document et votre visage doivent être bien visibles.</p>
+        <label for="selfieDoc" id="selfieLabel" class="block border-2 border-dashed border-white/20 rounded-2xl p-4 text-center cursor-pointer hover:border-emerald-500 transition">
+          <div class="text-3xl mb-1">🤳</div>
+          <p class="text-xs font-semibold">Cliquez pour prendre un selfie</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">Visage + pièce côte à côte</p>
+        </label>
+        <input type="file" id="selfieDoc" accept="image/*" required class="hidden">
+        <div id="selfiePreview" class="hidden mt-2"></div>
+      </section>
 
-      <button type="submit" id="submitBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl">
+      <button type="submit" id="submitBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 py-3.5 rounded-xl font-semibold text-sm transition">
         Envoyer pour vérification
       </button>
+
+      <p class="text-center text-[11px] text-slate-400">
+        <a href="dashboard-investisseur.html" class="hover:underline">Passer cette étape pour l'instant</a>
+      </p>
+
     </form>
 
-    <div id="statusBox" class="mt-6 hidden p-4 rounded-xl border text-center font-medium text-sm"></div>
+  </main>
 
-    <p class="text-center text-sm text-slate-600 mt-6 pt-6 border-t">
-      <a href="dashboard-investisseur.html" class="text-emerald-700 font-semibold hover:underline">Passer cette étape pour l'instant</a>
-    </p>
-  </div>
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-investisseur.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
+    <a href="projets.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📁</span>Projets</a>
+    <a href="portefeuille.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💰</span>Portefeuille</a>
+    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
+    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
+  </nav>
 
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script>
     if (!requireLogin()) throw new Error('Not logged');
-    setupUserHeader();
 
+    const userId = getCurrentUserId();
     const kycForm = document.getElementById('kycForm');
     const submitBtn = document.getElementById('submitBtn');
     const statusBox = document.getElementById('statusBox');
 
+    let frontFile = null, backFile = null, selfieFile = null;
+
+    /* ============================================
+       APERÇU DES FICHIERS
+       ============================================ */
+    function bindPreview(inputId, previewId, labelId, setter) {
+      const input = document.getElementById(inputId);
+      const preview = document.getElementById(previewId);
+      const label = document.getElementById(labelId);
+
+      input.addEventListener('change', () => {
+        const f = input.files[0];
+        if (!f) return;
+        setter(f);
+        label.classList.add('hidden');
+        preview.classList.remove('hidden');
+
+        const isImg = f.type.startsWith('image/');
+        preview.innerHTML = `
+          <div class="flex items-center gap-3 bg-slate-800/50 rounded-xl p-2">
+            ${isImg
+              ? `<img src="${URL.createObjectURL(f)}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">`
+              : `<div class="w-16 h-16 rounded-lg bg-white/10 flex items-center justify-center text-2xl flex-shrink-0">📄</div>`
+            }
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-semibold truncate">${escapeHtml(f.name)}</p>
+              <p class="text-[10px] text-slate-400">${(f.size / 1024).toFixed(0)} Ko</p>
+            </div>
+            <button type="button" class="text-red-400 text-sm px-2" data-remove="${inputId}">✕</button>
+          </div>
+        `;
+
+        preview.querySelector('[data-remove]').addEventListener('click', () => {
+          input.value = '';
+          setter(null);
+          preview.classList.add('hidden');
+          preview.innerHTML = '';
+          label.classList.remove('hidden');
+        });
+      });
+    }
+
+    bindPreview('frontDoc', 'frontPreview', 'frontLabel', (f) => frontFile = f);
+    bindPreview('backDoc', 'backPreview', 'backLabel', (f) => backFile = f);
+    bindPreview('selfieDoc', 'selfiePreview', 'selfieLabel', (f) => selfieFile = f);
+
+    /* ============================================
+       AFFICHAGE DU STATUT
+       ============================================ */
+    function showStatus(status, rejectionReason) {
+      if (status === 'pending') {
+        statusBox.className = 'bg-amber-500/10 border border-amber-500/40 rounded-2xl p-4';
+        statusBox.innerHTML = `
+          <div class="flex items-start gap-3">
+            <span class="text-xl">⏳</span>
+            <div class="flex-1">
+              <p class="text-sm font-bold text-amber-200">Vérification en cours</p>
+              <p class="text-[11px] text-amber-100/70 mt-1">Vos documents ont bien été reçus. Notre équipe les examine sous 24-48h.</p>
+            </div>
+          </div>
+        `;
+        statusBox.classList.remove('hidden');
+        kycForm.style.display = 'none';
+      } else if (status === 'verified') {
+        statusBox.className = 'bg-emerald-500/10 border border-emerald-500/40 rounded-2xl p-4';
+        statusBox.innerHTML = `
+          <div class="flex items-start gap-3">
+            <span class="text-xl">✅</span>
+            <div class="flex-1">
+              <p class="text-sm font-bold text-emerald-200">Compte vérifié</p>
+              <p class="text-[11px] text-emerald-100/70 mt-1">Votre identité a été validée. Vous pouvez utiliser toutes les fonctionnalités.</p>
+            </div>
+          </div>
+        `;
+        statusBox.classList.remove('hidden');
+        kycForm.style.display = 'none';
+      } else if (status === 'rejected') {
+        statusBox.className = 'bg-red-500/10 border border-red-500/40 rounded-2xl p-4';
+        statusBox.innerHTML = `
+          <div class="flex items-start gap-3">
+            <span class="text-xl">❌</span>
+            <div class="flex-1">
+              <p class="text-sm font-bold text-red-200">Documents refusés</p>
+              <p class="text-[11px] text-red-100/70 mt-1">${escapeHtml(rejectionReason || 'Vos documents n\'ont pas pu être validés. Merci de les renvoyer.')}</p>
+              <p class="text-[11px] text-slate-300 mt-2">Vous pouvez soumettre à nouveau vos documents ci-dessous.</p>
+            </div>
+          </div>
+        `;
+        statusBox.classList.remove('hidden');
+        // Formulaire reste visible pour permettre de renvoyer
+        submitBtn.textContent = 'Renvoyer pour vérification';
+      }
+    }
+
     async function loadKycStatus() {
-      const userId = getCurrentUserId();
       try {
         const profiles = await apiGet('profiles', 'id=eq.' + userId);
         if (Array.isArray(profiles) && profiles[0]) {
           const status = profiles[0].kyc_status;
-          if (status === 'pending') {
-            statusBox.className = 'mt-6 p-4 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-center font-medium text-sm';
-            statusBox.textContent = 'En attente de vérification';
-            statusBox.classList.remove('hidden');
-            kycForm.style.display = 'none';
-          } else if (status === 'verified') {
-            statusBox.className = 'mt-6 p-4 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 text-center font-medium text-sm';
-            statusBox.textContent = '✅ Compte vérifié';
-            statusBox.classList.remove('hidden');
-            kycForm.style.display = 'none';
+          if (status === 'pending' || status === 'verified' || status === 'rejected') {
+            let reason = null;
+            // Essaie de récupérer la raison du refus depuis kyc_verifications
+            if (status === 'rejected') {
+              try {
+                const kyc = await apiGet('kyc_verifications', 'user_id=eq.' + userId + '&order=created_at.desc&limit=1');
+                if (Array.isArray(kyc) && kyc[0]) reason = kyc[0].rejection_reason || null;
+              } catch (e) {}
+            }
+            showStatus(status, reason);
           }
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error('[kyc status]', e);
+      }
     }
 
+    /* ============================================
+       SOUMISSION
+       ============================================ */
     kycForm.addEventListener('submit', async function(e) {
       e.preventDefault();
-      const docType = document.getElementById('documentType').value;
-      const front = document.getElementById('frontDoc').files[0];
-      const back = document.getElementById('backDoc').files[0];
-      const selfie = document.getElementById('selfieDoc').files[0];
 
-      if (!docType || !front || !back || !selfie) {
-        alert('Sélectionnez tous les documents');
-        return;
-      }
+      const docType = document.getElementById('documentType').value;
+      if (!docType) { alert('Sélectionnez un type de document'); return; }
+      if (!frontFile || !backFile || !selfieFile) { alert('Ajoutez les 3 fichiers (recto, verso, selfie)'); return; }
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Envoi en cours...';
 
       try {
-        const userId = getCurrentUserId();
         const ts = Date.now();
         const basePath = userId + '/';
 
         const files = [
-          { file: front, name: ts + '_front_' + front.name },
-          { file: back, name: ts + '_back_' + back.name },
-          { file: selfie, name: ts + '_selfie_' + selfie.name }
+          { file: frontFile, name: ts + '_front_' + frontFile.name },
+          { file: backFile, name: ts + '_back_' + backFile.name },
+          { file: selfieFile, name: ts + '_selfie_' + selfieFile.name }
         ];
 
+        // Upload Storage
         for (const item of files) {
           await uploadFile('kyc-documents', basePath + item.name, item.file);
         }
 
-        await apiPost('kyc_verifications', {
+        // Insertion BDD (avec fallback si certaines colonnes manquent)
+        const kycData = {
           user_id: userId,
           document_type: docType,
           document_front_url: basePath + files[0].name,
           document_back_url: basePath + files[1].name,
           selfie_url: basePath + files[2].name,
           status: 'pending'
-        });
+        };
 
+        try {
+          await apiPost('kyc_verifications', kycData);
+        } catch (err) {
+          console.warn('[kyc] insert full failed, retry minimal', err);
+          // Retry minimal (au cas où status ou autres colonnes manquent)
+          await apiPost('kyc_verifications', {
+            user_id: userId,
+            document_type: docType,
+            document_front_url: basePath + files[0].name,
+            document_back_url: basePath + files[1].name,
+            selfie_url: basePath + files[2].name
+          });
+        }
+
+        // Mise à jour du profil
         await apiPatch('profiles', userId, { kyc_status: 'pending' });
 
-        statusBox.className = 'mt-6 p-4 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-center font-medium text-sm';
-        statusBox.textContent = '✅ Documents envoyés ! En attente de vérification.';
-        statusBox.classList.remove('hidden');
-        submitBtn.textContent = 'Envoyé';
-        kycForm.style.display = 'none';
+        showStatus('pending');
+        showSuccess('Documents envoyés !');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
 
       } catch (err) {
-        showError(err.message);
+        console.error('[kyc submit]', err);
+        showError(err.message || 'Erreur lors de l\'envoi');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Envoyer pour vérification';
       }
