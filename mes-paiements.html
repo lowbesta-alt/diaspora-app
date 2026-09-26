@@ -12,45 +12,63 @@
 
     <div>
       <h1 class="text-2xl font-extrabold tracking-tight">Mes paiements</h1>
-      <p class="text-sm text-slate-400 mt-1">Suivi des déblocages de fonds validés</p>
+      <p class="text-sm text-slate-400 mt-1">Suivez vos gains par jalon et par projet</p>
     </div>
 
-    <!-- Carte principale -->
-    <section class="bg-gradient-to-br from-amber-500 to-amber-400 rounded-3xl p-6 text-[#0a1838] shadow-2xl shadow-amber-500/30">
-      <div class="text-xs font-bold uppercase tracking-widest opacity-70 mb-1">Total perçu</div>
-      <div class="text-4xl font-extrabold mb-1" id="total-recu">-</div>
-      <div class="text-sm opacity-80 mb-4">XAF</div>
-      <div class="flex gap-2">
-        <div class="bg-white/20 backdrop-blur rounded-xl px-3 py-1.5">
-          <span class="text-[10px] font-bold uppercase tracking-wider">En attente</span>
-          <span class="text-xs font-extrabold ml-2" id="total-attente">-</span>
+    <!-- CARTE TOTAL GAGNÉ -->
+    <section class="relative overflow-hidden rounded-3xl border border-emerald-500/30 shadow-2xl shadow-emerald-500/20">
+      <div class="absolute inset-0 bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-900"></div>
+      <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-20 translate-x-20 blur-3xl"></div>
+      <div class="relative p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">💰</span>
+            <span class="text-xs font-bold uppercase tracking-widest text-emerald-100">Total encaissé</span>
+          </div>
+          <span class="text-[10px] bg-white/20 backdrop-blur px-2 py-1 rounded-full font-bold">XAF</span>
         </div>
+        <p class="text-4xl font-extrabold tracking-tight mb-1" id="total-earned">-</p>
+        <p class="text-xs text-emerald-100">Fonds débloqués par les clients</p>
       </div>
     </section>
 
-    <!-- Historique -->
-    <section>
-      <h2 class="text-lg font-extrabold tracking-tight mb-3">Historique des déblocages</h2>
-      <div id="payments-list" class="space-y-2">
-        <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
+    <!-- STATS SECONDAIRES -->
+    <section class="grid grid-cols-2 gap-3">
+      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center mb-3">
+          <span class="text-xl">⏳</span>
+        </div>
+        <div class="text-xl font-extrabold text-amber-300" id="stat-pending">-</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mt-1 font-semibold">En attente de validation</div>
+      </div>
+      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+        <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center mb-3">
+          <span class="text-xl">🎯</span>
+        </div>
+        <div class="text-xl font-extrabold text-sky-300" id="stat-projects">-</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mt-1 font-semibold">Chantiers actifs</div>
       </div>
     </section>
 
-    <!-- Info procédure -->
-    <div class="bg-emerald-500/10 border rounded-2xl p-4 flex items-start gap-3 mt-6" style="border-color: rgba(16,185,129,0.35);">
-      <span class="text-emerald-400 text-xl flex-shrink-0">🛡️</span>
-      <p class="text-xs text-emerald-200 leading-relaxed">
-        Les paiements sont débloqués après validation du jalon par le client et vérification de la plateforme.
-      </p>
+    <!-- FILTRES -->
+    <div class="flex gap-2 overflow-x-auto pb-1 text-xs">
+      <button data-filter="all" class="filter-btn px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold transition whitespace-nowrap">Tous</button>
+      <button data-filter="released" class="filter-btn px-3 py-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/10 transition whitespace-nowrap">Encaissés</button>
+      <button data-filter="approved" class="filter-btn px-3 py-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/10 transition whitespace-nowrap">En attente</button>
+    </div>
+
+    <!-- LISTE DES PAIEMENTS -->
+    <div id="payments-list" class="space-y-2">
+      <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
     </div>
 
   </main>
 
   <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
     <a href="dashboard-artisan.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Chantiers</a>
+    <a href="artisan-jalon.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🎯</span>Jalons</a>
     <a href="mes-rapports.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📸</span>Rapports</a>
     <a href="mes-paiements.html" class="flex flex-col items-center gap-0.5 text-amber-400 text-[10px]"><span class="text-lg">💰</span>Paiements</a>
-    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
     <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
   </nav>
 
@@ -60,52 +78,134 @@
     if (!requireRole(['provider', 'project_manager'])) throw new Error('Not allowed');
 
     const userId = getCurrentUserId();
+    let allPayments = [];
+    let currentFilter = 'all';
 
+    // ============================================================
+    // CHARGEMENT DES PAIEMENTS
+    // ============================================================
     async function loadPayments() {
       const list = document.getElementById('payments-list');
       try {
-        const txs = await apiGet('transactions', 'initiated_by=eq.' + userId + '&order=created_at.desc&limit=30');
-        const valid = Array.isArray(txs) ? txs : [];
+        // 1. Récupère les projets assignés à cet artisan
+        const projects = await apiGet('projects', 'assigned_artisan_id=eq.' + userId + '&order=created_at.desc');
+        const validProjects = Array.isArray(projects) ? projects : [];
 
-        let totalRecu = 0;
-        let totalAttente = 0;
-
-        valid.forEach(t => {
-          const amt = Number(t.amount) || 0;
-          if (t.status === 'released') totalRecu += amt;
-          else if (t.status === 'pending' || t.status === 'escrowed') totalAttente += amt;
-        });
-
-        document.getElementById('total-recu').textContent = totalRecu.toLocaleString('fr-FR');
-        document.getElementById('total-attente').textContent = totalAttente.toLocaleString('fr-FR');
-
-        if (valid.length === 0) {
-          list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">💰</div><p class="text-slate-400 text-sm">Aucun paiement pour le moment</p></div>';
+        if (validProjects.length === 0) {
+          list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">💰</div><p class="text-slate-400 text-sm">Aucun projet assigné</p><p class="text-slate-500 text-xs mt-2">Vos paiements apparaîtront ici.</p></div>';
+          document.getElementById('total-earned').textContent = '0';
+          document.getElementById('stat-pending').textContent = '0';
+          document.getElementById('stat-projects').textContent = '0';
           return;
         }
 
-        list.innerHTML = valid.map(t => {
-          const isReleased = t.status === 'released';
-          const bg = isReleased ? 'bg-emerald-500/20' : 'bg-amber-500/20';
-          const ic = isReleased ? '✅' : '⏳';
-          const label = isReleased ? 'Débloqué' : 'En attente';
-          const color = isReleased ? 'text-emerald-400' : 'text-amber-400';
-          return `
-            <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-3">
-              <div class="w-11 h-11 rounded-xl ${bg} flex items-center justify-center text-lg flex-shrink-0">${ic}</div>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-bold truncate">${escapeHtml(t.description || 'Paiement')}</p>
-                <p class="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">${formatDate(t.created_at)} · ${label}</p>
-              </div>
-              <div class="text-sm font-extrabold ${color}">+ ${Number(t.amount).toLocaleString('fr-FR')}</div>
-            </div>
-          `;
-        }).join('');
+        // 2. Récupère tous les jalons de ces projets
+        const projectIds = validProjects.map(p => p.id);
+        const projectMap = {};
+        validProjects.forEach(p => { projectMap[p.id] = p; });
+
+        const milestones = await apiGet('milestones', 'project_id=in.(' + projectIds.join(',') + ')&order=created_at.desc');
+        const validMilestones = Array.isArray(milestones) ? milestones : [];
+
+        // 3. Prépare les paiements (uniquement les jalons released ou approved)
+        allPayments = [];
+        for (const m of validMilestones) {
+          // On garde uniquement les jalons avec statut intéressant
+          if (m.status === 'released' || m.status === 'approved') {
+            const project = projectMap[m.project_id];
+            allPayments.push({
+              id: m.id,
+              project_title: project ? project.title : 'Projet',
+              project_city: project ? project.city : '',
+              title: m.title,
+              amount: Number(m.amount) || 0,
+              currency: m.currency || 'XAF',
+              status: m.status,
+              order_index: m.order_index,
+              released_at: m.released_at,
+              validated_at: m.validated_at,
+              created_at: m.created_at
+            });
+          }
+        }
+
+        // 4. Calcul des stats
+        const released = allPayments.filter(p => p.status === 'released');
+        const approved = allPayments.filter(p => p.status === 'approved');
+        const totalEarned = released.reduce((s, p) => s + p.amount, 0);
+        const totalPending = approved.reduce((s, p) => s + p.amount, 0);
+
+        document.getElementById('total-earned').textContent = totalEarned.toLocaleString('fr-FR');
+        document.getElementById('stat-pending').textContent = totalPending.toLocaleString('fr-FR');
+        document.getElementById('stat-projects').textContent = validProjects.length;
+
+        renderPayments();
 
       } catch (e) {
-        list.innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur de chargement</p>';
+        list.innerHTML = '<div class="text-center py-8 bg-red-500/10 border border-red-500/30 rounded-2xl"><p class="text-red-300 text-sm">Erreur de chargement</p><p class="text-red-200 text-xs mt-1">' + e.message + '</p></div>';
       }
     }
+
+    // ============================================================
+    // AFFICHAGE
+    // ============================================================
+    function renderPayments() {
+      const list = document.getElementById('payments-list');
+      let filtered = allPayments;
+      if (currentFilter !== 'all') {
+        filtered = allPayments.filter(p => p.status === currentFilter);
+      }
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun paiement</p><p class="text-slate-500 text-xs mt-2">Les paiements débloqués par les clients apparaîtront ici.</p></div>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(p => {
+        const isReleased = p.status === 'released';
+        const meta = isReleased
+          ? { ic: '✅', bg: 'bg-emerald-500/20', label: 'ENCAISSÉ', color: 'text-emerald-300', badge: 'bg-emerald-500/20 text-emerald-300' }
+          : { ic: '⏳', bg: 'bg-amber-500/20', label: 'EN ATTENTE', color: 'text-amber-300', badge: 'bg-amber-500/20 text-amber-300' };
+
+        return `
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl ${meta.bg} flex items-center justify-center flex-shrink-0 text-lg">${meta.ic}</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-[10px] ${meta.badge} px-2 py-0.5 rounded-full font-bold">${meta.label}</span>
+                  <span class="text-sm font-extrabold ${meta.color}">+ ${p.amount.toLocaleString('fr-FR')} ${p.currency}</span>
+                </div>
+                <p class="text-xs text-slate-200 mt-1 font-semibold truncate">${escapeHtml(p.title)}</p>
+              </div>
+            </div>
+            <div class="flex justify-between items-center text-[10px] text-slate-500 border-t border-white/5 pt-2">
+              <span class="truncate">🏗️ ${escapeHtml(p.project_title)}${p.project_city ? ' · ' + escapeHtml(p.project_city) : ''}</span>
+              <span class="flex-shrink-0">Jalon n°${p.order_index || '?'}</span>
+            </div>
+            <div class="text-[10px] text-slate-500">
+              📅 ${isReleased && p.released_at ? 'Encaissé le ' + formatDate(p.released_at) : 'Validé le ' + formatDate(p.validated_at || p.created_at)}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ============================================================
+    // FILTRES
+    // ============================================================
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.remove('bg-emerald-600', 'text-white');
+          b.classList.add('bg-white/5', 'text-slate-300', 'border', 'border-white/10');
+        });
+        btn.classList.add('bg-emerald-600', 'text-white');
+        btn.classList.remove('bg-white/5', 'text-slate-300', 'border', 'border-white/10');
+        currentFilter = btn.dataset.filter;
+        renderPayments();
+      });
+    });
 
     loadPayments();
   </script>
