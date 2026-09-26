@@ -19,7 +19,7 @@
     <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
       <span class="text-amber-400 text-xl flex-shrink-0">🛡️</span>
       <p class="text-xs text-amber-200 leading-relaxed">
-        Les <strong>5 jalons standards</strong> avec leurs <strong>pourcentages de référence</strong> sont pré-chargés. Vous pouvez les ajuster selon les spécificités du chantier, mais le total doit être de <strong>100%</strong>.
+        Les <strong>5 jalons standards</strong> avec leurs <strong>pourcentages de référence</strong> sont pré-chargés. Vous pouvez les ajuster, mais le total doit être de <strong>100%</strong>.
       </p>
     </div>
 
@@ -86,43 +86,14 @@
     let projectBudget = 0;
     let projectCurrency = 'XAF';
 
-    // JALONS STANDARDS avec % de référence
     const STANDARD_MILESTONES = [
-      {
-        title: 'Études, Implantation et Terrassement',
-        detailed_description: 'Validation des plans d\'exécution, piquetage du terrain, nettoyage et premiers mouvements de terre.',
-        standard_percent: 10,
-        required_evidence: ''
-      },
-      {
-        title: 'Fondation et Élévation des Murs',
-        detailed_description: 'Coulage de la fondation, soubassement et élévation des murs principaux du gros œuvre.',
-        standard_percent: 25,
-        required_evidence: ''
-      },
-      {
-        title: 'Dalle / Charpente et Toiture',
-        detailed_description: 'Coulage de la dalle haute (le cas échéant) ou pose de la charpente et installation complète de la couverture de toiture.',
-        standard_percent: 25,
-        required_evidence: ''
-      },
-      {
-        title: 'Second Œuvre et Cloisons',
-        detailed_description: 'Pose des menuiseries (portes et fenêtres), cloisons intérieures, et passage des gaines techniques (électricité et plomberie).',
-        standard_percent: 20,
-        required_evidence: ''
-      },
-      {
-        title: 'Finitions, Peinture et Remise des Clés',
-        detailed_description: 'Enduits, carrelage, peintures intérieures et extérieures, installation des équipements sanitaires et réception définitive du chantier.',
-        standard_percent: 20,
-        required_evidence: ''
-      }
+      { title: 'Études, Implantation et Terrassement', detailed_description: 'Validation des plans d\'exécution, piquetage du terrain, nettoyage et premiers mouvements de terre.', standard_percent: 10, required_evidence: '' },
+      { title: 'Fondation et Élévation des Murs', detailed_description: 'Coulage de la fondation, soubassement et élévation des murs principaux du gros œuvre.', standard_percent: 25, required_evidence: '' },
+      { title: 'Dalle / Charpente et Toiture', detailed_description: 'Coulage de la dalle haute (le cas échéant) ou pose de la charpente et installation complète de la couverture de toiture.', standard_percent: 25, required_evidence: '' },
+      { title: 'Second Œuvre et Cloisons', detailed_description: 'Pose des menuiseries (portes et fenêtres), cloisons intérieures, et passage des gaines techniques (électricité et plomberie).', standard_percent: 20, required_evidence: '' },
+      { title: 'Finitions, Peinture et Remise des Clés', detailed_description: 'Enduits, carrelage, peintures intérieures et extérieures, installation des équipements sanitaires et réception définitive du chantier.', standard_percent: 20, required_evidence: '' }
     ];
 
-    // ============================================================
-    // CHARGEMENT DES PROJETS
-    // ============================================================
     async function loadProjects() {
       const select = document.getElementById('project');
       try {
@@ -139,12 +110,8 @@
       }
     }
 
-    // ============================================================
-    // CHANGEMENT DE PROJET
-    // ============================================================
     document.getElementById('project').addEventListener('change', async (e) => {
       selectedProjectId = e.target.value;
-
       document.getElementById('items-section').classList.add('hidden');
       document.getElementById('submit-section').classList.add('hidden');
       items = [];
@@ -167,45 +134,24 @@
         if (valid.length > 0) {
           items = valid.map((m, idx) => {
             const standard = Number(m.standard_percent) || (STANDARD_MILESTONES[idx] ? STANDARD_MILESTONES[idx].standard_percent : 0);
-            const current = (m.budget_percent !== null && m.budget_percent !== undefined)
-              ? Number(m.budget_percent) : standard;
-            return {
-              id: m.id,
-              title: m.title || '',
-              detailed_description: m.description || '',
-              budget_percent: current,
-              standard_percent: standard,
-              required_evidence: m.required_evidence || '',
-              _existing: true
-            };
+            const current = (m.budget_percent !== null && m.budget_percent !== undefined) ? Number(m.budget_percent) : standard;
+            return { id: m.id, title: m.title || '', detailed_description: m.description || '', budget_percent: current, standard_percent: standard, required_evidence: m.required_evidence || '', _existing: true };
           });
           originalIds = valid.map(m => m.id);
         } else {
-          // Aucun jalon existant → charge les 5 standards
-          items = STANDARD_MILESTONES.map(m => ({
-            title: m.title,
-            detailed_description: m.detailed_description,
-            budget_percent: m.standard_percent,
-            standard_percent: m.standard_percent,
-            required_evidence: ''
-          }));
+          items = STANDARD_MILESTONES.map(m => ({ title: m.title, detailed_description: m.detailed_description, budget_percent: m.standard_percent, standard_percent: m.standard_percent, required_evidence: '' }));
         }
 
         renderItems();
         document.getElementById('items-section').classList.remove('hidden');
         document.getElementById('submit-section').classList.remove('hidden');
-
       } catch (e) {
         showError('Erreur chargement jalons : ' + e.message);
       }
     });
 
-    // ============================================================
-    // AFFICHAGE
-    // ============================================================
     function renderItems() {
       const container = document.getElementById('items-list');
-
       if (items.length === 0) {
         container.innerHTML = '<p class="text-[11px] text-slate-500 text-center py-4">Aucun jalon.</p>';
         document.getElementById('total-percent').textContent = '0%';
@@ -223,36 +169,24 @@
               <button type="button" class="remove-item text-red-400 text-xs" data-idx="${idx}">✕ Supprimer</button>
             </div>
           </div>
-
           <input type="text" class="item-title w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition" value="${escapeHtml(it.title || '')}" data-idx="${idx}" placeholder="Titre du jalon">
-
           <textarea class="item-detail w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition resize-none" rows="2" data-idx="${idx}" placeholder="Description détaillée">${escapeHtml(it.detailed_description || '')}</textarea>
-
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="text-[9px] text-slate-400 uppercase tracking-wider font-bold block mb-1">
-                % Budget ${it.standard_percent > 0 ? `<span class="text-slate-500">(std: ${it.standard_percent}%)</span>` : ''}
-              </label>
+              <label class="text-[9px] text-slate-400 uppercase tracking-wider font-bold block mb-1">% Budget ${it.standard_percent > 0 ? `<span class="text-slate-500">(std: ${it.standard_percent}%)</span>` : ''}</label>
               <input type="number" class="item-percent w-full px-3 py-2 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs focus:border-amber-500 outline-none transition" value="${it.budget_percent || ''}" data-idx="${idx}" min="0" max="100" step="1">
             </div>
             <div>
               <label class="text-[9px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Montant estimé</label>
-              <div class="amount-display w-full px-3 py-2 rounded-lg bg-slate-800/30 border border-white/5 text-amber-300 text-xs font-bold">
-                ${formatAmount(Math.round(amount), projectCurrency)}
-              </div>
+              <div class="amount-display w-full px-3 py-2 rounded-lg bg-slate-800/30 border border-white/5 text-amber-300 text-xs font-bold">${formatAmount(Math.round(amount), projectCurrency)}</div>
             </div>
           </div>
-
           <div class="trace-container"></div>
         </div>
       `}).join('');
 
-      document.querySelectorAll('.item-title').forEach(inp => {
-        inp.addEventListener('input', () => { items[inp.dataset.idx].title = inp.value; });
-      });
-      document.querySelectorAll('.item-detail').forEach(inp => {
-        inp.addEventListener('input', () => { items[inp.dataset.idx].detailed_description = inp.value; });
-      });
+      document.querySelectorAll('.item-title').forEach(inp => { inp.addEventListener('input', () => { items[inp.dataset.idx].title = inp.value; }); });
+      document.querySelectorAll('.item-detail').forEach(inp => { inp.addEventListener('input', () => { items[inp.dataset.idx].detailed_description = inp.value; }); });
       document.querySelectorAll('.item-percent').forEach(inp => {
         inp.addEventListener('input', () => {
           const idx = parseInt(inp.dataset.idx);
@@ -277,12 +211,10 @@
       const it = items[idx];
       const card = document.querySelector('[data-item-idx="' + idx + '"]');
       if (!card) return;
-
       const standardPct = Number(it.standard_percent) || 0;
       const currentPct = Number(it.budget_percent) || 0;
       const isModified = standardPct > 0 && currentPct !== standardPct;
       const diff = currentPct - standardPct;
-
       const inp = card.querySelector('.item-percent');
       const badgeContainer = card.querySelector('.badge-container');
       const traceContainer = card.querySelector('.trace-container');
@@ -291,48 +223,20 @@
       const amountEl = card.querySelector('.amount-display');
       if (amountEl) amountEl.textContent = formatAmount(Math.round(amount), projectCurrency);
 
-      if (isModified) {
-        card.classList.remove('border-white/10', 'bg-slate-900/50');
-        card.classList.add('border-red-500/60', 'bg-red-950/20');
-      } else {
-        card.classList.remove('border-red-500/60', 'bg-red-950/20');
-        card.classList.add('border-white/10', 'bg-slate-900/50');
-      }
+      if (isModified) { card.classList.remove('border-white/10', 'bg-slate-900/50'); card.classList.add('border-red-500/60', 'bg-red-950/20'); }
+      else { card.classList.remove('border-red-500/60', 'bg-red-950/20'); card.classList.add('border-white/10', 'bg-slate-900/50'); }
 
       if (inp) {
-        if (isModified) {
-          inp.classList.remove('bg-slate-800/50', 'border-white/10', 'text-white');
-          inp.classList.add('bg-red-950/40', 'border-red-500/60', 'text-red-200');
-        } else {
-          inp.classList.remove('bg-red-950/40', 'border-red-500/60', 'text-red-200');
-          inp.classList.add('bg-slate-800/50', 'border-white/10', 'text-white');
-        }
+        if (isModified) { inp.classList.remove('bg-slate-800/50', 'border-white/10', 'text-white'); inp.classList.add('bg-red-950/40', 'border-red-500/60', 'text-red-200'); }
+        else { inp.classList.remove('bg-red-950/40', 'border-red-500/60', 'text-red-200'); inp.classList.add('bg-slate-800/50', 'border-white/10', 'text-white'); }
       }
 
-      if (badgeContainer) {
-        badgeContainer.innerHTML = isModified
-          ? '<span class="text-[9px] bg-red-500/30 text-red-200 px-2 py-0.5 rounded-full font-bold">⚠️ MODIFIÉ</span>'
-          : '';
-      }
+      if (badgeContainer) badgeContainer.innerHTML = isModified ? '<span class="text-[9px] bg-red-500/30 text-red-200 px-2 py-0.5 rounded-full font-bold">⚠️ MODIFIÉ</span>' : '';
 
       if (traceContainer) {
         if (isModified) {
-          traceContainer.innerHTML = `
-            <div class="mt-2 bg-red-500/10 border border-red-500/40 rounded-lg p-2 space-y-1">
-              <p class="text-[10px] text-red-300 font-bold leading-tight">⚠️ Écart au standard</p>
-              <div class="flex justify-between text-[10px] text-red-200">
-                <span>Standard : <strong>${standardPct}%</strong></span>
-                <span>Votre valeur : <strong>${currentPct}%</strong></span>
-              </div>
-              <div class="flex justify-between text-[10px] text-red-300">
-                <span>Écart : <strong>${diff > 0 ? '+' : ''}${diff} pts</strong></span>
-                <span>${formatAmount(Math.abs(Math.round(projectBudget * diff / 100)), projectCurrency)}</span>
-              </div>
-            </div>
-          `;
-        } else {
-          traceContainer.innerHTML = '';
-        }
+          traceContainer.innerHTML = `<div class="mt-2 bg-red-500/10 border border-red-500/40 rounded-lg p-2 space-y-1"><p class="text-[10px] text-red-300 font-bold leading-tight">⚠️ Écart au standard</p><div class="flex justify-between text-[10px] text-red-200"><span>Standard : <strong>${standardPct}%</strong></span><span>Votre valeur : <strong>${currentPct}%</strong></span></div><div class="flex justify-between text-[10px] text-red-300"><span>Écart : <strong>${diff > 0 ? '+' : ''}${diff} pts</strong></span><span>${formatAmount(Math.abs(Math.round(projectBudget * diff / 100)), projectCurrency)}</span></div></div>`;
+        } else { traceContainer.innerHTML = ''; }
       }
     }
 
@@ -340,11 +244,8 @@
       const total = items.reduce((s, it) => s + (Number(it.budget_percent) || 0), 0);
       const el = document.getElementById('total-percent');
       el.textContent = total.toFixed(0) + '%';
-      if (Math.abs(total - 100) < 0.01) {
-        el.className = 'text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold';
-      } else {
-        el.className = 'text-xs bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full font-bold';
-      }
+      if (Math.abs(total - 100) < 0.01) el.className = 'text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold';
+      else el.className = 'text-xs bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full font-bold';
     }
 
     document.getElementById('btn-add-item').addEventListener('click', () => {
@@ -352,9 +253,6 @@
       renderItems();
     });
 
-    // ============================================================
-    // SOUMISSION
-    // ============================================================
     document.getElementById('btn-submit').addEventListener('click', async () => {
       if (!selectedProjectId) { alert('Sélectionnez un chantier'); return; }
       if (items.length === 0) { alert('Aucun jalon à proposer'); return; }
@@ -362,13 +260,9 @@
       if (items.some(it => !it.detailed_description || !it.detailed_description.trim())) { alert('Tous les jalons doivent avoir une description'); return; }
 
       const total = items.reduce((s, it) => s + (Number(it.budget_percent) || 0), 0);
-      if (Math.abs(total - 100) > 0.01) {
-        alert('Le total doit être de 100% (actuellement : ' + total.toFixed(0) + '%)');
-        return;
-      }
+      if (Math.abs(total - 100) > 0.01) { alert('Le total doit être de 100% (actuellement : ' + total.toFixed(0) + '%)'); return; }
 
       const notes = document.getElementById('proposal-notes').value.trim();
-
       if (!confirm('Proposer ce découpage à l\'administrateur ?\n\n' + items.length + ' jalon(s) · Total 100%')) return;
 
       const btn = document.getElementById('btn-submit');
@@ -378,40 +272,19 @@
       try {
         const currentIds = items.filter(it => it.id).map(it => it.id);
         for (const oldId of originalIds) {
-          if (!currentIds.includes(oldId)) {
-            try { await apiDelete('milestones', oldId); } catch (e) {}
-          }
+          if (!currentIds.includes(oldId)) { try { await apiDelete('milestones', oldId); } catch (e) {} }
         }
 
         for (let i = 0; i < items.length; i++) {
           const it = items[i];
           const amount = Math.round(projectBudget * (Number(it.budget_percent) || 0) / 100);
-
-          const data = {
-            project_id: selectedProjectId,
-            title: it.title,
-            description: it.detailed_description,
-            order_index: i + 1,
-            amount: amount,
-            currency: projectCurrency,
-            status: 'pending',
-            proposed_by: userId,
-            proposal_status: 'pending',
-            proposal_notes: i === 0 ? notes : null,
-            standard_percent: Number(it.standard_percent) || null,
-            budget_percent: Number(it.budget_percent) || 0
-          };
-
-          if (it.id) {
-            await apiPatch('milestones', it.id, data);
-          } else {
-            await apiPost('milestones', data);
-          }
+          const data = { project_id: selectedProjectId, title: it.title, description: it.detailed_description, order_index: i + 1, amount: amount, currency: projectCurrency, status: 'pending', proposed_by: userId, proposal_status: 'pending', proposal_notes: i === 0 ? notes : null, standard_percent: Number(it.standard_percent) || null, budget_percent: Number(it.budget_percent) || 0 };
+          if (it.id) await apiPatch('milestones', it.id, data);
+          else await apiPost('milestones', data);
         }
 
         showSuccess('✅ Proposition envoyée ! En attente de validation par l\'administrateur.');
         window.location.href = 'dashboard-artisan.html';
-
       } catch (err) {
         showError(err.message);
         btn.disabled = false;
