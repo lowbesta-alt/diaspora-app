@@ -1,6 +1,6 @@
 // ============================================================
 // APP.JS - Boite a outils centrale Espace Diaspora
-// v14.0 : ajout notifications automatiques
+// v14.1 : notifications automatiques + debug
 // ============================================================
 
 // ---------- Injection du favicon ----------
@@ -470,20 +470,26 @@ function showSuccess(msg) { alert(msg); }
 function setupUserHeader() {}
 
 // ============================================================
-// NOTIFICATIONS AUTOMATIQUES
-// Affiche une bannière pour les notifications non lues
+// NOTIFICATIONS AUTOMATIQUES - VERSION DEBUG
 // ============================================================
 async function edCheckNotifications() {
   if (!getToken()) return;
   const userId = getCurrentUserId();
   if (!userId) return;
-
-  // Éviter les doublons dans la même session
   if (window._edNotifShown) return;
   window._edNotifShown = true;
 
+  // BANDEAU DEBUG (temporaire)
+  const debug = document.createElement('div');
+  debug.id = 'edDebugBox';
+  debug.style.cssText = 'position:fixed;bottom:80px;left:8px;right:8px;z-index:9999;background:#000;color:#0f0;font-size:10px;padding:10px;border-radius:8px;font-family:monospace;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;';
+  debug.textContent = 'DEBUG NOTIFS\nuser_id=' + userId + '\ntoken=' + (getToken() ? getToken().substring(0, 15) + '...' : 'AUCUN');
+  document.body.appendChild(debug);
+
   try {
     const url = SUPABASE_URL + '/rest/v1/notifications?user_id=eq.' + userId + '&read_at=is.null&order=created_at.desc&limit=3';
+    debug.textContent += '\n\nfetch: ' + url;
+
     const res = await fetch(url, {
       headers: {
         'apikey': SUPABASE_KEY,
@@ -491,21 +497,36 @@ async function edCheckNotifications() {
         'Content-Type': 'application/json'
       }
     });
-    if (!res.ok) return;
-    const notifs = await res.json();
-    if (!Array.isArray(notifs) || notifs.length === 0) return;
 
-    // Mettre à jour le badge de la cloche
-    edUpdateBellBadge(notifs.length);
+    debug.textContent += '\n\nHTTP Status: ' + res.status;
 
-    edShowNotificationBanner(notifs);
+    if (res.ok) {
+      const notifs = await res.json();
+      debug.textContent += '\nNotifs trouvées: ' + notifs.length;
+      debug.textContent += '\n\nDonnées:\n' + JSON.stringify(notifs, null, 2).substring(0, 500);
+
+      if (Array.isArray(notifs) && notifs.length > 0) {
+        edUpdateBellBadge(notifs.length);
+        edShowNotificationBanner(notifs);
+        debug.textContent += '\n\n>>> BANNIERE AFFICHEE';
+      } else {
+        debug.textContent += '\n\n>>> AUCUNE NOTIF NON LUE';
+      }
+    } else {
+      const txt = await res.text();
+      debug.textContent += '\nErreur: ' + txt.substring(0, 300);
+    }
   } catch (e) {
-    console.warn('Notif check failed:', e);
+    debug.textContent += '\n\nException: ' + e.message;
   }
+
+  setTimeout(() => {
+    const el = document.getElementById('edDebugBox');
+    if (el) el.remove();
+  }, 25000);
 }
 
 function edUpdateBellBadge(count) {
-  // Attend que le header soit injecté
   setTimeout(() => {
     const bell = document.getElementById('edBellBtn');
     if (!bell) return;
@@ -527,7 +548,7 @@ function edShowNotificationBanner(notifs) {
 
   const banner = document.createElement('div');
   banner.id = 'edNotifBanner';
-  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:70;background:linear-gradient(135deg,#10b981,#059669);color:white;padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 16px rgba(16,185,129,0.5);animation:edSlideDown 0.3s ease;cursor:pointer;';
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:70;background:linear-gradient(135deg,#10b981,#059669);color:white;padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 16px rgba(16,185,129,0.5);cursor:pointer;';
 
   banner.innerHTML =
     '<span style="font-size:20px;">🔔</span>' +
@@ -549,19 +570,10 @@ function edShowNotificationBanner(notifs) {
     banner.remove();
   });
 
-  // Auto-disparition après 10 secondes
   setTimeout(() => {
     const el = document.getElementById('edNotifBanner');
     if (el) el.remove();
   }, 10000);
-}
-
-// Animation CSS
-if (!document.getElementById('edNotifStyle')) {
-  const style = document.createElement('style');
-  style.id = 'edNotifStyle';
-  style.textContent = '@keyframes edSlideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }';
-  document.head.appendChild(style);
 }
 
 function edInit() {
