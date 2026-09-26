@@ -10,7 +10,6 @@
 
   <main class="p-4 max-w-2xl mx-auto space-y-4 pt-6">
 
-    <!-- Section LIVE premium -->
     <section class="relative overflow-hidden rounded-3xl border border-red-500/30">
       <div class="absolute inset-0 bg-gradient-to-br from-red-900/40 via-slate-900/60 to-orange-900/30"></div>
       <div class="relative p-6">
@@ -42,13 +41,11 @@
       </div>
     </section>
 
-    <!-- Barre de recherche premium -->
     <div class="relative">
       <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">🔍</span>
       <input type="text" id="searchInput" placeholder="Rechercher une conversation..." class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-sm placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:bg-white/[0.07] transition">
     </div>
 
-    <!-- Liste conversations -->
     <div id="conversations-list" class="space-y-2">
       <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
     </div>
@@ -70,46 +67,26 @@
     setupUserHeader();
 
     const userId = getCurrentUserId();
+    const role = getCurrentUserRole();
 
-    function getLiveRoomName() {
-      return 'diaspora-chantier-' + Date.now();
-    }
+    function getLiveRoomName() { return 'diaspora-chantier-' + Date.now(); }
 
     document.getElementById('btn-start-live').addEventListener('click', () => {
       const roomName = getLiveRoomName();
       const liveUrl = 'https://meet.jit.si/' + roomName;
-      const message =
-        "🎥 *VISITE EN DIRECT DU CHANTIER*\n\n" +
-        "Bonjour,\n" +
-        "Je vais demarrer une visite video en direct du chantier.\n\n" +
-        "Cliquez sur ce lien pour rejoindre :\n" +
-        liveUrl + "\n\n" +
-        "A tout de suite !";
-
+      const message = "🎥 VISITE EN DIRECT DU CHANTIER\n\nBonjour,\nJe vais démarrer une visite vidéo en direct du chantier.\n\nCliquez sur ce lien pour rejoindre :\n" + liveUrl + "\n\nÀ tout de suite !";
       if (navigator.clipboard) navigator.clipboard.writeText(liveUrl).catch(() => {});
       localStorage.setItem('live_url', liveUrl);
-
-      const choice = prompt(
-        "✅ Lien de visite cree !\n\n" +
-        "Tapez :\n" +
-        "1 = Envoyer par WhatsApp\n" +
-        "2 = Ouvrir la camera\n" +
-        "3 = Copier le lien"
-      );
-
-      if (choice === '1') {
-        window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
-      } else if (choice === '2') {
-        window.open(liveUrl, '_blank');
-      } else if (choice === '3') {
-        showSuccess('Lien copie !');
-      }
+      const choice = prompt("Lien de visite créé !\n\nTapez :\n1 = Envoyer par WhatsApp\n2 = Ouvrir la caméra\n3 = Copier le lien");
+      if (choice === '1') window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
+      else if (choice === '2') window.open(liveUrl, '_blank');
+      else if (choice === '3') showSuccess('Lien copié !');
     });
 
     document.getElementById('btn-join-live').addEventListener('click', () => {
       let liveUrl = localStorage.getItem('live_url');
       if (!liveUrl) {
-        const entered = prompt("Collez ici le lien recu par WhatsApp ou Email :");
+        const entered = prompt("Collez ici le lien reçu par WhatsApp ou Email :");
         if (!entered) return;
         liveUrl = entered;
       }
@@ -119,34 +96,34 @@
     async function loadConversations() {
       const list = document.getElementById('conversations-list');
       try {
-        const members = await apiGet('project_members', 'user_id=eq.' + userId + '&is_active=eq.true');
-        if (!Array.isArray(members) || members.length === 0) {
-          list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">💬</div><p class="text-slate-400 text-sm">Aucune conversation</p><p class="text-slate-500 text-xs mt-1">Creez un projet pour commencer.</p></div>';
-          return;
+        let projects = [];
+
+        if (role === 'admin') {
+          const all = await apiGet('projects', 'order=created_at.desc');
+          projects = (Array.isArray(all) ? all : []).map(p => ({ projectId: p.id, projectTitle: p.title, city: p.city, role: 'admin' }));
+        } else {
+          const members = await apiGet('project_members', 'user_id=eq.' + userId + '&is_active=eq.true');
+          if (!Array.isArray(members) || members.length === 0) {
+            list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">💬</div><p class="text-slate-400 text-sm">Aucune conversation</p></div>';
+            return;
+          }
+          for (const m of members) {
+            try {
+              const proj = await apiGet('projects', 'id=eq.' + m.project_id);
+              if (Array.isArray(proj) && proj[0]) {
+                projects.push({ projectId: m.project_id, projectTitle: proj[0].title, city: proj[0].city || '', role: m.role });
+              }
+            } catch (e) {}
+          }
         }
 
-        const conversations = [];
-        for (const m of members) {
-          try {
-            const proj = await apiGet('projects', 'id=eq.' + m.project_id);
-            if (Array.isArray(proj) && proj[0]) {
-              conversations.push({
-                projectId: m.project_id,
-                projectTitle: proj[0].title,
-                city: proj[0].city || '',
-                role: m.role
-              });
-            }
-          } catch (e) {}
-        }
-
-        if (conversations.length === 0) {
+        if (projects.length === 0) {
           list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucune conversation</p>';
           return;
         }
 
-        list.innerHTML = conversations.map(c => `
-          <div class="group flex items-center gap-3 bg-white/5 hover:bg-white/[0.08] border border-white/10 rounded-2xl p-3.5 transition cursor-pointer" onclick="alert('Conversation : ${escapeHtml(c.projectTitle).replace(/'/g, "\\'")}')">
+        list.innerHTML = projects.map(c => `
+          <a href="message-detail.html?id=${c.projectId}" class="group flex items-center gap-3 bg-white/5 hover:bg-white/[0.08] border border-white/10 rounded-2xl p-3.5 transition">
             <div class="relative flex-shrink-0">
               <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-600 to-sky-500 flex items-center justify-center font-extrabold text-sm shadow-lg shadow-sky-500/30">
                 ${escapeHtml(c.projectTitle.substring(0, 2).toUpperCase())}
@@ -159,7 +136,7 @@
               <p class="text-xs text-slate-400 truncate mt-0.5">${c.city ? '📍 ' + escapeHtml(c.city) + ' — ' : ''}Touchez pour ouvrir</p>
             </div>
             <span class="text-slate-500 group-hover:text-sky-400 transition">›</span>
-          </div>
+          </a>
         `).join('');
 
       } catch (e) {
@@ -169,7 +146,7 @@
 
     document.getElementById('searchInput').addEventListener('input', (e) => {
       const q = e.target.value.toLowerCase();
-      document.querySelectorAll('#conversations-list > div').forEach(el => {
+      document.querySelectorAll('#conversations-list > a').forEach(el => {
         el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none';
       });
     });
