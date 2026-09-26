@@ -1,6 +1,6 @@
 // ============================================================
 // APP.JS - Boite a outils centrale Espace Diaspora
-// v15.0 : notifications automatiques + menu portefeuille admin
+// v16.0 : menu artisan avec page Jalons
 // ============================================================
 
 // ---------- Injection du favicon ----------
@@ -116,6 +116,7 @@ const ED_MENUS = {
   ],
   provider: [
     { href: 'dashboard-artisan.html', icon: 'home', label: 'Chantiers' },
+    { href: 'artisan-jalon.html', icon: 'target', label: 'Jalons' },
     { href: 'mes-rapports.html', icon: 'camera', label: 'Rapports' },
     { href: 'mes-realisations.html', icon: 'trophy', label: 'Réalisations' },
     { href: 'mes-paiements.html', icon: 'wallet', label: 'Paiements' },
