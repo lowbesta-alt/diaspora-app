@@ -126,6 +126,7 @@ const ED_MENUS = {
     { href: 'dashboard-admin.html', icon: 'home', label: 'Tour de controle' },
     { href: 'admin-leads.html', icon: 'list', label: 'Leads' },
     { href: 'admin-chantiers.html', icon: 'building', label: 'Chantiers' },
+    { href: 'admin-portefeuille.html', icon: 'wallet', label: 'Portefeuille' },
     { href: 'admin-propositions.html', icon: 'clipboard', label: 'Propositions' },
     { href: 'admin-partenaires.html', icon: 'handshake', label: 'Partenaires' },
     { href: 'admin-utilisateurs.html', icon: 'users', label: 'Utilisateurs' },
