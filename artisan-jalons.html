@@ -19,7 +19,7 @@
     <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
       <span class="text-amber-400 text-xl flex-shrink-0">🛡️</span>
       <p class="text-xs text-amber-200 leading-relaxed">
-        Les <strong>5 jalons standards</strong> avec leurs <strong>pourcentages de référence</strong> sont pré-chargés. Si vous modifiez un pourcentage, un <strong>avertissement rouge</strong> s'affichera et l'écart sera signalé à l'administrateur.
+        Les <strong>5 jalons standards</strong> avec leurs <strong>pourcentages de référence</strong> sont pré-chargés. Vous pouvez les ajuster selon les spécificités du chantier, mais le total doit être de <strong>100%</strong>.
       </p>
     </div>
 
@@ -86,38 +86,65 @@
     let projectBudget = 0;
     let projectCurrency = 'XAF';
 
+    // JALONS STANDARDS avec % de référence
     const STANDARD_MILESTONES = [
-      { title: 'Études, Implantation et Terrassement', detailed_description: 'Validation des plans d\'exécution, piquetage du terrain, nettoyage et premiers mouvements de terre.', standard_percent: 10, required_evidence: '' },
-      { title: 'Fondation et Élévation des Murs', detailed_description: 'Coulage de la fondation, soubassement et élévation des murs principaux du gros œuvre.', standard_percent: 25, required_evidence: '' },
-      { title: 'Dalle / Charpente et Toiture', detailed_description: 'Coulage de la dalle haute (le cas échéant) ou pose de la charpente et installation complète de la couverture de toiture.', standard_percent: 25, required_evidence: '' },
-      { title: 'Second Œuvre et Cloisons', detailed_description: 'Pose des menuiseries (portes et fenêtres), cloisons intérieures, et passage des gaines techniques (électricité et plomberie).', standard_percent: 20, required_evidence: '' },
-      { title: 'Finitions, Peinture et Remise des Clés', detailed_description: 'Enduits, carrelage, peintures intérieures et extérieures, installation des équipements sanitaires et réception définitive du chantier.', standard_percent: 20, required_evidence: '' }
+      {
+        title: 'Études, Implantation et Terrassement',
+        detailed_description: 'Validation des plans d\'exécution, piquetage du terrain, nettoyage et premiers mouvements de terre.',
+        standard_percent: 10,
+        required_evidence: ''
+      },
+      {
+        title: 'Fondation et Élévation des Murs',
+        detailed_description: 'Coulage de la fondation, soubassement et élévation des murs principaux du gros œuvre.',
+        standard_percent: 25,
+        required_evidence: ''
+      },
+      {
+        title: 'Dalle / Charpente et Toiture',
+        detailed_description: 'Coulage de la dalle haute (le cas échéant) ou pose de la charpente et installation complète de la couverture de toiture.',
+        standard_percent: 25,
+        required_evidence: ''
+      },
+      {
+        title: 'Second Œuvre et Cloisons',
+        detailed_description: 'Pose des menuiseries (portes et fenêtres), cloisons intérieures, et passage des gaines techniques (électricité et plomberie).',
+        standard_percent: 20,
+        required_evidence: ''
+      },
+      {
+        title: 'Finitions, Peinture et Remise des Clés',
+        detailed_description: 'Enduits, carrelage, peintures intérieures et extérieures, installation des équipements sanitaires et réception définitive du chantier.',
+        standard_percent: 20,
+        required_evidence: ''
+      }
     ];
 
+    // ============================================================
+    // CHARGEMENT DES PROJETS
+    // ============================================================
     async function loadProjects() {
       const select = document.getElementById('project');
       try {
-        const members = await apiGet('project_members', 'user_id=eq.' + userId + '&is_active=eq.true');
-        if (!Array.isArray(members) || members.length === 0) {
+        const projects = await apiGet('projects', 'assigned_artisan_id=eq.' + userId + '&order=created_at.desc');
+        const valid = Array.isArray(projects) ? projects : [];
+        if (valid.length === 0) {
           select.innerHTML = '<option value="">Aucun chantier assigné</option>';
           return;
         }
-        const projects = [];
-        for (const m of members) {
-          try {
-            const p = await apiGet('projects', 'id=eq.' + m.project_id);
-            if (Array.isArray(p) && p[0]) projects.push(p[0]);
-          } catch (e) {}
-        }
         select.innerHTML = '<option value="">Sélectionner un chantier</option>' +
-          projects.map(p => '<option value="' + p.id + '">' + escapeHtml(p.title) + '</option>').join('');
+          valid.map(p => '<option value="' + p.id + '">' + escapeHtml(p.title) + '</option>').join('');
       } catch (e) {
         select.innerHTML = '<option value="">Erreur</option>';
       }
     }
 
+    // ============================================================
+    // CHANGEMENT DE PROJET
+    // ============================================================
     document.getElementById('project').addEventListener('change', async (e) => {
       selectedProjectId = e.target.value;
+
       document.getElementById('items-section').classList.add('hidden');
       document.getElementById('submit-section').classList.add('hidden');
       items = [];
@@ -140,9 +167,8 @@
         if (valid.length > 0) {
           items = valid.map((m, idx) => {
             const standard = Number(m.standard_percent) || (STANDARD_MILESTONES[idx] ? STANDARD_MILESTONES[idx].standard_percent : 0);
-            const current = m.budget_percent !== null && m.budget_percent !== undefined
-              ? Number(m.budget_percent)
-              : standard;
+            const current = (m.budget_percent !== null && m.budget_percent !== undefined)
+              ? Number(m.budget_percent) : standard;
             return {
               id: m.id,
               title: m.title || '',
@@ -155,6 +181,7 @@
           });
           originalIds = valid.map(m => m.id);
         } else {
+          // Aucun jalon existant → charge les 5 standards
           items = STANDARD_MILESTONES.map(m => ({
             title: m.title,
             detailed_description: m.detailed_description,
@@ -173,6 +200,9 @@
       }
     });
 
+    // ============================================================
+    // AFFICHAGE
+    // ============================================================
     function renderItems() {
       const container = document.getElementById('items-list');
 
@@ -217,7 +247,6 @@
         </div>
       `}).join('');
 
-      // Attache les événements
       document.querySelectorAll('.item-title').forEach(inp => {
         inp.addEventListener('input', () => { items[inp.dataset.idx].title = inp.value; });
       });
@@ -241,13 +270,9 @@
       });
 
       updateTotalPercent();
-      // Applique l'état visuel initial (au cas où certains sont déjà modifiés)
       items.forEach((_, idx) => updateCardVisuals(idx));
     }
 
-    // ============================================================
-    // MET À JOUR L'ASPECT VISUEL D'UNE CARTE (sans re-render)
-    // ============================================================
     function updateCardVisuals(idx) {
       const it = items[idx];
       const card = document.querySelector('[data-item-idx="' + idx + '"]');
@@ -262,12 +287,10 @@
       const badgeContainer = card.querySelector('.badge-container');
       const traceContainer = card.querySelector('.trace-container');
 
-      // Mise à jour du montant
       const amount = projectBudget * currentPct / 100;
       const amountEl = card.querySelector('.amount-display');
       if (amountEl) amountEl.textContent = formatAmount(Math.round(amount), projectCurrency);
 
-      // Bordure de la carte
       if (isModified) {
         card.classList.remove('border-white/10', 'bg-slate-900/50');
         card.classList.add('border-red-500/60', 'bg-red-950/20');
@@ -276,7 +299,6 @@
         card.classList.add('border-white/10', 'bg-slate-900/50');
       }
 
-      // Champ % : rouge si modifié
       if (inp) {
         if (isModified) {
           inp.classList.remove('bg-slate-800/50', 'border-white/10', 'text-white');
@@ -287,14 +309,12 @@
         }
       }
 
-      // Badge MODIFIÉ
       if (badgeContainer) {
         badgeContainer.innerHTML = isModified
           ? '<span class="text-[9px] bg-red-500/30 text-red-200 px-2 py-0.5 rounded-full font-bold">⚠️ MODIFIÉ</span>'
           : '';
       }
 
-      // Bloc de traçabilité
       if (traceContainer) {
         if (isModified) {
           traceContainer.innerHTML = `
@@ -332,6 +352,9 @@
       renderItems();
     });
 
+    // ============================================================
+    // SOUMISSION
+    // ============================================================
     document.getElementById('btn-submit').addEventListener('click', async () => {
       if (!selectedProjectId) { alert('Sélectionnez un chantier'); return; }
       if (items.length === 0) { alert('Aucun jalon à proposer'); return; }
@@ -344,24 +367,9 @@
         return;
       }
 
-      const modified = items.filter(it => {
-        const s = Number(it.standard_percent) || 0;
-        const c = Number(it.budget_percent) || 0;
-        return s > 0 && c !== s;
-      });
-
-      let confirmMsg = 'Proposer ce découpage à l\'administrateur ?\n\n' + items.length + ' jalon(s) · Total 100%';
-      if (modified.length > 0) {
-        confirmMsg += '\n\n⚠️ ' + modified.length + ' jalon(s) s\'écartent du standard :\n';
-        modified.forEach(m => {
-          confirmMsg += '• ' + m.title.substring(0, 30) + '... : ' + m.standard_percent + '% → ' + m.budget_percent + '%\n';
-        });
-        confirmMsg += '\nCes écarts seront signalés à l\'administrateur.';
-      }
-
-      if (!confirm(confirmMsg)) return;
-
       const notes = document.getElementById('proposal-notes').value.trim();
+
+      if (!confirm('Proposer ce découpage à l\'administrateur ?\n\n' + items.length + ' jalon(s) · Total 100%')) return;
 
       const btn = document.getElementById('btn-submit');
       btn.disabled = true;
