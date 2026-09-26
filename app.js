@@ -1,6 +1,6 @@
 // ============================================================
 // APP.JS - Boite a outils centrale Espace Diaspora
-// v16.0 : menu artisan avec page Jalons
+// v17.0 : ajout getAdminUserId pour canal support
 // ============================================================
 
 // ---------- Injection du favicon ----------
@@ -131,6 +131,7 @@ const ED_MENUS = {
     { href: 'admin-propositions.html', icon: 'clipboard', label: 'Propositions' },
     { href: 'admin-partenaires.html', icon: 'handshake', label: 'Partenaires' },
     { href: 'admin-utilisateurs.html', icon: 'users', label: 'Utilisateurs' },
+    { href: 'messages.html', icon: 'message', label: 'Messages' },
     { href: 'profil.html', icon: 'user', label: 'Profil' }
   ]
 };
@@ -159,6 +160,9 @@ function edGetMenuItems() {
   return ED_MENUS.investor;
 }
 
+// ============================================================
+// BANDEAU MODE TEST
+// ============================================================
 function edInjectTestBanner() {
   if (!isAdminModeTest()) return;
   if (document.getElementById('edTestBanner')) return;
@@ -174,6 +178,9 @@ function edInjectTestBanner() {
   setTimeout(function() { const header = document.querySelector('.ed-header'); if (header) header.style.marginTop = '40px'; else document.body.style.paddingTop = '40px'; }, 100);
 }
 
+// ============================================================
+// HEADER PRO
+// ============================================================
 function edCurrentPage() { return window.location.pathname.split('/').pop() || 'index.html'; }
 
 function edInjectHeader() {
@@ -219,6 +226,7 @@ function edInjectHeader() {
   if (logoutBtn) logoutBtn.addEventListener('click', function(e) { e.preventDefault(); if (confirm('Se deconnecter ?')) logout(); });
 }
 
+// ---------- Session ----------
 function getToken() { return localStorage.getItem('access_token'); }
 function getCurrentUserId() { return localStorage.getItem('user_id'); }
 function getCurrentUserEmail() { return localStorage.getItem('user_email'); }
@@ -315,6 +323,20 @@ function showError(msg) { alert('Erreur : ' + msg); }
 function showSuccess(msg) { alert(msg); }
 function setupUserHeader() {}
 
+// ============================================================
+// Récupère l'ID du premier admin (pour canal support)
+// ============================================================
+async function getAdminUserId() {
+  try {
+    const admins = await apiGet('profiles', 'default_role=eq.admin&limit=1');
+    if (Array.isArray(admins) && admins[0]) return admins[0].id;
+  } catch (e) {}
+  return null;
+}
+
+// ============================================================
+// NOTIFICATIONS AUTOMATIQUES
+// ============================================================
 async function edCheckNotifications() {
   if (!getToken()) return;
   const userId = getCurrentUserId();
