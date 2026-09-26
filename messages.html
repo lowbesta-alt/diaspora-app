@@ -10,7 +10,6 @@
 
   <main class="p-4 max-w-2xl mx-auto space-y-4 pt-6">
 
-    <!-- Visite en direct -->
     <section class="relative overflow-hidden rounded-3xl border border-red-500/30">
       <div class="absolute inset-0 bg-gradient-to-br from-red-900/40 via-slate-900/60 to-orange-900/30"></div>
       <div class="relative p-6">
@@ -42,7 +41,6 @@
       </div>
     </section>
 
-    <!-- Carte Support Admin -->
     <a id="support-link" href="#" class="block bg-gradient-to-br from-sky-600/20 to-blue-900/20 border border-sky-500/40 rounded-2xl p-4 hover:bg-sky-500/10 transition">
       <div class="flex items-center gap-3">
         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-sky-500/30">
@@ -56,7 +54,6 @@
       </div>
     </a>
 
-    <!-- Recherche -->
     <div class="relative">
       <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">🔍</span>
       <input type="text" id="searchInput" placeholder="Rechercher une conversation..." class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-sm placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:bg-white/[0.07] transition">
@@ -87,19 +84,24 @@
     const userId = getCurrentUserId();
     const role = getCurrentUserRole();
 
-    // Carte Support
+    // Carte Support Admin
     (async function initSupport() {
-      const adminId = await getAdminUserId();
-      if (!adminId) {
+      try {
+        const admins = await apiGet('profiles', 'default_role=eq.admin&limit=1');
+        if (!Array.isArray(admins) || admins.length === 0) {
+          document.getElementById('support-link').style.display = 'none';
+          return;
+        }
+        const adminId = admins[0].id;
+        if (role === 'admin') {
+          document.getElementById('support-subtitle').textContent = 'Vous êtes administrateur';
+          document.getElementById('support-link').style.opacity = '0.6';
+          document.getElementById('support-link').style.pointerEvents = 'none';
+        } else {
+          document.getElementById('support-link').href = 'message-direct.html?to=' + adminId;
+        }
+      } catch (e) {
         document.getElementById('support-link').style.display = 'none';
-        return;
-      }
-      if (role === 'admin') {
-        document.getElementById('support-subtitle').textContent = 'Vous êtes administrateur';
-        document.getElementById('support-link').style.opacity = '0.6';
-        document.getElementById('support-link').style.pointerEvents = 'none';
-      } else {
-        document.getElementById('support-link').href = 'message-direct.html?to=' + adminId;
       }
     })();
 
