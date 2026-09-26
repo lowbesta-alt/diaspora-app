@@ -52,9 +52,7 @@
       </div>
     </section>
 
-    <!-- ============================================ -->
     <!-- SECTION GPS -->
-    <!-- ============================================ -->
     <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
       <label class="text-xs font-semibold text-slate-300 mb-2 block">📍 Géolocalisation (optionnel)</label>
       <p class="text-[10px] text-slate-400 mb-3">Enregistre la position exacte de la prise de vue. Recommandé pour les photos de chantier.</p>
@@ -62,9 +60,7 @@
         <span>📍</span> Obtenir ma position
       </button>
       <div id="gps-status" class="hidden mt-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
-        <p class="text-[11px] text-emerald-300">
-          ✅ Position enregistrée
-        </p>
+        <p class="text-[11px] text-emerald-300">✅ Position enregistrée</p>
         <p id="gps-coords" class="text-[10px] text-slate-300 mt-1"></p>
       </div>
     </section>
@@ -111,26 +107,67 @@
     const urlParams = new URLSearchParams(window.location.search);
     const preselectProject = urlParams.get('id');
 
+    const userId = getCurrentUserId();
+    const role = getCurrentUserRole();
+    const isAdmin = (role === 'admin');
+
     let docType = 'photo';
     let selectedFile = null;
     let gpsCoords = null;
 
+    /* ============================================
+       CHARGEMENT DES PROJETS ACCESSIBLES
+       - Admin : tous les projets
+       - Client / Artisan : ses projets (owner + membre actif)
+       ============================================ */
     async function loadProjects() {
       const select = document.getElementById('project');
+
       try {
-        const projects = await apiGet('projects', 'owner_id=eq.' + getCurrentUserId() + '&order=created_at.desc');
-        const valid = Array.isArray(projects) ? projects : [];
-        if (valid.length === 0) {
-          select.innerHTML = '<option value="">Aucun projet</option>';
+        let map = new Map();
+
+        if (isAdmin) {
+          const all = await apiGet('projects', 'order=created_at.desc');
+          if (Array.isArray(all)) for (const p of all) map.set(p.id, p);
+        } else {
+          // 1) Projets dont il est propriétaire
+          try {
+            const owned = await apiGet('projects', 'owner_id=eq.' + userId);
+            if (Array.isArray(owned)) for (const p of owned) map.set(p.id, p);
+          } catch (e) {}
+
+          // 2) Projets où il est membre actif
+          try {
+            const members = await apiGet('project_members', 'user_id=eq.' + userId + '&is_active=eq.true');
+            if (Array.isArray(members) && members.length > 0) {
+              const ids = members.map(m => m.project_id).filter(Boolean);
+              if (ids.length > 0) {
+                const projs = await apiGet('projects', 'id=in.(' + ids.join(',') + ')');
+                if (Array.isArray(projs)) for (const p of projs) map.set(p.id, p);
+              }
+            }
+          } catch (e) {}
+        }
+
+        const projects = Array.from(map.values());
+
+        if (projects.length === 0) {
+          select.innerHTML = '<option value="">Aucun projet disponible</option>';
           return;
         }
+
         select.innerHTML = '<option value="">Sélectionner un projet</option>' +
-          valid.map(p => '<option value="' + p.id + '"' + (p.id === preselectProject ? ' selected' : '') + '>' + escapeHtml(p.title) + '</option>').join('');
+          projects.map(p => '<option value="' + p.id + '"' + (p.id === preselectProject ? ' selected' : '') + '>' + escapeHtml(p.title) + '</option>').join('');
+
       } catch (e) {
-        select.innerHTML = '<option value="">Erreur</option>';
+        console.error('[loadProjects]', e);
+        select.innerHTML = '<option value="">Erreur de chargement</option>';
       }
     }
 
+    /* ============================================
+       SÉLECTION DU TYPE
+       ============================================ */
     document.querySelectorAll('.type-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.type-btn').forEach(b => {
@@ -143,6 +180,9 @@
       });
     });
 
+    /* ============================================
+       SÉLECTION DU FICHIER
+       ============================================ */
     document.getElementById('fileInput').addEventListener('change', (e) => {
       const f = e.target.files[0];
       if (!f) return;
@@ -158,12 +198,12 @@
       document.getElementById('file-preview').classList.add('hidden');
     });
 
-    // ============================================
-    // GPS - Recupere la position de l'utilisateur
-    // ============================================
+    /* ============================================
+       GPS
+       ============================================ */
     document.getElementById('btn-gps').addEventListener('click', () => {
       if (!navigator.geolocation) {
-        showError('GPS non supporte par votre appareil');
+        showError('GPS non supporté par votre appareil');
         return;
       }
 
@@ -192,9 +232,9 @@
         },
         (error) => {
           let msg = 'Impossible d\'obtenir la position';
-          if (error.code === 1) msg = 'Autorisation refusee. Activez la localisation.';
+          if (error.code === 1) msg = 'Autorisation refusée. Activez la localisation.';
           if (error.code === 2) msg = 'Position indisponible';
-          if (error.code === 3) msg = 'Delai depasse';
+          if (error.code === 3) msg = 'Délai dépassé';
           showError(msg);
           btn.disabled = false;
           btn.textContent = '📍 Obtenir ma position';
@@ -203,9 +243,9 @@
       );
     });
 
-    // ============================================
-    // UPLOAD
-    // ============================================
+    /* ============================================
+       UPLOAD
+       ============================================ */
     document.getElementById('btn-upload').addEventListener('click', async () => {
       if (!selectedFile) { alert('Sélectionnez un fichier'); return; }
       const title = document.getElementById('title').value.trim();
@@ -221,11 +261,13 @@
         const fileName = Date.now() + '_' + selectedFile.name;
         const path = projectId + '/' + fileName;
 
+        // 1) Upload Storage
         await uploadFile('project-documents', path, selectedFile);
 
+        // 2) Insertion BDD
         const docData = {
           project_id: projectId,
-          uploaded_by: getCurrentUserId(),
+          uploaded_by: userId,
           document_type: docType,
           title: title,
           description: document.getElementById('description').value.trim(),
@@ -236,18 +278,33 @@
           captured_at: new Date().toISOString()
         };
 
-        // Ajoute GPS si present
         if (gpsCoords) {
           docData.latitude = gpsCoords.lat;
           docData.longitude = gpsCoords.lng;
         }
 
-        await apiPost('documents', docData);
+        try {
+          await apiPost('documents', docData);
+        } catch (err) {
+          // Fallback : si l'insertion échoue ET qu'on avait un GPS → on retente sans GPS
+          // (utile si les colonnes latitude/longitude n'existent pas dans la table)
+          if (gpsCoords && docData.latitude !== undefined) {
+            console.warn('[upload] retry without GPS', err);
+            delete docData.latitude;
+            delete docData.longitude;
+            await apiPost('documents', docData);
+            showSuccess('Document envoyé (GPS non enregistré)');
+          } else {
+            throw err;
+          }
+        }
 
         showSuccess('Document téléversé !');
         window.location.href = 'documents.html?id=' + projectId;
+
       } catch (e) {
-        showError(e.message);
+        console.error('[upload]', e);
+        showError(e.message || 'Erreur upload');
         btn.disabled = false;
         btn.textContent = 'Téléverser';
       }
