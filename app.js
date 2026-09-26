@@ -1,6 +1,6 @@
 // ============================================================
 // APP.JS - Boite a outils centrale Espace Diaspora
-// v14.1 : notifications automatiques + debug
+// v14.2 : notifications automatiques (version finale)
 // ============================================================
 
 // ---------- Injection du favicon ----------
@@ -470,7 +470,7 @@ function showSuccess(msg) { alert(msg); }
 function setupUserHeader() {}
 
 // ============================================================
-// NOTIFICATIONS AUTOMATIQUES - VERSION DEBUG
+// NOTIFICATIONS AUTOMATIQUES - VERSION FINALE
 // ============================================================
 async function edCheckNotifications() {
   if (!getToken()) return;
@@ -479,17 +479,8 @@ async function edCheckNotifications() {
   if (window._edNotifShown) return;
   window._edNotifShown = true;
 
-  // BANDEAU DEBUG (temporaire)
-  const debug = document.createElement('div');
-  debug.id = 'edDebugBox';
-  debug.style.cssText = 'position:fixed;bottom:80px;left:8px;right:8px;z-index:9999;background:#000;color:#0f0;font-size:10px;padding:10px;border-radius:8px;font-family:monospace;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;';
-  debug.textContent = 'DEBUG NOTIFS\nuser_id=' + userId + '\ntoken=' + (getToken() ? getToken().substring(0, 15) + '...' : 'AUCUN');
-  document.body.appendChild(debug);
-
   try {
     const url = SUPABASE_URL + '/rest/v1/notifications?user_id=eq.' + userId + '&read_at=is.null&order=created_at.desc&limit=3';
-    debug.textContent += '\n\nfetch: ' + url;
-
     const res = await fetch(url, {
       headers: {
         'apikey': SUPABASE_KEY,
@@ -497,33 +488,15 @@ async function edCheckNotifications() {
         'Content-Type': 'application/json'
       }
     });
+    if (!res.ok) return;
+    const notifs = await res.json();
+    if (!Array.isArray(notifs) || notifs.length === 0) return;
 
-    debug.textContent += '\n\nHTTP Status: ' + res.status;
-
-    if (res.ok) {
-      const notifs = await res.json();
-      debug.textContent += '\nNotifs trouvées: ' + notifs.length;
-      debug.textContent += '\n\nDonnées:\n' + JSON.stringify(notifs, null, 2).substring(0, 500);
-
-      if (Array.isArray(notifs) && notifs.length > 0) {
-        edUpdateBellBadge(notifs.length);
-        edShowNotificationBanner(notifs);
-        debug.textContent += '\n\n>>> BANNIERE AFFICHEE';
-      } else {
-        debug.textContent += '\n\n>>> AUCUNE NOTIF NON LUE';
-      }
-    } else {
-      const txt = await res.text();
-      debug.textContent += '\nErreur: ' + txt.substring(0, 300);
-    }
+    edUpdateBellBadge(notifs.length);
+    edShowNotificationBanner(notifs);
   } catch (e) {
-    debug.textContent += '\n\nException: ' + e.message;
+    console.warn('Notif check failed:', e);
   }
-
-  setTimeout(() => {
-    const el = document.getElementById('edDebugBox');
-    if (el) el.remove();
-  }, 25000);
 }
 
 function edUpdateBellBadge(count) {
