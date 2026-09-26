@@ -12,10 +12,10 @@
 
     <div>
       <h1 class="text-2xl font-extrabold tracking-tight">Mes paiements</h1>
-      <p class="text-sm text-slate-400 mt-1">Suivez vos gains par jalon et par projet</p>
+      <p class="text-sm text-slate-400 mt-1">Suivez vos gains par jalon et par chantier</p>
     </div>
 
-    <!-- CARTE TOTAL GAGNÉ -->
+    <!-- CARTE TOTAL GÉNÉRAL -->
     <section class="relative overflow-hidden rounded-3xl border border-emerald-500/30 shadow-2xl shadow-emerald-500/20">
       <div class="absolute inset-0 bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-900"></div>
       <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-20 translate-x-20 blur-3xl"></div>
@@ -23,7 +23,7 @@
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <span class="text-2xl">💰</span>
-            <span class="text-xs font-bold uppercase tracking-widest text-emerald-100">Total encaissé</span>
+            <span class="text-xs font-bold uppercase tracking-widest text-emerald-100">Total encaissé (tous chantiers)</span>
           </div>
           <span class="text-[10px] bg-white/20 backdrop-blur px-2 py-1 rounded-full font-bold">XAF</span>
         </div>
@@ -32,25 +32,39 @@
       </div>
     </section>
 
-    <!-- STATS SECONDAIRES -->
+    <!-- STATS GLOBALES -->
     <section class="grid grid-cols-2 gap-3">
       <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
         <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center mb-3">
           <span class="text-xl">⏳</span>
         </div>
         <div class="text-xl font-extrabold text-amber-300" id="stat-pending">-</div>
-        <div class="text-[10px] text-slate-400 uppercase tracking-wider mt-1 font-semibold">En attente de validation</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mt-1 font-semibold">En attente</div>
       </div>
       <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
         <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center mb-3">
-          <span class="text-xl">🎯</span>
+          <span class="text-xl">🏗️</span>
         </div>
         <div class="text-xl font-extrabold text-sky-300" id="stat-projects">-</div>
         <div class="text-[10px] text-slate-400 uppercase tracking-wider mt-1 font-semibold">Chantiers actifs</div>
       </div>
     </section>
 
-    <!-- FILTRES -->
+    <!-- SÉLECTEUR DE CHANTIER -->
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-3">
+      <label class="text-xs font-bold text-slate-200 tracking-wider uppercase block">Filtrer par chantier</label>
+      <select id="project-filter" class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 text-white text-sm focus:border-emerald-500 outline-none transition">
+        <option value="all">Tous les chantiers</option>
+      </select>
+
+      <!-- SOUS-TOTAL DU CHANTIER SÉLECTIONNÉ -->
+      <div id="project-subtotal" class="hidden bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3">
+        <p class="text-[10px] text-emerald-300 font-bold uppercase tracking-wider">Sous-total de ce chantier</p>
+        <p class="text-lg font-extrabold text-emerald-300 mt-1" id="subtotal-value">0 XAF</p>
+      </div>
+    </section>
+
+    <!-- FILTRES STATUT -->
     <div class="flex gap-2 overflow-x-auto pb-1 text-xs">
       <button data-filter="all" class="filter-btn px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold transition whitespace-nowrap">Tous</button>
       <button data-filter="released" class="filter-btn px-3 py-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/10 transition whitespace-nowrap">Encaissés</button>
@@ -78,47 +92,55 @@
     if (!requireRole(['provider', 'project_manager'])) throw new Error('Not allowed');
 
     const userId = getCurrentUserId();
-    let allPayments = [];
-    let currentFilter = 'all';
+    let allPayments = [];         // Tous les paiements (toutes statuts, tous chantiers)
+    let projectTotals = {};        // { projectId: { released, approved, projectTitle } }
+    let currentFilter = 'all';     // Statut : all / released / approved
+    let currentProjectFilter = 'all';
 
     // ============================================================
-    // CHARGEMENT DES PAIEMENTS
+    // CHARGEMENT
     // ============================================================
     async function loadPayments() {
       const list = document.getElementById('payments-list');
       try {
-        // 1. Récupère les projets assignés à cet artisan
         const projects = await apiGet('projects', 'assigned_artisan_id=eq.' + userId + '&order=created_at.desc');
         const validProjects = Array.isArray(projects) ? projects : [];
 
         if (validProjects.length === 0) {
-          list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">💰</div><p class="text-slate-400 text-sm">Aucun projet assigné</p><p class="text-slate-500 text-xs mt-2">Vos paiements apparaîtront ici.</p></div>';
+          list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">💰</div><p class="text-slate-400 text-sm">Aucun projet assigné</p></div>';
           document.getElementById('total-earned').textContent = '0';
           document.getElementById('stat-pending').textContent = '0';
           document.getElementById('stat-projects').textContent = '0';
           return;
         }
 
-        // 2. Récupère tous les jalons de ces projets
         const projectIds = validProjects.map(p => p.id);
         const projectMap = {};
-        validProjects.forEach(p => { projectMap[p.id] = p; });
+        validProjects.forEach(p => {
+          projectMap[p.id] = p;
+          projectTotals[p.id] = { released: 0, approved: 0, projectTitle: p.title };
+        });
+
+        // Remplir le sélecteur de chantiers
+        const sel = document.getElementById('project-filter');
+        sel.innerHTML = '<option value="all">Tous les chantiers</option>' +
+          validProjects.map(p => '<option value="' + p.id + '">' + escapeHtml(p.title) + '</option>').join('');
 
         const milestones = await apiGet('milestones', 'project_id=in.(' + projectIds.join(',') + ')&order=created_at.desc');
         const validMilestones = Array.isArray(milestones) ? milestones : [];
 
-        // 3. Prépare les paiements (uniquement les jalons released ou approved)
         allPayments = [];
         for (const m of validMilestones) {
-          // On garde uniquement les jalons avec statut intéressant
           if (m.status === 'released' || m.status === 'approved') {
             const project = projectMap[m.project_id];
+            const amount = Number(m.amount) || 0;
             allPayments.push({
               id: m.id,
+              project_id: m.project_id,
               project_title: project ? project.title : 'Projet',
               project_city: project ? project.city : '',
               title: m.title,
-              amount: Number(m.amount) || 0,
+              amount: amount,
               currency: m.currency || 'XAF',
               status: m.status,
               order_index: m.order_index,
@@ -126,10 +148,17 @@
               validated_at: m.validated_at,
               created_at: m.created_at
             });
+
+            // Cumul par chantier
+            if (m.status === 'released') {
+              projectTotals[m.project_id].released += amount;
+            } else if (m.status === 'approved') {
+              projectTotals[m.project_id].approved += amount;
+            }
           }
         }
 
-        // 4. Calcul des stats
+        // Stats globales
         const released = allPayments.filter(p => p.status === 'released');
         const approved = allPayments.filter(p => p.status === 'approved');
         const totalEarned = released.reduce((s, p) => s + p.amount, 0);
@@ -142,7 +171,7 @@
         renderPayments();
 
       } catch (e) {
-        list.innerHTML = '<div class="text-center py-8 bg-red-500/10 border border-red-500/30 rounded-2xl"><p class="text-red-300 text-sm">Erreur de chargement</p><p class="text-red-200 text-xs mt-1">' + e.message + '</p></div>';
+        list.innerHTML = '<div class="text-center py-8 bg-red-500/10 border border-red-500/30 rounded-2xl"><p class="text-red-300 text-sm">Erreur</p><p class="text-red-200 text-xs mt-1">' + e.message + '</p></div>';
       }
     }
 
@@ -151,9 +180,26 @@
     // ============================================================
     function renderPayments() {
       const list = document.getElementById('payments-list');
+
+      // Applique les 2 filtres
       let filtered = allPayments;
+      if (currentProjectFilter !== 'all') {
+        filtered = filtered.filter(p => p.project_id === currentProjectFilter);
+      }
       if (currentFilter !== 'all') {
-        filtered = allPayments.filter(p => p.status === currentFilter);
+        filtered = filtered.filter(p => p.status === currentFilter);
+      }
+
+      // Sous-total du chantier sélectionné
+      const subtotal = document.getElementById('project-subtotal');
+      if (currentProjectFilter !== 'all' && projectTotals[currentProjectFilter]) {
+        const t = projectTotals[currentProjectFilter];
+        document.getElementById('subtotal-value').textContent =
+          'Encaissé : ' + t.released.toLocaleString('fr-FR') + ' XAF' +
+          (t.approved > 0 ? ' · En attente : ' + t.approved.toLocaleString('fr-FR') + ' XAF' : '');
+        subtotal.classList.remove('hidden');
+      } else {
+        subtotal.classList.add('hidden');
       }
 
       if (filtered.length === 0) {
@@ -161,34 +207,58 @@
         return;
       }
 
-      list.innerHTML = filtered.map(p => {
-        const isReleased = p.status === 'released';
-        const meta = isReleased
-          ? { ic: '✅', bg: 'bg-emerald-500/20', label: 'ENCAISSÉ', color: 'text-emerald-300', badge: 'bg-emerald-500/20 text-emerald-300' }
-          : { ic: '⏳', bg: 'bg-amber-500/20', label: 'EN ATTENTE', color: 'text-amber-300', badge: 'bg-amber-500/20 text-amber-300' };
+      // Grouper visuellement par chantier
+      const groups = {};
+      filtered.forEach(p => {
+        if (!groups[p.project_id]) groups[p.project_id] = { project_title: p.project_title, project_city: p.project_city, items: [] };
+        groups[p.project_id].items.push(p);
+      });
 
-        return `
-          <div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
-            <div class="flex items-center gap-3">
-              <div class="w-11 h-11 rounded-xl ${meta.bg} flex items-center justify-center flex-shrink-0 text-lg">${meta.ic}</div>
-              <div class="flex-1 min-w-0">
-                <div class="flex justify-between items-start gap-2">
-                  <span class="text-[10px] ${meta.badge} px-2 py-0.5 rounded-full font-bold">${meta.label}</span>
-                  <span class="text-sm font-extrabold ${meta.color}">+ ${p.amount.toLocaleString('fr-FR')} ${p.currency}</span>
+      let html = '';
+      for (const projectId in groups) {
+        const g = groups[projectId];
+        const totalGroup = g.items.reduce((s, p) => s + p.amount, 0);
+        const releasedGroup = g.items.filter(i => i.status === 'released').reduce((s, p) => s + p.amount, 0);
+
+        html += `
+          <div class="space-y-2 mt-4 first:mt-0">
+            <div class="flex justify-between items-center px-1">
+              <h2 class="text-sm font-extrabold text-white">🏗️ ${escapeHtml(g.project_title)}</h2>
+              <span class="text-xs font-bold text-emerald-300">${releasedGroup.toLocaleString('fr-FR')} XAF</span>
+            </div>
+            <p class="text-[10px] text-slate-500 px-1 -mt-1">${escapeHtml(g.project_city || '')} · ${g.items.length} jalon(s)</p>
+        `;
+
+        g.items.forEach(p => {
+          const isReleased = p.status === 'released';
+          const meta = isReleased
+            ? { ic: '✅', bg: 'bg-emerald-500/20', label: 'ENCAISSÉ', color: 'text-emerald-300', badge: 'bg-emerald-500/20 text-emerald-300' }
+            : { ic: '⏳', bg: 'bg-amber-500/20', label: 'EN ATTENTE', color: 'text-amber-300', badge: 'bg-amber-500/20 text-amber-300' };
+
+          html += `
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl ${meta.bg} flex items-center justify-center flex-shrink-0 text-lg">${meta.ic}</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex justify-between items-start gap-2">
+                    <span class="text-[10px] ${meta.badge} px-2 py-0.5 rounded-full font-bold">${meta.label}</span>
+                    <span class="text-sm font-extrabold ${meta.color}">+ ${p.amount.toLocaleString('fr-FR')} ${p.currency}</span>
+                  </div>
+                  <p class="text-xs text-slate-200 mt-1 font-semibold truncate">${escapeHtml(p.title)}</p>
                 </div>
-                <p class="text-xs text-slate-200 mt-1 font-semibold truncate">${escapeHtml(p.title)}</p>
+              </div>
+              <div class="flex justify-between items-center text-[10px] text-slate-500 border-t border-white/5 pt-2">
+                <span>Jalon n°${p.order_index || '?'}</span>
+                <span>📅 ${isReleased && p.released_at ? 'Encaissé le ' + formatDate(p.released_at) : 'Validé le ' + formatDate(p.validated_at || p.created_at)}</span>
               </div>
             </div>
-            <div class="flex justify-between items-center text-[10px] text-slate-500 border-t border-white/5 pt-2">
-              <span class="truncate">🏗️ ${escapeHtml(p.project_title)}${p.project_city ? ' · ' + escapeHtml(p.project_city) : ''}</span>
-              <span class="flex-shrink-0">Jalon n°${p.order_index || '?'}</span>
-            </div>
-            <div class="text-[10px] text-slate-500">
-              📅 ${isReleased && p.released_at ? 'Encaissé le ' + formatDate(p.released_at) : 'Validé le ' + formatDate(p.validated_at || p.created_at)}
-            </div>
-          </div>
-        `;
-      }).join('');
+          `;
+        });
+
+        html += '</div>';
+      }
+
+      list.innerHTML = html;
     }
 
     // ============================================================
@@ -205,6 +275,11 @@
         currentFilter = btn.dataset.filter;
         renderPayments();
       });
+    });
+
+    document.getElementById('project-filter').addEventListener('change', (e) => {
+      currentProjectFilter = e.target.value;
+      renderPayments();
     });
 
     loadPayments();
