@@ -25,6 +25,25 @@
       <div id="profile-badge" class="mt-3 inline-block bg-emerald-400/30 text-xs px-3 py-1 rounded-full">Compte actif</div>
     </section>
 
+    <!-- ============================================ -->
+    <!-- ENCART VÉRIFICATION D'IDENTITÉ (KYC) -->
+    <!-- ============================================ -->
+    <a id="kyc-card" href="kyc.html" class="block bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/[0.08] transition">
+      <div class="flex items-center gap-3">
+        <div id="kyc-icon-wrap" class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl bg-slate-500/20">
+          🛡️
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 class="font-bold text-sm">Vérification d'identité</h3>
+            <span id="kyc-status-badge" class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-500/30 text-slate-300">—</span>
+          </div>
+          <p id="kyc-status-text" class="text-[11px] text-slate-400 mt-0.5">Chargement…</p>
+        </div>
+        <span id="kyc-arrow" class="text-slate-500 text-xl">›</span>
+      </div>
+    </a>
+
     <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
       <div class="flex justify-between items-center mb-3">
         <h2 class="text-sm font-bold">Informations personnelles</h2>
@@ -106,11 +125,64 @@
           document.getElementById('profile-badge').textContent = '✅ Compte vérifié';
         } else if (p.kyc_status === 'pending') {
           document.getElementById('profile-badge').textContent = '⏳ Vérification en cours';
+        } else if (p.kyc_status === 'rejected') {
+          document.getElementById('profile-badge').textContent = '❌ Documents refusés';
         } else {
           document.getElementById('profile-badge').textContent = 'Compte actif';
         }
+
+        // Met à jour la carte KYC
+        renderKycCard(p.kyc_status);
       } catch (e) {
         document.getElementById('profile-name').textContent = 'Erreur de chargement';
+      }
+    }
+
+    /* ============================================
+       RENDU DE LA CARTE KYC
+       ============================================ */
+    function renderKycCard(status) {
+      const card = document.getElementById('kyc-card');
+      const iconWrap = document.getElementById('kyc-icon-wrap');
+      const badge = document.getElementById('kyc-status-badge');
+      const text = document.getElementById('kyc-status-text');
+      const arrow = document.getElementById('kyc-arrow');
+
+      if (status === 'verified') {
+        iconWrap.className = 'w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl bg-emerald-500/20';
+        iconWrap.textContent = '✅';
+        badge.className = 'text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/30 text-emerald-200';
+        badge.textContent = 'VÉRIFIÉ';
+        text.textContent = 'Votre identité a été validée. Tout est en ordre.';
+        arrow.style.display = 'none';
+        card.style.opacity = '0.85';
+      } else if (status === 'pending') {
+        iconWrap.className = 'w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl bg-amber-500/20';
+        iconWrap.textContent = '⏳';
+        badge.className = 'text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/30 text-amber-200';
+        badge.textContent = 'EN ATTENTE';
+        text.textContent = 'Vos documents sont en cours d\'examen (24-48h).';
+        arrow.style.display = 'none';
+        card.style.opacity = '0.85';
+      } else if (status === 'rejected') {
+        iconWrap.className = 'w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl bg-red-500/20';
+        iconWrap.textContent = '❌';
+        badge.className = 'text-[9px] font-bold px-2 py-0.5 rounded-full bg-red-500/30 text-red-200';
+        badge.textContent = 'À RENVOYER';
+        text.textContent = 'Vos documents ont été refusés. Cliquez pour renvoyer.';
+        arrow.style.display = 'block';
+        card.style.opacity = '1';
+        card.style.borderColor = 'rgba(239,68,68,0.5)';
+      } else {
+        // null / none
+        iconWrap.className = 'w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl bg-sky-500/20';
+        iconWrap.textContent = '🛡️';
+        badge.className = 'text-[9px] font-bold px-2 py-0.5 rounded-full bg-sky-500/30 text-sky-200';
+        badge.textContent = 'À FAIRE';
+        text.textContent = 'Vérifiez votre identité pour débloquer toutes les fonctionnalités.';
+        arrow.style.display = 'block';
+        card.style.opacity = '1';
+        card.style.borderColor = 'rgba(14,165,233,0.5)';
       }
     }
 
