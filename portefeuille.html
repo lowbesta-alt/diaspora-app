@@ -15,6 +15,7 @@
       <p class="text-sm text-slate-400 mt-1">Suivez vos fonds en temps réel</p>
     </div>
 
+    <!-- CARTE SOLDE DISPONIBLE -->
     <section class="relative overflow-hidden rounded-3xl border border-sky-500/30 shadow-2xl shadow-sky-500/20">
       <div class="absolute inset-0 bg-gradient-to-br from-sky-600 via-sky-700 to-blue-900"></div>
       <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-20 translate-x-20 blur-3xl"></div>
@@ -34,21 +35,35 @@
       </div>
     </section>
 
-    <section class="grid grid-cols-2 gap-3">
-      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
-        <div class="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center mb-3">
-          <span class="text-xl">🔒</span>
-        </div>
-        <div class="text-xl font-extrabold text-orange-300" id="stat-escrow">-</div>
-        <div class="text-[10px] text-slate-400 uppercase tracking-wider mt-1 font-semibold">Fonds bloqués</div>
+    <!-- 3 STATS : DÉPOSÉ / SÉQUESTRÉ / DÉBLOQUÉ -->
+    <section class="grid grid-cols-3 gap-2 text-center">
+      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-3">
+        <div class="text-lg mb-1">📥</div>
+        <div class="text-base font-bold text-white" id="stat-deposits">-</div>
+        <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold mt-1">Total déposé</div>
       </div>
-      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
-        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center mb-3">
-          <span class="text-xl">💰</span>
-        </div>
-        <div class="text-xl font-extrabold text-emerald-300" id="stat-invested">-</div>
-        <div class="text-[10px] text-slate-400 uppercase tracking-wider mt-1 font-semibold">Total débloqué</div>
+      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-3">
+        <div class="text-lg mb-1">🔒</div>
+        <div class="text-base font-bold text-orange-300" id="stat-escrow">-</div>
+        <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold mt-1">Séquestré</div>
       </div>
+      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-3">
+        <div class="text-lg mb-1">💰</div>
+        <div class="text-base font-bold text-emerald-300" id="stat-invested">-</div>
+        <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold mt-1">Débloqué</div>
+      </div>
+    </section>
+
+    <!-- BARRE DE PROGRESSION -->
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+      <div class="flex justify-between text-[11px] text-slate-400 mb-2">
+        <span class="font-semibold uppercase tracking-wider">Avancement du déblocage</span>
+        <span id="progress-text" class="font-bold text-white">0%</span>
+      </div>
+      <div class="w-full bg-slate-700/50 rounded-full h-2 overflow-hidden">
+        <div id="progress-bar" class="bg-gradient-to-r from-emerald-500 to-emerald-400 h-2 rounded-full transition-all" style="width: 0%"></div>
+      </div>
+      <p class="text-[10px] text-slate-500 mt-2">Pourcentage du budget déjà libéré aux artisans</p>
     </section>
 
     <section>
@@ -148,6 +163,7 @@
         if (valid.length === 0) {
           list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">💰</div><p class="text-slate-400 text-sm">Aucune transaction</p></div>';
           document.getElementById('solde').textContent = '0';
+          document.getElementById('stat-deposits').textContent = '0';
           document.getElementById('stat-escrow').textContent = '0';
           document.getElementById('stat-invested').textContent = '0';
           return;
@@ -162,12 +178,20 @@
         });
 
         const solde = deposits - released;
-        const blocked = deposits - released;
+        const escrow = deposits - released;
 
+        // AFFICHAGE
         document.getElementById('solde').textContent = Math.max(0, solde).toLocaleString('fr-FR');
-        document.getElementById('stat-escrow').textContent = Math.max(0, blocked).toLocaleString('fr-FR');
+        document.getElementById('stat-deposits').textContent = deposits.toLocaleString('fr-FR');
+        document.getElementById('stat-escrow').textContent = Math.max(0, escrow).toLocaleString('fr-FR');
         document.getElementById('stat-invested').textContent = released.toLocaleString('fr-FR');
 
+        // BARRE DE PROGRESSION
+        const percent = deposits > 0 ? Math.round((released / deposits) * 100) : 0;
+        document.getElementById('progress-text').textContent = percent + '%';
+        document.getElementById('progress-bar').style.width = percent + '%';
+
+        // LISTE
         list.innerHTML = valid.map(t => {
           const { ic, bg } = txIcon(t.transaction_type);
           return `<div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-3.5"><div class="w-11 h-11 rounded-xl ${bg} flex items-center justify-center flex-shrink-0 text-lg">${ic}</div><div class="flex-1 min-w-0"><p class="text-sm font-bold truncate">${escapeHtml(t.description || getStatusLabel(t.transaction_type))}</p><p class="text-[10px] text-slate-500 mt-0.5 font-semibold uppercase tracking-wider">${formatDate(t.created_at)}</p></div><div class="text-sm font-extrabold ${txColorClass(t.transaction_type)}">${txSign(t.transaction_type)} ${Number(t.amount).toLocaleString('fr-FR')}</div></div>`;
