@@ -137,9 +137,7 @@ const ED_MENUS = {
 
 const ED_MENU_ITEMS = ED_MENUS.investor;
 
-function getRealUserRole() {
-  return localStorage.getItem('user_role') || 'investor';
-}
+function getRealUserRole() { return localStorage.getItem('user_role') || 'investor'; }
 
 function getCurrentUserRole() {
   const realRole = getRealUserRole();
@@ -150,17 +148,9 @@ function getCurrentUserRole() {
   return realRole;
 }
 
-function isAdminModeTest() {
-  return getRealUserRole() === 'admin' && !!localStorage.getItem('test_role');
-}
-
-function setTestRole(role) {
-  localStorage.setItem('test_role', role);
-}
-
-function clearTestRole() {
-  localStorage.removeItem('test_role');
-}
+function isAdminModeTest() { return getRealUserRole() === 'admin' && !!localStorage.getItem('test_role'); }
+function setTestRole(role) { localStorage.setItem('test_role', role); }
+function clearTestRole() { localStorage.removeItem('test_role'); }
 
 function edGetMenuItems() {
   const role = getCurrentUserRole();
@@ -169,50 +159,22 @@ function edGetMenuItems() {
   return ED_MENUS.investor;
 }
 
-// ============================================================
-// BANDEAU MODE TEST
-// ============================================================
 function edInjectTestBanner() {
   if (!isAdminModeTest()) return;
   if (document.getElementById('edTestBanner')) return;
-
   const testRole = localStorage.getItem('test_role');
-  const labels = {
-    'investor': 'Client / Diaspora',
-    'provider': 'Artisan / Partenaire BTP'
-  };
+  const labels = { 'investor': 'Client / Diaspora', 'provider': 'Artisan / Partenaire BTP' };
   const label = labels[testRole] || testRole;
-
   const banner = document.createElement('div');
   banner.id = 'edTestBanner';
   banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:60;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#0a1838;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 4px 12px rgba(245,158,11,0.4);';
-  banner.innerHTML =
-    '<div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:12px;">' +
-      '<span>👁️</span>' +
-      '<span>Mode test : ' + label + '</span>' +
-    '</div>' +
-    '<button id="edExitTest" style="background:#0a1838;color:#fbbf24;border:none;padding:6px 12px;border-radius:8px;font-weight:800;font-size:11px;cursor:pointer;">QUITTER LE TEST</button>';
-
+  banner.innerHTML = '<div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:12px;"><span>👁️</span><span>Mode test : ' + label + '</span></div><button id="edExitTest" style="background:#0a1838;color:#fbbf24;border:none;padding:6px 12px;border-radius:8px;font-weight:800;font-size:11px;cursor:pointer;">QUITTER LE TEST</button>';
   document.body.insertBefore(banner, document.body.firstChild);
-
-  document.getElementById('edExitTest').addEventListener('click', function() {
-    clearTestRole();
-    window.location.href = 'dashboard-admin.html';
-  });
-
-  setTimeout(function() {
-    const header = document.querySelector('.ed-header');
-    if (header) header.style.marginTop = '40px';
-    else document.body.style.paddingTop = '40px';
-  }, 100);
+  document.getElementById('edExitTest').addEventListener('click', function() { clearTestRole(); window.location.href = 'dashboard-admin.html'; });
+  setTimeout(function() { const header = document.querySelector('.ed-header'); if (header) header.style.marginTop = '40px'; else document.body.style.paddingTop = '40px'; }, 100);
 }
 
-// ============================================================
-// HEADER PRO
-// ============================================================
-function edCurrentPage() {
-  return window.location.pathname.split('/').pop() || 'index.html';
-}
+function edCurrentPage() { return window.location.pathname.split('/').pop() || 'index.html'; }
 
 function edInjectHeader() {
   const current = edCurrentPage();
@@ -233,41 +195,10 @@ function edInjectHeader() {
   }
 
   const menuItems = items.map(makeLink).join('');
-
-  const roleLabels = {
-    'investor': 'Espace Investisseur',
-    'provider': 'Espace Artisan',
-    'project_manager': 'Espace Chef de chantier',
-    'admin': 'Administration'
-  };
+  const roleLabels = { 'investor': 'Espace Investisseur', 'provider': 'Espace Artisan', 'project_manager': 'Espace Chef de chantier', 'admin': 'Administration' };
   const roleMeta = roleLabels[role] || roleLabels.investor;
 
-  const headerHTML =
-    '<header class="ed-header">' +
-      '<div class="ed-header-inner">' +
-        '<a href="' + (items[0] ? items[0].href : 'dashboard-investisseur.html') + '" class="ed-header-logo">' +
-          '<img src="logo.svg" alt="Espace Diaspora">' +
-          '<div class="ed-header-logo-text">' +
-            '<span class="ed-header-logo-name">Espace Diaspora</span>' +
-            '<span class="ed-header-logo-tag">' + roleMeta + '</span>' +
-          '</div>' +
-        '</a>' +
-        '<nav class="ed-menu">' + menuItems + '</nav>' +
-        '<div class="ed-header-actions">' +
-          '<a href="notifications.html" class="ed-bell" id="edBellBtn">' + ED_ICONS.bell + '</a>' +
-          '<a href="profil.html" class="ed-avatar">' + initials + '</a>' +
-          '<button class="ed-burger" id="edBurger" aria-label="Menu">☰</button>' +
-        '</div>' +
-      '</div>' +
-    '</header>' +
-    '<div class="ed-overlay" id="edOverlay"></div>' +
-    '<aside class="ed-mobile-menu" id="edMobileMenu">' +
-      '<button class="ed-mobile-close" id="edMobileClose">✕</button>' +
-      '<div class="ed-mobile-menu-title">' + roleMeta + '</div>' +
-      menuItems +
-      '<div class="ed-mobile-menu-title">Compte</div>' +
-      '<a href="#" id="edLogoutBtn"><span class="ed-menu-icon">🚪</span> Déconnexion</a>' +
-    '</aside>';
+  const headerHTML = '<header class="ed-header"><div class="ed-header-inner"><a href="' + (items[0] ? items[0].href : 'dashboard-investisseur.html') + '" class="ed-header-logo"><img src="logo.svg" alt="Espace Diaspora"><div class="ed-header-logo-text"><span class="ed-header-logo-name">Espace Diaspora</span><span class="ed-header-logo-tag">' + roleMeta + '</span></div></a><nav class="ed-menu">' + menuItems + '</nav><div class="ed-header-actions"><a href="notifications.html" class="ed-bell" id="edBellBtn">' + ED_ICONS.bell + '</a><a href="profil.html" class="ed-avatar">' + initials + '</a><button class="ed-burger" id="edBurger" aria-label="Menu">☰</button></div></div></header><div class="ed-overlay" id="edOverlay"></div><aside class="ed-mobile-menu" id="edMobileMenu"><button class="ed-mobile-close" id="edMobileClose">✕</button><div class="ed-mobile-menu-title">' + roleMeta + '</div>' + menuItems + '<div class="ed-mobile-menu-title">Compte</div><a href="#" id="edLogoutBtn"><span class="ed-menu-icon">🚪</span> Déconnexion</a></aside>';
 
   const wrapper = document.createElement('div');
   wrapper.innerHTML = headerHTML;
@@ -279,25 +210,15 @@ function edInjectHeader() {
   const closeBtn = document.getElementById('edMobileClose');
   const logoutBtn = document.getElementById('edLogoutBtn');
 
-  function openMenu() {
-    if (mobileMenu) mobileMenu.classList.add('open');
-    if (overlay) overlay.classList.add('open');
-  }
-  function closeMenu() {
-    if (mobileMenu) mobileMenu.classList.remove('open');
-    if (overlay) overlay.classList.remove('open');
-  }
+  function openMenu() { if (mobileMenu) mobileMenu.classList.add('open'); if (overlay) overlay.classList.add('open'); }
+  function closeMenu() { if (mobileMenu) mobileMenu.classList.remove('open'); if (overlay) overlay.classList.remove('open'); }
 
   if (burger) burger.addEventListener('click', openMenu);
   if (closeBtn) closeBtn.addEventListener('click', closeMenu);
   if (overlay) overlay.addEventListener('click', closeMenu);
-  if (logoutBtn) logoutBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    if (confirm('Se deconnecter ?')) logout();
-  });
+  if (logoutBtn) logoutBtn.addEventListener('click', function(e) { e.preventDefault(); if (confirm('Se deconnecter ?')) logout(); });
 }
 
-// ---------- Session ----------
 function getToken() { return localStorage.getItem('access_token'); }
 function getCurrentUserId() { return localStorage.getItem('user_id'); }
 function getCurrentUserEmail() { return localStorage.getItem('user_email'); }
@@ -305,11 +226,7 @@ function getCurrentUserName() { return localStorage.getItem('user_name') || ''; 
 function isLoggedIn() { return !!getToken() && !!getCurrentUserId(); }
 
 function requireLogin() {
-  if (!isLoggedIn()) {
-    alert('Vous devez etre connecte');
-    window.location.href = 'index.html';
-    return false;
-  }
+  if (!isLoggedIn()) { alert('Vous devez etre connecte'); window.location.href = 'index.html'; return false; }
   return true;
 }
 
@@ -340,10 +257,7 @@ function logout() {
 
 function getHeaders(extra) {
   extra = extra || {};
-  const headers = Object.assign({
-    'apikey': SUPABASE_KEY,
-    'Content-Type': 'application/json'
-  }, extra);
+  const headers = Object.assign({ 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' }, extra);
   const token = getToken();
   if (token) headers['Authorization'] = 'Bearer ' + token;
   return headers;
@@ -353,152 +267,69 @@ async function apiGet(table, params) {
   params = params || '';
   const url = SUPABASE_URL + '/rest/v1/' + table + (params ? '?' + params : '');
   const res = await fetch(url, { headers: getHeaders() });
-  if (!res.ok) {
-    const err = await res.json().catch(function() { return {}; });
-    throw new Error(err.message || 'Erreur de chargement');
-  }
+  if (!res.ok) { const err = await res.json().catch(function() { return {}; }); throw new Error(err.message || 'Erreur de chargement'); }
   return res.json();
 }
 
 async function apiPost(table, data) {
-  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table, {
-    method: 'POST',
-    headers: getHeaders({ 'Prefer': 'return=representation' }),
-    body: JSON.stringify(data)
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(function() { return {}; });
-    throw new Error(err.message || 'Erreur de creation');
-  }
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table, { method: 'POST', headers: getHeaders({ 'Prefer': 'return=representation' }), body: JSON.stringify(data) });
+  if (!res.ok) { const err = await res.json().catch(function() { return {}; }); throw new Error(err.message || 'Erreur de creation'); }
   return res.json();
 }
 
 async function apiPatch(table, id, data) {
-  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table + '?id=eq.' + id, {
-    method: 'PATCH',
-    headers: getHeaders({ 'Prefer': 'return=minimal' }),
-    body: JSON.stringify(data)
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(function() { return {}; });
-    throw new Error(err.message || 'Erreur de mise a jour');
-  }
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table + '?id=eq.' + id, { method: 'PATCH', headers: getHeaders({ 'Prefer': 'return=minimal' }), body: JSON.stringify(data) });
+  if (!res.ok) { const err = await res.json().catch(function() { return {}; }); throw new Error(err.message || 'Erreur de mise a jour'); }
   return true;
 }
 
 async function apiDelete(table, id) {
-  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table + '?id=eq.' + id, {
-    method: 'DELETE',
-    headers: getHeaders({ 'Prefer': 'return=minimal' })
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(function() { return {}; });
-    throw new Error(err.message || 'Erreur de suppression');
-  }
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table + '?id=eq.' + id, { method: 'DELETE', headers: getHeaders({ 'Prefer': 'return=minimal' }) });
+  if (!res.ok) { const err = await res.json().catch(function() { return {}; }); throw new Error(err.message || 'Erreur de suppression'); }
   return true;
 }
 
 async function uploadFile(bucket, path, file) {
   const token = getToken() || SUPABASE_KEY;
-  const res = await fetch(SUPABASE_URL + '/storage/v1/object/' + bucket + '/' + path, {
-    method: 'POST',
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': 'Bearer ' + token,
-      'Content-Type': file.type
-    },
-    body: file
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(function() { return {}; });
-    throw new Error(err.message || 'Erreur upload');
-  }
+  const res = await fetch(SUPABASE_URL + '/storage/v1/object/' + bucket + '/' + path, { method: 'POST', headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': file.type }, body: file });
+  if (!res.ok) { const err = await res.json().catch(function() { return {}; }); throw new Error(err.message || 'Erreur upload'); }
   return true;
 }
 
-function formatAmount(amount, currency) {
-  currency = currency || 'XAF';
-  return Number(amount || 0).toLocaleString('fr-FR') + ' ' + currency;
-}
-
-function formatDate(dateStr) {
-  if (!dateStr) return '-';
-  return new Date(dateStr).toLocaleDateString('fr-FR');
-}
+function formatAmount(amount, currency) { currency = currency || 'XAF'; return Number(amount || 0).toLocaleString('fr-FR') + ' ' + currency; }
+function formatDate(dateStr) { if (!dateStr) return '-'; return new Date(dateStr).toLocaleDateString('fr-FR'); }
 
 function getStatusLabel(status) {
-  const map = {
-    'active': 'En cours', 'draft': 'En preparation', 'completed': 'Termine',
-    'paused': 'En pause', 'cancelled': 'Annule', 'disputed': 'En litige',
-    'released': 'Debloque', 'approved': 'Valide', 'submitted': 'En attente',
-    'pending': 'A venir', 'rejected': 'Refuse', 'in_progress': 'En cours',
-    'pending_review': 'En attente de validation', 'published': 'Publie'
-  };
+  const map = { 'active': 'En cours', 'draft': 'En preparation', 'completed': 'Termine', 'paused': 'En pause', 'cancelled': 'Annule', 'disputed': 'En litige', 'released': 'Debloque', 'approved': 'Valide', 'submitted': 'En attente', 'pending': 'A venir', 'rejected': 'Refuse', 'in_progress': 'En cours', 'pending_review': 'En attente de validation', 'published': 'Publie' };
   return map[status] || status;
 }
 
 function getStatusBadgeClass(status) {
-  const map = {
-    'active': 'bg-emerald-500/20 text-emerald-300',
-    'draft': 'bg-orange-500/20 text-orange-300',
-    'completed': 'bg-slate-500/20 text-slate-300',
-    'paused': 'bg-yellow-500/20 text-yellow-300',
-    'cancelled': 'bg-red-500/20 text-red-300',
-    'disputed': 'bg-red-700/20 text-red-300',
-    'released': 'bg-blue-500/20 text-blue-300',
-    'approved': 'bg-emerald-500/20 text-emerald-300',
-    'submitted': 'bg-orange-500/20 text-orange-300',
-    'pending': 'bg-slate-500/20 text-slate-300',
-    'rejected': 'bg-red-500/20 text-red-300',
-    'in_progress': 'bg-yellow-500/20 text-yellow-300',
-    'pending_review': 'bg-amber-500/20 text-amber-300',
-    'published': 'bg-emerald-500/20 text-emerald-300'
-  };
+  const map = { 'active': 'bg-emerald-500/20 text-emerald-300', 'draft': 'bg-orange-500/20 text-orange-300', 'completed': 'bg-slate-500/20 text-slate-300', 'paused': 'bg-yellow-500/20 text-yellow-300', 'cancelled': 'bg-red-500/20 text-red-300', 'disputed': 'bg-red-700/20 text-red-300', 'released': 'bg-blue-500/20 text-blue-300', 'approved': 'bg-emerald-500/20 text-emerald-300', 'submitted': 'bg-orange-500/20 text-orange-300', 'pending': 'bg-slate-500/20 text-slate-300', 'rejected': 'bg-red-500/20 text-red-300', 'in_progress': 'bg-yellow-500/20 text-yellow-300', 'pending_review': 'bg-amber-500/20 text-amber-300', 'published': 'bg-emerald-500/20 text-emerald-300' };
   return map[status] || 'bg-slate-500/20 text-slate-300';
 }
 
-function renderStatusBadge(status) {
-  return '<span class="text-[10px] ' + getStatusBadgeClass(status) + ' px-2 py-0.5 rounded-full font-semibold">' + getStatusLabel(status) + '</span>';
-}
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
+function renderStatusBadge(status) { return '<span class="text-[10px] ' + getStatusBadgeClass(status) + ' px-2 py-0.5 rounded-full font-semibold">' + getStatusLabel(status) + '</span>'; }
+function escapeHtml(str) { if (!str) return ''; return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function showError(msg) { alert('Erreur : ' + msg); }
 function showSuccess(msg) { alert(msg); }
-
 function setupUserHeader() {}
 
-// ============================================================
-// NOTIFICATIONS AUTOMATIQUES
-// ============================================================
 async function edCheckNotifications() {
   if (!getToken()) return;
   const userId = getCurrentUserId();
   if (!userId) return;
   if (window._edNotifShown) return;
   window._edNotifShown = true;
-
   try {
     const url = SUPABASE_URL + '/rest/v1/notifications?user_id=eq.' + userId + '&read_at=is.null&order=created_at.desc&limit=3';
-    const res = await fetch(url, {
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + (getToken() || SUPABASE_KEY),
-        'Content-Type': 'application/json'
-      }
-    });
+    const res = await fetch(url, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + (getToken() || SUPABASE_KEY), 'Content-Type': 'application/json' } });
     if (!res.ok) return;
     const notifs = await res.json();
     if (!Array.isArray(notifs) || notifs.length === 0) return;
-
     edUpdateBellBadge(notifs.length);
     edShowNotificationBanner(notifs);
-  } catch (e) {
-    console.warn('Notif check failed:', e);
-  }
+  } catch (e) { console.warn('Notif check failed:', e); }
 }
 
 function edUpdateBellBadge(count) {
@@ -517,38 +348,16 @@ function edUpdateBellBadge(count) {
 
 function edShowNotificationBanner(notifs) {
   if (document.getElementById('edNotifBanner')) return;
-
   const first = notifs[0];
   const count = notifs.length;
-
   const banner = document.createElement('div');
   banner.id = 'edNotifBanner';
   banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:70;background:linear-gradient(135deg,#10b981,#059669);color:white;padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 16px rgba(16,185,129,0.5);cursor:pointer;';
-
-  banner.innerHTML =
-    '<span style="font-size:20px;">🔔</span>' +
-    '<div style="flex:1;font-size:13px;line-height:1.3;">' +
-      '<div style="font-weight:800;">' + (count > 1 ? count + ' nouvelles notifications' : 'Nouvelle notification') + '</div>' +
-      '<div style="font-size:11px;opacity:0.95;margin-top:2px;">' + escapeHtml(first.title || 'Nouvelle activite') + '</div>' +
-    '</div>' +
-    '<button id="edNotifClose" style="background:rgba(255,255,255,0.25);border:none;color:white;padding:6px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;">✕</button>';
-
-  banner.addEventListener('click', (e) => {
-    if (e.target.id === 'edNotifClose') return;
-    if (first.link) window.location.href = first.link;
-  });
-
+  banner.innerHTML = '<span style="font-size:20px;">🔔</span><div style="flex:1;font-size:13px;line-height:1.3;"><div style="font-weight:800;">' + (count > 1 ? count + ' nouvelles notifications' : 'Nouvelle notification') + '</div><div style="font-size:11px;opacity:0.95;margin-top:2px;">' + escapeHtml(first.title || 'Nouvelle activite') + '</div></div><button id="edNotifClose" style="background:rgba(255,255,255,0.25);border:none;color:white;padding:6px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;">✕</button>';
+  banner.addEventListener('click', (e) => { if (e.target.id === 'edNotifClose') return; if (first.link) window.location.href = first.link; });
   document.body.appendChild(banner);
-
-  document.getElementById('edNotifClose').addEventListener('click', (e) => {
-    e.stopPropagation();
-    banner.remove();
-  });
-
-  setTimeout(() => {
-    const el = document.getElementById('edNotifBanner');
-    if (el) el.remove();
-  }, 10000);
+  document.getElementById('edNotifClose').addEventListener('click', (e) => { e.stopPropagation(); banner.remove(); });
+  setTimeout(() => { const el = document.getElementById('edNotifBanner'); if (el) el.remove(); }, 10000);
 }
 
 function edInit() {
@@ -558,8 +367,4 @@ function edInit() {
   setTimeout(edReplaceEmojis, 500);
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', edInit);
-} else {
-  edInit();
-}
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', edInit); } else { edInit(); }
