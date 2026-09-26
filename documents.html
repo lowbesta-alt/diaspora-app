@@ -21,11 +21,18 @@
 
     <input type="text" id="searchInput" placeholder="🔍 Rechercher un document..." class="w-full px-4 py-3 rounded-xl bg-white/5 text-sm placeholder-slate-500 focus:outline-none transition" style="border: 1px solid rgba(16,185,129,0.3);">
 
+    <!-- Filtre par projet (visible si plusieurs projets) -->
+    <select id="project-filter" class="hidden w-full px-4 py-3 rounded-xl bg-white/5 text-sm focus:outline-none transition" style="border: 1px solid rgba(16,185,129,0.3); color: #fff; background-color: rgba(255,255,255,0.05);">
+      <option value="all">📁 Tous les projets</option>
+    </select>
+
+    <!-- Filtres par type -->
     <div class="flex gap-2 overflow-x-auto pb-1">
       <button data-filter="all" class="filter-btn font-bold px-4 py-1.5 rounded-full text-xs whitespace-nowrap" style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #0a1838;">Tous</button>
       <button data-filter="photo" class="filter-btn bg-white/5 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap" style="border: 1px solid rgba(16,185,129,0.3);">📸 Photos</button>
       <button data-filter="invoice" class="filter-btn bg-white/5 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap" style="border: 1px solid rgba(16,185,129,0.3);">📄 Factures</button>
       <button data-filter="contract" class="filter-btn bg-white/5 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap" style="border: 1px solid rgba(16,185,129,0.3);">📋 Contrats</button>
+      <button data-filter="video" class="filter-btn bg-white/5 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap" style="border: 1px solid rgba(16,185,129,0.3);">🎥 Vidéos</button>
     </div>
 
     <section class="grid grid-cols-3 gap-2 text-center">
@@ -49,6 +56,38 @@
 
   </main>
 
+  <!-- LIGHTBOX -->
+  <div id="lightbox" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm hidden flex-col">
+    <header class="flex items-center justify-between p-4 border-b border-white/10">
+      <div class="flex-1 min-w-0">
+        <h2 id="lb-title" class="font-bold text-sm truncate"></h2>
+        <p id="lb-meta" class="text-[10px] text-slate-400 mt-0.5"></p>
+      </div>
+      <button id="lb-close" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xl flex-shrink-0 ml-2">✕</button>
+    </header>
+
+    <div class="flex-1 flex items-center justify-center p-4 overflow-hidden relative">
+      <button id="lb-prev" class="absolute left-2 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xl">‹</button>
+      <div id="lb-content" class="w-full h-full flex items-center justify-center"></div>
+      <button id="lb-next" class="absolute right-2 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xl">›</button>
+    </div>
+
+    <footer class="p-4 border-t border-white/10">
+      <div class="grid grid-cols-3 gap-2">
+        <button id="lb-download" class="bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2">
+          <span>⬇️</span> Télécharger
+        </button>
+        <button id="lb-share" class="bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2">
+          <span>📤</span> Partager
+        </button>
+        <button id="lb-info" class="bg-white/10 hover:bg-white/20 py-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2">
+          <span>ℹ️</span> Infos
+        </button>
+      </div>
+      <div id="lb-info-panel" class="hidden mt-3 p-3 rounded-xl bg-white/5 border border-white/10 text-xs space-y-1"></div>
+    </footer>
+  </div>
+
   <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
     <a href="dashboard-investisseur.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
     <a href="projets.html" class="flex flex-col items-center gap-0.5 text-emerald-400 text-[10px]"><span class="text-lg">📁</span>Projets</a>
@@ -63,14 +102,31 @@
     if (!requireLogin()) throw new Error('Not logged');
 
     const urlParams = new URLSearchParams(window.location.search);
-    const projectId = urlParams.get('id');
+    const filterProject = urlParams.get('id');
+    const userId = getCurrentUserId();
+    const role = getCurrentUserRole();
+    const isAdmin = role === 'admin';
 
     let allDocs = [];
+    let myProjects = [];       // [{id, title}]
+    let projectsMap = {};       // { id: title }
+    let usersMap = {};          // { id: full_name }
+    let currentFilter = 'all';
+    let currentProject = filterProject || 'all';
+    let searchQuery = '';
+    let visibleDocs = [];       // docs après filtres
+    let currentLightboxIdx = -1;
 
-    // ==========================================================
-    // Genere une URL signee pour une photo (bucket prive)
-    // ==========================================================
+    const signedUrlCache = new Map(); // { 'bucket/path': { url, exp } }
+
+    /* ==========================================================
+       URL signée avec cache (1h)
+       ========================================================== */
     async function getSignedUrl(bucket, path, expiresIn = 3600) {
+      const key = bucket + '/' + path;
+      const cached = signedUrlCache.get(key);
+      if (cached && cached.exp > Date.now() + 60000) return cached.url;
+
       try {
         const token = getToken() || SUPABASE_KEY;
         const res = await fetch(SUPABASE_URL + '/storage/v1/object/sign/' + bucket + '/' + path, {
@@ -85,7 +141,9 @@
         if (!res.ok) return null;
         const data = await res.json();
         if (data.signedURL) {
-          return SUPABASE_URL + '/storage/v1' + data.signedURL;
+          const url = SUPABASE_URL + '/storage/v1' + data.signedURL;
+          signedUrlCache.set(key, { url, exp: Date.now() + (expiresIn - 120) * 1000 });
+          return url;
         }
         return null;
       } catch (e) {
@@ -93,26 +151,122 @@
       }
     }
 
-    // ==========================================================
-    // Rend la galerie avec vraies photos si disponibles
-    // ==========================================================
-    async function renderDocs(docs) {
+    /* ==========================================================
+       Charge les projets accessibles à l'utilisateur
+       ========================================================== */
+    async function loadMyProjects() {
+      try {
+        if (isAdmin) {
+          const all = await apiGet('projects', 'order=created_at.desc');
+          myProjects = Array.isArray(all) ? all.map(p => ({ id: p.id, title: p.title })) : [];
+        } else {
+          const map = new Map();
+
+          // 1) Projets dont il est propriétaire (owner_id)
+          try {
+            const owned = await apiGet('projects', 'owner_id=eq.' + userId);
+            if (Array.isArray(owned)) for (const p of owned) map.set(p.id, { id: p.id, title: p.title });
+          } catch (e) {}
+
+          // 2) Projets où il est membre actif (via project_members)
+          try {
+            const members = await apiGet('project_members', 'user_id=eq.' + userId + '&is_active=eq.true');
+            if (Array.isArray(members) && members.length > 0) {
+              const ids = members.map(m => m.project_id).filter(Boolean);
+              if (ids.length > 0) {
+                const projs = await apiGet('projects', 'id=in.(' + ids.join(',') + ')');
+                if (Array.isArray(projs)) for (const p of projs) map.set(p.id, { id: p.id, title: p.title });
+              }
+            }
+          } catch (e) {}
+
+          myProjects = Array.from(map.values());
+        }
+
+        projectsMap = {};
+        for (const p of myProjects) projectsMap[p.id] = p.title;
+      } catch (e) {
+        myProjects = [];
+      }
+    }
+
+    /* ==========================================================
+       Charge les documents (filtrés côté serveur par projet si possible)
+       ========================================================== */
+    async function loadDocs() {
+      try {
+        let params = 'order=created_at.desc&limit=500';
+
+        if (!isAdmin && myProjects.length > 0) {
+          const ids = myProjects.map(p => p.id).join(',');
+          params = 'project_id=in.(' + ids + ')&' + params;
+        } else if (!isAdmin && myProjects.length === 0) {
+          // Pas de projet : on charge quand même ses propres uploads
+          params = 'uploaded_by=eq.' + userId + '&' + params;
+        }
+        // admin : tous les documents
+
+        const data = await apiGet('documents', params);
+        allDocs = Array.isArray(data) ? data : [];
+      } catch (e) {
+        console.error('[docs] load error', e);
+        allDocs = [];
+      }
+
+      // Charge les noms des uploaders (en 1 seule requête)
+      const uploaderIds = [...new Set(allDocs.map(d => d.uploaded_by).filter(Boolean))];
+      if (uploaderIds.length > 0) {
+        try {
+          const users = await apiGet('profiles', 'id=in.(' + uploaderIds.join(',') + ')');
+          if (Array.isArray(users)) for (const u of users) usersMap[u.id] = u.full_name || u.email || 'Utilisateur';
+        } catch (e) {}
+      }
+    }
+
+    /* ==========================================================
+       Applique les filtres et rend la grille
+       ========================================================== */
+    function applyFilters() {
+      visibleDocs = allDocs.filter(d => {
+        if (currentFilter !== 'all' && d.document_type !== currentFilter) return false;
+        if (currentProject !== 'all' && d.project_id !== currentProject) return false;
+        if (searchQuery && !(d.title || '').toLowerCase().includes(searchQuery)) return false;
+        return true;
+      });
+      renderGrid();
+    }
+
+    function updateStats() {
+      document.getElementById('stat-total').textContent = visibleDocs.length;
+      document.getElementById('stat-photos').textContent = visibleDocs.filter(d => d.document_type === 'photo').length;
+      document.getElementById('stat-invoices').textContent = visibleDocs.filter(d => d.document_type === 'invoice').length;
+    }
+
+    /* ==========================================================
+       Rendu de la grille
+       ========================================================== */
+    async function renderGrid() {
       const grid = document.getElementById('docs-grid');
-      if (docs.length === 0) {
+      updateStats();
+
+      if (visibleDocs.length === 0) {
         grid.innerHTML = '<div class="col-span-3 text-center py-12 bg-white/5 rounded-2xl" style="border: 1px solid rgba(16,185,129,0.25);"><div class="text-4xl mb-3 opacity-40">📄</div><p class="text-slate-400 text-sm">Aucun document</p><p class="text-slate-500 text-xs mt-1">Cliquez sur + Téléverser pour commencer.</p></div>';
         return;
       }
 
-      // Rendu initial (placeholder)
-      grid.innerHTML = docs.map((d, i) => {
+      grid.innerHTML = visibleDocs.map((d, i) => {
+        const icon = getIcon(d.document_type);
         const isPhoto = d.document_type === 'photo';
-        const icon = d.document_type === 'invoice' ? '📄' : d.document_type === 'contract' ? '📋' : isPhoto ? '📸' : '📎';
+        const isVideo = d.document_type === 'video';
         return `
-          <div class="aspect-square bg-white/5 rounded-xl p-2 flex flex-col justify-end relative overflow-hidden cursor-pointer" style="border: 1px solid rgba(16,185,129,0.25);" data-idx="${i}">
+          <div class="aspect-square bg-white/5 rounded-xl p-2 flex flex-col justify-end relative overflow-hidden cursor-pointer ed-card" style="border: 1px solid rgba(16,185,129,0.25);" data-idx="${i}">
             ${isPhoto
               ? `<div class="absolute inset-0 flex items-center justify-center text-4xl text-slate-600 ed-photo-${i}">📸</div>
                  <img class="absolute inset-0 w-full h-full object-cover hidden ed-img-${i}" alt="${escapeHtml(d.title)}">`
-              : `<div class="absolute top-1 right-1 text-lg">${icon}</div>`
+              : isVideo
+                ? `<div class="absolute inset-0 flex items-center justify-center text-4xl text-slate-600">🎥</div>
+                   <video class="absolute inset-0 w-full h-full object-cover hidden ed-vid-${i}" muted preload="metadata"></video>`
+                : `<div class="absolute top-1 right-1 text-lg">${icon}</div>`
             }
             <div class="relative z-10">
               <p class="text-[10px] font-semibold leading-tight bg-black/60 backdrop-blur-sm rounded px-1 py-0.5 inline-block">${escapeHtml(d.title)}</p>
@@ -122,57 +276,183 @@
         `;
       }).join('');
 
-      // Charge les vraies photos en arriere-plan
-      docs.forEach(async (d, i) => {
-        if (d.document_type !== 'photo') return;
+      // Charge les visuels en arrière-plan
+      visibleDocs.forEach(async (d, i) => {
         if (!d.storage_path || !d.storage_bucket) return;
+        if (d.document_type !== 'photo' && d.document_type !== 'video') return;
 
         const url = await getSignedUrl(d.storage_bucket, d.storage_path);
         if (!url) return;
 
-        const img = document.querySelector('.ed-img-' + i);
-        const placeholder = document.querySelector('.ed-photo-' + i);
-        if (img) {
-          img.src = url;
-          img.classList.remove('hidden');
-          if (placeholder) placeholder.style.display = 'none';
+        if (d.document_type === 'photo') {
+          const img = document.querySelector('.ed-img-' + i);
+          const ph = document.querySelector('.ed-photo-' + i);
+          if (img) { img.src = url; img.classList.remove('hidden'); if (ph) ph.style.display = 'none'; }
+        } else {
+          const vid = document.querySelector('.ed-vid-' + i);
+          if (vid) { vid.src = url; vid.classList.remove('hidden'); }
         }
+      });
+
+      // Click sur carte → ouvre lightbox
+      document.querySelectorAll('.ed-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const idx = parseInt(card.dataset.idx, 10);
+          openLightbox(idx);
+        });
       });
     }
 
-    function updateStats(docs) {
-      document.getElementById('stat-total').textContent = docs.length;
-      document.getElementById('stat-photos').textContent = docs.filter(d => d.document_type === 'photo').length;
-      document.getElementById('stat-invoices').textContent = docs.filter(d => d.document_type === 'invoice').length;
+    function getIcon(type) {
+      return type === 'invoice' ? '📄' : type === 'contract' ? '📋' : type === 'video' ? '🎥' : type === 'photo' ? '📸' : '📎';
     }
 
-    async function loadDocs() {
+    /* ==========================================================
+       LIGHTBOX
+       ========================================================== */
+    async function openLightbox(idx) {
+      if (idx < 0 || idx >= visibleDocs.length) return;
+      currentLightboxIdx = idx;
+      const lb = document.getElementById('lightbox');
+      lb.classList.remove('hidden');
+      lb.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+      await renderLightbox();
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.add('hidden');
+      document.getElementById('lightbox').classList.remove('flex');
+      document.getElementById('lb-info-panel').classList.add('hidden');
+      document.body.style.overflow = '';
+      currentLightboxIdx = -1;
+    }
+
+    async function renderLightbox() {
+      const d = visibleDocs[currentLightboxIdx];
+      if (!d) return closeLightbox();
+
+      const title = document.getElementById('lb-title');
+      const meta = document.getElementById('lb-meta');
+      const content = document.getElementById('lb-content');
+      const infoPanel = document.getElementById('lb-info-panel');
+      infoPanel.classList.add('hidden');
+
+      title.textContent = d.title || 'Sans titre';
+      const uploader = usersMap[d.uploaded_by] || 'Utilisateur';
+      meta.textContent = uploader + ' · ' + formatDate(d.created_at);
+
+      content.innerHTML = '<div class="text-slate-500 text-sm">Chargement…</div>';
+
+      // Boutons précédent / suivant
+      document.getElementById('lb-prev').style.display = currentLightboxIdx > 0 ? 'flex' : 'none';
+      document.getElementById('lb-next').style.display = currentLightboxIdx < visibleDocs.length - 1 ? 'flex' : 'none';
+
+      if (!d.storage_path || !d.storage_bucket) {
+        content.innerHTML = '<div class="text-center"><div class="text-6xl mb-3">' + getIcon(d.document_type) + '</div><p class="text-slate-400 text-sm">Fichier introuvable</p></div>';
+        return;
+      }
+
+      const url = await getSignedUrl(d.storage_bucket, d.storage_path);
+      if (!url) {
+        content.innerHTML = '<p class="text-red-400 text-sm">Impossible de charger le fichier</p>';
+        return;
+      }
+
+      if (d.document_type === 'photo' || (d.mime_type || '').startsWith('image/')) {
+        content.innerHTML = '<img src="' + url + '" class="max-w-full max-h-full object-contain rounded-xl" alt="' + escapeHtml(d.title) + '">';
+      } else if (d.document_type === 'video' || (d.mime_type || '').startsWith('video/')) {
+        content.innerHTML = '<video src="' + url + '" controls autoplay class="max-w-full max-h-full rounded-xl"></video>';
+      } else if ((d.mime_type || '') === 'application/pdf' || d.document_type === 'invoice' || d.document_type === 'contract') {
+        content.innerHTML = '<div class="text-center"><div class="text-6xl mb-3">📄</div><p class="text-slate-300 text-sm mb-4">Document PDF</p><a href="' + url + '" target="_blank" class="inline-block bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-xl font-semibold text-sm">Ouvrir le PDF</a></div>';
+      } else {
+        content.innerHTML = '<div class="text-center"><div class="text-6xl mb-3">📎</div><a href="' + url + '" target="_blank" class="inline-block bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-xl font-semibold text-sm">Ouvrir le fichier</a></div>';
+      }
+    }
+
+    /* Télécharger */
+    document.getElementById('lb-download').addEventListener('click', async () => {
+      const d = visibleDocs[currentLightboxIdx];
+      if (!d || !d.storage_path) return;
+      const url = await getSignedUrl(d.storage_bucket, d.storage_path);
+      if (!url) return showError('Lien introuvable');
+
+      // Ouvre dans un nouvel onglet avec download forcé si possible
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = d.title || 'document';
+      a.target = '_blank';
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showSuccess('Téléchargement lancé');
+    });
+
+    /* Partager */
+    document.getElementById('lb-share').addEventListener('click', async () => {
+      const d = visibleDocs[currentLightboxIdx];
+      if (!d || !d.storage_path) return;
+      const url = await getSignedUrl(d.storage_bucket, d.storage_path);
+      if (!url) return showError('Lien introuvable');
+
+      const shareData = {
+        title: d.title || 'Document Espace Diaspora',
+        text: (d.title || 'Document') + ' — ' + (projectsMap[d.project_id] || 'Espace Diaspora'),
+        url: url
+      };
+
       try {
-        let params = 'order=created_at.desc';
-        if (projectId) params = 'project_id=eq.' + projectId + '&' + params;
-        else params = 'uploaded_by=eq.' + getCurrentUserId() + '&' + params;
-
-        const data = await apiGet('documents', params);
-        allDocs = Array.isArray(data) ? data : [];
+        if (navigator.share) {
+          await navigator.share(shareData);
+        } else {
+          await navigator.clipboard.writeText(url);
+          showSuccess('Lien copié !');
+        }
       } catch (e) {
-        allDocs = [];
+        // L'utilisateur a annulé, rien à faire
       }
-      await renderDocs(allDocs);
-      updateStats(allDocs);
+    });
 
-      if (projectId) {
-        try {
-          const proj = await apiGet('projects', 'id=eq.' + projectId);
-          if (Array.isArray(proj) && proj[0]) {
-            document.getElementById('project-name').textContent = proj[0].title;
-          }
-        } catch (e) {}
-      }
+    /* Infos */
+    document.getElementById('lb-info').addEventListener('click', () => {
+      const d = visibleDocs[currentLightboxIdx];
+      if (!d) return;
+      const panel = document.getElementById('lb-info-panel');
+      const uploader = usersMap[d.uploaded_by] || 'Utilisateur';
+      const proj = projectsMap[d.project_id] || '—';
+      const size = d.file_size ? (d.file_size / 1024 / 1024).toFixed(2) + ' MB' : '—';
+      const gps = (d.latitude && d.longitude)
+        ? `<p><strong>📍 GPS :</strong> ${d.latitude.toFixed(6)}, ${d.longitude.toFixed(6)}</p>`
+        : '';
+      panel.innerHTML = `
+        <p><strong>Titre :</strong> ${escapeHtml(d.title || '—')}</p>
+        <p><strong>Type :</strong> ${escapeHtml(d.document_type || '—')}</p>
+        <p><strong>Projet :</strong> ${escapeHtml(proj)}</p>
+        <p><strong>Uploadé par :</strong> ${escapeHtml(uploader)}</p>
+        <p><strong>Date :</strong> ${new Date(d.created_at).toLocaleString('fr-FR')}</p>
+        <p><strong>Taille :</strong> ${size}</p>
+        ${gps}
+        ${d.description ? '<p><strong>Description :</strong> ' + escapeHtml(d.description) + '</p>' : ''}
+      `;
+      panel.classList.toggle('hidden');
+    });
 
-      const addLink = document.getElementById('btn-add');
-      addLink.href = projectId ? 'document-ajouter.html?id=' + projectId : 'document-ajouter.html';
-    }
+    /* Nav prev/next */
+    document.getElementById('lb-prev').addEventListener('click', () => { if (currentLightboxIdx > 0) openLightbox(currentLightboxIdx - 1); });
+    document.getElementById('lb-next').addEventListener('click', () => { if (currentLightboxIdx < visibleDocs.length - 1) openLightbox(currentLightboxIdx + 1); });
+    document.getElementById('lb-close').addEventListener('click', closeLightbox);
 
+    /* Échap clavier */
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft' && currentLightboxIdx > 0) openLightbox(currentLightboxIdx - 1);
+      if (e.key === 'ArrowRight' && currentLightboxIdx < visibleDocs.length - 1) openLightbox(currentLightboxIdx + 1);
+    });
+
+    /* ==========================================================
+       Filtres UI
+       ========================================================== */
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.filter-btn').forEach(b => {
@@ -183,17 +463,62 @@
         btn.style.background = 'linear-gradient(135deg, #f59e0b, #fbbf24)';
         btn.style.color = '#0a1838';
         btn.style.border = 'none';
-        const f = btn.dataset.filter;
-        renderDocs(f === 'all' ? allDocs : allDocs.filter(d => d.document_type === f));
+        currentFilter = btn.dataset.filter;
+        applyFilters();
       });
     });
 
     document.getElementById('searchInput').addEventListener('input', (e) => {
-      const q = e.target.value.toLowerCase();
-      renderDocs(allDocs.filter(d => d.title.toLowerCase().includes(q)));
+      searchQuery = e.target.value.toLowerCase().trim();
+      applyFilters();
     });
 
-    loadDocs();
+    document.getElementById('project-filter').addEventListener('change', (e) => {
+      currentProject = e.target.value;
+      applyFilters();
+    });
+
+    /* ==========================================================
+       BOOT
+       ========================================================== */
+    (async function boot() {
+      await loadMyProjects();
+
+      // Remplit le filtre projet
+      const pf = document.getElementById('project-filter');
+      if (myProjects.length > 1) {
+        pf.classList.remove('hidden');
+        pf.innerHTML = '<option value="all">📁 Tous les projets</option>' +
+          myProjects.map(p => '<option value="' + p.id + '"' + (p.id === currentProject ? ' selected' : '') + '>' + escapeHtml(p.title) + '</option>').join('');
+      } else if (myProjects.length === 1) {
+        currentProject = myProjects[0].id;
+      }
+
+      await loadDocs();
+
+      // Titre de page
+      if (filterProject && projectsMap[filterProject]) {
+        document.getElementById('project-name').textContent = projectsMap[filterProject];
+      } else if (myProjects.length === 1) {
+        document.getElementById('project-name').textContent = myProjects[0].title;
+      } else if (isAdmin) {
+        document.getElementById('project-name').textContent = 'Tous les documents de la plateforme';
+      } else {
+        document.getElementById('project-name').textContent = myProjects.length + ' projet(s) — ' + allDocs.length + ' document(s)';
+      }
+
+      // Lien + Téléverser
+      const addLink = document.getElementById('btn-add');
+      if (currentProject && currentProject !== 'all') {
+        addLink.href = 'document-ajouter.html?id=' + currentProject;
+      } else if (filterProject) {
+        addLink.href = 'document-ajouter.html?id=' + filterProject;
+      } else {
+        addLink.href = 'document-ajouter.html';
+      }
+
+      applyFilters();
+    })();
   </script>
 </body>
 </html>
