@@ -1,130 +1,316 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Support - Espace Diaspora</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Message direct — Espace Diaspora</title>
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white">
+<body class="bg-slate-950 text-white min-h-screen">
 
-  <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
-    <a href="messages.html" class="text-2xl">←</a>
-    <div class="flex-1 text-center">
-      <div id="contact-name" class="font-bold text-sm truncate">Support</div>
-      <div id="contact-subtitle" class="text-[10px] text-slate-400">Administration</div>
+  <!-- Header chat (préservé) -->
+  <header class="fixed top-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur border-b border-white/10">
+    <div class="max-w-3xl mx-auto flex items-center gap-3 px-4 py-3">
+      <a href="messages.html" class="text-2xl leading-none text-white/80 hover:text-white" aria-label="Retour">←</a>
+      <div class="flex-1 min-w-0">
+        <div id="contact-name" class="font-semibold truncate">Chargement…</div>
+        <div id="contact-subtitle" class="text-xs text-white/50 truncate">Message direct</div>
+      </div>
     </div>
-    <span class="w-6"></span>
   </header>
 
-  <main class="pt-20 pb-24 px-4 max-w-2xl mx-auto">
-    <div id="messages-list" class="space-y-3">
-      <p class="text-slate-400 text-sm text-center py-8">Chargement...</p>
-    </div>
+  <!-- Liste des messages -->
+  <main class="pt-24 pb-32 px-4 max-w-3xl mx-auto">
+    <div id="messages-list"></div>
   </main>
 
-  <div class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 p-3">
-    <div class="max-w-2xl mx-auto flex gap-2 items-end">
-      <textarea id="message-input" rows="1" placeholder="Écrire à l'administrateur..." class="flex-1 bg-slate-800/50 border border-white/10 rounded-2xl px-4 py-3 text-sm resize-none focus:outline-none focus:border-sky-500 max-h-32"></textarea>
-      <button id="btn-send" class="w-12 h-12 rounded-2xl bg-sky-600 hover:bg-sky-500 flex items-center justify-center text-xl shadow-lg shadow-sky-500/30 transition flex-shrink-0">
-        ➤
-      </button>
+  <!-- Barre de saisie -->
+  <div class="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur border-t border-white/10">
+    <div class="max-w-3xl mx-auto flex items-end gap-2 p-3">
+      <textarea id="message-input" rows="1" placeholder="Écrire un message…"
+        class="flex-1 resize-none bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-sky-500 max-h-32"></textarea>
+      <button id="btn-send"
+        class="bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-50">Envoyer</button>
     </div>
   </div>
 
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script>
-    if (!requireLogin()) throw new Error('Not logged');
+  /* =====================================================================
+     message-direct.html — Canal de messages directs 1-to-1
+     Table : direct_messages (id, sender_id, recipient_id, content,
+                              created_at, read_at)
+     FIX : plus de requête or() — 2 requêtes séparées + fusion + tri
+     ===================================================================== */
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const recipientId = urlParams.get('to');
-    if (!recipientId) {
-      alert('Destinataire introuvable');
-      window.location.href = 'messages.html';
+  const ENABLE_POLLING = true;
+  const POLL_INTERVAL_MS = 5000;
+  const MAX_TEXTAREA_HEIGHT = 128;
+
+  let ME = null;
+  let OTHER = null;
+  let OTHER_PROFILE = null;
+  let messages = [];
+  let pollTimer = null;
+  let sending = false;
+
+  document.addEventListener('DOMContentLoaded', init);
+  window.addEventListener('beforeunload', stopPolling);
+
+  async function init() {
+    if (!requireLogin()) return;
+    ME = getCurrentUserId();
+    if (!ME) { showError('Session invalide'); location.href = 'index.html'; return; }
+
+    const params = new URLSearchParams(location.search);
+    OTHER = params.get('to');
+    if (!OTHER) { showError('Destinataire manquant'); location.href = 'messages.html'; return; }
+    if (OTHER === ME) { showError('Impossible de discuter avec vous-même'); location.href = 'messages.html'; return; }
+
+    bindUI();
+
+    await Promise.all([ loadContact(), loadMessages() ]);
+    scrollBottom(false);
+
+    if (ENABLE_POLLING) startPolling();
+    window.addEventListener('focus', () => pollNew());
+  }
+
+  /* ---------- Contact (profil destinataire) ---------- */
+
+  async function loadContact() {
+    const nameEl = document.getElementById('contact-name');
+    const subEl  = document.getElementById('contact-subtitle');
+    try {
+      const res = await apiGet('profiles', 'id=eq.' + OTHER + '&limit=1');
+      const p = Array.isArray(res) ? res[0] : res;
+      OTHER_PROFILE = p || null;
+      nameEl.textContent = (p && (p.full_name || p.email)) || 'Utilisateur';
+      subEl.textContent  = (p && p.default_role) ? roleLabel(p.default_role) : 'Message direct';
+      if (!p) disableComposer('Utilisateur introuvable');
+    } catch (e) {
+      nameEl.textContent = 'Utilisateur';
+      subEl.textContent  = 'Message direct';
     }
+  }
 
-    const userId = getCurrentUserId();
-    let recipientData = null;
+  function roleLabel(r) {
+    return ({
+      admin: 'Administrateur',
+      investor: 'Client',
+      provider: 'Artisan',
+      project_manager: 'Chef de projet'
+    })[r] || r;
+  }
 
-    async function loadRecipient() {
-      try {
-        const data = await apiGet('profiles', 'id=eq.' + recipientId);
-        if (Array.isArray(data) && data[0]) {
-          recipientData = data[0];
-          document.getElementById('contact-name').textContent = recipientData.full_name || recipientData.email;
-          document.getElementById('contact-subtitle').textContent = recipientData.default_role === 'admin' ? 'Administration' : recipientData.email;
-        }
-      } catch (e) {}
+  function disableComposer(reason) {
+    const input = document.getElementById('message-input');
+    const btn = document.getElementById('btn-send');
+    if (input) { input.disabled = true; input.placeholder = reason; }
+    if (btn)   { btn.disabled = true; }
+  }
+
+  /* ---------- Chargement des messages (LE FIX) ---------- */
+
+  async function loadMessages() {
+    try {
+      // 2 requêtes séparées au lieu de or=(and(...),and(...))
+      const [envoyes, recus] = await Promise.all([
+        apiGet('direct_messages',
+          'sender_id=eq.' + ME + '&recipient_id=eq.' + OTHER +
+          '&order=created_at.asc&limit=500'),
+        apiGet('direct_messages',
+          'sender_id=eq.' + OTHER + '&recipient_id=eq.' + ME +
+          '&order=created_at.asc&limit=500')
+      ]);
+
+      messages = mergeSortDedupe(envoyes, recus);
+      renderFull();
+      await markReceivedAsRead();
+    } catch (e) {
+      console.error('[message-direct] loadMessages error', e);
+      showError('Impossible de charger la conversation');
+      document.getElementById('messages-list').innerHTML =
+        '<div class="text-center text-red-400 text-sm py-10">Erreur de chargement</div>';
     }
+  }
 
-    async function loadMessages() {
-      const list = document.getElementById('messages-list');
-      try {
-        const data = await apiGet('direct_messages',
-          'or=(and(sender_id.eq.' + userId + ',recipient_id.eq.' + recipientId + '),and(sender_id.eq.' + recipientId + ',recipient_id.eq.' + userId + '))&order=created_at.asc&limit=200'
-        );
-        const valid = Array.isArray(data) ? data : [];
-
-        if (valid.length === 0) {
-          list.innerHTML = '<div class="text-center py-12"><div class="text-4xl mb-3 opacity-40">💬</div><p class="text-slate-400 text-sm">Aucun message</p><p class="text-slate-500 text-xs mt-1">Envoyez votre premier message</p></div>';
-          return;
-        }
-
-        list.innerHTML = valid.map(m => {
-          const isMine = m.sender_id === userId;
-          return `
-            <div class="flex ${isMine ? 'justify-end' : 'justify-start'}">
-              <div class="max-w-[80%] ${isMine ? 'bg-sky-600 rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl' : 'bg-white/10 rounded-tl-2xl rounded-tr-2xl rounded-br-2xl'} px-4 py-2.5">
-                <p class="text-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(m.content)}</p>
-                <p class="text-[9px] ${isMine ? 'text-sky-100' : 'text-slate-500'} mt-1 text-right">${formatDate(m.created_at)}</p>
-              </div>
-            </div>
-          `;
-        }).join('');
-
-        for (const m of valid) {
-          if (m.sender_id !== userId && !m.read_at) {
-            try { await apiPatch('direct_messages', m.id, { read_at: new Date().toISOString() }); } catch (e) {}
-          }
-        }
-
-        setTimeout(() => { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }, 100);
-
-      } catch (e) {
-        list.innerHTML = '<p class="text-red-400 text-sm text-center py-8">Erreur : ' + e.message + '</p>';
-      }
+  function mergeSortDedupe(...lists) {
+    const map = new Map();
+    for (const list of lists) {
+      if (!Array.isArray(list)) continue;
+      for (const m of list) if (m && m.id) map.set(m.id, m);
     }
+    return Array.from(map.values())
+      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  }
 
-    document.getElementById('btn-send').addEventListener('click', sendMessage);
-    document.getElementById('message-input').addEventListener('keydown', (e) => {
+  /* ---------- Rendu ---------- */
+
+  function renderFull() {
+    const list = document.getElementById('messages-list');
+    if (!messages.length) {
+      list.innerHTML =
+        '<div class="text-center text-white/40 text-sm py-10">Aucun message. Démarrez la conversation.</div>';
+      return;
+    }
+    list.innerHTML = messages.map(bubbleHTML).join('');
+  }
+
+  function bubbleHTML(m) {
+    const mine = m.sender_id === ME;
+    const time = formatTime(m.created_at);
+    const bubbleCls = mine
+      ? 'bg-sky-600 rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl'
+      : 'bg-white/10 rounded-tl-2xl rounded-tr-2xl rounded-br-2xl';
+    const alignCls = mine ? 'justify-end' : 'justify-start';
+    const timeAlign = mine ? 'text-right' : 'text-left';
+    return (
+      '<div class="flex ' + alignCls + ' mb-2">' +
+        '<div class="max-w-[75%] px-4 py-2 ' + bubbleCls + '">' +
+          '<div class="text-sm whitespace-pre-wrap break-words">' +
+            escapeHtml(m.content || '') +
+          '</div>' +
+          '<div class="text-[10px] opacity-60 mt-1 ' + timeAlign + '">' + time + '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function formatTime(d) {
+    try {
+      return new Date(d).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    } catch { return ''; }
+  }
+
+  /* ---------- Marquer comme lu ---------- */
+
+  async function markReceivedAsRead() {
+    const unread = messages.filter(m => m.recipient_id === ME && !m.read_at);
+    if (!unread.length) return;
+    const now = new Date().toISOString();
+    await Promise.all(unread.map(m =>
+      apiPatch('direct_messages', m.id, { read_at: now }).catch(() => {})
+    ));
+    for (const m of messages) {
+      if (m.recipient_id === ME && !m.read_at) m.read_at = now;
+    }
+  }
+
+  /* ---------- Composer / Envoyer ---------- */
+
+  function bindUI() {
+    const input = document.getElementById('message-input');
+    const btn = document.getElementById('btn-send');
+
+    input.addEventListener('input', autoResize);
+    input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
     });
+    input.addEventListener('focus', () => setTimeout(() => scrollBottom(false), 200));
+    btn.addEventListener('click', sendMessage);
+  }
 
-    async function sendMessage() {
-      const input = document.getElementById('message-input');
-      const content = input.value.trim();
-      if (!content) return;
+  function autoResize() {
+    const el = document.getElementById('message-input');
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, MAX_TEXTAREA_HEIGHT) + 'px';
+  }
 
-      const btn = document.getElementById('btn-send');
-      btn.disabled = true;
+  async function sendMessage() {
+    if (sending) return;
+    const input = document.getElementById('message-input');
+    const btn = document.getElementById('btn-send');
+    const text = (input.value || '').trim();
+    if (!text) return;
 
-      try {
-        await apiPost('direct_messages', {
-          sender_id: userId,
-          recipient_id: recipientId,
-          content: content
-        });
-        input.value = '';
-        await loadMessages();
-      } catch (e) {
-        showError(e.message);
+    sending = true;
+    btn.disabled = true;
+
+    try {
+      const res = await apiPost('direct_messages', {
+        sender_id: ME,
+        recipient_id: OTHER,
+        content: text
+      });
+      const created = Array.isArray(res) ? res[0] : res;
+      if (created && created.id) {
+        const list = document.getElementById('messages-list');
+        if (messages.length === 0) list.innerHTML = '';
+        messages.push(created);
+        list.insertAdjacentHTML('beforeend', bubbleHTML(created));
+        scrollBottom();
       }
+      input.value = '';
+      autoResize();
+    } catch (e) {
+      console.error('[message-direct] sendMessage error', e);
+      showError('Envoi impossible');
+    } finally {
+      sending = false;
       btn.disabled = false;
     }
+  }
 
-    loadRecipient();
-    loadMessages();
+  /* ---------- Scroll ---------- */
+
+  function scrollBottom(smooth = true) {
+    try {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto'
+      });
+    } catch { window.scrollTo(0, document.body.scrollHeight); }
+  }
+
+  /* ---------- Polling (nouveaux messages) ---------- */
+
+  function startPolling() {
+    stopPolling();
+    pollTimer = setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
+      pollNew();
+    }, POLL_INTERVAL_MS);
+  }
+
+  function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  }
+
+  async function pollNew() {
+    try {
+      const lastTs = messages.length
+        ? messages[messages.length - 1].created_at
+        : '1970-01-01T00:00:00Z';
+      const ts = encodeURIComponent(lastTs);
+
+      const [envoyes, recus] = await Promise.all([
+        apiGet('direct_messages',
+          'sender_id=eq.' + ME + '&recipient_id=eq.' + OTHER +
+          '&created_at=gte.' + ts + '&order=created_at.asc'),
+        apiGet('direct_messages',
+          'sender_id=eq.' + OTHER + '&recipient_id=eq.' + ME +
+          '&created_at=gte.' + ts + '&order=created_at.asc')
+      ]);
+
+      const known = new Set(messages.map(m => m.id));
+      const fresh = mergeSortDedupe(envoyes, recus).filter(m => !known.has(m.id));
+      if (!fresh.length) return;
+
+      const list = document.getElementById('messages-list');
+      if (messages.length === 0) list.innerHTML = '';
+
+      for (const m of fresh) {
+        messages.push(m);
+        list.insertAdjacentHTML('beforeend', bubbleHTML(m));
+      }
+      scrollBottom();
+      await markReceivedAsRead();
+    } catch (e) {
+      /* polling silencieux */
+    }
+  }
   </script>
 </body>
 </html>
