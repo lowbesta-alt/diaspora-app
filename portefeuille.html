@@ -15,7 +15,6 @@
       <p class="text-sm text-slate-400 mt-1">Suivez vos fonds en temps réel</p>
     </div>
 
-    <!-- Carte solde -->
     <section class="relative overflow-hidden rounded-3xl border border-sky-500/30 shadow-2xl shadow-sky-500/20">
       <div class="absolute inset-0 bg-gradient-to-br from-sky-600 via-sky-700 to-blue-900"></div>
       <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-20 translate-x-20 blur-3xl"></div>
@@ -28,14 +27,13 @@
           <span class="text-[10px] bg-white/20 backdrop-blur px-2 py-1 rounded-full font-bold">XAF</span>
         </div>
         <p class="text-4xl font-extrabold tracking-tight mb-1" id="solde">-</p>
-        <p class="text-xs text-sky-100 mb-6">Mis à jour en temps réel</p>
+        <p class="text-xs text-sky-100 mb-6">Fonds restants dans votre séquestre</p>
         <a href="transaction.html" class="inline-flex items-center gap-2 bg-white text-sky-700 hover:bg-sky-50 px-5 py-2.5 rounded-xl text-sm font-extrabold shadow-lg transition">
           <span>➕</span> Ajouter des fonds
         </a>
       </div>
     </section>
 
-    <!-- Stats -->
     <section class="grid grid-cols-2 gap-3">
       <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
         <div class="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center mb-3">
@@ -49,11 +47,10 @@
           <span class="text-xl">💰</span>
         </div>
         <div class="text-xl font-extrabold text-emerald-300" id="stat-invested">-</div>
-        <div class="text-[10px] text-slate-400 uppercase tracking-wider mt-1 font-semibold">Total investi</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mt-1 font-semibold">Total débloqué</div>
       </div>
     </section>
 
-    <!-- NOTIFICATIONS DE PAIEMENT -->
     <section>
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-base font-extrabold tracking-tight">🔔 Notifications</h2>
@@ -64,7 +61,6 @@
       </div>
     </section>
 
-    <!-- Historique transactions -->
     <section>
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-base font-extrabold tracking-tight">📊 Historique</h2>
@@ -92,12 +88,11 @@
 
     const userId = getCurrentUserId();
 
-    // Icons pour les transactions
     function txIcon(type) {
       const map = {
         'deposit': { ic: '➕', bg: 'bg-emerald-500/20' },
-        'escrow_hold': { ic: '🔒', bg: 'bg-orange-500/20' },
         'milestone_release': { ic: '✅', bg: 'bg-sky-500/20' },
+        'escrow_hold': { ic: '🔒', bg: 'bg-orange-500/20' },
         'refund': { ic: '↩️', bg: 'bg-red-500/20' }
       };
       return map[type] || map.deposit;
@@ -106,7 +101,6 @@
     function txSign(type) { return type === 'deposit' ? '+' : '−'; }
     function txColorClass(type) { return type === 'deposit' ? 'text-emerald-400' : 'text-orange-400'; }
 
-    // Icons pour les notifications
     function notifIcon(type) {
       const map = {
         'payment_received': { ic: '💰', bg: 'bg-emerald-500/20' },
@@ -119,60 +113,34 @@
       return map[type] || { ic: '🔔', bg: 'bg-slate-500/20' };
     }
 
-    // ============================================================
-    // CHARGER LES NOTIFICATIONS
-    // ============================================================
     async function loadNotifications() {
       const list = document.getElementById('notifications-list');
       const badge = document.getElementById('notif-badge');
       try {
         const data = await apiGet('notifications', 'user_id=eq.' + userId + '&order=created_at.desc&limit=10');
         const valid = Array.isArray(data) ? data : [];
-
         if (valid.length === 0) {
           list.innerHTML = '<div class="text-center py-6 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-xs">Aucune notification</p></div>';
           badge.classList.add('hidden');
           return;
         }
-
         const unreadCount = valid.filter(n => !n.read_at).length;
-        if (unreadCount > 0) {
-          badge.textContent = unreadCount;
-          badge.classList.remove('hidden');
-        } else {
-          badge.classList.add('hidden');
-        }
+        if (unreadCount > 0) { badge.textContent = unreadCount; badge.classList.remove('hidden'); }
+        else badge.classList.add('hidden');
 
         list.innerHTML = valid.map(n => {
           const { ic, bg } = notifIcon(n.type);
           const isUnread = !n.read_at;
-          return `
-            <div class="flex gap-3 bg-white/5 border border-white/10 rounded-2xl p-3 ${isUnread ? 'ring-1 ring-emerald-500/30' : ''}">
-              <div class="w-10 h-10 rounded-full ${bg} flex items-center justify-center text-lg flex-shrink-0">${ic}</div>
-              <div class="flex-1 min-w-0">
-                <div class="flex justify-between items-start gap-2">
-                  <h3 class="font-semibold text-sm leading-tight">${escapeHtml(n.title)}</h3>
-                  ${isUnread ? '<span class="w-2 h-2 bg-emerald-400 rounded-full mt-1.5 flex-shrink-0"></span>' : ''}
-                </div>
-                ${n.message ? `<p class="text-xs text-slate-300 mt-1 leading-relaxed">${escapeHtml(n.message)}</p>` : ''}
-                <span class="text-[10px] text-slate-500 mt-1.5 inline-block">${formatDate(n.created_at)}</span>
-              </div>
-            </div>
-          `;
+          return `<div class="flex gap-3 bg-white/5 border border-white/10 rounded-2xl p-3 ${isUnread ? 'ring-1 ring-emerald-500/30' : ''}"><div class="w-10 h-10 rounded-full ${bg} flex items-center justify-center text-lg flex-shrink-0">${ic}</div><div class="flex-1 min-w-0"><div class="flex justify-between items-start gap-2"><h3 class="font-semibold text-sm leading-tight">${escapeHtml(n.title)}</h3>${isUnread ? '<span class="w-2 h-2 bg-emerald-400 rounded-full mt-1.5 flex-shrink-0"></span>' : ''}</div>${n.message ? `<p class="text-xs text-slate-300 mt-1 leading-relaxed">${escapeHtml(n.message)}</p>` : ''}<span class="text-[10px] text-slate-500 mt-1.5 inline-block">${formatDate(n.created_at)}</span></div></div>`;
         }).join('');
-
       } catch (e) {
-        list.innerHTML = '<div class="text-center py-4 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-500 text-xs">Aucune notification</p></div>';
+        list.innerHTML = '<div class="text-center py-4"><p class="text-slate-500 text-xs">Aucune notification</p></div>';
         badge.classList.add('hidden');
       }
     }
 
-    // ============================================================
-    // CHARGER LES TRANSACTIONS + CALCULER LE SOLDE
-    // ============================================================
     async function loadTransactions() {
       const list = document.getElementById('transactions-list');
-
       try {
         const txs = await apiGet('transactions', 'initiated_by=eq.' + userId + '&order=created_at.desc&limit=50');
         const valid = Array.isArray(txs) ? txs : [];
@@ -185,39 +153,28 @@
           return;
         }
 
-        let deposits = 0, escrow = 0, released = 0;
+        // CALCULS
+        let deposits = 0, released = 0;
         valid.forEach(t => {
           const amt = Number(t.amount) || 0;
           if (t.transaction_type === 'deposit') deposits += amt;
-          if (t.transaction_type === 'escrow_hold') escrow += amt;
           if (t.transaction_type === 'milestone_release') released += amt;
         });
 
-        // NOUVEAU CALCUL : le solde = dépôts - sorties (released + escrow actif)
-        // L'argent débloqué sort du portefeuille
-        const solde = deposits - released - escrow;
-        const escrowRestant = Math.max(0, escrow - released);
+        const solde = deposits - released;
+        const blocked = deposits - released;
 
         document.getElementById('solde').textContent = Math.max(0, solde).toLocaleString('fr-FR');
-        document.getElementById('stat-escrow').textContent = escrowRestant.toLocaleString('fr-FR');
-        document.getElementById('stat-invested').textContent = (escrow + released).toLocaleString('fr-FR');
+        document.getElementById('stat-escrow').textContent = Math.max(0, blocked).toLocaleString('fr-FR');
+        document.getElementById('stat-invested').textContent = released.toLocaleString('fr-FR');
 
         list.innerHTML = valid.map(t => {
           const { ic, bg } = txIcon(t.transaction_type);
-          return `
-            <div class="flex items-center gap-3 bg-white/5 hover:bg-white/[0.08] border border-white/10 rounded-2xl p-3.5 transition">
-              <div class="w-11 h-11 rounded-xl ${bg} flex items-center justify-center flex-shrink-0 text-lg">${ic}</div>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-bold truncate">${escapeHtml(t.description || getStatusLabel(t.transaction_type))}</p>
-                <p class="text-[10px] text-slate-500 mt-0.5 font-semibold uppercase tracking-wider">${formatDate(t.created_at)}</p>
-              </div>
-              <div class="text-sm font-extrabold ${txColorClass(t.transaction_type)}">${txSign(t.transaction_type)} ${Number(t.amount).toLocaleString('fr-FR')}</div>
-            </div>
-          `;
+          return `<div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-3.5"><div class="w-11 h-11 rounded-xl ${bg} flex items-center justify-center flex-shrink-0 text-lg">${ic}</div><div class="flex-1 min-w-0"><p class="text-sm font-bold truncate">${escapeHtml(t.description || getStatusLabel(t.transaction_type))}</p><p class="text-[10px] text-slate-500 mt-0.5 font-semibold uppercase tracking-wider">${formatDate(t.created_at)}</p></div><div class="text-sm font-extrabold ${txColorClass(t.transaction_type)}">${txSign(t.transaction_type)} ${Number(t.amount).toLocaleString('fr-FR')}</div></div>`;
         }).join('');
 
       } catch (e) {
-        list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><p class="text-red-400 text-sm">Erreur de chargement</p></div>';
+        list.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><p class="text-red-400 text-sm">Erreur</p></div>';
       }
     }
 
