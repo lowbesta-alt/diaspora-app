@@ -22,9 +22,7 @@
       <p class="text-sm text-slate-300 leading-relaxed">Vue globale de la plateforme : projets, artisans, candidatures et flux financiers.</p>
     </section>
 
-    <!-- ============================================ -->
-    <!-- ACCÈS RAPIDE : VÉRIFICATIONS KYC -->
-    <!-- ============================================ -->
+    <!-- ACCÈS RAPIDE : KYC -->
     <a href="admin-kyc.html" id="kyc-admin-card" class="block bg-gradient-to-br from-emerald-600/20 to-[#0f2252]/60 rounded-3xl p-5 hover:from-emerald-600/30 transition" style="border: 1px solid rgba(16,185,129,0.4);">
       <div class="flex items-center gap-4">
         <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-400 flex items-center justify-center text-2xl flex-shrink-0 shadow-lg shadow-emerald-500/30">
@@ -41,7 +39,24 @@
       </div>
     </a>
 
-    <!-- MODE TEST : BASCULER ENTRE LES ROLES -->
+    <!-- ACCÈS RAPIDE : CONTRATS -->
+    <a href="contrats.html" id="contrats-admin-card" class="block bg-gradient-to-br from-sky-600/20 to-[#0f2252]/60 rounded-3xl p-5 hover:from-sky-600/30 transition" style="border: 1px solid rgba(59,130,246,0.4);">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-sky-500 to-sky-400 flex items-center justify-center text-2xl flex-shrink-0 shadow-lg shadow-sky-500/30">
+          📋
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h2 class="text-base font-extrabold">Contrats</h2>
+            <span id="contrats-pending-badge" class="hidden text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">0</span>
+          </div>
+          <p id="contrats-admin-subtitle" class="text-xs text-slate-300 mt-1">Chargement…</p>
+        </div>
+        <span class="text-sky-400 text-2xl">›</span>
+      </div>
+    </a>
+
+    <!-- MODE TEST -->
     <section class="bg-gradient-to-br from-amber-500/15 to-[#0f2252]/60 rounded-3xl p-6" style="border: 1px solid rgba(245,158,11,0.4);">
       <div class="flex items-start gap-3 mb-4">
         <div class="text-3xl">👁️</div>
@@ -62,7 +77,6 @@
           <span>Voir en Artisan</span>
         </button>
       </div>
-      <p class="text-[10px] text-slate-500 mt-3 text-center">Un bandeau orange s'affichera pendant le test. Cliquez sur "Quitter" pour revenir ici.</p>
     </section>
 
     <!-- STATS GLOBALES -->
@@ -132,12 +146,8 @@
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script>
-    // Admin uniquement (mais tolere si en mode test)
     if (!requireRole(['admin'])) throw new Error('Not allowed');
 
-    // ============================================
-    // Boutons Mode Test
-    // ============================================
     document.getElementById('btn-test-client').addEventListener('click', function() {
       setTestRole('investor');
       window.location.href = 'dashboard-investisseur.html';
@@ -148,9 +158,6 @@
       window.location.href = 'dashboard-artisan.html';
     });
 
-    // ============================================
-    // KYC : nombre en attente
-    // ============================================
     async function loadKycCount() {
       const subtitle = document.getElementById('kyc-admin-subtitle');
       const badge = document.getElementById('kyc-pending-badge');
@@ -163,7 +170,6 @@
           badge.classList.remove('hidden');
           subtitle.innerHTML = '<span class="text-red-300 font-bold">' + count + ' vérification' + (count > 1 ? 's' : '') + ' en attente</span> — Cliquez pour traiter';
           document.getElementById('kyc-admin-card').style.borderColor = 'rgba(239,68,68,0.6)';
-          document.getElementById('kyc-admin-card').style.boxShadow = '0 0 20px rgba(239,68,68,0.2)';
         } else {
           badge.classList.add('hidden');
           subtitle.textContent = 'Aucune vérification en attente';
@@ -173,9 +179,27 @@
       }
     }
 
-    // ============================================
-    // Chargement des donnees
-    // ============================================
+    async function loadContratsCount() {
+      const subtitle = document.getElementById('contrats-admin-subtitle');
+      const badge = document.getElementById('contrats-pending-badge');
+      try {
+        const all = await apiGet('contracts', 'status=eq.pending_signature&limit=200');
+        const count = Array.isArray(all) ? all.length : 0;
+
+        if (count > 0) {
+          badge.textContent = count;
+          badge.classList.remove('hidden');
+          subtitle.innerHTML = '<span class="text-red-300 font-bold">' + count + ' contrat' + (count > 1 ? 's' : '') + ' en attente de signature</span>';
+          document.getElementById('contrats-admin-card').style.borderColor = 'rgba(239,68,68,0.6)';
+        } else {
+          badge.classList.add('hidden');
+          subtitle.textContent = 'Créer et suivre les contrats de la plateforme';
+        }
+      } catch (e) {
+        subtitle.textContent = 'Créer et suivre les contrats';
+      }
+    }
+
     async function loadStats() {
       try {
         const projects = await apiGet('projects', '');
@@ -272,6 +296,7 @@
 
     loadStats();
     loadKycCount();
+    loadContratsCount();
     loadPartenaires();
     loadReports();
     loadProjets();
