@@ -21,6 +21,7 @@
       <p class="text-xs text-amber-200">Vous créez un contrat au nom de l'administration. Les deux parties devront le signer.</p>
     </div>
 
+    <!-- ÉTAPE 1 : PROJET -->
     <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
       <div>
         <label class="text-xs font-semibold text-slate-300 mb-2 block">Titre du contrat *</label>
@@ -40,25 +41,27 @@
       </div>
 
       <div>
-        <label class="text-xs font-semibold text-slate-300 mb-2 block">Projet associé</label>
+        <label class="text-xs font-semibold text-slate-300 mb-2 block">Projet associé *</label>
         <select id="project" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
           <option value="">Chargement...</option>
         </select>
+        <p class="text-[10px] text-slate-400 mt-1">👉 Choisissez d'abord un projet : les listes ci-dessous s'adapteront automatiquement.</p>
       </div>
     </section>
 
+    <!-- ÉTAPE 2 : PARTIES (filtrées selon le projet) -->
     <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
       <div>
         <label class="text-xs font-semibold text-slate-300 mb-2 block">Investisseur (client) *</label>
-        <select id="investor" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
-          <option value="">Chargement...</option>
+        <select id="investor" disabled class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500 disabled:opacity-50">
+          <option value="">Sélectionnez un projet d'abord</option>
         </select>
       </div>
 
       <div>
         <label class="text-xs font-semibold text-slate-300 mb-2 block">Prestataire (artisan) *</label>
-        <select id="provider" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
-          <option value="">Chargement...</option>
+        <select id="provider" disabled class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500 disabled:opacity-50">
+          <option value="">Sélectionnez un projet d'abord</option>
         </select>
       </div>
     </section>
@@ -92,36 +95,136 @@
       window.location.href = 'contrats.html';
     }
 
-    async function loadProjects() {
-      const select = document.getElementById('project');
+    // Cache de tous les projets + tous les profils (chargés une seule fois)
+    let allProjects = [];
+    let allProfiles = {};    // id -> profile
+    let membersCache = {};   // projectId -> [member rows]
+
+    /* ============================================
+       CHARGEMENT INITIAL
+       ============================================ */
+    async function init() {
+      // 1) Projets
       try {
         const data = await apiGet('projects', 'order=created_at.desc');
-        const valid = Array.isArray(data) ? data : [];
-        select.innerHTML = '<option value="">Aucun projet</option>' +
-          valid.map(p => '<option value="' + p.id + '">' + escapeHtml(p.title) + '</option>').join('');
-      } catch (e) {
-        select.innerHTML = '<option value="">Erreur</option>';
-      }
-    }
+        allProjects = Array.isArray(data) ? data : [];
+      } catch (e) { allProjects = []; }
 
-    async function loadUsers() {
+      // 2) Tous les profils (pour résoudre les noms)
       try {
-        const data = await apiGet('profiles', 'order=full_name.asc&limit=200');
-        const users = Array.isArray(data) ? data : [];
+        const profs = await apiGet('profiles', 'limit=200');
+        if (Array.isArray(profs)) for (const p of profs) allProfiles[p.id] = p;
+      } catch (e) {}
 
-        const investors = users.filter(u => u.default_role === 'investor' || u.default_role === 'admin');
-        const providers = users.filter(u => u.default_role === 'provider' || u.default_role === 'project_manager');
+      // 3) Remplit le select projet
+      const selectP = document.getElementById('project');
+      if (allProjects.length === 0) {
+        selectP.innerHTML = '<option value="">Aucun projet disponible</option>';
+        return;
+      }
+      selectP.innerHTML = '<option value="">Sélectionner un projet…</option>' +
+        allProjects.map(p => '<option value="' + p.id + '">' + escapeHtml(p.title) + '</option>').join('');
 
-        document.getElementById('investor').innerHTML = '<option value="">Sélectionner…</option>' +
-          investors.map(u => '<option value="' + u.id + '">' + escapeHtml(u.full_name || u.email) + '</option>').join('');
+      // 4) Écoute le changement de projet
+      selectP.addEventListener('change', onProjectChange);
+    }
 
-        document.getElementById('provider').innerHTML = '<option value="">Sélectionner…</option>' +
-          providers.map(u => '<option value="' + u.id + '">' + escapeHtml(u.full_name || u.email) + '</option>').join('');
-      } catch (e) {
-        console.error('[loadUsers]', e);
+    /* ============================================
+       QUAND ON CHANGE DE PROJET → filtre les parties
+       ============================================ */
+    async function onProjectChange(e) {
+      const projectId = e.target.value;
+      const selectI = document.getElementById('investor');
+      const selectP = document.getElementById('provider');
+
+      if (!projectId) {
+        selectI.disabled = true;
+        selectP.disabled = true;
+        selectI.innerHTML = '<option value="">Sélectionnez un projet d\'abord</option>';
+        selectP.innerHTML = '<option value="">Sélectionnez un projet d\'abord</option>';
+        return;
+      }
+
+      // Affiche un message de chargement
+      selectI.disabled = true;
+      selectP.disabled = true;
+      selectI.innerHTML = '<option>Chargement…</option>';
+      selectP.innerHTML = '<option>Chargement…</option>';
+
+      // 1) Récupère les membres du projet
+      let members = membersCache[projectId];
+      if (!members) {
+        try {
+          const data = await apiGet('project_members', 'project_id=eq.' + projectId + '&is_active=eq.true');
+          members = Array.isArray(data) ? data : [];
+          membersCache[projectId] = members;
+        } catch (err) {
+          members = [];
+        }
+      }
+
+      // 2) Récupère le projet pour connaître l'owner
+      const proj = allProjects.find(p => p.id === projectId);
+      const ownerId = proj ? proj.owner_id : null;
+
+      // 3) Construit la liste des investisseurs
+      //    = owner_id + tous les membres avec role 'investor'
+      const investorIds = new Set();
+      if (ownerId) investorIds.add(ownerId);
+      for (const m of members) {
+        if (m.role === 'investor' && m.user_id) investorIds.add(m.user_id);
+      }
+
+      // 4) Construit la liste des prestataires
+      //    = membres avec role 'provider' ou 'project_manager'
+      const providerIds = new Set();
+      for (const m of members) {
+        if ((m.role === 'provider' || m.role === 'project_manager') && m.user_id) {
+          providerIds.add(m.user_id);
+        }
+      }
+
+      // 5) Remplit les <select>
+      const investorOptions = Array.from(investorIds).map(uid => {
+        const p = allProfiles[uid];
+        const name = p ? (p.full_name || p.email) : 'Utilisateur';
+        return { id: uid, name: name };
+      }).sort((a, b) => a.name.localeCompare(b.name));
+
+      const providerOptions = Array.from(providerIds).map(uid => {
+        const p = allProfiles[uid];
+        const name = p ? (p.full_name || p.email) : 'Utilisateur';
+        return { id: uid, name: name };
+      }).sort((a, b) => a.name.localeCompare(b.name));
+
+      // INVESTISSEUR
+      if (investorOptions.length === 0) {
+        selectI.innerHTML = '<option value="">Aucun investisseur lié à ce projet</option>';
+        selectI.disabled = true;
+      } else {
+        selectI.innerHTML = '<option value="">Sélectionner…</option>' +
+          investorOptions.map(o => '<option value="' + o.id + '">' + escapeHtml(o.name) + '</option>').join('');
+        selectI.disabled = false;
+        // Auto-sélection : si un seul, on le met par défaut
+        if (investorOptions.length === 1) selectI.value = investorOptions[0].id;
+      }
+
+      // PRESTATAIRE
+      if (providerOptions.length === 0) {
+        selectP.innerHTML = '<option value="">Aucun artisan assigné à ce projet</option>';
+        selectP.disabled = true;
+      } else {
+        selectP.innerHTML = '<option value="">Sélectionner…</option>' +
+          providerOptions.map(o => '<option value="' + o.id + '">' + escapeHtml(o.name) + '</option>').join('');
+        selectP.disabled = false;
+        // Auto-sélection : si un seul, on le met par défaut
+        if (providerOptions.length === 1) selectP.value = providerOptions[0].id;
       }
     }
 
+    /* ============================================
+       CRÉATION
+       ============================================ */
     document.getElementById('btn-create').addEventListener('click', async () => {
       const title = document.getElementById('title').value.trim();
       const contractType = document.getElementById('contractType').value;
@@ -132,6 +235,7 @@
       const content = document.getElementById('content').value.trim();
 
       if (!title) { alert('Entrez un titre'); return; }
+      if (!projectId) { alert('Sélectionnez un projet (obligatoire)'); return; }
       if (!investorId) { alert('Sélectionnez l\'investisseur'); return; }
       if (!providerId) { alert('Sélectionnez le prestataire'); return; }
       if (investorId === providerId) { alert('Investisseur et prestataire doivent être différents'); return; }
@@ -141,6 +245,7 @@
       btn.textContent = 'Création...';
 
       const payload = {
+        project_id: projectId,
         title: title,
         contract_type: contractType,
         party_investor_id: investorId,
@@ -149,7 +254,6 @@
         created_at: new Date().toISOString()
       };
 
-      if (projectId) payload.project_id = projectId;
       if (amount) payload.total_amount = Number(amount);
       if (content) payload.content = content;
 
@@ -157,8 +261,9 @@
         try {
           await apiPost('contracts', payload);
         } catch (err) {
-          console.warn('[create] retry minimal', err);
+          console.warn('[create] full payload failed, retry minimal', err);
           await apiPost('contracts', {
+            project_id: projectId,
             title: title,
             contract_type: contractType,
             party_investor_id: investorId,
@@ -178,8 +283,7 @@
       }
     });
 
-    loadProjects();
-    loadUsers();
+    init();
   </script>
 </body>
 </html>
