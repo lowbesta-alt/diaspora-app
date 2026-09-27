@@ -18,9 +18,12 @@
 
   <main class="p-4 max-w-2xl mx-auto space-y-4">
 
-    <div>
-      <h1 class="text-2xl font-bold">Mes contrats</h1>
-      <p class="text-sm text-slate-400">Gérez vos engagements contractuels</p>
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold">Mes contrats</h1>
+        <p class="text-sm text-slate-400">Gérez vos engagements contractuels</p>
+      </div>
+      <a id="btn-create" href="contrat-creer.html" class="hidden font-extrabold px-4 py-2.5 rounded-xl text-sm" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: #0a1838; box-shadow: 0 8px 20px -8px rgba(245,158,11,0.5);">+ Créer</a>
     </div>
 
     <section class="grid grid-cols-3 gap-2 text-center">
@@ -66,60 +69,133 @@
   <script>
     if (!requireLogin()) throw new Error('Not logged');
 
-    let allContracts = [];
+    const userId = getCurrentUserId();
+    const role = getCurrentUserRole();
+    const isAdmin = role === 'admin';
 
-    function renderContracts(list) {
+    let allContracts = [];
+    let currentFilter = 'all';
+    let profilesMap = {};
+
+    function formatContractStatus(status) {
+      if (status === 'pending_signature') return { label: '⏳ À signer', cls: 'bg-orange-500/20 text-orange-300 border-orange-500/40' };
+      if (status === 'signed') return { label: '✅ Signé', cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' };
+      if (status === 'active') return { label: '🟢 Actif', cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' };
+      if (status === 'rejected') return { label: '❌ Refusé', cls: 'bg-red-500/20 text-red-300 border-red-500/40' };
+      if (status === 'draft') return { label: '📝 Brouillon', cls: 'bg-slate-500/20 text-slate-300 border-slate-500/40' };
+      return { label: status || '—', cls: 'bg-slate-500/20 text-slate-300 border-slate-500/40' };
+    }
+
+    async function loadContracts() {
+      try {
+        let contracts = [];
+
+        if (isAdmin) {
+          const all = await apiGet('contracts', 'order=created_at.desc&limit=200');
+          contracts = Array.isArray(all) ? all : [];
+        } else {
+          const [asInvestor, asProvider] = await Promise.all([
+            apiGet('contracts', 'party_investor_id=eq.' + userId + '&order=created_at.desc&limit=100'),
+            apiGet('contracts', 'party_provider_id=eq.' + userId + '&order=created_at.desc&limit=100')
+          ]);
+
+          const map = new Map();
+          for (const c of (Array.isArray(asInvestor) ? asInvestor : [])) map.set(c.id, c);
+          for (const c of (Array.isArray(asProvider) ? asProvider : [])) map.set(c.id, c);
+
+          contracts = Array.from(map.values())
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        }
+
+        allContracts = contracts;
+
+        const partyIds = new Set();
+        for (const c of contracts) {
+          if (c.party_investor_id) partyIds.add(c.party_investor_id);
+          if (c.party_provider_id) partyIds.add(c.party_provider_id);
+        }
+        if (partyIds.size > 0) {
+          try {
+            const profs = await apiGet('profiles', 'id=in.(' + Array.from(partyIds).join(',') + ')');
+            if (Array.isArray(profs)) for (const p of profs) profilesMap[p.id] = p.full_name || p.email || 'Utilisateur';
+          } catch (e) {}
+        }
+
+      } catch (e) {
+        console.error('[contracts]', e);
+        allContracts = [];
+      }
+
+      renderContracts();
+      updateStats();
+    }
+
+    function renderContracts() {
       const container = document.getElementById('contracts-list');
+      const list = currentFilter === 'all'
+        ? allContracts
+        : allContracts.filter(c => c.status === currentFilter);
+
       if (list.length === 0) {
-        container.innerHTML = '<div class="text-center py-8"><p class="text-slate-400 text-sm">Aucun contrat pour le moment</p></div>';
+        container.innerHTML = '<div class="text-center py-8"><p class="text-slate-400 text-sm">Aucun contrat dans cette catégorie</p></div>';
         return;
       }
+
       container.innerHTML = list.map(c => {
         const canSign = c.status === 'pending_signature';
         const shortNum = c.id ? c.id.slice(0, 8).toUpperCase() : 'CTR';
+        const st = formatContractStatus(c.status);
+
+        const meIsInvestor = c.party_investor_id === userId;
+        const meIsProvider = c.party_provider_id === userId;
+        const iSigned = (meIsInvestor && c.signed_by_investor_at) || (meIsProvider && c.signed_by_provider_at);
+        const otherSigned = (meIsInvestor && c.signed_by_provider_at) || (meIsProvider && c.signed_by_investor_at);
+
+        const investorName = profilesMap[c.party_investor_id] || 'Investisseur';
+        const providerName = profilesMap[c.party_provider_id] || 'Prestataire';
+
+        let ctaHTML = '';
+        if (canSign && !iSigned) {
+          ctaHTML = `<a href="contrat-signer.html?id=${c.id}" class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-2.5 rounded-lg text-xs font-bold text-center">✍️ Signer</a>`;
+        } else if (canSign && iSigned && !otherSigned) {
+          ctaHTML = `<div class="flex-1 bg-amber-500/10 border border-amber-500/40 py-2.5 rounded-lg text-xs font-bold text-center text-amber-300">⏳ En attente de l'autre partie</div>`;
+        } else {
+          ctaHTML = `<a href="contrat-signer.html?id=${c.id}" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 py-2.5 rounded-lg text-xs font-bold text-center">📄 Voir le contrat</a>`;
+        }
+
+        const sig1 = c.signed_by_investor_at ? '✅' : '⏳';
+        const sig2 = c.signed_by_provider_at ? '✅' : '⏳';
+
         return `
           <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
             <div class="flex justify-between items-start mb-3">
-              <div>
+              <div class="min-w-0 flex-1">
                 <p class="text-[10px] text-slate-400">CTR-${escapeHtml(shortNum)}</p>
-                <h3 class="font-bold mt-1">${escapeHtml(c.title)}</h3>
+                <h3 class="font-bold mt-1 truncate">${escapeHtml(c.title || 'Contrat')}</h3>
               </div>
-              ${renderStatusBadge(c.status)}
+              <span class="text-[10px] font-bold px-2 py-1 rounded-lg border ${st.cls} whitespace-nowrap ml-2">${st.label}</span>
             </div>
+
             <div class="space-y-1 text-xs text-slate-400 mb-3">
-              <div>👤 ${escapeHtml(c.party_investor_id ? 'Investisseur' : 'Partie 1')}</div>
-              <div>👤 ${escapeHtml(c.party_provider_id ? 'Prestataire' : 'Partie 2')}</div>
+              <div class="flex items-center gap-2">${sig1} <span>Investisseur : ${escapeHtml(investorName)}</span></div>
+              <div class="flex items-center gap-2">${sig2} <span>Prestataire : ${escapeHtml(providerName)}</span></div>
             </div>
+
             <div class="flex justify-between items-center text-xs mb-3">
               <span class="text-slate-400">${escapeHtml(c.contract_type || 'Prestation')}</span>
+              <span class="text-slate-400">${formatDate(c.created_at)}</span>
             </div>
-            <div class="flex gap-2">
-              ${canSign ?
-                `<a href="contrat-signer.html?id=${c.id}" class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-2.5 rounded-lg text-xs font-bold text-center">✍️ Signer</a>` :
-                `<button class="flex-1 bg-white/5 border border-white/10 py-2.5 rounded-lg text-xs font-bold" onclick="alert('Voir le contrat (a venir)')">Voir le contrat</button>`
-              }
-            </div>
+
+            <div class="flex gap-2">${ctaHTML}</div>
           </div>
         `;
       }).join('');
     }
 
-    function updateStats(list) {
-      document.getElementById('stat-total').textContent = list.length;
-      document.getElementById('stat-signed').textContent = list.filter(c => c.status === 'signed' || c.status === 'active').length;
-      document.getElementById('stat-pending').textContent = list.filter(c => c.status === 'pending_signature').length;
-    }
-
-    async function loadContracts() {
-      const userId = getCurrentUserId();
-      try {
-        const data = await apiGet('contracts', 'or=(party_investor_id.eq.' + userId + ',party_provider_id.eq.' + userId + ')&order=created_at.desc');
-        allContracts = Array.isArray(data) ? data : [];
-      } catch (e) {
-        allContracts = [];
-      }
-      renderContracts(allContracts);
-      updateStats(allContracts);
+    function updateStats() {
+      document.getElementById('stat-total').textContent = allContracts.length;
+      document.getElementById('stat-signed').textContent = allContracts.filter(c => c.status === 'signed' || c.status === 'active').length;
+      document.getElementById('stat-pending').textContent = allContracts.filter(c => c.status === 'pending_signature').length;
     }
 
     document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -130,10 +206,14 @@
         });
         btn.classList.add('bg-emerald-600');
         btn.classList.remove('bg-white/5', 'border', 'border-white/10');
-        const f = btn.dataset.filter;
-        renderContracts(f === 'all' ? allContracts : allContracts.filter(c => c.status === f));
+        currentFilter = btn.dataset.filter;
+        renderContracts();
       });
     });
+
+    if (isAdmin) {
+      document.getElementById('btn-create').classList.remove('hidden');
+    }
 
     loadContracts();
   </script>
