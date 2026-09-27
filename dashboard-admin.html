@@ -10,7 +10,6 @@
 
   <main class="p-4 max-w-3xl mx-auto space-y-6 pt-6">
 
-    <!-- EN-TETE ADMIN -->
     <section class="rounded-3xl p-6" style="background: linear-gradient(135deg, rgba(2,132,199,0.25) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(59,130,246,0.4);">
       <div class="flex items-center gap-3 mb-3">
         <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl" style="background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);">🎯</div>
@@ -22,12 +21,10 @@
       <p class="text-sm text-slate-200 leading-relaxed">Vue globale de la plateforme : projets, artisans, candidatures et flux financiers.</p>
     </section>
 
-    <!-- ACCÈS RAPIDE : KYC -->
+    <!-- KYC -->
     <a href="admin-kyc.html" id="kyc-admin-card" class="block rounded-3xl p-5 transition" style="background: linear-gradient(135deg, rgba(16,185,129,0.22) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(16,185,129,0.45); text-decoration: none; color: #fff;">
       <div class="flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); box-shadow: 0 8px 20px -8px rgba(16,185,129,0.5);">
-          🛡️
-        </div>
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); box-shadow: 0 8px 20px -8px rgba(16,185,129,0.5);">🛡️</div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
             <h2 class="text-base font-extrabold" style="color: #fff;">Vérifications d'identité (KYC)</h2>
@@ -39,12 +36,10 @@
       </div>
     </a>
 
-    <!-- ACCÈS RAPIDE : CONTRATS -->
+    <!-- CONTRATS -->
     <a href="contrats.html" id="contrats-admin-card" class="block rounded-3xl p-5 transition" style="background: linear-gradient(135deg, rgba(2,132,199,0.22) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(59,130,246,0.45); text-decoration: none; color: #fff;">
       <div class="flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style="background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%); box-shadow: 0 8px 20px -8px rgba(14,165,233,0.5);">
-          📋
-        </div>
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style="background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%); box-shadow: 0 8px 20px -8px rgba(14,165,233,0.5);">📋</div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
             <h2 class="text-base font-extrabold" style="color: #fff;">Contrats</h2>
@@ -56,23 +51,33 @@
       </div>
     </a>
 
+    <!-- CAMÉRAS -->
+    <a href="cameras.html" class="block rounded-3xl p-5 transition" style="background: linear-gradient(135deg, rgba(16,185,129,0.22) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(16,185,129,0.45); text-decoration: none; color: #fff;">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); box-shadow: 0 8px 20px -8px rgba(16,185,129,0.5);">📹</div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-base font-extrabold" style="color: #fff;">Caméras</h2>
+          <p class="text-xs mt-1" style="color: #cbd5e1;">Configurer et superviser les caméras des chantiers</p>
+        </div>
+        <span style="color: #34d399; font-size: 1.5rem;">›</span>
+      </div>
+    </a>
+
     <!-- MODE TEST -->
     <section class="rounded-3xl p-6" style="background: linear-gradient(135deg, rgba(245,158,11,0.18) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(245,158,11,0.45);">
       <div class="flex items-start gap-3 mb-4">
         <div class="text-3xl">👁️</div>
         <div class="flex-1">
           <h2 class="text-base font-extrabold" style="color: #fcd34d;">Mode test — Voir l'app comme un utilisateur</h2>
-          <p class="text-xs text-slate-200 mt-1 leading-relaxed">
-            Basculez dans la vue d'un Client ou d'un Artisan pour tester la plateforme. Vous gardez votre compte admin, vous pouvez revenir à tout moment.
-          </p>
+          <p class="text-xs text-slate-200 mt-1 leading-relaxed">Basculez dans la vue d'un Client ou d'un Artisan pour tester la plateforme.</p>
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3">
-        <button id="btn-test-client" class="font-bold py-3.5 rounded-xl text-xs flex flex-col items-center gap-1 transition" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #fff; box-shadow: 0 8px 20px -8px rgba(16,185,129,0.5);">
+        <button id="btn-test-client" class="font-bold py-3.5 rounded-xl text-xs flex flex-col items-center gap-1 transition" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #fff;">
           <span class="text-xl">🏠</span>
           <span>Voir en Client</span>
         </button>
-        <button id="btn-test-artisan" class="font-bold py-3.5 rounded-xl text-xs flex flex-col items-center gap-1 transition" style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); color: #fff; box-shadow: 0 8px 20px -8px rgba(245,158,11,0.5);">
+        <button id="btn-test-artisan" class="font-bold py-3.5 rounded-xl text-xs flex flex-col items-center gap-1 transition" style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); color: #fff;">
           <span class="text-xl">🏗️</span>
           <span>Voir en Artisan</span>
         </button>
@@ -88,220 +93,4 @@
       </div>
       <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 text-center">
         <div class="text-2xl mb-1">👥</div>
-        <div class="text-2xl font-extrabold" id="stat-users">-</div>
-        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Utilisateurs</div>
-      </div>
-      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 text-center">
-        <div class="text-2xl mb-1">🏗️</div>
-        <div class="text-2xl font-extrabold text-amber-400" id="stat-candidatures">-</div>
-        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Candidatures</div>
-      </div>
-      <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 text-center">
-        <div class="text-2xl mb-1">💰</div>
-        <div class="text-2xl font-extrabold text-emerald-400" id="stat-budget">-</div>
-        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Budget total</div>
-      </div>
-    </section>
-
-    <!-- CANDIDATURES A VALIDER -->
-    <section>
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-extrabold tracking-tight">Candidatures partenaires</h2>
-        <a href="admin-partenaires.html" class="text-xs text-amber-400 font-bold hover:underline">Voir tout →</a>
-      </div>
-      <div id="partenaires-list" class="space-y-2">
-        <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
-      </div>
-    </section>
-
-    <!-- RAPPORTS A VERIFIER -->
-    <section>
-      <h2 class="text-lg font-extrabold tracking-tight mb-3">Rapports à vérifier</h2>
-      <div id="reports-list" class="space-y-2">
-        <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
-      </div>
-    </section>
-
-    <!-- PROJETS RECENTS -->
-    <section>
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-extrabold tracking-tight">Projets récents</h2>
-        <a href="admin-chantiers.html" class="text-xs text-amber-400 font-bold hover:underline">Voir tout →</a>
-      </div>
-      <div id="projets-list" class="space-y-2">
-        <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
-      </div>
-    </section>
-
-  </main>
-
-  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
-    <a href="dashboard-admin.html" class="flex flex-col items-center gap-0.5 text-sky-400 text-[10px]"><span class="text-lg">🎯</span>Contrôle</a>
-    <a href="admin-leads.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📋</span>Leads</a>
-    <a href="admin-chantiers.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏗️</span>Chantiers</a>
-    <a href="admin-partenaires.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🤝</span>Partenaires</a>
-    <a href="admin-utilisateurs.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👥</span>Users</a>
-  </nav>
-
-  <script src="config.js"></script>
-  <script src="app.js"></script>
-  <script>
-    if (!requireRole(['admin'])) throw new Error('Not allowed');
-
-    document.getElementById('btn-test-client').addEventListener('click', function() {
-      setTestRole('investor');
-      window.location.href = 'dashboard-investisseur.html';
-    });
-
-    document.getElementById('btn-test-artisan').addEventListener('click', function() {
-      setTestRole('provider');
-      window.location.href = 'dashboard-artisan.html';
-    });
-
-    async function loadKycCount() {
-      const subtitle = document.getElementById('kyc-admin-subtitle');
-      const badge = document.getElementById('kyc-pending-badge');
-      try {
-        const profiles = await apiGet('profiles', 'kyc_status=eq.pending');
-        const count = Array.isArray(profiles) ? profiles.length : 0;
-
-        if (count > 0) {
-          badge.textContent = count;
-          badge.classList.remove('hidden');
-          subtitle.innerHTML = '<span style="color:#fca5a5;font-weight:700;">' + count + ' vérification' + (count > 1 ? 's' : '') + ' en attente</span> — Cliquez pour traiter';
-          document.getElementById('kyc-admin-card').style.borderColor = 'rgba(239,68,68,0.7)';
-          document.getElementById('kyc-admin-card').style.boxShadow = '0 0 20px rgba(239,68,68,0.25)';
-        } else {
-          badge.classList.add('hidden');
-          subtitle.textContent = 'Aucune vérification en attente';
-        }
-      } catch (e) {
-        subtitle.textContent = 'Vérifier les identités des utilisateurs';
-      }
-    }
-
-    async function loadContratsCount() {
-      const subtitle = document.getElementById('contrats-admin-subtitle');
-      const badge = document.getElementById('contrats-pending-badge');
-      try {
-        const all = await apiGet('contracts', 'status=eq.pending_signature&limit=200');
-        const count = Array.isArray(all) ? all.length : 0;
-
-        if (count > 0) {
-          badge.textContent = count;
-          badge.classList.remove('hidden');
-          subtitle.innerHTML = '<span style="color:#fca5a5;font-weight:700;">' + count + ' contrat' + (count > 1 ? 's' : '') + ' en attente de signature</span>';
-          document.getElementById('contrats-admin-card').style.borderColor = 'rgba(239,68,68,0.7)';
-          document.getElementById('contrats-admin-card').style.boxShadow = '0 0 20px rgba(239,68,68,0.25)';
-        } else {
-          badge.classList.add('hidden');
-          subtitle.textContent = 'Créer et suivre les contrats de la plateforme';
-        }
-      } catch (e) {
-        subtitle.textContent = 'Créer et suivre les contrats de la plateforme';
-      }
-    }
-
-    async function loadStats() {
-      try {
-        const projects = await apiGet('projects', '');
-        const validP = Array.isArray(projects) ? projects : [];
-        document.getElementById('stat-projets').textContent = validP.length;
-        const budget = validP.reduce((s, p) => s + Number(p.total_budget || 0), 0);
-        document.getElementById('stat-budget').textContent = (budget / 1000000).toFixed(1) + 'M';
-      } catch (e) {}
-
-      try {
-        const users = await apiGet('profiles', '');
-        document.getElementById('stat-users').textContent = Array.isArray(users) ? users.length : 0;
-      } catch (e) {}
-
-      try {
-        const cand = await apiGet('partnership_requests', 'status=eq.pending');
-        document.getElementById('stat-candidatures').textContent = Array.isArray(cand) ? cand.length : 0;
-      } catch (e) {}
-    }
-
-    async function loadPartenaires() {
-      const list = document.getElementById('partenaires-list');
-      try {
-        const data = await apiGet('partnership_requests', 'status=eq.pending&order=created_at.desc&limit=5');
-        const valid = Array.isArray(data) ? data : [];
-        if (valid.length === 0) {
-          list.innerHTML = '<div class="text-center py-6 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucune candidature en attente</p></div>';
-          return;
-        }
-        list.innerHTML = valid.map(c => `
-          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-3">
-            <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-lg flex-shrink-0">🏗️</div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-bold truncate">${escapeHtml(c.company_name)}</p>
-              <p class="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">${escapeHtml(c.profession)} · ${escapeHtml(c.city)}</p>
-            </div>
-            <a href="admin-partenaires.html" class="text-xs text-sky-400 font-bold">Voir</a>
-          </div>
-        `).join('');
-      } catch (e) {
-        list.innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur</p>';
-      }
-    }
-
-    async function loadReports() {
-      const list = document.getElementById('reports-list');
-      try {
-        const data = await apiGet('reports', 'order=created_at.desc&limit=5');
-        const valid = Array.isArray(data) ? data : [];
-        if (valid.length === 0) {
-          list.innerHTML = '<div class="text-center py-6 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun rapport récent</p></div>';
-          return;
-        }
-        list.innerHTML = valid.map(r => `
-          <div class="bg-white/5 border border-white/10 rounded-2xl p-3">
-            <div class="flex justify-between items-start mb-1">
-              <p class="text-sm font-bold truncate">${escapeHtml(r.title)}</p>
-              <span class="text-[10px] text-amber-300 font-semibold">${r.progress_percent || 0}%</span>
-            </div>
-            <p class="text-xs text-slate-400 truncate">${escapeHtml(r.content)}</p>
-            <p class="text-[10px] text-slate-500 mt-1">${formatDate(r.created_at)}</p>
-          </div>
-        `).join('');
-      } catch (e) {
-        list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Impossible de charger</p>';
-      }
-    }
-
-    async function loadProjets() {
-      const list = document.getElementById('projets-list');
-      try {
-        const data = await apiGet('projects', 'order=created_at.desc&limit=5');
-        const valid = Array.isArray(data) ? data : [];
-        if (valid.length === 0) {
-          list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucun projet</p>';
-          return;
-        }
-        list.innerHTML = valid.map(p => `
-          <a href="projet-detail.html?id=${p.id}" class="block bg-white/5 border border-white/10 rounded-2xl p-3 hover:bg-white/10 transition">
-            <div class="flex justify-between items-start mb-1">
-              <p class="text-sm font-bold truncate">${escapeHtml(p.title)}</p>
-              ${renderStatusBadge(p.status)}
-            </div>
-            <div class="flex justify-between text-[10px] text-slate-500 mt-1">
-              <span>📍 ${escapeHtml(p.city || '')}</span>
-              <span>${formatAmount(p.total_budget, p.currency)}</span>
-            </div>
-          </a>
-        `).join('');
-      } catch (e) {
-        list.innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur</p>';
-      }
-    }
-
-    loadStats();
-    loadKycCount();
-    loadContratsCount();
-    loadPartenaires();
-    loadReports();
-    loadProjets();
-  </script>
-</body>
-</html>
+        <div class="text-2xl font-extrabold" id
