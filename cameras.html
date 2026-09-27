@@ -454,4 +454,68 @@
       }
       const histList = document.getElementById('history-list');
       try {
-        const hist
+        const hist = await apiGet('position_checks', 'project_id=eq.' + currentProjectId + '&order=created_at.desc&limit=20');
+        const arr = Array.isArray(hist) ? hist : [];
+        if (arr.length === 0) {
+          histList.innerHTML = '<p class="text-slate-400 text-xs text-center py-4">Aucune vérification enregistrée</p>';
+        } else {
+          histList.innerHTML = arr.map(h => {
+            const dist = h.distance_meters;
+            const ok = dist != null && dist < 200;
+            const color = ok ? '#6ee7b7' : '#fca5a5';
+            const label = dist == null ? '—' : (ok ? '✅ Sur place · ' + fmtDistance(dist) : '⚠️ Éloigné · ' + fmtDistance(dist));
+            return '<div class="bg-slate-800/30 rounded-xl p-3 text-xs"><div class="flex justify-between items-center mb-1"><span style="color:' + color + '; font-weight:700;">' + label + '</span><span class="text-slate-400">' + new Date(h.created_at).toLocaleString('fr-FR') + '</span></div><div class="text-slate-400">Lat : ' + Number(h.latitude).toFixed(6) + ' · Lng : ' + Number(h.longitude).toFixed(6) + '</div></div>';
+          }).join('');
+        }
+      } catch (e) { histList.innerHTML = '<p class="text-slate-400 text-xs text-center py-4">Impossible de charger</p>'; }
+    }
+
+    document.getElementById('btn-set-chantier-position').addEventListener('click', () => {
+      if (!navigator.geolocation) { showError('GPS non supporté'); return; }
+      if (!confirm('Définir votre position actuelle comme position officielle du chantier ?\n\nVous devez être SUR le chantier.')) return;
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        try {
+          await apiPatch('projects', currentProjectId, { latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+          showSuccess('Position enregistrée');
+          currentProject.latitude = pos.coords.latitude;
+          currentProject.longitude = pos.coords.longitude;
+          loadLocation();
+        } catch (e) { showError(e.message); }
+      }, (err) => { showError('Impossible : ' + err.message); }, { enableHighAccuracy: true, timeout: 15000 });
+    });
+
+    document.getElementById('btn-check-position').addEventListener('click', () => {
+      if (!navigator.geolocation) { showError('GPS non supporté'); return; }
+      const btn = document.getElementById('btn-check-position');
+      btn.disabled = true; btn.textContent = '📍 Localisation...';
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        try {
+          const myLat = pos.coords.latitude, myLng = pos.coords.longitude;
+          let dist = null;
+          if (currentProject && currentProject.latitude && currentProject.longitude) {
+            dist = distanceMeters(myLat, myLng, currentProject.latitude, currentProject.longitude);
+          }
+          await apiPost('position_checks', { project_id: currentProjectId, user_id: userId, latitude: myLat, longitude: myLng, accuracy: pos.coords.accuracy, distance_meters: dist });
+          const result = document.getElementById('my-position-result');
+          const info = document.getElementById('my-position-info');
+          result.classList.remove('hidden');
+          const ok = dist == null || dist < 200;
+          const color = ok ? '#6ee7b7' : '#fca5a5';
+          const status = dist == null ? 'Position enregistrée (chantier non défini)' : (ok ? '✅ Vous êtes bien sur le chantier' : '⚠️ Vous êtes éloigné du chantier');
+          info.innerHTML = '<p style="color:' + color + '; font-weight:700; margin-bottom:0.5rem;">' + status + '</p><p>Lat : ' + myLat.toFixed(6) + '</p><p>Lng : ' + myLng.toFixed(6) + '</p><p>Précision : ±' + Math.round(pos.coords.accuracy) + ' m</p>' + (dist != null ? '<p>Distance : ' + fmtDistance(dist) + '</p>' : '');
+          showSuccess('Position enregistrée');
+          loadLocation();
+        } catch (e) { showError(e.message); }
+        btn.disabled = false; btn.textContent = '📍 Je suis sur le chantier — Vérifier';
+      }, (err) => {
+        let msg = 'Impossible';
+        if (err.code === 1) msg = 'Autorisation refusée';
+        showError(msg);
+        btn.disabled = false; btn.textContent = '📍 Je suis sur le chantier — Vérifier';
+      }, { enableHighAccuracy: true, timeout: 15000 });
+    });
+
+    loadProjects();
+  </script>
+</body>
+</html>
