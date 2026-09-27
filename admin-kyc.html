@@ -16,14 +16,13 @@
 
   <main class="p-4 max-w-2xl mx-auto space-y-4">
 
-    <!-- Filtres -->
     <div class="flex gap-2 overflow-x-auto pb-1">
       <button data-filter="pending" class="kyc-filter-btn font-bold px-4 py-1.5 rounded-full text-xs whitespace-nowrap" style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #0a1838;">⏳ En attente</button>
       <button data-filter="verified" class="kyc-filter-btn bg-white/5 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap" style="border: 1px solid rgba(16,185,129,0.3);">✅ Validés</button>
       <button data-filter="rejected" class="kyc-filter-btn bg-white/5 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap" style="border: 1px solid rgba(16,185,129,0.3);">❌ Refusés</button>
     </div>
 
-    <div id="stats-row" class="grid grid-cols-3 gap-2 text-center">
+    <div class="grid grid-cols-3 gap-2 text-center">
       <div class="bg-white/5 rounded-xl p-3" style="border: 1px solid rgba(16,185,129,0.25);">
         <div class="text-lg font-bold" id="stat-pending">-</div>
         <div class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">En attente</div>
@@ -38,7 +37,6 @@
       </div>
     </div>
 
-    <!-- Liste -->
     <div id="kyc-list" class="space-y-3">
       <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
     </div>
@@ -56,13 +54,11 @@
     </header>
 
     <div class="flex-1 overflow-y-auto p-4 space-y-4">
-      <!-- Infos -->
       <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2 text-xs">
         <p><strong>Type de document :</strong> <span id="m-doctype"></span></p>
         <p><strong>Date de soumission :</strong> <span id="m-date"></span></p>
       </div>
 
-      <!-- Documents -->
       <div>
         <h3 class="text-xs font-bold text-slate-300 mb-2">Recto</h3>
         <div id="m-front" class="bg-white/5 rounded-2xl p-4 min-h-[150px] flex items-center justify-center"></div>
@@ -79,7 +75,7 @@
 
     <footer class="p-4 border-t border-white/10 space-y-2">
       <div id="reject-box" class="hidden">
-        <textarea id="reject-reason" rows="2" placeholder="Raison du refus (visible par l'utilisateur)" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-red-500 resize-none"></textarea>
+        <textarea id="reject-reason" rows="2" placeholder="Raison du refus" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-red-500 resize-none"></textarea>
       </div>
       <div class="grid grid-cols-2 gap-2">
         <button id="btn-reject" class="bg-red-600 hover:bg-red-500 py-3 rounded-xl font-semibold text-sm">❌ Refuser</button>
@@ -98,22 +94,18 @@
     }
 
     const signedCache = new Map();
-
     let allProfiles = [];
     let allKyc = [];
     let profilesMap = {};
     let kycMap = {};
     let currentFilter = 'pending';
     let currentUserId = null;
+    let currentKycId = null;
 
-    /* ============================================
-       URL SIGNÉE avec cache
-       ============================================ */
     async function getSignedUrl(bucket, path, expiresIn = 3600) {
       const key = bucket + '/' + path;
       const cached = signedCache.get(key);
       if (cached && cached.exp > Date.now() + 60000) return cached.url;
-
       try {
         const token = getToken() || SUPABASE_KEY;
         const res = await fetch(SUPABASE_URL + '/storage/v1/object/sign/' + bucket + '/' + path, {
@@ -133,32 +125,24 @@
           return url;
         }
         return null;
-      } catch (e) {
-        return null;
-      }
+      } catch (e) { return null; }
     }
 
-    /* ============================================
-       CHARGEMENT
-       ============================================ */
     async function loadData() {
+      const list = document.getElementById('kyc-list');
       try {
-        // 1) Tous les profils (pour avoir nom + kyc_status)
+        // 1) Profils
         const profiles = await apiGet('profiles', 'order=created_at.desc&limit=200');
         allProfiles = Array.isArray(profiles) ? profiles : [];
         profilesMap = {};
         for (const p of allProfiles) profilesMap[p.id] = p;
 
-        // 2) Toutes les soumissions KYC
-        try {
-          const kyc = await apiGet('kyc_verifications', 'order=created_at.desc&limit=500');
-          allKyc = Array.isArray(kyc) ? kyc : [];
-        } catch (e) {
-          allKyc = [];
-        }
+        // 2) KYC (colonnes existantes uniquement)
+        const kyc = await apiGet('kyc_verifications',
+          'select=id,user_id,document_type,document_front_url,document_back_url,selfie_url,status,created_at&order=created_at.desc&limit=500');
+        allKyc = Array.isArray(kyc) ? kyc : [];
         kycMap = {};
         for (const k of allKyc) {
-          // On garde la plus récente par user
           if (!kycMap[k.user_id] || new Date(k.created_at) > new Date(kycMap[k.user_id].created_at)) {
             kycMap[k.user_id] = k;
           }
@@ -166,10 +150,9 @@
 
         renderStats();
         renderList();
-
       } catch (e) {
         console.error('[admin-kyc]', e);
-        document.getElementById('kyc-list').innerHTML = '<p class="text-red-400 text-sm text-center py-8">Erreur de chargement</p>';
+        list.innerHTML = '<p class="text-red-400 text-sm text-center py-8">Erreur : ' + escapeHtml(String(e && e.message || e)) + '</p>';
       }
     }
 
@@ -199,9 +182,6 @@
         const date = kyc ? formatDate(kyc.created_at) : (p.updated_at ? formatDate(p.updated_at) : '—');
         const docType = kyc ? kyc.document_type : '—';
 
-        const statusColor = currentFilter === 'pending' ? 'amber' : currentFilter === 'verified' ? 'emerald' : 'red';
-        const borderCls = `border-${statusColor}-500/40`;
-
         return `
           <div class="flex items-center gap-3 bg-white/5 hover:bg-white/[0.08] border border-white/10 rounded-2xl p-3.5 cursor-pointer kyc-card" data-uid="${p.id}">
             <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-600 to-sky-500 flex items-center justify-center font-extrabold text-sm flex-shrink-0">${escapeHtml(init)}</div>
@@ -220,9 +200,6 @@
       });
     }
 
-    /* ============================================
-       FILTRES
-       ============================================ */
     document.querySelectorAll('.kyc-filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.kyc-filter-btn').forEach(b => {
@@ -238,13 +215,11 @@
       });
     });
 
-    /* ============================================
-       MODAL
-       ============================================ */
     async function openModal(uid) {
       currentUserId = uid;
       const p = profilesMap[uid] || {};
       const kyc = kycMap[uid];
+      currentKycId = kyc ? kyc.id : null;
 
       document.getElementById('modal-title').textContent = p.full_name || p.email || 'Utilisateur';
       document.getElementById('modal-subtitle').textContent = (p.default_role || '') + ' · ' + (p.kyc_status || 'none');
@@ -253,7 +228,6 @@
       document.getElementById('reject-box').classList.add('hidden');
       document.getElementById('reject-reason').value = '';
 
-      // Reset previews
       ['m-front','m-back','m-selfie'].forEach(id => {
         document.getElementById(id).innerHTML = '<span class="text-slate-500 text-xs">Chargement…</span>';
       });
@@ -269,7 +243,6 @@
         return;
       }
 
-      // Charge les 3 images
       const slots = [
         { id: 'm-front', path: kyc.document_front_url },
         { id: 'm-back', path: kyc.document_back_url },
@@ -289,7 +262,6 @@
         document.getElementById(s.id).innerHTML = `<img src="${url}" class="w-full rounded-xl" style="max-height:400px;object-fit:contain;">`;
       }
 
-      // Boutons selon statut
       const btnApprove = document.getElementById('btn-approve');
       const btnReject = document.getElementById('btn-reject');
 
@@ -303,11 +275,7 @@
         btnApprove.classList.remove('opacity-50');
       }
 
-      if (p.kyc_status === 'rejected') {
-        btnReject.textContent = '❌ Déjà refusé';
-      } else {
-        btnReject.textContent = '❌ Refuser';
-      }
+      btnReject.textContent = p.kyc_status === 'rejected' ? '❌ Déjà refusé' : '❌ Refuser';
     }
 
     function closeModal() {
@@ -315,26 +283,19 @@
       document.getElementById('modal').classList.remove('flex');
       document.body.style.overflow = '';
       currentUserId = null;
+      currentKycId = null;
     }
 
     document.getElementById('modal-close').addEventListener('click', closeModal);
 
-    /* ============================================
-       VALIDER / REFUSER
-       ============================================ */
     document.getElementById('btn-approve').addEventListener('click', async () => {
       if (!currentUserId) return;
       if (!confirm('Valider ce KYC ?')) return;
-
       try {
-        const kyc = kycMap[currentUserId];
-        // Met à jour kyc_verifications si possible
-        if (kyc && kyc.id) {
-          try { await apiPatch('kyc_verifications', kyc.id, { status: 'approved' }); } catch (e) {}
+        if (currentKycId) {
+          try { await apiPatch('kyc_verifications', currentKycId, { status: 'verified' }); } catch (e) {}
         }
-        // Met à jour le profil
         await apiPatch('profiles', currentUserId, { kyc_status: 'verified' });
-
         showSuccess('KYC validé');
         closeModal();
         await loadData();
@@ -355,20 +316,14 @@
       if (!reason) { alert('Indiquez la raison du refus'); return; }
 
       try {
-        const kyc = kycMap[currentUserId];
-        if (kyc && kyc.id) {
+        if (currentKycId) {
           try {
-            await apiPatch('kyc_verifications', kyc.id, {
-              status: 'rejected',
-              rejection_reason: reason
-            });
+            await apiPatch('kyc_verifications', currentKycId, { status: 'rejected', rejection_reason: reason });
           } catch (e) {
-            // Fallback si colonne rejection_reason manque
-            try { await apiPatch('kyc_verifications', kyc.id, { status: 'rejected' }); } catch (e2) {}
+            try { await apiPatch('kyc_verifications', currentKycId, { status: 'rejected' }); } catch (e2) {}
           }
         }
         await apiPatch('profiles', currentUserId, { kyc_status: 'rejected' });
-
         showSuccess('KYC refusé');
         closeModal();
         await loadData();
@@ -377,7 +332,6 @@
       }
     });
 
-    /* Échap */
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeModal();
     });
