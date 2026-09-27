@@ -3,340 +3,103 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vérifications KYC - Admin</title>
+  <title>KYC Admin - Simple</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+<body class="bg-slate-900 text-white min-h-screen p-4">
 
-  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
-    <a href="dashboard-admin.html" class="text-2xl">←</a>
-    <span class="font-bold text-sm">🛡️ Vérifications KYC</span>
-    <span class="w-6"></span>
+  <header class="mb-4">
+    <a href="dashboard-admin.html" class="text-sm text-sky-400">← Retour</a>
+    <h1 class="text-xl font-bold mt-2">🛡️ KYC à traiter</h1>
   </header>
 
-  <main class="p-4 max-w-2xl mx-auto space-y-4">
-
-    <div class="flex gap-2 overflow-x-auto pb-1">
-      <button data-filter="pending" class="kyc-filter-btn font-bold px-4 py-1.5 rounded-full text-xs whitespace-nowrap" style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #0a1838;">⏳ En attente</button>
-      <button data-filter="verified" class="kyc-filter-btn bg-white/5 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap" style="border: 1px solid rgba(16,185,129,0.3);">✅ Validés</button>
-      <button data-filter="rejected" class="kyc-filter-btn bg-white/5 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap" style="border: 1px solid rgba(16,185,129,0.3);">❌ Refusés</button>
-    </div>
-
-    <div class="grid grid-cols-3 gap-2 text-center">
-      <div class="bg-white/5 rounded-xl p-3" style="border: 1px solid rgba(16,185,129,0.25);">
-        <div class="text-lg font-bold" id="stat-pending">-</div>
-        <div class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">En attente</div>
-      </div>
-      <div class="bg-white/5 rounded-xl p-3" style="border: 1px solid rgba(16,185,129,0.25);">
-        <div class="text-lg font-bold" id="stat-verified">-</div>
-        <div class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Validés</div>
-      </div>
-      <div class="bg-white/5 rounded-xl p-3" style="border: 1px solid rgba(16,185,129,0.25);">
-        <div class="text-lg font-bold" id="stat-rejected">-</div>
-        <div class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Refusés</div>
-      </div>
-    </div>
-
-    <div id="kyc-list" class="space-y-3">
-      <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
-    </div>
-
-  </main>
-
-  <!-- MODAL DÉTAIL -->
-  <div id="modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm hidden flex-col">
-    <header class="flex items-center justify-between p-4 border-b border-white/10">
-      <div>
-        <h2 id="modal-title" class="font-bold text-sm">Détail KYC</h2>
-        <p id="modal-subtitle" class="text-[10px] text-slate-400"></p>
-      </div>
-      <button id="modal-close" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xl">✕</button>
-    </header>
-
-    <div class="flex-1 overflow-y-auto p-4 space-y-4">
-      <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2 text-xs">
-        <p><strong>Type de document :</strong> <span id="m-doctype"></span></p>
-        <p><strong>Date de soumission :</strong> <span id="m-date"></span></p>
-      </div>
-
-      <div>
-        <h3 class="text-xs font-bold text-slate-300 mb-2">Recto</h3>
-        <div id="m-front" class="bg-white/5 rounded-2xl p-4 min-h-[150px] flex items-center justify-center"></div>
-      </div>
-      <div>
-        <h3 class="text-xs font-bold text-slate-300 mb-2">Verso</h3>
-        <div id="m-back" class="bg-white/5 rounded-2xl p-4 min-h-[150px] flex items-center justify-center"></div>
-      </div>
-      <div>
-        <h3 class="text-xs font-bold text-slate-300 mb-2">Selfie</h3>
-        <div id="m-selfie" class="bg-white/5 rounded-2xl p-4 min-h-[150px] flex items-center justify-center"></div>
-      </div>
-    </div>
-
-    <footer class="p-4 border-t border-white/10 space-y-2">
-      <div id="reject-box" class="hidden">
-        <textarea id="reject-reason" rows="2" placeholder="Raison du refus" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-red-500 resize-none"></textarea>
-      </div>
-      <div class="grid grid-cols-2 gap-2">
-        <button id="btn-reject" class="bg-red-600 hover:bg-red-500 py-3 rounded-xl font-semibold text-sm">❌ Refuser</button>
-        <button id="btn-approve" class="bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-semibold text-sm">✅ Valider</button>
-      </div>
-    </footer>
+  <div id="list" class="space-y-3">
+    <p class="text-slate-400 text-sm">Chargement...</p>
   </div>
 
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script>
-    if (!requireLogin()) throw new Error('Not logged');
-    if (getCurrentUserRole() !== 'admin') {
-      alert('Accès réservé à l\'administrateur');
-      window.location.href = 'dashboard-investisseur.html';
-    }
+    (async function() {
+      const list = document.getElementById('list');
 
-    const signedCache = new Map();
-    let allProfiles = [];
-    let allKyc = [];
-    let profilesMap = {};
-    let kycMap = {};
-    let currentFilter = 'pending';
-    let currentUserId = null;
-    let currentKycId = null;
-
-    async function getSignedUrl(bucket, path, expiresIn = 3600) {
-      const key = bucket + '/' + path;
-      const cached = signedCache.get(key);
-      if (cached && cached.exp > Date.now() + 60000) return cached.url;
       try {
-        const token = getToken() || SUPABASE_KEY;
-        const res = await fetch(SUPABASE_URL + '/storage/v1/object/sign/' + bucket + '/' + path, {
-          method: 'POST',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + token,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ expiresIn })
-        });
-        if (!res.ok) return null;
-        const data = await res.json();
-        if (data.signedURL) {
-          const url = SUPABASE_URL + '/storage/v1' + data.signedURL;
-          signedCache.set(key, { url, exp: Date.now() + (expiresIn - 120) * 1000 });
-          return url;
-        }
-        return null;
-      } catch (e) { return null; }
-    }
+        if (!requireLogin()) return;
 
-    async function loadData() {
-      const list = document.getElementById('kyc-list');
-      try {
-        // 1) Profils
-        const profiles = await apiGet('profiles', 'order=created_at.desc&limit=200');
-        allProfiles = Array.isArray(profiles) ? profiles : [];
-        profilesMap = {};
-        for (const p of allProfiles) profilesMap[p.id] = p;
-
-        // 2) KYC (colonnes existantes uniquement)
-        const kyc = await apiGet('kyc_verifications',
-          'select=id,user_id,document_type,document_front_url,document_back_url,selfie_url,status,created_at&order=created_at.desc&limit=500');
-        allKyc = Array.isArray(kyc) ? kyc : [];
-        kycMap = {};
-        for (const k of allKyc) {
-          if (!kycMap[k.user_id] || new Date(k.created_at) > new Date(kycMap[k.user_id].created_at)) {
-            kycMap[k.user_id] = k;
-          }
+        // 1) KYC en attente
+        const kycs = await apiGet('kyc_verifications', 'status=eq.pending&order=created_at.desc&limit=50');
+        if (!Array.isArray(kycs) || kycs.length === 0) {
+          list.innerHTML = '<div class="bg-white/5 border border-white/10 rounded-2xl p-6 text-center"><div class="text-4xl mb-2">📭</div><p class="text-slate-300">Aucun KYC en attente</p></div>';
+          return;
         }
 
-        renderStats();
-        renderList();
-      } catch (e) {
-        console.error('[admin-kyc]', e);
-        list.innerHTML = '<p class="text-red-400 text-sm text-center py-8">Erreur : ' + escapeHtml(String(e && e.message || e)) + '</p>';
-      }
-    }
+        // 2) Récupère les profils des users concernés
+        const userIds = [...new Set(kycs.map(k => k.user_id))];
+        let profiles = {};
+        try {
+          const profs = await apiGet('profiles', 'id=in.(' + userIds.join(',') + ')');
+          if (Array.isArray(profs)) for (const p of profs) profiles[p.id] = p;
+        } catch (e) {}
 
-    function renderStats() {
-      const pending = allProfiles.filter(p => p.kyc_status === 'pending').length;
-      const verified = allProfiles.filter(p => p.kyc_status === 'verified').length;
-      const rejected = allProfiles.filter(p => p.kyc_status === 'rejected').length;
-      document.getElementById('stat-pending').textContent = pending;
-      document.getElementById('stat-verified').textContent = verified;
-      document.getElementById('stat-rejected').textContent = rejected;
-    }
-
-    function renderList() {
-      const list = document.getElementById('kyc-list');
-      const filtered = allProfiles.filter(p => (p.kyc_status || 'none') === currentFilter);
-
-      if (filtered.length === 0) {
-        list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">📭</div><p class="text-slate-400 text-sm">Aucun KYC dans cette catégorie</p></div>';
-        return;
-      }
-
-      list.innerHTML = filtered.map(p => {
-        const kyc = kycMap[p.id];
-        const name = p.full_name || p.email || 'Utilisateur';
-        const init = name.substring(0, 2).toUpperCase();
-        const roleLbl = ({ admin:'Admin', investor:'Client', provider:'Artisan', project_manager:'Chef projet' })[p.default_role] || 'Utilisateur';
-        const date = kyc ? formatDate(kyc.created_at) : (p.updated_at ? formatDate(p.updated_at) : '—');
-        const docType = kyc ? kyc.document_type : '—';
-
-        return `
-          <div class="flex items-center gap-3 bg-white/5 hover:bg-white/[0.08] border border-white/10 rounded-2xl p-3.5 cursor-pointer kyc-card" data-uid="${p.id}">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-600 to-sky-500 flex items-center justify-center font-extrabold text-sm flex-shrink-0">${escapeHtml(init)}</div>
-            <div class="flex-1 min-w-0">
-              <h3 class="font-bold text-sm truncate">${escapeHtml(name)}</h3>
-              <p class="text-[10px] text-sky-400 font-semibold uppercase tracking-wider mt-0.5">${escapeHtml(roleLbl)} · ${escapeHtml(docType)}</p>
-              <p class="text-[10px] text-slate-400 mt-0.5">Soumis le ${date}</p>
+        // 3) Affiche la liste
+        list.innerHTML = kycs.map(k => {
+          const p = profiles[k.user_id] || {};
+          const name = p.full_name || p.email || 'Utilisateur';
+          return `
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <h3 class="font-bold">${escapeHtml(name)}</h3>
+                  <p class="text-xs text-slate-400">${escapeHtml(k.document_type || '—')}</p>
+                </div>
+                <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-1 rounded-lg">⏳ À traiter</span>
+              </div>
+              <p class="text-xs text-slate-400 mb-3">Envoyé le ${formatDate(k.created_at)}</p>
+              <div class="flex gap-2">
+                <button data-id="${k.id}" data-uid="${k.user_id}" data-action="reject" class="flex-1 bg-red-600 py-2 rounded-lg text-xs font-bold">❌ Refuser</button>
+                <button data-id="${k.id}" data-uid="${k.user_id}" data-action="approve" class="flex-1 bg-emerald-600 py-2 rounded-lg text-xs font-bold">✅ Valider</button>
+              </div>
             </div>
-            <span class="text-slate-500 text-xl">›</span>
-          </div>
-        `;
-      }).join('');
+          `;
+        }).join('');
 
-      document.querySelectorAll('.kyc-card').forEach(card => {
-        card.addEventListener('click', () => openModal(card.dataset.uid));
-      });
-    }
+        // 4) Boutons
+        document.querySelectorAll('button[data-action]').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const action = btn.dataset.action;
+            const kycId = btn.dataset.id;
+            const uid = btn.dataset.uid;
 
-    document.querySelectorAll('.kyc-filter-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.kyc-filter-btn').forEach(b => {
-          b.style.background = 'rgba(255,255,255,0.05)';
-          b.style.color = '#ffffff';
-          b.style.border = '1px solid rgba(16,185,129,0.3)';
+            if (action === 'approve') {
+              if (!confirm('Valider ce KYC ?')) return;
+              try {
+                await apiPatch('kyc_verifications', kycId, { status: 'verified' });
+                await apiPatch('profiles', uid, { kyc_status: 'verified' });
+                alert('✅ KYC validé');
+                location.reload();
+              } catch (e) { alert('Erreur : ' + e.message); }
+            } else {
+              const reason = prompt('Raison du refus :');
+              if (!reason) return;
+              try {
+                try {
+                  await apiPatch('kyc_verifications', kycId, { status: 'rejected', rejection_reason: reason });
+                } catch (e) {
+                  await apiPatch('kyc_verifications', kycId, { status: 'rejected' });
+                }
+                await apiPatch('profiles', uid, { kyc_status: 'rejected' });
+                alert('❌ KYC refusé');
+                location.reload();
+              } catch (e) { alert('Erreur : ' + e.message); }
+            }
+          });
         });
-        btn.style.background = 'linear-gradient(135deg, #f59e0b, #fbbf24)';
-        btn.style.color = '#0a1838';
-        btn.style.border = 'none';
-        currentFilter = btn.dataset.filter;
-        renderList();
-      });
-    });
 
-    async function openModal(uid) {
-      currentUserId = uid;
-      const p = profilesMap[uid] || {};
-      const kyc = kycMap[uid];
-      currentKycId = kyc ? kyc.id : null;
-
-      document.getElementById('modal-title').textContent = p.full_name || p.email || 'Utilisateur';
-      document.getElementById('modal-subtitle').textContent = (p.default_role || '') + ' · ' + (p.kyc_status || 'none');
-      document.getElementById('m-doctype').textContent = kyc ? kyc.document_type : '—';
-      document.getElementById('m-date').textContent = kyc ? new Date(kyc.created_at).toLocaleString('fr-FR') : '—';
-      document.getElementById('reject-box').classList.add('hidden');
-      document.getElementById('reject-reason').value = '';
-
-      ['m-front','m-back','m-selfie'].forEach(id => {
-        document.getElementById(id).innerHTML = '<span class="text-slate-500 text-xs">Chargement…</span>';
-      });
-
-      document.getElementById('modal').classList.remove('hidden');
-      document.getElementById('modal').classList.add('flex');
-      document.body.style.overflow = 'hidden';
-
-      if (!kyc) {
-        ['m-front','m-back','m-selfie'].forEach(id => {
-          document.getElementById(id).innerHTML = '<span class="text-slate-500 text-xs">Aucun document</span>';
-        });
-        return;
-      }
-
-      const slots = [
-        { id: 'm-front', path: kyc.document_front_url },
-        { id: 'm-back', path: kyc.document_back_url },
-        { id: 'm-selfie', path: kyc.selfie_url }
-      ];
-
-      for (const s of slots) {
-        if (!s.path) {
-          document.getElementById(s.id).innerHTML = '<span class="text-slate-500 text-xs">Non fourni</span>';
-          continue;
-        }
-        const url = await getSignedUrl('kyc-documents', s.path);
-        if (!url) {
-          document.getElementById(s.id).innerHTML = '<span class="text-red-400 text-xs">Erreur de chargement</span>';
-          continue;
-        }
-        document.getElementById(s.id).innerHTML = `<img src="${url}" class="w-full rounded-xl" style="max-height:400px;object-fit:contain;">`;
-      }
-
-      const btnApprove = document.getElementById('btn-approve');
-      const btnReject = document.getElementById('btn-reject');
-
-      if (p.kyc_status === 'verified') {
-        btnApprove.disabled = true;
-        btnApprove.textContent = '✅ Déjà validé';
-        btnApprove.classList.add('opacity-50');
-      } else {
-        btnApprove.disabled = false;
-        btnApprove.textContent = '✅ Valider';
-        btnApprove.classList.remove('opacity-50');
-      }
-
-      btnReject.textContent = p.kyc_status === 'rejected' ? '❌ Déjà refusé' : '❌ Refuser';
-    }
-
-    function closeModal() {
-      document.getElementById('modal').classList.add('hidden');
-      document.getElementById('modal').classList.remove('flex');
-      document.body.style.overflow = '';
-      currentUserId = null;
-      currentKycId = null;
-    }
-
-    document.getElementById('modal-close').addEventListener('click', closeModal);
-
-    document.getElementById('btn-approve').addEventListener('click', async () => {
-      if (!currentUserId) return;
-      if (!confirm('Valider ce KYC ?')) return;
-      try {
-        if (currentKycId) {
-          try { await apiPatch('kyc_verifications', currentKycId, { status: 'verified' }); } catch (e) {}
-        }
-        await apiPatch('profiles', currentUserId, { kyc_status: 'verified' });
-        showSuccess('KYC validé');
-        closeModal();
-        await loadData();
       } catch (e) {
-        showError(e.message);
+        console.error(e);
+        list.innerHTML = '<div class="bg-red-500/10 border border-red-500/40 rounded-2xl p-4 text-red-300 text-sm">Erreur : ' + escapeHtml(e.message || String(e)) + '</div>';
       }
-    });
-
-    document.getElementById('btn-reject').addEventListener('click', async () => {
-      if (!currentUserId) return;
-      const box = document.getElementById('reject-box');
-      if (box.classList.contains('hidden')) {
-        box.classList.remove('hidden');
-        document.getElementById('reject-reason').focus();
-        return;
-      }
-      const reason = document.getElementById('reject-reason').value.trim();
-      if (!reason) { alert('Indiquez la raison du refus'); return; }
-
-      try {
-        if (currentKycId) {
-          try {
-            await apiPatch('kyc_verifications', currentKycId, { status: 'rejected', rejection_reason: reason });
-          } catch (e) {
-            try { await apiPatch('kyc_verifications', currentKycId, { status: 'rejected' }); } catch (e2) {}
-          }
-        }
-        await apiPatch('profiles', currentUserId, { kyc_status: 'rejected' });
-        showSuccess('KYC refusé');
-        closeModal();
-        await loadData();
-      } catch (e) {
-        showError(e.message);
-      }
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
-    });
-
-    loadData();
+    })();
   </script>
 </body>
 </html>
