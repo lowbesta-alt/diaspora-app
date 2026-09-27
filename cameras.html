@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Caméras du chantier - Espace Diaspora</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-24">
 
@@ -28,7 +30,6 @@
       </select>
     </div>
 
-    <!-- ONGLETS (4 en ligne, tiennent sur mobile) -->
     <div class="grid grid-cols-4 gap-1.5">
       <button data-tab="direct" class="tab-btn font-bold py-2.5 rounded-lg text-[10px] whitespace-nowrap" style="background: linear-gradient(135deg, #059669, #10b981); color: #fff;">🔴 Direct</button>
       <button data-tab="mobile" class="tab-btn font-semibold py-2.5 rounded-lg text-[10px] whitespace-nowrap" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff;">📱 Mobile</button>
@@ -121,24 +122,48 @@
         <span class="text-2xl flex-shrink-0">📍</span>
         <div>
           <p class="text-sm font-bold" style="color:#93c5fd;">Vérification par GPS</p>
-          <p class="text-xs mt-1 leading-relaxed" style="color:#bfdbfe;">L'artisan vérifie régulièrement sa position sur le chantier.</p>
+          <p class="text-xs mt-1 leading-relaxed" style="color:#bfdbfe;">Placez le marqueur du chantier sur la carte, ou vérifiez votre position sur place.</p>
         </div>
       </div>
 
+      <!-- POSITION DU CHANTIER -->
       <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <div class="flex items-center justify-between">
-          <h3 class="text-sm font-bold">🏗️ Position officielle du chantier</h3>
+          <h3 class="text-sm font-bold">🏗️ Position du chantier</h3>
           <span id="chantier-status" class="text-[10px] px-2 py-0.5 rounded-full font-bold" style="background:rgba(148,163,184,0.2); color:#cbd5e1;">—</span>
         </div>
         <div id="chantier-coords" class="text-xs text-slate-300">Aucune position enregistrée</div>
-        <div id="admin-set-position-zone" class="hidden pt-2 border-t border-white/10">
-          <p class="text-[10px] text-slate-400 mb-2">Définir la position officielle du chantier (admin) :</p>
-          <button id="btn-set-chantier-position" class="w-full py-2.5 rounded-lg text-xs font-bold" style="background: #3b82f6; color:#fff;">📍 Capturer ma position actuelle comme position du chantier</button>
-          <p class="text-[10px] text-slate-500 mt-2">⚠️ Vous devez être physiquement sur le chantier.</p>
-        </div>
-        <a id="chantier-maps-link" href="#" target="_blank" class="hidden block text-center py-2.5 rounded-lg text-xs font-semibold" style="background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.5); color:#93c5fd;">🗺️ Voir sur Google Maps</a>
+        <a id="chantier-maps-link" href="#" target="_blank" class="hidden block text-center py-2.5 rounded-lg text-xs font-semibold" style="background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.5); color:#93c5fd;">🗺️ Ouvrir dans Google Maps</a>
       </div>
 
+      <!-- CARTE (admin) -->
+      <div id="admin-map-zone" class="hidden bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+        <h3 class="text-sm font-bold">🗺️ Définir la position (admin)</h3>
+        <p class="text-[11px] text-slate-400">Touchez la carte pour placer le marqueur, ou saisissez les coordonnées, puis enregistrez.</p>
+
+        <div id="map" style="height: 300px; border-radius: 0.75rem; overflow: hidden; background: #1e293b;"></div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[10px] text-slate-400 block mb-1">Latitude</label>
+            <input type="text" id="input-lat" placeholder="2.9390" class="w-full px-3 py-2.5 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs">
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block mb-1">Longitude</label>
+            <input type="text" id="input-lng" placeholder="9.9100" class="w-full px-3 py-2.5 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs">
+          </div>
+        </div>
+
+        <button id="btn-use-my-position" class="w-full py-2.5 rounded-lg text-xs font-semibold" style="background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.5); color:#93c5fd;">
+          📍 Utiliser ma position actuelle
+        </button>
+
+        <button id="btn-save-position" class="w-full py-3 rounded-xl font-bold text-sm" style="background:#059669; color:#fff;">
+          💾 Enregistrer la position du chantier
+        </button>
+      </div>
+
+      <!-- VÉRIFIER MA POSITION (artisan) -->
       <div id="check-position-zone" class="hidden bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <h3 class="text-sm font-bold">📸 Vérifier ma position maintenant</h3>
         <p class="text-[11px] text-slate-400">Capturez votre position GPS actuelle pour prouver que vous êtes bien sur le chantier.</p>
@@ -160,7 +185,6 @@
 
   </main>
 
-  <!-- MODAL ÉDITION LIENS -->
   <div id="modal-links" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm hidden flex-col">
     <header class="flex items-center justify-between p-4 border-b border-white/10">
       <h2 class="font-bold text-sm">⚙️ Liens des caméras</h2>
@@ -175,7 +199,6 @@
     </footer>
   </div>
 
-  <!-- MODAL VIDÉO -->
   <div id="modal-video" class="fixed inset-0 z-50 bg-black/95 hidden flex-col">
     <header class="flex items-center justify-between p-4 border-b border-white/10">
       <h2 id="modal-video-title" class="font-bold text-sm truncate">Vidéo</h2>
@@ -198,6 +221,8 @@
 
     let currentProjectId = null;
     let currentProject = null;
+    let map = null;
+    let marker = null;
 
     async function loadProjects() {
       const select = document.getElementById('project');
@@ -253,19 +278,25 @@
         btn.style.border = 'none';
         document.querySelectorAll('[id^="tab-"]').forEach(s => s.classList.add('hidden'));
         document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
-        if (btn.dataset.tab === 'location') loadLocation();
+        if (btn.dataset.tab === 'location') {
+          loadLocation();
+          setTimeout(initMap, 100);
+        }
       });
     });
 
     if (isAdmin) {
       document.getElementById('admin-config-zone').classList.remove('hidden');
-      document.getElementById('admin-set-position-zone').classList.remove('hidden');
+      document.getElementById('admin-map-zone').classList.remove('hidden');
     }
     if (isArtisan) {
       document.getElementById('upload-zone').classList.remove('hidden');
       document.getElementById('check-position-zone').classList.remove('hidden');
     }
 
+    /* ============================================
+       CAMÉRAS
+       ============================================ */
     const DEFAULT_CAMERAS = [
       { key: 'cam1', label: 'Caméra 1 — Entrée', desc: "Vue de l'entrée du chantier", icon: '📷' },
       { key: 'cam2', label: 'Caméra 2 — Zone travaux', desc: 'Vue de la zone principale', icon: '📷' },
@@ -324,6 +355,9 @@
       showSuccess('Liens enregistrés');
     });
 
+    /* ============================================
+       VISITE MOBILE
+       ============================================ */
     let activeVisitUrl = null;
     document.getElementById('btn-start-visit').addEventListener('click', () => {
       const roomName = 'diaspora-chantier-' + (currentProjectId || 'x') + '-' + Date.now();
@@ -352,6 +386,9 @@
       window.open(url, '_blank');
     });
 
+    /* ============================================
+       VIDÉOS
+       ============================================ */
     async function loadVideos() {
       const list = document.getElementById('videos-list');
       if (!currentProjectId) { list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Sélectionnez un chantier</p>'; return; }
@@ -421,6 +458,9 @@
       btn.disabled = false; btn.textContent = 'Uploader la vidéo';
     });
 
+    /* ============================================
+       LOCALISATION + CARTE
+       ============================================ */
     function distanceMeters(lat1, lon1, lat2, lon2) {
       const R = 6371000;
       const toRad = (d) => d * Math.PI / 180;
@@ -429,6 +469,63 @@
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
     function fmtDistance(m) { return m < 1000 ? Math.round(m) + ' m' : (m / 1000).toFixed(2) + ' km'; }
+
+    function initMap() {
+      const mapEl = document.getElementById('map');
+      if (!mapEl) return;
+      if (map) { map.invalidateSize(); return; }
+
+      const lat0 = (currentProject && currentProject.latitude) ? Number(currentProject.latitude) : 2.9390;
+      const lng0 = (currentProject && currentProject.longitude) ? Number(currentProject.longitude) : 9.9100;
+
+      map = L.map('map').setView([lat0, lng0], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+
+      if (currentProject && currentProject.latitude && currentProject.longitude) {
+        marker = L.marker([lat0, lng0]).addTo(map);
+        document.getElementById('input-lat').value = lat0;
+        document.getElementById('input-lng').value = lng0;
+      }
+
+      map.on('click', (e) => {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        if (marker) marker.setLatLng([lat, lng]);
+        else marker = L.marker([lat, lng]).addTo(map);
+        document.getElementById('input-lat').value = lat.toFixed(6);
+        document.getElementById('input-lng').value = lng.toFixed(6);
+      });
+    }
+
+    document.getElementById('btn-use-my-position').addEventListener('click', () => {
+      if (!navigator.geolocation) { showError('GPS non supporté'); return; }
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const lat = pos.coords.latitude, lng = pos.coords.longitude;
+        document.getElementById('input-lat').value = lat.toFixed(6);
+        document.getElementById('input-lng').value = lng.toFixed(6);
+        if (map && marker) { marker.setLatLng([lat, lng]); map.setView([lat, lng], 15); }
+        else if (map) { marker = L.marker([lat, lng]).addTo(map); map.setView([lat, lng], 15); }
+        showSuccess('Position capturée');
+      }, (err) => {
+        showError('Impossible : ' + err.message);
+      }, { enableHighAccuracy: true, timeout: 15000 });
+    });
+
+    document.getElementById('btn-save-position').addEventListener('click', async () => {
+      const lat = parseFloat(document.getElementById('input-lat').value);
+      const lng = parseFloat(document.getElementById('input-lng').value);
+      if (isNaN(lat) || isNaN(lng)) { showError('Coordonnées invalides'); return; }
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) { showError('Coordonnées hors limites'); return; }
+      try {
+        await apiPatch('projects', currentProjectId, { latitude: lat, longitude: lng });
+        currentProject.latitude = lat;
+        currentProject.longitude = lng;
+        showSuccess('Position du chantier enregistrée !');
+        loadLocation();
+      } catch (e) { showError(e.message); }
+    });
 
     async function loadLocation() {
       if (!currentProjectId) return;
@@ -445,6 +542,8 @@
         coordsEl.innerHTML = 'Lat : <strong>' + Number(currentProject.latitude).toFixed(6) + '</strong><br>Lng : <strong>' + Number(currentProject.longitude).toFixed(6) + '</strong>';
         mapsLink.href = 'https://www.google.com/maps?q=' + currentProject.latitude + ',' + currentProject.longitude;
         mapsLink.classList.remove('hidden');
+        document.getElementById('input-lat').value = Number(currentProject.latitude).toFixed(6);
+        document.getElementById('input-lng').value = Number(currentProject.longitude).toFixed(6);
       } else {
         statusEl.textContent = 'NON DÉFINIE';
         statusEl.style.background = 'rgba(239,68,68,0.2)';
@@ -467,22 +566,8 @@
             return '<div class="bg-slate-800/30 rounded-xl p-3 text-xs"><div class="flex justify-between items-center mb-1"><span style="color:' + color + '; font-weight:700;">' + label + '</span><span class="text-slate-400">' + new Date(h.created_at).toLocaleString('fr-FR') + '</span></div><div class="text-slate-400">Lat : ' + Number(h.latitude).toFixed(6) + ' · Lng : ' + Number(h.longitude).toFixed(6) + '</div></div>';
           }).join('');
         }
-      } catch (e) { histList.innerHTML = '<p class="text-slate-400 text-xs text-center py-4">Impossible de charger</p>'; }
+      } catch (e) { histList.innerHTML = '<p class="text-slate-400 text-xs text-center py-4">Aucune vérification enregistrée</p>'; }
     }
-
-    document.getElementById('btn-set-chantier-position').addEventListener('click', () => {
-      if (!navigator.geolocation) { showError('GPS non supporté'); return; }
-      if (!confirm('Définir votre position actuelle comme position officielle du chantier ?\n\nVous devez être SUR le chantier.')) return;
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        try {
-          await apiPatch('projects', currentProjectId, { latitude: pos.coords.latitude, longitude: pos.coords.longitude });
-          showSuccess('Position enregistrée');
-          currentProject.latitude = pos.coords.latitude;
-          currentProject.longitude = pos.coords.longitude;
-          loadLocation();
-        } catch (e) { showError(e.message); }
-      }, (err) => { showError('Impossible : ' + err.message); }, { enableHighAccuracy: true, timeout: 15000 });
-    });
 
     document.getElementById('btn-check-position').addEventListener('click', () => {
       if (!navigator.geolocation) { showError('GPS non supporté'); return; }
