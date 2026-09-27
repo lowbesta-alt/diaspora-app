@@ -21,20 +21,22 @@
       <p class="text-sm text-slate-400 mt-1">Suivi vidéo et localisation</p>
     </div>
 
-    <div id="project-selector" class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+    <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
       <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Chantier concerné</label>
       <select id="project" class="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm">
         <option value="">Chargement...</option>
       </select>
     </div>
 
-    <div class="flex gap-2 overflow-x-auto pb-1">
-      <button data-tab="direct" class="tab-btn flex-shrink-0 font-bold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap" style="background: linear-gradient(135deg, #059669, #10b981); color: #fff;">🔴 Direct</button>
-      <button data-tab="mobile" class="tab-btn flex-shrink-0 font-semibold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff;">📱 Visite mobile</button>
-      <button data-tab="videos" class="tab-btn flex-shrink-0 font-semibold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff;">🎥 Vidéos</button>
-      <button data-tab="location" class="tab-btn flex-shrink-0 font-semibold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff;">📍 Localisation</button>
+    <!-- ONGLETS (4 en ligne, tiennent sur mobile) -->
+    <div class="grid grid-cols-4 gap-1.5">
+      <button data-tab="direct" class="tab-btn font-bold py-2.5 rounded-lg text-[10px] whitespace-nowrap" style="background: linear-gradient(135deg, #059669, #10b981); color: #fff;">🔴 Direct</button>
+      <button data-tab="mobile" class="tab-btn font-semibold py-2.5 rounded-lg text-[10px] whitespace-nowrap" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff;">📱 Mobile</button>
+      <button data-tab="videos" class="tab-btn font-semibold py-2.5 rounded-lg text-[10px] whitespace-nowrap" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff;">🎥 Vidéos</button>
+      <button data-tab="location" class="tab-btn font-semibold py-2.5 rounded-lg text-[10px] whitespace-nowrap" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff;">📍 GPS</button>
     </div>
 
+    <!-- ONGLET 1 : DIRECT -->
     <section id="tab-direct" class="space-y-3">
       <div class="rounded-2xl p-4 flex items-start gap-3" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3);">
         <span class="text-2xl flex-shrink-0">📹</span>
@@ -43,35 +45,44 @@
           <p class="text-xs mt-1 leading-relaxed" style="color:#a7f3d0;">Touchez une caméra pour ouvrir la vue en temps réel.</p>
         </div>
       </div>
+
       <div id="admin-config-zone" class="hidden rounded-2xl p-4" style="background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);">
         <p class="text-xs font-bold mb-2" style="color:#fcd34d;">⚙️ Configuration (admin)</p>
         <button id="btn-edit-links" class="w-full py-2.5 rounded-lg text-xs font-bold" style="background: #f59e0b; color:#0a1838;">📝 Éditer les liens des caméras</button>
       </div>
+
       <div id="cameras-list" class="space-y-3">
         <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
       </div>
     </section>
 
+    <!-- ONGLET 2 : VISITE MOBILE -->
     <section id="tab-mobile" class="space-y-3 hidden">
       <div class="rounded-2xl p-4 flex items-start gap-3" style="background: rgba(14,165,233,0.1); border: 1px solid rgba(14,165,233,0.3);">
         <span class="text-2xl flex-shrink-0">📱</span>
         <div>
           <p class="text-sm font-bold" style="color:#7dd3fc;">Visite en direct depuis le téléphone</p>
-          <p class="text-xs mt-1 leading-relaxed" style="color:#bae6fd;">L'artisan filme avec son téléphone. Le client voit, entend et peut parler via Jitsi Meet.</p>
+          <p class="text-xs mt-1 leading-relaxed" style="color:#bae6fd;">L'artisan filme avec son téléphone. Le client voit et entend via Jitsi Meet.</p>
         </div>
       </div>
+
       <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <h3 class="text-sm font-bold">🎬 Démarrer une visite</h3>
-        <p class="text-[11px] text-slate-400">Un lien de visite sera généré. Partagez-le avec l'autre partie.</p>
+        <p class="text-[11px] text-slate-400">Un lien sera généré. Partagez-le avec l'autre partie.</p>
         <button id="btn-start-visit" class="w-full py-3.5 rounded-xl font-bold text-sm" style="background: linear-gradient(135deg, #059669, #10b981); color:#fff;">📹 Démarrer la visite en direct</button>
       </div>
+
       <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <h3 class="text-sm font-bold">🔗 Rejoindre une visite</h3>
         <input type="text" id="join-url" placeholder="https://meet.jit.si/diaspora-..." class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 text-white text-sm">
         <button id="btn-join-visit" class="w-full py-3 rounded-xl font-semibold text-sm" style="background: rgba(14,165,233,0.2); border: 1px solid rgba(14,165,233,0.5); color:#7dd3fc;">👀 Rejoindre</button>
       </div>
+
       <div id="active-visit" class="hidden bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
-        <div class="flex items-center gap-2"><span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span><span class="text-xs font-bold text-red-300">VISITE EN COURS</span></div>
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+          <span class="text-xs font-bold text-red-300">VISITE EN COURS</span>
+        </div>
         <div id="visit-link-display" class="text-xs break-all text-emerald-300 p-3 rounded-lg bg-slate-800/50"></div>
         <div class="grid grid-cols-2 gap-2">
           <button id="btn-copy-link" class="py-2.5 rounded-lg text-xs font-semibold" style="background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.5); color:#6ee7b7;">📋 Copier</button>
@@ -82,6 +93,7 @@
       </div>
     </section>
 
+    <!-- ONGLET 3 : VIDÉOS -->
     <section id="tab-videos" class="space-y-3 hidden">
       <div class="rounded-2xl p-4 flex items-start gap-3" style="background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);">
         <span class="text-2xl flex-shrink-0">🎥</span>
@@ -90,15 +102,20 @@
           <p class="text-xs mt-1 leading-relaxed" style="color:#fef3c7;">L'artisan peut uploader des vidéos du chantier.</p>
         </div>
       </div>
+
       <div id="upload-zone" class="hidden bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <h3 class="text-sm font-bold">📤 Ajouter une vidéo</h3>
         <input type="text" id="video-title" placeholder="Titre de la vidéo" class="w-full px-3 py-3 rounded-xl bg-slate-800/50 border border-white/10 text-white text-sm">
         <input type="file" id="video-file" accept="video/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-amber-500/20 file:text-amber-300 file:font-semibold">
         <button id="btn-upload-video" class="w-full py-3 rounded-xl font-bold text-sm" style="background:#f59e0b; color:#0a1838;">Uploader la vidéo</button>
       </div>
-      <div id="videos-list" class="space-y-3"><p class="text-slate-400 text-sm text-center py-6">Chargement...</p></div>
+
+      <div id="videos-list" class="space-y-3">
+        <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
+      </div>
     </section>
 
+    <!-- ONGLET 4 : LOCALISATION -->
     <section id="tab-location" class="space-y-3 hidden">
       <div class="rounded-2xl p-4 flex items-start gap-3" style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3);">
         <span class="text-2xl flex-shrink-0">📍</span>
@@ -107,6 +124,7 @@
           <p class="text-xs mt-1 leading-relaxed" style="color:#bfdbfe;">L'artisan vérifie régulièrement sa position sur le chantier.</p>
         </div>
       </div>
+
       <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="text-sm font-bold">🏗️ Position officielle du chantier</h3>
@@ -120,23 +138,29 @@
         </div>
         <a id="chantier-maps-link" href="#" target="_blank" class="hidden block text-center py-2.5 rounded-lg text-xs font-semibold" style="background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.5); color:#93c5fd;">🗺️ Voir sur Google Maps</a>
       </div>
+
       <div id="check-position-zone" class="hidden bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <h3 class="text-sm font-bold">📸 Vérifier ma position maintenant</h3>
         <p class="text-[11px] text-slate-400">Capturez votre position GPS actuelle pour prouver que vous êtes bien sur le chantier.</p>
         <button id="btn-check-position" class="w-full py-3.5 rounded-xl font-bold text-sm" style="background: linear-gradient(135deg, #059669, #10b981); color:#fff;">📍 Je suis sur le chantier — Vérifier</button>
       </div>
+
       <div id="my-position-result" class="hidden bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
         <h3 class="text-sm font-bold">📌 Ma dernière position</h3>
         <div id="my-position-info" class="text-xs text-slate-300"></div>
       </div>
+
       <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
         <h3 class="text-sm font-bold mb-3">📅 Historique des vérifications</h3>
-        <div id="history-list" class="space-y-2"><p class="text-slate-400 text-xs text-center py-4">Chargement...</p></div>
+        <div id="history-list" class="space-y-2">
+          <p class="text-slate-400 text-xs text-center py-4">Chargement...</p>
+        </div>
       </div>
     </section>
 
   </main>
 
+  <!-- MODAL ÉDITION LIENS -->
   <div id="modal-links" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm hidden flex-col">
     <header class="flex items-center justify-between p-4 border-b border-white/10">
       <h2 class="font-bold text-sm">⚙️ Liens des caméras</h2>
@@ -151,6 +175,7 @@
     </footer>
   </div>
 
+  <!-- MODAL VIDÉO -->
   <div id="modal-video" class="fixed inset-0 z-50 bg-black/95 hidden flex-col">
     <header class="flex items-center justify-between p-4 border-b border-white/10">
       <h2 id="modal-video-title" class="font-bold text-sm truncate">Vidéo</h2>
@@ -429,68 +454,4 @@
       }
       const histList = document.getElementById('history-list');
       try {
-        const hist = await apiGet('position_checks', 'project_id=eq.' + currentProjectId + '&order=created_at.desc&limit=20');
-        const arr = Array.isArray(hist) ? hist : [];
-        if (arr.length === 0) {
-          histList.innerHTML = '<p class="text-slate-400 text-xs text-center py-4">Aucune vérification enregistrée</p>';
-        } else {
-          histList.innerHTML = arr.map(h => {
-            const dist = h.distance_meters;
-            const ok = dist != null && dist < 200;
-            const color = ok ? '#6ee7b7' : '#fca5a5';
-            const label = dist == null ? '—' : (ok ? '✅ Sur place · ' + fmtDistance(dist) : '⚠️ Éloigné · ' + fmtDistance(dist));
-            return '<div class="bg-slate-800/30 rounded-xl p-3 text-xs"><div class="flex justify-between items-center mb-1"><span style="color:' + color + '; font-weight:700;">' + label + '</span><span class="text-slate-400">' + new Date(h.created_at).toLocaleString('fr-FR') + '</span></div><div class="text-slate-400">Lat : ' + Number(h.latitude).toFixed(6) + ' · Lng : ' + Number(h.longitude).toFixed(6) + '</div></div>';
-          }).join('');
-        }
-      } catch (e) { histList.innerHTML = '<p class="text-slate-400 text-xs text-center py-4">Impossible de charger</p>'; }
-    }
-
-    document.getElementById('btn-set-chantier-position').addEventListener('click', () => {
-      if (!navigator.geolocation) { showError('GPS non supporté'); return; }
-      if (!confirm('Définir votre position actuelle comme position officielle du chantier ?\n\nVous devez être SUR le chantier.')) return;
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        try {
-          await apiPatch('projects', currentProjectId, { latitude: pos.coords.latitude, longitude: pos.coords.longitude });
-          showSuccess('Position enregistrée');
-          currentProject.latitude = pos.coords.latitude;
-          currentProject.longitude = pos.coords.longitude;
-          loadLocation();
-        } catch (e) { showError(e.message); }
-      }, (err) => { showError('Impossible : ' + err.message); }, { enableHighAccuracy: true, timeout: 15000 });
-    });
-
-    document.getElementById('btn-check-position').addEventListener('click', () => {
-      if (!navigator.geolocation) { showError('GPS non supporté'); return; }
-      const btn = document.getElementById('btn-check-position');
-      btn.disabled = true; btn.textContent = '📍 Localisation...';
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        try {
-          const myLat = pos.coords.latitude, myLng = pos.coords.longitude;
-          let dist = null;
-          if (currentProject && currentProject.latitude && currentProject.longitude) {
-            dist = distanceMeters(myLat, myLng, currentProject.latitude, currentProject.longitude);
-          }
-          await apiPost('position_checks', { project_id: currentProjectId, user_id: userId, latitude: myLat, longitude: myLng, accuracy: pos.coords.accuracy, distance_meters: dist });
-          const result = document.getElementById('my-position-result');
-          const info = document.getElementById('my-position-info');
-          result.classList.remove('hidden');
-          const ok = dist == null || dist < 200;
-          const color = ok ? '#6ee7b7' : '#fca5a5';
-          const status = dist == null ? 'Position enregistrée (chantier non défini)' : (ok ? '✅ Vous êtes bien sur le chantier' : '⚠️ Vous êtes éloigné du chantier');
-          info.innerHTML = '<p style="color:' + color + '; font-weight:700; margin-bottom:0.5rem;">' + status + '</p><p>Lat : ' + myLat.toFixed(6) + '</p><p>Lng : ' + myLng.toFixed(6) + '</p><p>Précision : ±' + Math.round(pos.coords.accuracy) + ' m</p>' + (dist != null ? '<p>Distance : ' + fmtDistance(dist) + '</p>' : '');
-          showSuccess('Position enregistrée');
-          loadLocation();
-        } catch (e) { showError(e.message); }
-        btn.disabled = false; btn.textContent = '📍 Je suis sur le chantier — Vérifier';
-      }, (err) => {
-        let msg = 'Impossible';
-        if (err.code === 1) msg = 'Autorisation refusée';
-        showError(msg);
-        btn.disabled = false; btn.textContent = '📍 Je suis sur le chantier — Vérifier';
-      }, { enableHighAccuracy: true, timeout: 15000 });
-    });
-
-    loadProjects();
-  </script>
-</body>
-</html>
+        const hist
