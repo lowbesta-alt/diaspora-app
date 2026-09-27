@@ -3,86 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Créer un contrat - Admin</title>
+  <title>Signer le contrat - Espace Diaspora</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
 
   <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
-    <a href="contrats.html" class="text-2xl">←</a>
-    <span class="font-bold text-sm">Créer un contrat</span>
+    <a href="contrats.html" class="text-2xl" style="color:#fff;">←</a>
+    <span class="font-bold text-sm" id="header-label" style="color:#fff;">Signer le contrat</span>
     <span class="w-6"></span>
   </header>
 
   <main class="p-4 max-w-2xl mx-auto space-y-4">
 
-    <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex items-start gap-3">
-      <span class="text-lg">🛡️</span>
-      <p class="text-xs text-amber-200">Vous créez un contrat au nom de l'administration. Les deux parties devront le signer.</p>
+    <div id="already-signed-banner" class="hidden rounded-2xl p-4" style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.45);">
+      <div class="flex items-start gap-3">
+        <span class="text-xl">✅</span>
+        <div class="flex-1">
+          <p class="text-sm font-bold" style="color:#6ee7b7;">Vous avez déjà signé ce contrat</p>
+          <p class="text-[11px] mt-1" style="color:#a7f3d0;">Retrouvez toutes les signatures ci-dessous.</p>
+        </div>
+      </div>
     </div>
 
-    <!-- ÉTAPE 1 : PROJET -->
-    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
-      <div>
-        <label class="text-xs font-semibold text-slate-300 mb-2 block">Titre du contrat *</label>
-        <input type="text" id="title" placeholder="Ex : Contrat de prestation Villa Kribi" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+    <div class="rounded-2xl p-3 flex items-start gap-3" style="background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.4);">
+      <span class="text-lg">🔒</span>
+      <p class="text-xs" style="color:#bfdbfe;">Signature électronique sécurisée. Horodatée et tracée.</p>
+    </div>
+
+    <!-- ================================================== -->
+    <!-- CONTENU DU CONTRAT : fond blanc + texte noir FORCÉ -->
+    <!-- ================================================== -->
+    <section id="contract-section" style="background:#ffffff; color:#111827; border-radius:1rem; padding:1.25rem; max-height:22rem; overflow-y:auto; box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+      <h1 id="contract-title" style="font-size:1rem; font-weight:700; color:#111827; margin:0 0 0.25rem 0;">Chargement…</h1>
+      <p id="contract-number" style="font-size:0.7rem; color:#6b7280; margin:0 0 1rem 0;">-</p>
+
+      <div id="contract-body" style="font-size:0.8rem; line-height:1.6; color:#1f2937;">
+        <p style="color:#9ca3af;">Chargement du contenu…</p>
       </div>
 
-      <div>
-        <label class="text-xs font-semibold text-slate-300 mb-2 block">Type de contrat</label>
-        <select id="contractType" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
-          <option value="Prestation">Prestation de services</option>
-          <option value="Construction">Construction / BTP</option>
-          <option value="Rénovation">Rénovation</option>
-          <option value="Maintenance">Maintenance</option>
-          <option value="Avenant">Avenant</option>
-          <option value="Autre">Autre</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="text-xs font-semibold text-slate-300 mb-2 block">Projet associé *</label>
-        <select id="project" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
-          <option value="">Chargement...</option>
-        </select>
-        <p class="text-[10px] text-slate-400 mt-1">👉 Choisissez d'abord un projet : les listes ci-dessous s'adapteront automatiquement.</p>
-      </div>
-    </section>
-
-    <!-- ÉTAPE 2 : PARTIES (filtrées selon le projet) -->
-    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
-      <div>
-        <label class="text-xs font-semibold text-slate-300 mb-2 block">Investisseur (client) *</label>
-        <select id="investor" disabled class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500 disabled:opacity-50">
-          <option value="">Sélectionnez un projet d'abord</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="text-xs font-semibold text-slate-300 mb-2 block">Prestataire (artisan) *</label>
-        <select id="provider" disabled class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500 disabled:opacity-50">
-          <option value="">Sélectionnez un projet d'abord</option>
-        </select>
+      <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid #e5e7eb; display:grid; grid-template-columns:1fr 1fr; gap:1rem; font-size:0.75rem;">
+        <div>
+          <p style="font-weight:700; color:#374151; margin:0 0 0.25rem 0;">Investisseur</p>
+          <p id="party-investor" style="color:#4b5563; margin:0;">—</p>
+        </div>
+        <div>
+          <p style="font-weight:700; color:#374151; margin:0 0 0.25rem 0;">Prestataire</p>
+          <p id="party-provider" style="color:#4b5563; margin:0;">—</p>
+        </div>
       </div>
     </section>
 
-    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
-      <div>
-        <label class="text-xs font-semibold text-slate-300 mb-2 block">Montant total (XAF)</label>
-        <input type="number" id="amount" placeholder="Ex : 40000000" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
-      </div>
-
-      <div>
-        <label class="text-xs font-semibold text-slate-300 mb-2 block">Contenu du contrat (optionnel)</label>
-        <p class="text-[10px] text-slate-400 mb-2">Laissez vide pour utiliser le modèle standard.</p>
-        <textarea id="content" rows="6" placeholder="Collez ici le texte du contrat si vous voulez un contenu personnalisé…" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500 resize-none"></textarea>
-      </div>
+    <!-- SIGNATURES EXISTANTES -->
+    <section id="signatures-panel" class="hidden">
+      <h2 class="text-sm font-bold mb-2" style="color:#fff;">Signatures recueillies</h2>
+      <div id="signatures-list" class="space-y-2"></div>
     </section>
 
-    <section class="flex gap-2">
-      <a href="contrats.html" class="flex-1 bg-white/5 border border-white/10 py-3 rounded-xl font-semibold text-sm text-center">Annuler</a>
-      <button id="btn-create" class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-semibold text-sm">Créer le contrat</button>
-    </section>
+    <!-- ZONE DE SIGNATURE -->
+    <div id="sign-zone">
+      <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
+        <label class="text-xs font-semibold text-slate-300 mb-2 block">Mode de signature</label>
+        <div class="grid grid-cols-2 gap-2 mb-4">
+          <button data-mode="type" class="mode-btn py-3 rounded-lg text-xs font-semibold flex flex-col items-center gap-1" style="background:#059669; color:#fff;">
+            <span class="text-lg">⌨️</span>Taper mon nom
+          </button>
+          <button data-mode="draw" class="mode-btn py-3 rounded-lg text-xs font-semibold flex flex-col items-center gap-1" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); color:#fff;">
+            <span class="text-lg">✍️</span>Dessiner
+          </button>
+        </div>
+
+        <div id="mode-type">
+          <input type="text" id="typedName" placeholder="Tapez votre nom complet" class="w-full rounded-xl px-3 py-3 text-sm focus:outline-none" style="background:rgba(30,41,59,0.6); border:1px solid rgba(255,255,255,0.15); color:#fff;">
+          <div class="mt-3 rounded-xl p-4 text-center" style="background:rgba(30,41,59,0.6);">
+            <p id="signature-preview" style="font-size:1.5rem; font-style:italic; color:#6ee7b7; font-family:serif;">Votre signature</p>
+          </div>
+        </div>
+
+        <div id="mode-draw" class="hidden">
+          <div id="canvas-wrap" style="position:relative; width:100%;">
+            <canvas id="sigCanvas" style="display:block; width:100%; height:180px; background:#ffffff; border-radius:0.75rem; touch-action:none; cursor:crosshair;"></canvas>
+            <div id="canvas-placeholder" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); color:#9ca3af; font-size:0.8rem; pointer-events:none;">✍️ Signez ici avec votre doigt</div>
+          </div>
+          <button id="btn-clear" class="w-full mt-2 py-2 rounded-lg text-xs font-semibold" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#fff;">Effacer</button>
+        </div>
+      </section>
+
+      <section class="space-y-3 mt-4">
+        <label class="flex items-start gap-2 bg-white/5 border border-white/10 rounded-xl p-3 cursor-pointer">
+          <input type="checkbox" class="cgu mt-0.5">
+          <span class="text-xs">J'ai lu et compris l'intégralité du contrat</span>
+        </label>
+        <label class="flex items-start gap-2 bg-white/5 border border-white/10 rounded-xl p-3 cursor-pointer">
+          <input type="checkbox" class="cgu mt-0.5">
+          <span class="text-xs">J'accepte les termes et conditions</span>
+        </label>
+        <label class="flex items-start gap-2 bg-white/5 border border-white/10 rounded-xl p-3 cursor-pointer">
+          <input type="checkbox" class="cgu mt-0.5">
+          <span class="text-xs">Je reconnais avoir la capacité juridique de signer</span>
+        </label>
+      </section>
+
+      <section class="flex gap-2 mt-4">
+        <a href="contrats.html" class="flex-1 py-3 rounded-xl font-semibold text-sm text-center" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#fff;">Refuser</a>
+        <button id="btn-sign" class="flex-1 py-3 rounded-xl font-semibold text-sm" style="background:#059669; color:#fff;">Signer le contrat</button>
+      </section>
+    </div>
 
   </main>
 
@@ -90,200 +116,364 @@
   <script src="app.js"></script>
   <script>
     if (!requireLogin()) throw new Error('Not logged');
-    if (getCurrentUserRole() !== 'admin') {
-      alert('Accès réservé à l\'administrateur');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const contractId = urlParams.get('id');
+    if (!contractId) {
+      alert('Aucun contrat sélectionné');
       window.location.href = 'contrats.html';
     }
 
-    // Cache de tous les projets + tous les profils (chargés une seule fois)
-    let allProjects = [];
-    let allProfiles = {};    // id -> profile
-    let membersCache = {};   // projectId -> [member rows]
+    const userId = getCurrentUserId();
+    const isAdmin = getCurrentUserRole() === 'admin';
+
+    let contract = null;
+    let myRole = null;
+    let iAlreadySigned = false;
+    let sigMode = 'type';
 
     /* ============================================
-       CHARGEMENT INITIAL
+       CHARGEMENT
        ============================================ */
-    async function init() {
-      // 1) Projets
+    async function loadContract() {
       try {
-        const data = await apiGet('projects', 'order=created_at.desc');
-        allProjects = Array.isArray(data) ? data : [];
-      } catch (e) { allProjects = []; }
+        const data = await apiGet('contracts', 'id=eq.' + contractId);
+        if (!Array.isArray(data) || !data[0]) {
+          showError('Contrat introuvable');
+          return;
+        }
+        contract = data[0];
 
-      // 2) Tous les profils (pour résoudre les noms)
-      try {
-        const profs = await apiGet('profiles', 'limit=200');
-        if (Array.isArray(profs)) for (const p of profs) allProfiles[p.id] = p;
-      } catch (e) {}
+        document.getElementById('contract-title').textContent = contract.title || 'Contrat';
+        document.getElementById('contract-number').textContent = 'CTR-' + contractId.slice(0, 8).toUpperCase();
 
-      // 3) Remplit le select projet
-      const selectP = document.getElementById('project');
-      if (allProjects.length === 0) {
-        selectP.innerHTML = '<option value="">Aucun projet disponible</option>';
-        return;
-      }
-      selectP.innerHTML = '<option value="">Sélectionner un projet…</option>' +
-        allProjects.map(p => '<option value="' + p.id + '">' + escapeHtml(p.title) + '</option>').join('');
+        document.getElementById('contract-body').innerHTML = buildContractBody(contract);
 
-      // 4) Écoute le changement de projet
-      selectP.addEventListener('change', onProjectChange);
-    }
+        if (contract.party_investor_id === userId) myRole = 'investor';
+        else if (contract.party_provider_id === userId) myRole = 'provider';
+        else if (isAdmin) myRole = 'admin';
 
-    /* ============================================
-       QUAND ON CHANGE DE PROJET → filtre les parties
-       ============================================ */
-    async function onProjectChange(e) {
-      const projectId = e.target.value;
-      const selectI = document.getElementById('investor');
-      const selectP = document.getElementById('provider');
-
-      if (!projectId) {
-        selectI.disabled = true;
-        selectP.disabled = true;
-        selectI.innerHTML = '<option value="">Sélectionnez un projet d\'abord</option>';
-        selectP.innerHTML = '<option value="">Sélectionnez un projet d\'abord</option>';
-        return;
-      }
-
-      // Affiche un message de chargement
-      selectI.disabled = true;
-      selectP.disabled = true;
-      selectI.innerHTML = '<option>Chargement…</option>';
-      selectP.innerHTML = '<option>Chargement…</option>';
-
-      // 1) Récupère les membres du projet
-      let members = membersCache[projectId];
-      if (!members) {
+        // Noms des parties
+        const partyIds = [contract.party_investor_id, contract.party_provider_id].filter(Boolean);
+        let partyNames = {};
         try {
-          const data = await apiGet('project_members', 'project_id=eq.' + projectId + '&is_active=eq.true');
-          members = Array.isArray(data) ? data : [];
-          membersCache[projectId] = members;
-        } catch (err) {
-          members = [];
+          const profs = await apiGet('profiles', 'id=in.(' + partyIds.join(',') + ')');
+          if (Array.isArray(profs)) for (const p of profs) partyNames[p.id] = p.full_name || p.email || 'Utilisateur';
+        } catch (e) {}
+
+        document.getElementById('party-investor').textContent = partyNames[contract.party_investor_id] || 'Investisseur';
+        document.getElementById('party-provider').textContent = partyNames[contract.party_provider_id] || 'Prestataire';
+
+        if (myRole === 'investor') iAlreadySigned = !!contract.signed_by_investor_at;
+        if (myRole === 'provider') iAlreadySigned = !!contract.signed_by_provider_at;
+
+        renderSignatures();
+
+        if (myRole === 'admin' || iAlreadySigned) {
+          document.getElementById('sign-zone').classList.add('hidden');
+          document.getElementById('already-signed-banner').classList.remove('hidden');
+          if (myRole === 'admin') {
+            document.getElementById('already-signed-banner').innerHTML = `
+              <div class="flex items-start gap-3">
+                <span class="text-xl">👁️</span>
+                <div class="flex-1">
+                  <p class="text-sm font-bold" style="color:#6ee7b7;">Mode supervision admin</p>
+                  <p class="text-[11px] mt-1" style="color:#a7f3d0;">Vous consultez ce contrat en lecture seule.</p>
+                </div>
+              </div>
+            `;
+          }
         }
-      }
 
-      // 2) Récupère le projet pour connaître l'owner
-      const proj = allProjects.find(p => p.id === projectId);
-      const ownerId = proj ? proj.owner_id : null;
-
-      // 3) Construit la liste des investisseurs
-      //    = owner_id + tous les membres avec role 'investor'
-      const investorIds = new Set();
-      if (ownerId) investorIds.add(ownerId);
-      for (const m of members) {
-        if (m.role === 'investor' && m.user_id) investorIds.add(m.user_id);
-      }
-
-      // 4) Construit la liste des prestataires
-      //    = membres avec role 'provider' ou 'project_manager'
-      const providerIds = new Set();
-      for (const m of members) {
-        if ((m.role === 'provider' || m.role === 'project_manager') && m.user_id) {
-          providerIds.add(m.user_id);
-        }
-      }
-
-      // 5) Remplit les <select>
-      const investorOptions = Array.from(investorIds).map(uid => {
-        const p = allProfiles[uid];
-        const name = p ? (p.full_name || p.email) : 'Utilisateur';
-        return { id: uid, name: name };
-      }).sort((a, b) => a.name.localeCompare(b.name));
-
-      const providerOptions = Array.from(providerIds).map(uid => {
-        const p = allProfiles[uid];
-        const name = p ? (p.full_name || p.email) : 'Utilisateur';
-        return { id: uid, name: name };
-      }).sort((a, b) => a.name.localeCompare(b.name));
-
-      // INVESTISSEUR
-      if (investorOptions.length === 0) {
-        selectI.innerHTML = '<option value="">Aucun investisseur lié à ce projet</option>';
-        selectI.disabled = true;
-      } else {
-        selectI.innerHTML = '<option value="">Sélectionner…</option>' +
-          investorOptions.map(o => '<option value="' + o.id + '">' + escapeHtml(o.name) + '</option>').join('');
-        selectI.disabled = false;
-        // Auto-sélection : si un seul, on le met par défaut
-        if (investorOptions.length === 1) selectI.value = investorOptions[0].id;
-      }
-
-      // PRESTATAIRE
-      if (providerOptions.length === 0) {
-        selectP.innerHTML = '<option value="">Aucun artisan assigné à ce projet</option>';
-        selectP.disabled = true;
-      } else {
-        selectP.innerHTML = '<option value="">Sélectionner…</option>' +
-          providerOptions.map(o => '<option value="' + o.id + '">' + escapeHtml(o.name) + '</option>').join('');
-        selectP.disabled = false;
-        // Auto-sélection : si un seul, on le met par défaut
-        if (providerOptions.length === 1) selectP.value = providerOptions[0].id;
+      } catch (e) {
+        console.error('[contrat-signer]', e);
+        showError('Erreur de chargement');
       }
     }
 
     /* ============================================
-       CRÉATION
+       CONTENU DU CONTRAT (styles inline pour éviter l'invisibilité)
        ============================================ */
-    document.getElementById('btn-create').addEventListener('click', async () => {
-      const title = document.getElementById('title').value.trim();
-      const contractType = document.getElementById('contractType').value;
-      const projectId = document.getElementById('project').value;
-      const investorId = document.getElementById('investor').value;
-      const providerId = document.getElementById('provider').value;
-      const amount = document.getElementById('amount').value;
-      const content = document.getElementById('content').value.trim();
+    function buildContractBody(c) {
+      const styleH2 = 'font-weight:700; color:#111827; font-size:0.85rem; margin:0.75rem 0 0.25rem 0;';
+      const styleP = 'color:#374151; margin:0; font-size:0.78rem; line-height:1.55;';
 
-      if (!title) { alert('Entrez un titre'); return; }
-      if (!projectId) { alert('Sélectionnez un projet (obligatoire)'); return; }
-      if (!investorId) { alert('Sélectionnez l\'investisseur'); return; }
-      if (!providerId) { alert('Sélectionnez le prestataire'); return; }
-      if (investorId === providerId) { alert('Investisseur et prestataire doivent être différents'); return; }
+      if (c.content && c.content.trim().length > 10) {
+        return '<p style="' + styleP + ' white-space:pre-wrap;">' + escapeHtml(c.content) + '</p>';
+      }
 
-      const btn = document.getElementById('btn-create');
+      const montant = c.total_amount || c.amount;
+      const montantTxt = montant
+        ? 'Le montant total est de <strong style="color:#111827;">' + Number(montant).toLocaleString('fr-FR') + ' XAF</strong>. '
+        : '';
+
+      return `
+        <div>
+          <h2 style="${styleH2}">Article 1 — Objet du contrat</h2>
+          <p style="${styleP}">Le présent contrat a pour objet la réalisation des travaux décrits au projet associé.</p>
+        </div>
+        <div>
+          <h2 style="${styleH2}">Article 2 — Durée et délais</h2>
+          <p style="${styleP}">Les travaux débuteront dès la signature par les deux parties et devront être achevés dans le délai convenu.</p>
+        </div>
+        <div>
+          <h2 style="${styleH2}">Article 3 — Montant et modalités</h2>
+          <p style="${styleP}">${montantTxt}Le paiement sera effectué par jalons validés par le maître d'ouvrage.</p>
+        </div>
+        <div>
+          <h2 style="${styleH2}">Article 4 — Obligations du prestataire</h2>
+          <p style="${styleP}">Le prestataire s'engage à fournir des factures authentiques, à respecter les normes en vigueur et à maintenir une communication régulière.</p>
+        </div>
+        <div>
+          <h2 style="${styleH2}">Article 5 — Pénalités de retard</h2>
+          <p style="${styleP}">Tout retard non justifié entraînera une pénalité proportionnelle au montant total, définie d'un commun accord.</p>
+        </div>
+        <div>
+          <h2 style="${styleH2}">Article 6 — Résiliation</h2>
+          <p style="${styleP}">Le contrat peut être résilié avec un préavis de 15 jours en cas de manquement grave, par notification officielle via la plateforme.</p>
+        </div>
+        <div>
+          <h2 style="${styleH2}">Article 7 — Juridiction compétente</h2>
+          <p style="${styleP}">Tout litige sera soumis à la juridiction compétente selon la localisation du projet.</p>
+        </div>
+        <div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid #e5e7eb;">
+          <h2 style="${styleH2}">Article 8 — Preuve et signature électronique</h2>
+          <p style="${styleP}">Les parties acceptent la signature électronique comme preuve valable. Chaque signature est horodatée, tracée et liée au compte utilisateur.</p>
+        </div>
+      `;
+    }
+
+    /* ============================================
+       SIGNATURES EXISTANTES
+       ============================================ */
+    function renderSignatures() {
+      const panel = document.getElementById('signatures-panel');
+      const list = document.getElementById('signatures-list');
+      const sigs = [];
+
+      if (contract.signed_by_investor_at) {
+        sigs.push({ label: 'Investisseur', date: contract.signed_by_investor_at, sig: contract.signature_investor });
+      }
+      if (contract.signed_by_provider_at) {
+        sigs.push({ label: 'Prestataire', date: contract.signed_by_provider_at, sig: contract.signature_provider });
+      }
+
+      if (sigs.length === 0) { panel.classList.add('hidden'); return; }
+
+      panel.classList.remove('hidden');
+      list.innerHTML = sigs.map(s => {
+        let sigHTML = '';
+        if (s.sig) {
+          if (s.sig.startsWith('data:image')) {
+            sigHTML = '<img src="' + s.sig + '" style="height:3rem; margin-top:0.25rem; background:#fff; border-radius:0.4rem; padding:0.25rem;">';
+          } else {
+            sigHTML = '<p style="font-size:1.1rem; font-style:italic; color:#6ee7b7; font-family:serif; margin-top:0.25rem;">' + escapeHtml(s.sig) + '</p>';
+          }
+        }
+        return `
+          <div class="rounded-2xl p-3" style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.45);">
+            <div class="flex justify-between items-center">
+              <p class="text-xs font-bold" style="color:#6ee7b7;">✅ ${escapeHtml(s.label)}</p>
+              <p class="text-[10px]" style="color:#a7f3d0;">${new Date(s.date).toLocaleString('fr-FR')}</p>
+            </div>
+            ${sigHTML}
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* ============================================
+       MODE DE SIGNATURE
+       ============================================ */
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn').forEach(b => {
+          b.style.background = 'rgba(255,255,255,0.05)';
+          b.style.border = '1px solid rgba(255,255,255,0.15)';
+          b.style.color = '#fff';
+        });
+        btn.style.background = '#059669';
+        btn.style.border = 'none';
+        btn.style.color = '#fff';
+
+        sigMode = btn.dataset.mode;
+        document.getElementById('mode-type').classList.toggle('hidden', sigMode !== 'type');
+        document.getElementById('mode-draw').classList.toggle('hidden', sigMode !== 'draw');
+
+        if (sigMode === 'draw') {
+          setTimeout(setupCanvas, 50); // re-mesure après affichage
+        }
+      });
+    });
+
+    document.getElementById('typedName').addEventListener('input', (e) => {
+      document.getElementById('signature-preview').textContent = e.target.value || 'Votre signature';
+    });
+
+    /* ============================================
+       CANVAS DE SIGNATURE (mobile + desktop)
+       ============================================ */
+    const canvas = document.getElementById('sigCanvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    let hasDrawn = false;
+    let lastX = 0, lastY = 0;
+
+    function setupCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const w = rect.width;
+      const h = 180;
+      const ratio = window.devicePixelRatio || 1;
+
+      canvas.width = w * ratio;
+      canvas.height = h * ratio;
+      canvas.style.height = h + 'px';
+
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, w, h);
+    }
+
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      let clientX, clientY;
+      if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else if (e.changedTouches && e.changedTouches.length > 0) {
+        clientX = e.changedTouches[0].clientX;
+        clientY = e.changedTouches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function startDraw(e) {
+      e.preventDefault();
+      drawing = true;
+      hasDrawn = true;
+      const ph = document.getElementById('canvas-placeholder');
+      if (ph) ph.style.display = 'none';
+      const p = getPos(e);
+      lastX = p.x; lastY = p.y;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+    }
+
+    function moveDraw(e) {
+      if (!drawing) return;
+      e.preventDefault();
+      const p = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      lastX = p.x; lastY = p.y;
+    }
+
+    function endDraw(e) {
+      if (!drawing) return;
+      e.preventDefault();
+      drawing = false;
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', moveDraw);
+    canvas.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('mouseleave', endDraw);
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', moveDraw, { passive: false });
+    canvas.addEventListener('touchend', endDraw, { passive: false });
+    canvas.addEventListener('touchcancel', endDraw, { passive: false });
+
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      const rect = canvas.getBoundingClientRect();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, rect.width, rect.height);
+      hasDrawn = false;
+      const ph = document.getElementById('canvas-placeholder');
+      if (ph) ph.style.display = 'block';
+    });
+
+    // Redimensionnement : re-setup pour ne pas déformer
+    window.addEventListener('resize', () => { if (sigMode === 'draw') setupCanvas(); });
+
+    /* ============================================
+       SOUMISSION
+       ============================================ */
+    document.getElementById('btn-sign').addEventListener('click', async () => {
+      const checkboxes = document.querySelectorAll('.cgu');
+      const allChecked = Array.from(checkboxes).every(c => c.checked);
+      if (!allChecked) { alert('Cochez toutes les cases avant de signer'); return; }
+
+      let signatureValue = null;
+
+      if (sigMode === 'type') {
+        const typed = document.getElementById('typedName').value.trim();
+        if (!typed) { alert('Tapez votre nom pour signer'); return; }
+        signatureValue = typed;
+      } else {
+        if (!hasDrawn) { alert('Dessinez votre signature dans le cadre blanc'); return; }
+        signatureValue = canvas.toDataURL('image/png');
+      }
+
+      if (!confirm('Confirmer la signature électronique ?\n\nCette action est définitive.')) return;
+
+      const btn = document.getElementById('btn-sign');
       btn.disabled = true;
-      btn.textContent = 'Création...';
-
-      const payload = {
-        project_id: projectId,
-        title: title,
-        contract_type: contractType,
-        party_investor_id: investorId,
-        party_provider_id: providerId,
-        status: 'pending_signature',
-        created_at: new Date().toISOString()
-      };
-
-      if (amount) payload.total_amount = Number(amount);
-      if (content) payload.content = content;
+      btn.textContent = 'Signature...';
 
       try {
-        try {
-          await apiPost('contracts', payload);
-        } catch (err) {
-          console.warn('[create] full payload failed, retry minimal', err);
-          await apiPost('contracts', {
-            project_id: projectId,
-            title: title,
-            contract_type: contractType,
-            party_investor_id: investorId,
-            party_provider_id: providerId,
-            status: 'pending_signature'
-          });
+        const now = new Date().toISOString();
+        const patch = {
+          signature_type: sigMode,
+          last_signed_at: now
+        };
+
+        if (myRole === 'investor') {
+          patch.signed_by_investor_at = now;
+          patch.signature_investor = signatureValue;
+        } else if (myRole === 'provider') {
+          patch.signed_by_provider_at = now;
+          patch.signature_provider = signatureValue;
         }
 
-        showSuccess('Contrat créé !');
+        const bothSigned =
+          (myRole === 'investor' && contract.signed_by_provider_at) ||
+          (myRole === 'provider' && contract.signed_by_investor_at);
+
+        if (bothSigned) patch.status = 'signed';
+
+        try {
+          await apiPatch('contracts', contractId, patch);
+        } catch (err) {
+          console.warn('[sign] full patch failed, retry minimal', err);
+          const minimal = {};
+          if (myRole === 'investor') minimal.signed_by_investor_at = now;
+          if (myRole === 'provider') minimal.signed_by_provider_at = now;
+          if (bothSigned) minimal.status = 'signed';
+          await apiPatch('contracts', contractId, minimal);
+        }
+
+        showSuccess('Contrat signé !');
         setTimeout(() => { window.location.href = 'contrats.html'; }, 800);
 
       } catch (e) {
-        console.error('[create]', e);
-        showError(e.message || 'Erreur création');
+        console.error('[sign]', e);
+        showError(e.message || 'Erreur lors de la signature');
         btn.disabled = false;
-        btn.textContent = 'Créer le contrat';
+        btn.textContent = 'Signer le contrat';
       }
     });
 
-    init();
+    loadContract();
   </script>
 </body>
 </html>
