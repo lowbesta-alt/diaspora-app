@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head><title>Test KYC</title></head>
+<body style="background:#111;color:#fff;font-family:monospace;padding:20px;">
+<h1>TEST KYC</h1>
+<div id="log" style="white-space:pre-wrap;line-height:1.6;"></div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+  const log = document.getElementById('log');
+  function say(msg, color) {
+    log.innerHTML += '<div style="color:' + (color || '#fff') + '">' + msg + '</div>';
+    console.log(msg);
+  }
+
+  (async () => {
+    say('1. Config OK : ' + (typeof SUPABASE_URL !== 'undefined'));
+    say('2. App.js OK : ' + (typeof apiGet !== 'undefined'));
+    say('3. User connecté : ' + (typeof getCurrentUserId === 'function' ? getCurrentUserId() : 'NON'));
+    say('4. Rôle : ' + (typeof getCurrentUserRole === 'function' ? getCurrentUserRole() : 'NON'));
+
+    say('5. Test requête profiles...', '#ff0');
+    try {
+      const r1 = await apiGet('profiles', 'limit=3');
+      say('   ✅ profiles OK - ' + (Array.isArray(r1) ? r1.length + ' lignes' : 'objet'), '#0f0');
+    } catch (e) {
+      say('   ❌ profiles ERREUR : ' + e.message, '#f00');
+    }
+
+    say('6. Test requête kyc_verifications...', '#ff0');
+    try {
+      const r2 = await apiGet('kyc_verifications', 'select=id,user_id,document_type,status&limit=5');
+      say('   ✅ kyc OK - ' + (Array.isArray(r2) ? r2.length + ' lignes' : 'objet'), '#0f0');
+      if (Array.isArray(r2) && r2.length > 0) {
+        say('   Contenu : ' + JSON.stringify(r2[0]), '#0ff');
+      }
+    } catch (e) {
+      say('   ❌ kyc ERREUR : ' + e.message, '#f00');
+    }
+
+    say('7. Test requête sans select...', '#ff0');
+    try {
+      const r3 = await apiGet('kyc_verifications', 'limit=3');
+      say('   ✅ kyc sans select OK - ' + (Array.isArray(r3) ? r3.length + ' lignes' : 'objet'), '#0f0');
+    } catch (e) {
+      say('   ❌ kyc sans select ERREUR : ' + e.message, '#f00');
+    }
+
+    say('=== FIN TEST ===', '#0ff');
+  })();
+</script>
+</body>
+</html>
