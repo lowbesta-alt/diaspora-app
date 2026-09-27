@@ -53,6 +53,25 @@
       </div>
     </a>
 
+    <!-- ============================================ -->
+    <!-- CARTE CONTRATS -->
+    <!-- ============================================ -->
+    <a id="contrats-card" href="contrats.html" class="block bg-gradient-to-br from-sky-600/25 to-blue-900/25 border border-sky-500/50 rounded-2xl p-4 hover:bg-sky-500/15 transition">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center flex-shrink-0 text-2xl shadow-lg shadow-sky-500/30">
+          📋
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 class="font-bold text-sm">Mes contrats</h3>
+            <span id="contrats-badge" class="hidden text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">0</span>
+          </div>
+          <p id="contrats-subtitle" class="text-[11px] text-slate-300 mt-0.5">Consultez et signez vos contrats</p>
+        </div>
+        <span class="text-sky-400 text-xl">›</span>
+      </div>
+    </a>
+
     <!-- Liste chantiers -->
     <section>
       <h2 class="text-lg font-extrabold tracking-tight mb-3">Mes chantiers assignés</h2>
@@ -80,10 +99,37 @@
     const userName = getCurrentUserName();
     if (userName) document.getElementById('user-name').textContent = userName.split(' ')[0];
 
+    /* ============================================
+       COMPTE DES CONTRATS À SIGNER (côté provider)
+       ============================================ */
+    async function loadContratsCount() {
+      try {
+        const mine = await apiGet('contracts',
+          'party_provider_id=eq.' + userId + '&status=eq.pending_signature&limit=100');
+        const list = Array.isArray(mine) ? mine : [];
+        const toSign = list.filter(c => !c.signed_by_provider_at).length;
+
+        const badge = document.getElementById('contrats-badge');
+        const subtitle = document.getElementById('contrats-subtitle');
+        const card = document.getElementById('contrats-card');
+
+        if (toSign > 0) {
+          badge.textContent = toSign;
+          badge.classList.remove('hidden');
+          subtitle.innerHTML = '<span class="text-red-300 font-bold">' + toSign + ' contrat' + (toSign > 1 ? 's' : '') + ' à signer</span>';
+          card.style.borderColor = 'rgba(239,68,68,0.6)';
+          card.style.boxShadow = '0 0 20px rgba(239,68,68,0.2)';
+        } else {
+          subtitle.textContent = 'Consultez et signez vos contrats';
+        }
+      } catch (e) {
+        console.warn('[contrats count]', e);
+      }
+    }
+
     async function loadChantiers() {
       const list = document.getElementById('chantiers-list');
       try {
-        // Recupere les projets ou l'artisan est membre
         const members = await apiGet('project_members', 'user_id=eq.' + userId + '&is_active=eq.true');
 
         if (!Array.isArray(members) || members.length === 0) {
@@ -94,7 +140,6 @@
           return;
         }
 
-        // Charge chaque projet
         const chantiers = [];
         let totalJalons = 0;
         for (const m of members) {
@@ -102,7 +147,6 @@
             const proj = await apiGet('projects', 'id=eq.' + m.project_id);
             if (Array.isArray(proj) && proj[0]) {
               const p = proj[0];
-              // Compte les jalons en cours
               let jalons = [];
               try {
                 jalons = await apiGet('milestones', 'project_id=eq.' + m.project_id);
@@ -123,7 +167,6 @@
         document.getElementById('stat-chantiers').textContent = chantiers.length;
         document.getElementById('stat-jalons').textContent = totalJalons;
 
-        // Paiements
         try {
           const txs = await apiGet('transactions', 'initiated_by=eq.' + userId + '&transaction_type=eq.milestone_release');
           const total = Array.isArray(txs) ? txs.reduce((s, t) => s + Number(t.amount || 0), 0) : 0;
@@ -132,7 +175,6 @@
           document.getElementById('stat-paiements').textContent = '0';
         }
 
-        // Affiche
         if (chantiers.length === 0) {
           list.innerHTML = '<div class="text-center py-12 bg-white/5 rounded-2xl border border-white/10"><p class="text-slate-400 text-sm">Aucun chantier</p></div>';
           return;
@@ -164,6 +206,7 @@
       }
     }
 
+    loadContratsCount();
     loadChantiers();
   </script>
 </body>
