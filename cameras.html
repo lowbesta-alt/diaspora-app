@@ -18,7 +18,7 @@
 
     <div>
       <h1 class="text-2xl font-extrabold tracking-tight">Caméras du chantier</h1>
-      <p class="text-sm text-slate-400 mt-1">Suivi vidéo en direct</p>
+      <p class="text-sm text-slate-400 mt-1">Suivi vidéo et localisation</p>
     </div>
 
     <!-- SÉLECTEUR DE CHANTIER -->
@@ -31,9 +31,10 @@
 
     <!-- ONGLETS -->
     <div class="flex gap-2 overflow-x-auto pb-1">
-      <button data-tab="direct" class="tab-btn flex-1 font-bold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap" style="background: linear-gradient(135deg, #059669, #10b981); color: #fff;">🔴 Direct</button>
-      <button data-tab="mobile" class="tab-btn flex-1 font-semibold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff;">📱 Visite mobile</button>
-      <button data-tab="videos" class="tab-btn flex-1 font-semibold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff;">🎥 Vidéos</button>
+      <button data-tab="direct" class="tab-btn flex-shrink-0 font-bold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap" style="background: linear-gradient(135deg, #059669, #10b981); color: #fff;">🔴 Direct</button>
+      <button data-tab="mobile" class="tab-btn flex-shrink-0 font-semibold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff;">📱 Visite mobile</button>
+      <button data-tab="videos" class="tab-btn flex-shrink-0 font-semibold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff;">🎥 Vidéos</button>
+      <button data-tab="location" class="tab-btn flex-shrink-0 font-semibold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff;">📍 Localisation</button>
     </div>
 
     <!-- ONGLET 1 : DIRECT -->
@@ -43,13 +44,10 @@
         <span class="text-2xl flex-shrink-0">📹</span>
         <div>
           <p class="text-sm font-bold" style="color:#6ee7b7;">Vue en direct</p>
-          <p class="text-xs mt-1 leading-relaxed" style="color:#a7f3d0;">
-            Touchez une caméra pour ouvrir la vue en temps réel. Audio bidirectionnel activé.
-          </p>
+          <p class="text-xs mt-1 leading-relaxed" style="color:#a7f3d0;">Touchez une caméra pour ouvrir la vue en temps réel.</p>
         </div>
       </div>
 
-      <!-- Zone admin : édition des liens -->
       <div id="admin-config-zone" class="hidden rounded-2xl p-4" style="background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);">
         <p class="text-xs font-bold mb-2" style="color:#fcd34d;">⚙️ Configuration (admin)</p>
         <button id="btn-edit-links" class="w-full py-2.5 rounded-lg text-xs font-bold" style="background: #f59e0b; color:#0a1838;">
@@ -69,15 +67,13 @@
         <span class="text-2xl flex-shrink-0">📱</span>
         <div>
           <p class="text-sm font-bold" style="color:#7dd3fc;">Visite en direct depuis le téléphone</p>
-          <p class="text-xs mt-1 leading-relaxed" style="color:#bae6fd;">
-            L'artisan filme avec son téléphone. Le client voit, entend et peut parler en temps réel via Jitsi Meet.
-          </p>
+          <p class="text-xs mt-1 leading-relaxed" style="color:#bae6fd;">L'artisan filme avec son téléphone. Le client voit, entend et peut parler via Jitsi Meet.</p>
         </div>
       </div>
 
       <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <h3 class="text-sm font-bold">🎬 Démarrer une visite</h3>
-        <p class="text-[11px] text-slate-400">Un lien de visite en direct sera généré. Partagez-le avec l'autre partie.</p>
+        <p class="text-[11px] text-slate-400">Un lien de visite sera généré. Partagez-le avec l'autre partie.</p>
         <button id="btn-start-visit" class="w-full py-3.5 rounded-xl font-bold text-sm" style="background: linear-gradient(135deg, #059669, #10b981); color:#fff;">
           📹 Démarrer la visite en direct
         </button>
@@ -85,14 +81,12 @@
 
       <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <h3 class="text-sm font-bold">🔗 Rejoindre une visite</h3>
-        <p class="text-[11px] text-slate-400">Vous avez reçu un lien ? Collez-le ici.</p>
         <input type="text" id="join-url" placeholder="https://meet.jit.si/diaspora-..." class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 text-white text-sm">
         <button id="btn-join-visit" class="w-full py-3 rounded-xl font-semibold text-sm" style="background: rgba(14,165,233,0.2); border: 1px solid rgba(14,165,233,0.5); color:#7dd3fc;">
           👀 Rejoindre
         </button>
       </div>
 
-      <!-- Visite active -->
       <div id="active-visit" class="hidden bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
@@ -103,12 +97,8 @@
           <button id="btn-copy-link" class="py-2.5 rounded-lg text-xs font-semibold" style="background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.5); color:#6ee7b7;">📋 Copier</button>
           <button id="btn-share-wa" class="py-2.5 rounded-lg text-xs font-semibold" style="background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.5); color:#6ee7b7;">📤 WhatsApp</button>
         </div>
-        <button id="btn-open-visit" class="w-full py-3 rounded-xl font-bold text-sm" style="background:#059669; color:#fff;">
-          🎥 Ouvrir la salle
-        </button>
-        <button id="btn-stop-visit" class="w-full py-2.5 rounded-lg text-xs font-semibold" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color:#fca5a5;">
-          ⏹️ Arrêter la visite
-        </button>
+        <button id="btn-open-visit" class="w-full py-3 rounded-xl font-bold text-sm" style="background:#059669; color:#fff;">🎥 Ouvrir la salle</button>
+        <button id="btn-stop-visit" class="w-full py-2.5 rounded-lg text-xs font-semibold" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color:#fca5a5;">⏹️ Arrêter la visite</button>
       </div>
     </section>
 
@@ -119,20 +109,15 @@
         <span class="text-2xl flex-shrink-0">🎥</span>
         <div>
           <p class="text-sm font-bold" style="color:#fcd34d;">Vidéos du chantier</p>
-          <p class="text-xs mt-1 leading-relaxed" style="color:#fef3c7;">
-            L'artisan peut uploader des vidéos du chantier. Le client les regarde à tout moment.
-          </p>
+          <p class="text-xs mt-1 leading-relaxed" style="color:#fef3c7;">L'artisan peut uploader des vidéos du chantier.</p>
         </div>
       </div>
 
-      <!-- Bouton upload (artisan uniquement) -->
       <div id="upload-zone" class="hidden bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <h3 class="text-sm font-bold">📤 Ajouter une vidéo</h3>
         <input type="text" id="video-title" placeholder="Titre de la vidéo" class="w-full px-3 py-3 rounded-xl bg-slate-800/50 border border-white/10 text-white text-sm">
         <input type="file" id="video-file" accept="video/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-amber-500/20 file:text-amber-300 file:font-semibold">
-        <button id="btn-upload-video" class="w-full py-3 rounded-xl font-bold text-sm" style="background:#f59e0b; color:#0a1838;">
-          Uploader la vidéo
-        </button>
+        <button id="btn-upload-video" class="w-full py-3 rounded-xl font-bold text-sm" style="background:#f59e0b; color:#0a1838;">Uploader la vidéo</button>
       </div>
 
       <div id="videos-list" class="space-y-3">
@@ -140,26 +125,81 @@
       </div>
     </section>
 
+    <!-- ONGLET 4 : LOCALISATION -->
+    <section id="tab-location" class="space-y-3 hidden">
+
+      <div class="rounded-2xl p-4 flex items-start gap-3" style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3);">
+        <span class="text-2xl flex-shrink-0">📍</span>
+        <div>
+          <p class="text-sm font-bold" style="color:#93c5fd;">Vérification par GPS</p>
+          <p class="text-xs mt-1 leading-relaxed" style="color:#bfdbfe;">
+            L'artisan vérifie régulièrement sa position sur le chantier. Le client peut contrôler que tout est au bon endroit.
+          </p>
+        </div>
+      </div>
+
+      <!-- Position officielle du chantier -->
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold">🏗️ Position officielle du chantier</h3>
+          <span id="chantier-status" class="text-[10px] px-2 py-0.5 rounded-full font-bold" style="background:rgba(148,163,184,0.2); color:#cbd5e1;">—</span>
+        </div>
+        <div id="chantier-coords" class="text-xs text-slate-300">Aucune position enregistrée</div>
+        <div id="admin-set-position-zone" class="hidden pt-2 border-t border-white/10">
+          <p class="text-[10px] text-slate-400 mb-2">Définir la position officielle du chantier (admin) :</p>
+          <button id="btn-set-chantier-position" class="w-full py-2.5 rounded-lg text-xs font-bold" style="background: #3b82f6; color:#fff;">
+            📍 Capturer ma position actuelle comme position du chantier
+          </button>
+          <p class="text-[10px] text-slate-500 mt-2">⚠️ Vous devez être physiquement sur le chantier.</p>
+        </div>
+        <a id="chantier-maps-link" href="#" target="_blank" class="hidden block text-center py-2.5 rounded-lg text-xs font-semibold" style="background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.5); color:#93c5fd;">
+          🗺️ Voir sur Google Maps
+        </a>
+      </div>
+
+      <!-- Vérifier ma position (artisan) -->
+      <div id="check-position-zone" class="hidden bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+        <h3 class="text-sm font-bold">📸 Vérifier ma position maintenant</h3>
+        <p class="text-[11px] text-slate-400">Capturez votre position GPS actuelle pour prouver que vous êtes bien sur le chantier.</p>
+        <button id="btn-check-position" class="w-full py-3.5 rounded-xl font-bold text-sm" style="background: linear-gradient(135deg, #059669, #10b981); color:#fff;">
+          📍 Je suis sur le chantier — Vérifier
+        </button>
+      </div>
+
+      <!-- Ma position actuelle (résultat) -->
+      <div id="my-position-result" class="hidden bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
+        <h3 class="text-sm font-bold">📌 Ma dernière position</h3>
+        <div id="my-position-info" class="text-xs text-slate-300"></div>
+      </div>
+
+      <!-- Historique -->
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
+        <h3 class="text-sm font-bold mb-3">📅 Historique des vérifications</h3>
+        <div id="history-list" class="space-y-2">
+          <p class="text-slate-400 text-xs text-center py-4">Chargement...</p>
+        </div>
+      </div>
+
+    </section>
+
   </main>
 
-  <!-- MODAL ÉDITION LIENS (admin) -->
+  <!-- MODAL ÉDITION LIENS -->
   <div id="modal-links" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm hidden flex-col">
     <header class="flex items-center justify-between p-4 border-b border-white/10">
       <h2 class="font-bold text-sm">⚙️ Liens des caméras</h2>
       <button id="modal-links-close" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xl">✕</button>
     </header>
     <div class="flex-1 overflow-y-auto p-4 space-y-3">
-      <p class="text-xs text-slate-400">Collez les URLs des flux caméra (format MJPEG, HLS, RTSP-proxy, ou embed iframe).</p>
+      <p class="text-xs text-slate-400">Collez les URLs des flux caméra (MJPEG, HLS, embed iframe).</p>
       <div id="links-form" class="space-y-3"></div>
     </div>
     <footer class="p-4 border-t border-white/10">
-      <button id="btn-save-links" class="w-full py-3 rounded-xl font-bold text-sm" style="background:#059669; color:#fff;">
-        💾 Enregistrer
-      </button>
+      <button id="btn-save-links" class="w-full py-3 rounded-xl font-bold text-sm" style="background:#059669; color:#fff;">💾 Enregistrer</button>
     </footer>
   </div>
 
-  <!-- MODAL LECTURE VIDÉO -->
+  <!-- MODAL VIDÉO -->
   <div id="modal-video" class="fixed inset-0 z-50 bg-black/95 hidden flex-col">
     <header class="flex items-center justify-between p-4 border-b border-white/10">
       <h2 id="modal-video-title" class="font-bold text-sm truncate">Vidéo</h2>
@@ -181,6 +221,7 @@
     const isArtisan = userRole === 'provider' || userRole === 'project_manager';
 
     let currentProjectId = null;
+    let currentProject = null;
 
     /* ============================================
        CHARGEMENT DES PROJETS
@@ -189,7 +230,6 @@
       const select = document.getElementById('project');
       try {
         let projects = [];
-
         if (isAdmin) {
           const all = await apiGet('projects', 'order=created_at.desc');
           projects = Array.isArray(all) ? all : [];
@@ -203,13 +243,13 @@
             }
           }
         }
-
         if (projects.length === 0) {
           select.innerHTML = '<option value="">Aucun chantier</option>';
           return;
         }
         select.innerHTML = projects.map(p => '<option value="' + p.id + '">' + escapeHtml(p.title) + '</option>').join('');
         currentProjectId = projects[0].id;
+        currentProject = projects[0];
         onProjectChange();
       } catch (e) {
         select.innerHTML = '<option value="">Erreur</option>';
@@ -218,12 +258,21 @@
 
     document.getElementById('project').addEventListener('change', (e) => {
       currentProjectId = e.target.value;
+      currentProject = null;
       onProjectChange();
     });
 
-    function onProjectChange() {
+    async function onProjectChange() {
+      // Recharge les infos du projet courant
+      if (currentProjectId) {
+        try {
+          const p = await apiGet('projects', 'id=eq.' + currentProjectId);
+          if (Array.isArray(p) && p[0]) currentProject = p[0];
+        } catch (e) {}
+      }
       loadCameras();
       loadVideos();
+      loadLocation();
     }
 
     /* ============================================
@@ -241,17 +290,22 @@
 
         document.querySelectorAll('[id^="tab-"]').forEach(s => s.classList.add('hidden'));
         document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+
+        // Recharge la loc quand on arrive dessus
+        if (btn.dataset.tab === 'location') loadLocation();
       });
     });
 
     /* ============================================
-       ADMIN : zone config
+       ADMIN / ARTISAN UI
        ============================================ */
     if (isAdmin) {
       document.getElementById('admin-config-zone').classList.remove('hidden');
+      document.getElementById('admin-set-position-zone').classList.remove('hidden');
     }
     if (isArtisan) {
       document.getElementById('upload-zone').classList.remove('hidden');
+      document.getElementById('check-position-zone').classList.remove('hidden');
     }
 
     /* ============================================
@@ -266,9 +320,7 @@
 
     let camerasConfig = {};
 
-    function getCamerasStorageKey() {
-      return 'cameras_config_' + (currentProjectId || 'default');
-    }
+    function getCamerasStorageKey() { return 'cameras_config_' + (currentProjectId || 'default'); }
 
     function loadCamerasConfig() {
       try {
@@ -278,29 +330,22 @@
     }
 
     function saveCamerasConfig() {
-      try {
-        localStorage.setItem(getCamerasStorageKey(), JSON.stringify(camerasConfig));
-      } catch (e) {}
+      try { localStorage.setItem(getCamerasStorageKey(), JSON.stringify(camerasConfig)); } catch (e) {}
     }
 
-    function loadCameras() {
-      loadCamerasConfig();
-      renderCameras();
-    }
+    function loadCameras() { loadCamerasConfig(); renderCameras(); }
 
     function renderCameras() {
       const list = document.getElementById('cameras-list');
-      list.innerHTML = DEFAULT_CAMERAS.map((cam, idx) => {
+      list.innerHTML = DEFAULT_CAMERAS.map(cam => {
         const url = camerasConfig[cam.key];
         const hasUrl = url && url.trim().length > 0;
         const statusBadge = hasUrl
           ? '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold" style="background:rgba(239,68,68,0.2);color:#fca5a5;">🔴 EN LIGNE</span>'
           : '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold" style="background:rgba(148,163,184,0.2);color:#cbd5e1;">NON INSTALLÉE</span>';
-
         const btn = hasUrl
           ? '<button class="camera-btn w-full py-3 rounded-xl text-xs font-bold" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;" data-camkey="' + cam.key + '">🔴 Voir en direct</button>'
           : '<button class="w-full py-3 rounded-xl text-xs font-semibold opacity-50 cursor-not-allowed" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;" disabled>Non disponible</button>';
-
         return `
           <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
             <div class="flex items-center justify-between mb-3">
@@ -319,20 +364,14 @@
       }).join('');
 
       document.querySelectorAll('.camera-btn').forEach(btn => {
-        btn.addEventListener('click', () => openCameraStream(btn.dataset.camkey));
+        btn.addEventListener('click', () => {
+          const url = camerasConfig[btn.dataset.camkey];
+          if (url) window.open(url, '_blank');
+        });
       });
     }
 
-    function openCameraStream(camKey) {
-      const url = camerasConfig[camKey];
-      if (!url) return;
-      // Ouvre dans un nouvel onglet pour éviter les problèmes d'embed
-      window.open(url, '_blank');
-    }
-
-    /* ============================================
-       MODAL : édition des liens
-       ============================================ */
+    /* Modal édition liens */
     document.getElementById('btn-edit-links').addEventListener('click', () => {
       const form = document.getElementById('links-form');
       form.innerHTML = DEFAULT_CAMERAS.map(cam => `
@@ -364,7 +403,7 @@
     });
 
     /* ============================================
-       ONGLET MOBILE — Visite live Jitsi
+       ONGLET MOBILE — Visite live
        ============================================ */
     let activeVisitUrl = null;
 
@@ -372,11 +411,8 @@
       const roomName = 'diaspora-chantier-' + (currentProjectId || 'x') + '-' + Date.now();
       const url = 'https://meet.jit.si/' + roomName;
       activeVisitUrl = url;
-
       document.getElementById('visit-link-display').textContent = url;
       document.getElementById('active-visit').classList.remove('hidden');
-
-      // Copie auto
       if (navigator.clipboard) navigator.clipboard.writeText(url).catch(() => {});
       showSuccess('Lien copié !');
     });
@@ -394,8 +430,7 @@
     });
 
     document.getElementById('btn-open-visit').addEventListener('click', () => {
-      if (!activeVisitUrl) return;
-      window.open(activeVisitUrl, '_blank');
+      if (activeVisitUrl) window.open(activeVisitUrl, '_blank');
     });
 
     document.getElementById('btn-stop-visit').addEventListener('click', () => {
@@ -418,20 +453,13 @@
         list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Sélectionnez un chantier</p>';
         return;
       }
-
       try {
-        // Essaie de charger depuis une table "chantier_videos" (à créer) ou fallback silencieux
         const data = await apiGet('chantier_videos', 'project_id=eq.' + currentProjectId + '&order=created_at.desc&limit=50');
         const videos = Array.isArray(data) ? data : [];
-
         if (videos.length === 0) {
           list.innerHTML = '<div class="text-center py-10 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-2 opacity-40">🎥</div><p class="text-slate-400 text-sm">Aucune vidéo pour ce chantier</p></div>';
           return;
         }
-
-        const signedCache = new Map();
-        list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Chargement des vidéos...</p>';
-
         const htmlParts = [];
         for (const v of videos) {
           let url = null;
@@ -447,14 +475,11 @@
               if (d.signedURL) url = SUPABASE_URL + '/storage/v1' + d.signedURL;
             }
           } catch (e) {}
-
           htmlParts.push(`
             <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden video-card" data-url="${url || ''}" data-title="${escapeHtml(v.title || 'Vidéo')}">
               <div class="aspect-video bg-slate-800 flex items-center justify-center relative">
                 ${url ? '<video src="' + url + '" class="w-full h-full object-cover" preload="metadata"></video>' : '<span class="text-4xl">🎥</span>'}
-                <div class="absolute inset-0 flex items-center justify-center bg-black/30">
-                  <div class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center text-2xl">▶️</div>
-                </div>
+                <div class="absolute inset-0 flex items-center justify-center bg-black/30"><div class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center text-2xl">▶️</div></div>
               </div>
               <div class="p-3">
                 <h3 class="font-bold text-sm">${escapeHtml(v.title || 'Vidéo')}</h3>
@@ -464,13 +489,11 @@
           `);
         }
         list.innerHTML = htmlParts.join('');
-
         document.querySelectorAll('.video-card').forEach(card => {
           card.addEventListener('click', () => openVideoModal(card.dataset.url, card.dataset.title));
         });
-
       } catch (e) {
-        list.innerHTML = '<div class="text-center py-10 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-2 opacity-40">🎥</div><p class="text-slate-400 text-sm">Aucune vidéo pour ce chantier</p></div>';
+        list.innerHTML = '<div class="text-center py-10 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-2 opacity-40">🎥</div><p class="text-slate-400 text-sm">Aucune vidéo</p></div>';
       }
     }
 
@@ -489,24 +512,18 @@
       document.getElementById('modal-video').classList.remove('flex');
     });
 
-    /* ============================================
-       UPLOAD VIDÉO (artisan)
-       ============================================ */
     document.getElementById('btn-upload-video').addEventListener('click', async () => {
       const title = document.getElementById('video-title').value.trim();
       const file = document.getElementById('video-file').files[0];
       if (!title) { alert('Entrez un titre'); return; }
       if (!file) { alert('Sélectionnez une vidéo'); return; }
       if (!currentProjectId) { alert('Sélectionnez un chantier'); return; }
-
       const btn = document.getElementById('btn-upload-video');
       btn.disabled = true;
-      btn.textContent = 'Upload en cours...';
-
+      btn.textContent = 'Upload...';
       try {
         const ext = file.name.split('.').pop();
         const path = 'videos/' + currentProjectId + '/' + Date.now() + '.' + ext;
-
         const token = getToken() || SUPABASE_KEY;
         const res = await fetch(SUPABASE_URL + '/storage/v1/object/project-documents/' + path, {
           method: 'POST',
@@ -514,31 +531,5 @@
           body: file
         });
         if (!res.ok) throw new Error('Erreur upload');
-
         await apiPost('chantier_videos', {
-          project_id: currentProjectId,
-          uploaded_by: userId,
-          title: title,
-          storage_path: path,
-          file_size: file.size,
-          mime_type: file.type
-        });
-
-        showSuccess('Vidéo ajoutée !');
-        document.getElementById('video-title').value = '';
-        document.getElementById('video-file').value = '';
-        loadVideos();
-      } catch (e) {
-        showError(e.message || 'Erreur');
-      }
-      btn.disabled = false;
-      btn.textContent = 'Uploader la vidéo';
-    });
-
-    /* ============================================
-       BOOT
-       ============================================ */
-    loadProjects();
-  </script>
-</body>
-</html>
+          project_id:
