@@ -9,76 +9,120 @@
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
 
   <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
-    <a href="dashboard-investisseur.html" class="text-2xl">←</a>
+    <a href="profil.html" class="text-2xl">←</a>
     <span class="font-bold text-sm">Vérification d'identité</span>
     <span class="w-6"></span>
   </header>
 
   <main class="p-4 max-w-xl mx-auto space-y-4">
 
-    <!-- Bandeau info -->
     <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 flex items-start gap-3">
       <span class="text-xl">🔒</span>
       <div class="flex-1">
         <p class="text-sm font-bold text-emerald-200">Documents chiffrés et confidentiels</p>
         <p class="text-[11px] text-emerald-100/70 mt-1 leading-relaxed">
-          Vos pièces sont visibles uniquement par l'équipe Espace Diaspora. Elles servent à sécuriser vos transactions.
+          Vos pièces sont visibles uniquement par l'équipe Espace Diaspora. Elles servent à sécuriser vos transactions et à générer vos contrats.
         </p>
       </div>
     </div>
 
-    <!-- Statut (rempli dynamiquement) -->
     <div id="statusBox" class="hidden"></div>
 
-    <!-- Formulaire -->
     <form id="kycForm" class="space-y-4">
 
-      <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
-        <label class="text-xs font-semibold text-slate-300 mb-2 block">Type de document *</label>
-        <select id="documentType" required class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
-          <option value="" disabled selected>Sélectionnez un document</option>
-          <option value="Passeport">🛂 Passeport</option>
-          <option value="Carte d'identité">🪪 Carte d'identité</option>
-          <option value="Permis de conduire">🚗 Permis de conduire</option>
-          <option value="Titre de séjour">📄 Titre de séjour</option>
-        </select>
+      <!-- ============================================== -->
+      <!-- INFORMATIONS PERSONNELLES -->
+      <!-- ============================================== -->
+      <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+        <h2 class="text-sm font-bold text-slate-200">📝 Informations personnelles</h2>
+        <p class="text-[10px] text-slate-400">Ces informations apparaîtront sur vos contrats.</p>
+
+        <div>
+          <label class="text-xs font-semibold text-slate-300 mb-2 block">Nom et prénoms complets *</label>
+          <input type="text" id="fullNameKyc" placeholder="Ex : Minko Véronique" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-slate-300 mb-2 block">Adresse complète *</label>
+          <input type="text" id="addressKyc" placeholder="Ex : Quartier Indépendance, Kribi, Cameroun" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-slate-300 mb-2 block">Téléphone *</label>
+          <input type="tel" id="phoneKyc" placeholder="Ex : +237 699 00 11 22" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
       </section>
 
-      <!-- Recto -->
-      <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
-        <label class="text-xs font-semibold text-slate-300 mb-2 block">Pièce — Recto *</label>
-        <label for="frontDoc" id="frontLabel" class="block border-2 border-dashed border-white/20 rounded-2xl p-4 text-center cursor-pointer hover:border-emerald-500 transition">
-          <div class="text-3xl mb-1">📷</div>
-          <p class="text-xs font-semibold">Cliquez pour prendre en photo</p>
-          <p class="text-[10px] text-slate-400 mt-0.5">Face avant de votre pièce</p>
-        </label>
-        <input type="file" id="frontDoc" accept="image/*,.pdf" required class="hidden">
-        <div id="frontPreview" class="hidden mt-2"></div>
+      <!-- ============================================== -->
+      <!-- PIÈCE D'IDENTITÉ -->
+      <!-- ============================================== -->
+      <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+        <h2 class="text-sm font-bold text-slate-200">🪪 Pièce d'identité</h2>
+
+        <div>
+          <label class="text-xs font-semibold text-slate-300 mb-2 block">Type de document *</label>
+          <select id="documentType" required class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+            <option value="" disabled selected>Sélectionnez un document</option>
+            <option value="Passeport">🛂 Passeport</option>
+            <option value="Carte d'identité">🪪 Carte d'identité</option>
+            <option value="Permis de conduire">🚗 Permis de conduire</option>
+            <option value="Titre de séjour">📄 Titre de séjour</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-slate-300 mb-2 block">Numéro de la pièce *</label>
+          <input type="text" id="documentNumber" placeholder="Ex : 112233445" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-xs font-semibold text-slate-300 mb-2 block">Délivrée le *</label>
+            <input type="date" id="documentIssuedAt" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-300 mb-2 block">À (ville) *</label>
+            <input type="text" id="documentIssuedPlace" placeholder="Ex : Kribi" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
       </section>
 
-      <!-- Verso -->
+      <!-- ============================================== -->
+      <!-- PHOTOS -->
+      <!-- ============================================== -->
       <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
-        <label class="text-xs font-semibold text-slate-300 mb-2 block">Pièce — Verso *</label>
-        <label for="backDoc" id="backLabel" class="block border-2 border-dashed border-white/20 rounded-2xl p-4 text-center cursor-pointer hover:border-emerald-500 transition">
-          <div class="text-3xl mb-1">📷</div>
-          <p class="text-xs font-semibold">Cliquez pour prendre en photo</p>
-          <p class="text-[10px] text-slate-400 mt-0.5">Face arrière (ou 2e page)</p>
-        </label>
-        <input type="file" id="backDoc" accept="image/*,.pdf" required class="hidden">
-        <div id="backPreview" class="hidden mt-2"></div>
-      </section>
+        <h2 class="text-sm font-bold text-slate-200 mb-3">📷 Photos de la pièce</h2>
 
-      <!-- Selfie -->
-      <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
-        <label class="text-xs font-semibold text-slate-300 mb-2 block">Selfie avec la pièce *</label>
-        <p class="text-[10px] text-slate-400 mb-2">Tenez votre pièce à côté de votre visage. Le document et votre visage doivent être bien visibles.</p>
-        <label for="selfieDoc" id="selfieLabel" class="block border-2 border-dashed border-white/20 rounded-2xl p-4 text-center cursor-pointer hover:border-emerald-500 transition">
-          <div class="text-3xl mb-1">🤳</div>
-          <p class="text-xs font-semibold">Cliquez pour prendre un selfie</p>
-          <p class="text-[10px] text-slate-400 mt-0.5">Visage + pièce côte à côte</p>
-        </label>
-        <input type="file" id="selfieDoc" accept="image/*" required class="hidden">
-        <div id="selfiePreview" class="hidden mt-2"></div>
+        <div class="mb-3">
+          <label class="text-xs font-semibold text-slate-300 mb-2 block">Recto *</label>
+          <label for="frontDoc" id="frontLabel" class="block border-2 border-dashed border-white/20 rounded-2xl p-4 text-center cursor-pointer hover:border-emerald-500 transition">
+            <div class="text-3xl mb-1">📷</div>
+            <p class="text-xs font-semibold">Cliquez pour prendre en photo</p>
+          </label>
+          <input type="file" id="frontDoc" accept="image/*,.pdf" class="hidden">
+          <div id="frontPreview" class="hidden mt-2"></div>
+        </div>
+
+        <div class="mb-3">
+          <label class="text-xs font-semibold text-slate-300 mb-2 block">Verso *</label>
+          <label for="backDoc" id="backLabel" class="block border-2 border-dashed border-white/20 rounded-2xl p-4 text-center cursor-pointer hover:border-emerald-500 transition">
+            <div class="text-3xl mb-1">📷</div>
+            <p class="text-xs font-semibold">Cliquez pour prendre en photo</p>
+          </label>
+          <input type="file" id="backDoc" accept="image/*,.pdf" class="hidden">
+          <div id="backPreview" class="hidden mt-2"></div>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-slate-300 mb-2 block">Selfie avec la pièce *</label>
+          <p class="text-[10px] text-slate-400 mb-2">Tenez votre pièce à côté de votre visage.</p>
+          <label for="selfieDoc" id="selfieLabel" class="block border-2 border-dashed border-white/20 rounded-2xl p-4 text-center cursor-pointer hover:border-emerald-500 transition">
+            <div class="text-3xl mb-1">🤳</div>
+            <p class="text-xs font-semibold">Cliquez pour prendre un selfie</p>
+          </label>
+          <input type="file" id="selfieDoc" accept="image/*" class="hidden">
+          <div id="selfiePreview" class="hidden mt-2"></div>
+        </div>
       </section>
 
       <button type="submit" id="submitBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 py-3.5 rounded-xl font-semibold text-sm transition">
@@ -92,14 +136,6 @@
     </form>
 
   </main>
-
-  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
-    <a href="dashboard-investisseur.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏠</span>Accueil</a>
-    <a href="projets.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📁</span>Projets</a>
-    <a href="portefeuille.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💰</span>Portefeuille</a>
-    <a href="messages.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">💬</span>Messages</a>
-    <a href="profil.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👤</span>Profil</a>
-  </nav>
 
   <script src="config.js"></script>
   <script src="app.js"></script>
@@ -195,12 +231,10 @@
             <div class="flex-1">
               <p class="text-sm font-bold text-red-200">Documents refusés</p>
               <p class="text-[11px] text-red-100/70 mt-1">${escapeHtml(rejectionReason || 'Vos documents n\'ont pas pu être validés. Merci de les renvoyer.')}</p>
-              <p class="text-[11px] text-slate-300 mt-2">Vous pouvez soumettre à nouveau vos documents ci-dessous.</p>
             </div>
           </div>
         `;
         statusBox.classList.remove('hidden');
-        // Formulaire reste visible pour permettre de renvoyer
         submitBtn.textContent = 'Renvoyer pour vérification';
       }
     }
@@ -209,10 +243,16 @@
       try {
         const profiles = await apiGet('profiles', 'id=eq.' + userId);
         if (Array.isArray(profiles) && profiles[0]) {
-          const status = profiles[0].kyc_status;
+          const p = profiles[0];
+
+          // Pré-remplit les champs si déjà remplis
+          if (p.full_name) document.getElementById('fullNameKyc').value = p.full_name;
+          if (p.address) document.getElementById('addressKyc').value = p.address;
+          if (p.phone) document.getElementById('phoneKyc').value = p.phone;
+
+          const status = p.kyc_status;
           if (status === 'pending' || status === 'verified' || status === 'rejected') {
             let reason = null;
-            // Essaie de récupérer la raison du refus depuis kyc_verifications
             if (status === 'rejected') {
               try {
                 const kyc = await apiGet('kyc_verifications', 'user_id=eq.' + userId + '&order=created_at.desc&limit=1');
@@ -233,9 +273,23 @@
     kycForm.addEventListener('submit', async function(e) {
       e.preventDefault();
 
+      const fullName = document.getElementById('fullNameKyc').value.trim();
+      const address = document.getElementById('addressKyc').value.trim();
+      const phone = document.getElementById('phoneKyc').value.trim();
       const docType = document.getElementById('documentType').value;
-      if (!docType) { alert('Sélectionnez un type de document'); return; }
-      if (!frontFile || !backFile || !selfieFile) { alert('Ajoutez les 3 fichiers (recto, verso, selfie)'); return; }
+      const docNumber = document.getElementById('documentNumber').value.trim();
+      const docIssuedAt = document.getElementById('documentIssuedAt').value;
+      const docIssuedPlace = document.getElementById('documentIssuedPlace').value.trim();
+
+      // Validations
+      if (!fullName) { alert('Entrez votre nom complet'); return; }
+      if (!address) { alert('Entrez votre adresse complète'); return; }
+      if (!phone) { alert('Entrez votre téléphone'); return; }
+      if (!docType) { alert('Sélectionnez le type de document'); return; }
+      if (!docNumber) { alert('Entrez le numéro de votre pièce'); return; }
+      if (!docIssuedAt) { alert('Entrez la date de délivrance'); return; }
+      if (!docIssuedPlace) { alert('Entrez le lieu de délivrance'); return; }
+      if (!frontFile || !backFile || !selfieFile) { alert('Ajoutez les 3 photos (recto, verso, selfie)'); return; }
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Envoi en cours...';
@@ -250,15 +304,17 @@
           { file: selfieFile, name: ts + '_selfie_' + selfieFile.name }
         ];
 
-        // Upload Storage
         for (const item of files) {
           await uploadFile('kyc-documents', basePath + item.name, item.file);
         }
 
-        // Insertion BDD (avec fallback si certaines colonnes manquent)
+        // 1) Insertion KYC complet
         const kycData = {
           user_id: userId,
           document_type: docType,
+          document_number: docNumber,
+          document_issued_at: docIssuedAt,
+          document_issued_place: docIssuedPlace,
           document_front_url: basePath + files[0].name,
           document_back_url: basePath + files[1].name,
           selfie_url: basePath + files[2].name,
@@ -268,8 +324,8 @@
         try {
           await apiPost('kyc_verifications', kycData);
         } catch (err) {
-          console.warn('[kyc] insert full failed, retry minimal', err);
-          // Retry minimal (au cas où status ou autres colonnes manquent)
+          console.warn('[kyc] full insert failed, retry minimal', err);
+          // Retry minimal (au cas où certaines colonnes manquent)
           await apiPost('kyc_verifications', {
             user_id: userId,
             document_type: docType,
@@ -279,8 +335,13 @@
           });
         }
 
-        // Mise à jour du profil
-        await apiPatch('profiles', userId, { kyc_status: 'pending' });
+        // 2) Mise à jour du profil avec infos perso
+        await apiPatch('profiles', userId, {
+          full_name: fullName,
+          address: address,
+          phone: phone,
+          kyc_status: 'pending'
+        });
 
         showStatus('pending');
         showSuccess('Documents envoyés !');
