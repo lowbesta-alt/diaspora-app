@@ -156,11 +156,11 @@
 
         let ctaHTML = '';
         if (canSign && !iSigned) {
-          ctaHTML = `<a href="contrat-signer.html?id=${c.id}" class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-2.5 rounded-lg text-xs font-bold text-center">✍️ Signer</a>`;
+          ctaHTML = '<a href="contrat-signer.html?id=' + c.id + '" class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-2.5 rounded-lg text-xs font-bold text-center">✍️ Signer</a>';
         } else if (canSign && iSigned && !otherSigned) {
-          ctaHTML = `<div class="flex-1 bg-amber-500/10 border border-amber-500/40 py-2.5 rounded-lg text-xs font-bold text-center text-amber-300">⏳ En attente de l'autre partie</div>`;
+          ctaHTML = '<div class="flex-1 bg-amber-500/10 border border-amber-500/40 py-2.5 rounded-lg text-xs font-bold text-center text-amber-300">⏳ En attente de l\'autre partie</div>';
         } else {
-          ctaHTML = `<a href="contrat-signer.html?id=${c.id}" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 py-2.5 rounded-lg text-xs font-bold text-center">📄 Voir le contrat</a>`;
+          ctaHTML = '<a href="contrat-detail.html?id=' + c.id + '" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 py-2.5 rounded-lg text-xs font-bold text-center">📄 Voir le contrat</a>';
         }
 
         const sig1 = c.signed_by_investor_at ? '✅' : '⏳';
@@ -186,7 +186,10 @@
               <span class="text-slate-400">${formatDate(c.created_at)}</span>
             </div>
 
-            <div class="flex gap-2">${ctaHTML}</div>
+            <div class="flex gap-2">
+              ${ctaHTML}
+              <a href="contrat-detail.html?id=${c.id}" class="px-3 py-2.5 rounded-lg text-xs font-bold" style="background:rgba(14,165,233,0.15); border:1px solid rgba(14,165,233,0.4); color:#7dd3fc;">👁️</a>
+            </div>
           </div>
         `;
       }).join('');
