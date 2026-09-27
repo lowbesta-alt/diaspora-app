@@ -21,7 +21,6 @@
       <p class="text-sm text-slate-400 mt-1">Suivi vidéo et localisation</p>
     </div>
 
-    <!-- SÉLECTEUR DE CHANTIER -->
     <div id="project-selector" class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
       <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Chantier concerné</label>
       <select id="project" class="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-emerald-500 outline-none text-white text-sm">
@@ -29,7 +28,6 @@
       </select>
     </div>
 
-    <!-- ONGLETS -->
     <div class="flex gap-2 overflow-x-auto pb-1">
       <button data-tab="direct" class="tab-btn flex-shrink-0 font-bold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap" style="background: linear-gradient(135deg, #059669, #10b981); color: #fff;">🔴 Direct</button>
       <button data-tab="mobile" class="tab-btn flex-shrink-0 font-semibold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff;">📱 Visite mobile</button>
@@ -37,9 +35,7 @@
       <button data-tab="location" class="tab-btn flex-shrink-0 font-semibold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff;">📍 Localisation</button>
     </div>
 
-    <!-- ONGLET 1 : DIRECT -->
     <section id="tab-direct" class="space-y-3">
-
       <div class="rounded-2xl p-4 flex items-start gap-3" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3);">
         <span class="text-2xl flex-shrink-0">📹</span>
         <div>
@@ -47,22 +43,16 @@
           <p class="text-xs mt-1 leading-relaxed" style="color:#a7f3d0;">Touchez une caméra pour ouvrir la vue en temps réel.</p>
         </div>
       </div>
-
       <div id="admin-config-zone" class="hidden rounded-2xl p-4" style="background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);">
         <p class="text-xs font-bold mb-2" style="color:#fcd34d;">⚙️ Configuration (admin)</p>
-        <button id="btn-edit-links" class="w-full py-2.5 rounded-lg text-xs font-bold" style="background: #f59e0b; color:#0a1838;">
-          📝 Éditer les liens des caméras
-        </button>
+        <button id="btn-edit-links" class="w-full py-2.5 rounded-lg text-xs font-bold" style="background: #f59e0b; color:#0a1838;">📝 Éditer les liens des caméras</button>
       </div>
-
       <div id="cameras-list" class="space-y-3">
         <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
       </div>
     </section>
 
-    <!-- ONGLET 2 : VISITE MOBILE -->
     <section id="tab-mobile" class="space-y-3 hidden">
-
       <div class="rounded-2xl p-4 flex items-start gap-3" style="background: rgba(14,165,233,0.1); border: 1px solid rgba(14,165,233,0.3);">
         <span class="text-2xl flex-shrink-0">📱</span>
         <div>
@@ -70,28 +60,18 @@
           <p class="text-xs mt-1 leading-relaxed" style="color:#bae6fd;">L'artisan filme avec son téléphone. Le client voit, entend et peut parler via Jitsi Meet.</p>
         </div>
       </div>
-
       <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <h3 class="text-sm font-bold">🎬 Démarrer une visite</h3>
         <p class="text-[11px] text-slate-400">Un lien de visite sera généré. Partagez-le avec l'autre partie.</p>
-        <button id="btn-start-visit" class="w-full py-3.5 rounded-xl font-bold text-sm" style="background: linear-gradient(135deg, #059669, #10b981); color:#fff;">
-          📹 Démarrer la visite en direct
-        </button>
+        <button id="btn-start-visit" class="w-full py-3.5 rounded-xl font-bold text-sm" style="background: linear-gradient(135deg, #059669, #10b981); color:#fff;">📹 Démarrer la visite en direct</button>
       </div>
-
       <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <h3 class="text-sm font-bold">🔗 Rejoindre une visite</h3>
         <input type="text" id="join-url" placeholder="https://meet.jit.si/diaspora-..." class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 text-white text-sm">
-        <button id="btn-join-visit" class="w-full py-3 rounded-xl font-semibold text-sm" style="background: rgba(14,165,233,0.2); border: 1px solid rgba(14,165,233,0.5); color:#7dd3fc;">
-          👀 Rejoindre
-        </button>
+        <button id="btn-join-visit" class="w-full py-3 rounded-xl font-semibold text-sm" style="background: rgba(14,165,233,0.2); border: 1px solid rgba(14,165,233,0.5); color:#7dd3fc;">👀 Rejoindre</button>
       </div>
-
       <div id="active-visit" class="hidden bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-          <span class="text-xs font-bold text-red-300">VISITE EN COURS</span>
-        </div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span><span class="text-xs font-bold text-red-300">VISITE EN COURS</span></div>
         <div id="visit-link-display" class="text-xs break-all text-emerald-300 p-3 rounded-lg bg-slate-800/50"></div>
         <div class="grid grid-cols-2 gap-2">
           <button id="btn-copy-link" class="py-2.5 rounded-lg text-xs font-semibold" style="background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.5); color:#6ee7b7;">📋 Copier</button>
@@ -102,9 +82,7 @@
       </div>
     </section>
 
-    <!-- ONGLET 3 : VIDÉOS -->
     <section id="tab-videos" class="space-y-3 hidden">
-
       <div class="rounded-2xl p-4 flex items-start gap-3" style="background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);">
         <span class="text-2xl flex-shrink-0">🎥</span>
         <div>
@@ -112,33 +90,23 @@
           <p class="text-xs mt-1 leading-relaxed" style="color:#fef3c7;">L'artisan peut uploader des vidéos du chantier.</p>
         </div>
       </div>
-
       <div id="upload-zone" class="hidden bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <h3 class="text-sm font-bold">📤 Ajouter une vidéo</h3>
         <input type="text" id="video-title" placeholder="Titre de la vidéo" class="w-full px-3 py-3 rounded-xl bg-slate-800/50 border border-white/10 text-white text-sm">
         <input type="file" id="video-file" accept="video/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-amber-500/20 file:text-amber-300 file:font-semibold">
         <button id="btn-upload-video" class="w-full py-3 rounded-xl font-bold text-sm" style="background:#f59e0b; color:#0a1838;">Uploader la vidéo</button>
       </div>
-
-      <div id="videos-list" class="space-y-3">
-        <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
-      </div>
+      <div id="videos-list" class="space-y-3"><p class="text-slate-400 text-sm text-center py-6">Chargement...</p></div>
     </section>
 
-    <!-- ONGLET 4 : LOCALISATION -->
     <section id="tab-location" class="space-y-3 hidden">
-
       <div class="rounded-2xl p-4 flex items-start gap-3" style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3);">
         <span class="text-2xl flex-shrink-0">📍</span>
         <div>
           <p class="text-sm font-bold" style="color:#93c5fd;">Vérification par GPS</p>
-          <p class="text-xs mt-1 leading-relaxed" style="color:#bfdbfe;">
-            L'artisan vérifie régulièrement sa position sur le chantier. Le client peut contrôler que tout est au bon endroit.
-          </p>
+          <p class="text-xs mt-1 leading-relaxed" style="color:#bfdbfe;">L'artisan vérifie régulièrement sa position sur le chantier.</p>
         </div>
       </div>
-
-      <!-- Position officielle du chantier -->
       <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="text-sm font-bold">🏗️ Position officielle du chantier</h3>
@@ -147,51 +115,35 @@
         <div id="chantier-coords" class="text-xs text-slate-300">Aucune position enregistrée</div>
         <div id="admin-set-position-zone" class="hidden pt-2 border-t border-white/10">
           <p class="text-[10px] text-slate-400 mb-2">Définir la position officielle du chantier (admin) :</p>
-          <button id="btn-set-chantier-position" class="w-full py-2.5 rounded-lg text-xs font-bold" style="background: #3b82f6; color:#fff;">
-            📍 Capturer ma position actuelle comme position du chantier
-          </button>
+          <button id="btn-set-chantier-position" class="w-full py-2.5 rounded-lg text-xs font-bold" style="background: #3b82f6; color:#fff;">📍 Capturer ma position actuelle comme position du chantier</button>
           <p class="text-[10px] text-slate-500 mt-2">⚠️ Vous devez être physiquement sur le chantier.</p>
         </div>
-        <a id="chantier-maps-link" href="#" target="_blank" class="hidden block text-center py-2.5 rounded-lg text-xs font-semibold" style="background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.5); color:#93c5fd;">
-          🗺️ Voir sur Google Maps
-        </a>
+        <a id="chantier-maps-link" href="#" target="_blank" class="hidden block text-center py-2.5 rounded-lg text-xs font-semibold" style="background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.5); color:#93c5fd;">🗺️ Voir sur Google Maps</a>
       </div>
-
-      <!-- Vérifier ma position (artisan) -->
       <div id="check-position-zone" class="hidden bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <h3 class="text-sm font-bold">📸 Vérifier ma position maintenant</h3>
         <p class="text-[11px] text-slate-400">Capturez votre position GPS actuelle pour prouver que vous êtes bien sur le chantier.</p>
-        <button id="btn-check-position" class="w-full py-3.5 rounded-xl font-bold text-sm" style="background: linear-gradient(135deg, #059669, #10b981); color:#fff;">
-          📍 Je suis sur le chantier — Vérifier
-        </button>
+        <button id="btn-check-position" class="w-full py-3.5 rounded-xl font-bold text-sm" style="background: linear-gradient(135deg, #059669, #10b981); color:#fff;">📍 Je suis sur le chantier — Vérifier</button>
       </div>
-
-      <!-- Ma position actuelle (résultat) -->
       <div id="my-position-result" class="hidden bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
         <h3 class="text-sm font-bold">📌 Ma dernière position</h3>
         <div id="my-position-info" class="text-xs text-slate-300"></div>
       </div>
-
-      <!-- Historique -->
       <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
         <h3 class="text-sm font-bold mb-3">📅 Historique des vérifications</h3>
-        <div id="history-list" class="space-y-2">
-          <p class="text-slate-400 text-xs text-center py-4">Chargement...</p>
-        </div>
+        <div id="history-list" class="space-y-2"><p class="text-slate-400 text-xs text-center py-4">Chargement...</p></div>
       </div>
-
     </section>
 
   </main>
 
-  <!-- MODAL ÉDITION LIENS -->
   <div id="modal-links" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm hidden flex-col">
     <header class="flex items-center justify-between p-4 border-b border-white/10">
       <h2 class="font-bold text-sm">⚙️ Liens des caméras</h2>
       <button id="modal-links-close" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xl">✕</button>
     </header>
     <div class="flex-1 overflow-y-auto p-4 space-y-3">
-      <p class="text-xs text-slate-400">Collez les URLs des flux caméra (MJPEG, HLS, embed iframe).</p>
+      <p class="text-xs text-slate-400">Collez les URLs des flux caméra.</p>
       <div id="links-form" class="space-y-3"></div>
     </div>
     <footer class="p-4 border-t border-white/10">
@@ -199,7 +151,6 @@
     </footer>
   </div>
 
-  <!-- MODAL VIDÉO -->
   <div id="modal-video" class="fixed inset-0 z-50 bg-black/95 hidden flex-col">
     <header class="flex items-center justify-between p-4 border-b border-white/10">
       <h2 id="modal-video-title" class="font-bold text-sm truncate">Vidéo</h2>
@@ -223,9 +174,6 @@
     let currentProjectId = null;
     let currentProject = null;
 
-    /* ============================================
-       CHARGEMENT DES PROJETS
-       ============================================ */
     async function loadProjects() {
       const select = document.getElementById('project');
       try {
@@ -243,17 +191,12 @@
             }
           }
         }
-        if (projects.length === 0) {
-          select.innerHTML = '<option value="">Aucun chantier</option>';
-          return;
-        }
+        if (projects.length === 0) { select.innerHTML = '<option value="">Aucun chantier</option>'; return; }
         select.innerHTML = projects.map(p => '<option value="' + p.id + '">' + escapeHtml(p.title) + '</option>').join('');
         currentProjectId = projects[0].id;
         currentProject = projects[0];
         onProjectChange();
-      } catch (e) {
-        select.innerHTML = '<option value="">Erreur</option>';
-      }
+      } catch (e) { select.innerHTML = '<option value="">Erreur</option>'; }
     }
 
     document.getElementById('project').addEventListener('change', (e) => {
@@ -263,7 +206,6 @@
     });
 
     async function onProjectChange() {
-      // Recharge les infos du projet courant
       if (currentProjectId) {
         try {
           const p = await apiGet('projects', 'id=eq.' + currentProjectId);
@@ -275,9 +217,6 @@
       loadLocation();
     }
 
-    /* ============================================
-       ONGLETS
-       ============================================ */
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.tab-btn').forEach(b => {
@@ -287,18 +226,12 @@
         });
         btn.style.background = 'linear-gradient(135deg, #059669, #10b981)';
         btn.style.border = 'none';
-
         document.querySelectorAll('[id^="tab-"]').forEach(s => s.classList.add('hidden'));
         document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
-
-        // Recharge la loc quand on arrive dessus
         if (btn.dataset.tab === 'location') loadLocation();
       });
     });
 
-    /* ============================================
-       ADMIN / ARTISAN UI
-       ============================================ */
     if (isAdmin) {
       document.getElementById('admin-config-zone').classList.remove('hidden');
       document.getElementById('admin-set-position-zone').classList.remove('hidden');
@@ -308,9 +241,6 @@
       document.getElementById('check-position-zone').classList.remove('hidden');
     }
 
-    /* ============================================
-       ONGLET DIRECT — Caméras
-       ============================================ */
     const DEFAULT_CAMERAS = [
       { key: 'cam1', label: 'Caméra 1 — Entrée', desc: "Vue de l'entrée du chantier", icon: '📷' },
       { key: 'cam2', label: 'Caméra 2 — Zone travaux', desc: 'Vue de la zone principale', icon: '📷' },
@@ -319,20 +249,11 @@
     ];
 
     let camerasConfig = {};
-
     function getCamerasStorageKey() { return 'cameras_config_' + (currentProjectId || 'default'); }
-
     function loadCamerasConfig() {
-      try {
-        const raw = localStorage.getItem(getCamerasStorageKey());
-        camerasConfig = raw ? JSON.parse(raw) : {};
-      } catch (e) { camerasConfig = {}; }
+      try { const raw = localStorage.getItem(getCamerasStorageKey()); camerasConfig = raw ? JSON.parse(raw) : {}; } catch (e) { camerasConfig = {}; }
     }
-
-    function saveCamerasConfig() {
-      try { localStorage.setItem(getCamerasStorageKey(), JSON.stringify(camerasConfig)); } catch (e) {}
-    }
-
+    function saveCamerasConfig() { try { localStorage.setItem(getCamerasStorageKey(), JSON.stringify(camerasConfig)); } catch (e) {} }
     function loadCameras() { loadCamerasConfig(); renderCameras(); }
 
     function renderCameras() {
@@ -346,23 +267,8 @@
         const btn = hasUrl
           ? '<button class="camera-btn w-full py-3 rounded-xl text-xs font-bold" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;" data-camkey="' + cam.key + '">🔴 Voir en direct</button>'
           : '<button class="w-full py-3 rounded-xl text-xs font-semibold opacity-50 cursor-not-allowed" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;" disabled>Non disponible</button>';
-        return `
-          <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
-            <div class="flex items-center justify-between mb-3">
-              <div class="flex items-center gap-3 min-w-0">
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style="background:linear-gradient(135deg,#10b981,#34d399);">${cam.icon}</div>
-                <div class="min-w-0">
-                  <h3 class="font-extrabold text-sm truncate">${escapeHtml(cam.label)}</h3>
-                  <p class="text-[10px] text-slate-400 mt-0.5 truncate">${escapeHtml(cam.desc)}</p>
-                </div>
-              </div>
-              ${statusBadge}
-            </div>
-            ${btn}
-          </div>
-        `;
+        return '<div class="bg-white/5 border border-white/10 rounded-2xl p-4"><div class="flex items-center justify-between mb-3"><div class="flex items-center gap-3 min-w-0"><div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style="background:linear-gradient(135deg,#10b981,#34d399);">' + cam.icon + '</div><div class="min-w-0"><h3 class="font-extrabold text-sm truncate">' + escapeHtml(cam.label) + '</h3><p class="text-[10px] text-slate-400 mt-0.5 truncate">' + escapeHtml(cam.desc) + '</p></div></div>' + statusBadge + '</div>' + btn + '</div>';
       }).join('');
-
       document.querySelectorAll('.camera-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const url = camerasConfig[btn.dataset.camkey];
@@ -371,30 +277,21 @@
       });
     }
 
-    /* Modal édition liens */
     document.getElementById('btn-edit-links').addEventListener('click', () => {
       const form = document.getElementById('links-form');
-      form.innerHTML = DEFAULT_CAMERAS.map(cam => `
-        <div>
-          <label class="text-xs font-semibold text-slate-300 mb-1 block">${escapeHtml(cam.label)}</label>
-          <input type="text" data-camkey="${cam.key}" placeholder="https://..." value="${escapeHtml(camerasConfig[cam.key] || '')}" class="w-full px-3 py-2.5 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs">
-        </div>
-      `).join('');
+      form.innerHTML = DEFAULT_CAMERAS.map(cam => '<div><label class="text-xs font-semibold text-slate-300 mb-1 block">' + escapeHtml(cam.label) + '</label><input type="text" data-camkey="' + cam.key + '" placeholder="https://..." value="' + escapeHtml(camerasConfig[cam.key] || '') + '" class="w-full px-3 py-2.5 rounded-lg bg-slate-800/50 border border-white/10 text-white text-xs"></div>').join('');
       document.getElementById('modal-links').classList.remove('hidden');
       document.getElementById('modal-links').classList.add('flex');
     });
-
     document.getElementById('modal-links-close').addEventListener('click', () => {
       document.getElementById('modal-links').classList.add('hidden');
       document.getElementById('modal-links').classList.remove('flex');
     });
-
     document.getElementById('btn-save-links').addEventListener('click', () => {
       document.querySelectorAll('#links-form input[data-camkey]').forEach(inp => {
         const key = inp.dataset.camkey;
         const val = inp.value.trim();
-        if (val) camerasConfig[key] = val;
-        else delete camerasConfig[key];
+        if (val) camerasConfig[key] = val; else delete camerasConfig[key];
       });
       saveCamerasConfig();
       renderCameras();
@@ -402,11 +299,7 @@
       showSuccess('Liens enregistrés');
     });
 
-    /* ============================================
-       ONGLET MOBILE — Visite live
-       ============================================ */
     let activeVisitUrl = null;
-
     document.getElementById('btn-start-visit').addEventListener('click', () => {
       const roomName = 'diaspora-chantier-' + (currentProjectId || 'x') + '-' + Date.now();
       const url = 'https://meet.jit.si/' + roomName;
@@ -416,48 +309,32 @@
       if (navigator.clipboard) navigator.clipboard.writeText(url).catch(() => {});
       showSuccess('Lien copié !');
     });
-
     document.getElementById('btn-copy-link').addEventListener('click', () => {
       if (!activeVisitUrl) return;
       navigator.clipboard.writeText(activeVisitUrl);
       showSuccess('Lien copié !');
     });
-
     document.getElementById('btn-share-wa').addEventListener('click', () => {
       if (!activeVisitUrl) return;
       const msg = "VISITE EN DIRECT DU CHANTIER\n\nRejoignez la visite vidéo en direct :\n" + activeVisitUrl;
       window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
     });
-
-    document.getElementById('btn-open-visit').addEventListener('click', () => {
-      if (activeVisitUrl) window.open(activeVisitUrl, '_blank');
-    });
-
-    document.getElementById('btn-stop-visit').addEventListener('click', () => {
-      activeVisitUrl = null;
-      document.getElementById('active-visit').classList.add('hidden');
-    });
-
+    document.getElementById('btn-open-visit').addEventListener('click', () => { if (activeVisitUrl) window.open(activeVisitUrl, '_blank'); });
+    document.getElementById('btn-stop-visit').addEventListener('click', () => { activeVisitUrl = null; document.getElementById('active-visit').classList.add('hidden'); });
     document.getElementById('btn-join-visit').addEventListener('click', () => {
       const url = document.getElementById('join-url').value.trim();
-      if (!url) { alert('Collez un lien de visite'); return; }
+      if (!url) { alert('Collez un lien'); return; }
       window.open(url, '_blank');
     });
 
-    /* ============================================
-       ONGLET VIDÉOS
-       ============================================ */
     async function loadVideos() {
       const list = document.getElementById('videos-list');
-      if (!currentProjectId) {
-        list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Sélectionnez un chantier</p>';
-        return;
-      }
+      if (!currentProjectId) { list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Sélectionnez un chantier</p>'; return; }
       try {
         const data = await apiGet('chantier_videos', 'project_id=eq.' + currentProjectId + '&order=created_at.desc&limit=50');
         const videos = Array.isArray(data) ? data : [];
         if (videos.length === 0) {
-          list.innerHTML = '<div class="text-center py-10 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-2 opacity-40">🎥</div><p class="text-slate-400 text-sm">Aucune vidéo pour ce chantier</p></div>';
+          list.innerHTML = '<div class="text-center py-10 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-2 opacity-40">🎥</div><p class="text-slate-400 text-sm">Aucune vidéo</p></div>';
           return;
         }
         const htmlParts = [];
@@ -466,43 +343,25 @@
           try {
             const token = getToken() || SUPABASE_KEY;
             const res = await fetch(SUPABASE_URL + '/storage/v1/object/sign/project-documents/' + v.storage_path, {
-              method: 'POST',
-              headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+              method: 'POST', headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
               body: JSON.stringify({ expiresIn: 3600 })
             });
-            if (res.ok) {
-              const d = await res.json();
-              if (d.signedURL) url = SUPABASE_URL + '/storage/v1' + d.signedURL;
-            }
+            if (res.ok) { const d = await res.json(); if (d.signedURL) url = SUPABASE_URL + '/storage/v1' + d.signedURL; }
           } catch (e) {}
-          htmlParts.push(`
-            <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden video-card" data-url="${url || ''}" data-title="${escapeHtml(v.title || 'Vidéo')}">
-              <div class="aspect-video bg-slate-800 flex items-center justify-center relative">
-                ${url ? '<video src="' + url + '" class="w-full h-full object-cover" preload="metadata"></video>' : '<span class="text-4xl">🎥</span>'}
-                <div class="absolute inset-0 flex items-center justify-center bg-black/30"><div class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center text-2xl">▶️</div></div>
-              </div>
-              <div class="p-3">
-                <h3 class="font-bold text-sm">${escapeHtml(v.title || 'Vidéo')}</h3>
-                <p class="text-[10px] text-slate-400 mt-1">${formatDate(v.created_at)}</p>
-              </div>
-            </div>
-          `);
+          htmlParts.push('<div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden video-card" data-url="' + (url || '') + '" data-title="' + escapeHtml(v.title || 'Vidéo') + '"><div class="aspect-video bg-slate-800 flex items-center justify-center relative">' + (url ? '<video src="' + url + '" class="w-full h-full object-cover" preload="metadata"></video>' : '<span class="text-4xl">🎥</span>') + '<div class="absolute inset-0 flex items-center justify-center bg-black/30"><div class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center text-2xl">▶️</div></div></div><div class="p-3"><h3 class="font-bold text-sm">' + escapeHtml(v.title || 'Vidéo') + '</h3><p class="text-[10px] text-slate-400 mt-1">' + formatDate(v.created_at) + '</p></div></div>');
         }
         list.innerHTML = htmlParts.join('');
         document.querySelectorAll('.video-card').forEach(card => {
-          card.addEventListener('click', () => openVideoModal(card.dataset.url, card.dataset.title));
+          card.addEventListener('click', () => {
+            const url = card.dataset.url;
+            if (!url) return;
+            document.getElementById('modal-video-title').textContent = card.dataset.title || 'Vidéo';
+            document.getElementById('modal-video-player').src = url;
+            document.getElementById('modal-video').classList.remove('hidden');
+            document.getElementById('modal-video').classList.add('flex');
+          });
         });
-      } catch (e) {
-        list.innerHTML = '<div class="text-center py-10 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-2 opacity-40">🎥</div><p class="text-slate-400 text-sm">Aucune vidéo</p></div>';
-      }
-    }
-
-    function openVideoModal(url, title) {
-      if (!url) return;
-      document.getElementById('modal-video-title').textContent = title || 'Vidéo';
-      document.getElementById('modal-video-player').src = url;
-      document.getElementById('modal-video').classList.remove('hidden');
-      document.getElementById('modal-video').classList.add('flex');
+      } catch (e) { list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucune vidéo</p>'; }
     }
 
     document.getElementById('modal-video-close').addEventListener('click', () => {
@@ -519,68 +378,41 @@
       if (!file) { alert('Sélectionnez une vidéo'); return; }
       if (!currentProjectId) { alert('Sélectionnez un chantier'); return; }
       const btn = document.getElementById('btn-upload-video');
-      btn.disabled = true;
-      btn.textContent = 'Upload...';
+      btn.disabled = true; btn.textContent = 'Upload...';
       try {
         const ext = file.name.split('.').pop();
         const path = 'videos/' + currentProjectId + '/' + Date.now() + '.' + ext;
         const token = getToken() || SUPABASE_KEY;
         const res = await fetch(SUPABASE_URL + '/storage/v1/object/project-documents/' + path, {
-          method: 'POST',
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': file.type },
-          body: file
+          method: 'POST', headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': file.type }, body: file
         });
         if (!res.ok) throw new Error('Erreur upload');
-        await apiPost('chantier_videos', {
-          project_id: currentProjectId,
-          uploaded_by: userId,
-          title: title,
-          storage_path: path,
-          file_size: file.size,
-          mime_type: file.type
-        });
+        await apiPost('chantier_videos', { project_id: currentProjectId, uploaded_by: userId, title: title, storage_path: path, file_size: file.size, mime_type: file.type });
         showSuccess('Vidéo ajoutée !');
         document.getElementById('video-title').value = '';
         document.getElementById('video-file').value = '';
         loadVideos();
-      } catch (e) {
-        showError(e.message || 'Erreur');
-      }
-      btn.disabled = false;
-      btn.textContent = 'Uploader la vidéo';
+      } catch (e) { showError(e.message || 'Erreur'); }
+      btn.disabled = false; btn.textContent = 'Uploader la vidéo';
     });
 
-    /* ============================================
-       ONGLET LOCALISATION
-       ============================================ */
     function distanceMeters(lat1, lon1, lat2, lon2) {
       const R = 6371000;
       const toRad = (d) => d * Math.PI / 180;
-      const dLat = toRad(lat2 - lat1);
-      const dLon = toRad(lon2 - lon1);
+      const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
       const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
-
-    function fmtDistance(m) {
-      if (m < 1000) return Math.round(m) + ' m';
-      return (m / 1000).toFixed(2) + ' km';
-    }
+    function fmtDistance(m) { return m < 1000 ? Math.round(m) + ' m' : (m / 1000).toFixed(2) + ' km'; }
 
     async function loadLocation() {
       if (!currentProjectId) return;
       if (!currentProject) {
-        try {
-          const p = await apiGet('projects', 'id=eq.' + currentProjectId);
-          if (Array.isArray(p) && p[0]) currentProject = p[0];
-        } catch (e) {}
+        try { const p = await apiGet('projects', 'id=eq.' + currentProjectId); if (Array.isArray(p) && p[0]) currentProject = p[0]; } catch (e) {}
       }
-
-      // Position chantier
       const statusEl = document.getElementById('chantier-status');
       const coordsEl = document.getElementById('chantier-coords');
       const mapsLink = document.getElementById('chantier-maps-link');
-
       if (currentProject && currentProject.latitude && currentProject.longitude) {
         statusEl.textContent = '📍 DÉFINIE';
         statusEl.style.background = 'rgba(16,185,129,0.2)';
@@ -592,11 +424,9 @@
         statusEl.textContent = 'NON DÉFINIE';
         statusEl.style.background = 'rgba(239,68,68,0.2)';
         statusEl.style.color = '#fca5a5';
-        coordsEl.textContent = 'Aucune position enregistrée pour ce chantier';
+        coordsEl.textContent = 'Aucune position enregistrée';
         mapsLink.classList.add('hidden');
       }
-
-      // Historique
       const histList = document.getElementById('history-list');
       try {
         const hist = await apiGet('position_checks', 'project_id=eq.' + currentProjectId + '&order=created_at.desc&limit=20');
@@ -609,99 +439,57 @@
             const ok = dist != null && dist < 200;
             const color = ok ? '#6ee7b7' : '#fca5a5';
             const label = dist == null ? '—' : (ok ? '✅ Sur place · ' + fmtDistance(dist) : '⚠️ Éloigné · ' + fmtDistance(dist));
-            return `
-              <div class="bg-slate-800/30 rounded-xl p-3 text-xs">
-                <div class="flex justify-between items-center mb-1">
-                  <span style="color:${color}; font-weight:700;">${label}</span>
-                  <span class="text-slate-400">${new Date(h.created_at).toLocaleString('fr-FR')}</span>
-                </div>
-                <div class="text-slate-400">Lat : ${Number(h.latitude).toFixed(6)} · Lng : ${Number(h.longitude).toFixed(6)}</div>
-              </div>
-            `;
+            return '<div class="bg-slate-800/30 rounded-xl p-3 text-xs"><div class="flex justify-between items-center mb-1"><span style="color:' + color + '; font-weight:700;">' + label + '</span><span class="text-slate-400">' + new Date(h.created_at).toLocaleString('fr-FR') + '</span></div><div class="text-slate-400">Lat : ' + Number(h.latitude).toFixed(6) + ' · Lng : ' + Number(h.longitude).toFixed(6) + '</div></div>';
           }).join('');
         }
-      } catch (e) {
-        histList.innerHTML = '<p class="text-slate-400 text-xs text-center py-4">Impossible de charger</p>';
-      }
+      } catch (e) { histList.innerHTML = '<p class="text-slate-400 text-xs text-center py-4">Impossible de charger</p>'; }
     }
 
-    /* Admin : définir position du chantier */
     document.getElementById('btn-set-chantier-position').addEventListener('click', () => {
       if (!navigator.geolocation) { showError('GPS non supporté'); return; }
       if (!confirm('Définir votre position actuelle comme position officielle du chantier ?\n\nVous devez être SUR le chantier.')) return;
-
       navigator.geolocation.getCurrentPosition(async (pos) => {
         try {
-          await apiPatch('projects', currentProjectId, {
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude
-          });
-          showSuccess('Position du chantier enregistrée');
+          await apiPatch('projects', currentProjectId, { latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+          showSuccess('Position enregistrée');
           currentProject.latitude = pos.coords.latitude;
           currentProject.longitude = pos.coords.longitude;
           loadLocation();
         } catch (e) { showError(e.message); }
-      }, (err) => {
-        showError('Impossible d\'obtenir la position : ' + err.message);
-      }, { enableHighAccuracy: true, timeout: 15000 });
+      }, (err) => { showError('Impossible : ' + err.message); }, { enableHighAccuracy: true, timeout: 15000 });
     });
 
-    /* Artisan : vérifier sa position */
     document.getElementById('btn-check-position').addEventListener('click', () => {
       if (!navigator.geolocation) { showError('GPS non supporté'); return; }
       const btn = document.getElementById('btn-check-position');
-      btn.disabled = true;
-      btn.textContent = '📍 Localisation en cours...';
-
+      btn.disabled = true; btn.textContent = '📍 Localisation...';
       navigator.geolocation.getCurrentPosition(async (pos) => {
         try {
-          const myLat = pos.coords.latitude;
-          const myLng = pos.coords.longitude;
+          const myLat = pos.coords.latitude, myLng = pos.coords.longitude;
           let dist = null;
           if (currentProject && currentProject.latitude && currentProject.longitude) {
             dist = distanceMeters(myLat, myLng, currentProject.latitude, currentProject.longitude);
           }
-
-          await apiPost('position_checks', {
-            project_id: currentProjectId,
-            user_id: userId,
-            latitude: myLat,
-            longitude: myLng,
-            accuracy: pos.coords.accuracy,
-            distance_meters: dist
-          });
-
-          // Affiche résultat
+          await apiPost('position_checks', { project_id: currentProjectId, user_id: userId, latitude: myLat, longitude: myLng, accuracy: pos.coords.accuracy, distance_meters: dist });
           const result = document.getElementById('my-position-result');
           const info = document.getElementById('my-position-info');
           result.classList.remove('hidden');
           const ok = dist == null || dist < 200;
           const color = ok ? '#6ee7b7' : '#fca5a5';
           const status = dist == null ? 'Position enregistrée (chantier non défini)' : (ok ? '✅ Vous êtes bien sur le chantier' : '⚠️ Vous êtes éloigné du chantier');
-          info.innerHTML = `
-            <p style="color:${color}; font-weight:700; margin-bottom:0.5rem;">${status}</p>
-            <p>Lat : ${myLat.toFixed(6)}</p>
-            <p>Lng : ${myLng.toFixed(6)}</p>
-            <p>Précision : ±${Math.round(pos.coords.accuracy)} m</p>
-            ${dist != null ? '<p>Distance au chantier : ' + fmtDistance(dist) + '</p>' : ''}
-          `;
+          info.innerHTML = '<p style="color:' + color + '; font-weight:700; margin-bottom:0.5rem;">' + status + '</p><p>Lat : ' + myLat.toFixed(6) + '</p><p>Lng : ' + myLng.toFixed(6) + '</p><p>Précision : ±' + Math.round(pos.coords.accuracy) + ' m</p>' + (dist != null ? '<p>Distance : ' + fmtDistance(dist) + '</p>' : '');
           showSuccess('Position enregistrée');
           loadLocation();
         } catch (e) { showError(e.message); }
-        btn.disabled = false;
-        btn.textContent = '📍 Je suis sur le chantier — Vérifier';
+        btn.disabled = false; btn.textContent = '📍 Je suis sur le chantier — Vérifier';
       }, (err) => {
-        let msg = 'Impossible d\'obtenir la position';
-        if (err.code === 1) msg = 'Autorisation refusée. Activez la localisation.';
+        let msg = 'Impossible';
+        if (err.code === 1) msg = 'Autorisation refusée';
         showError(msg);
-        btn.disabled = false;
-        btn.textContent = '📍 Je suis sur le chantier — Vérifier';
+        btn.disabled = false; btn.textContent = '📍 Je suis sur le chantier — Vérifier';
       }, { enableHighAccuracy: true, timeout: 15000 });
     });
 
-    /* ============================================
-       BOOT
-       ============================================ */
     loadProjects();
   </script>
 </body>
