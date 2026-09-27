@@ -26,9 +26,7 @@
       <p class="text-sm text-slate-400 mt-1">Voici un aperçu de vos projets</p>
     </section>
 
-    <!-- ============================================ -->
     <!-- CARTE CONTRATS -->
-    <!-- ============================================ -->
     <a id="contrats-card" href="contrats.html" class="block bg-gradient-to-br from-sky-600/25 to-blue-900/25 border border-sky-500/50 rounded-2xl p-4 hover:bg-sky-500/15 transition">
       <div class="flex items-center gap-3">
         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center flex-shrink-0 text-2xl shadow-lg shadow-sky-500/30">
@@ -42,6 +40,20 @@
           <p id="contrats-subtitle" class="text-[11px] text-slate-300 mt-0.5">Consultez et signez vos contrats</p>
         </div>
         <span class="text-sky-400 text-xl">›</span>
+      </div>
+    </a>
+
+    <!-- CARTE CAMÉRAS -->
+    <a href="cameras.html" class="block bg-gradient-to-br from-emerald-600/25 to-emerald-900/25 border border-emerald-500/50 rounded-2xl p-4 hover:bg-emerald-500/15 transition">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-400 flex items-center justify-center flex-shrink-0 text-2xl shadow-lg shadow-emerald-500/30">
+          📹
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="font-bold text-sm">Caméras du chantier</h3>
+          <p class="text-[11px] text-slate-300 mt-0.5">Suivi vidéo en direct de vos projets</p>
+        </div>
+        <span class="text-emerald-400 text-xl">›</span>
       </div>
     </a>
 
@@ -95,9 +107,6 @@
 
     const userId = getCurrentUserId();
 
-    /* ============================================
-       COMPTE DES CONTRATS À SIGNER
-       ============================================ */
     async function loadContratsCount() {
       try {
         const mine = await apiGet('contracts',
@@ -123,9 +132,6 @@
       }
     }
 
-    /* ============================================
-       CHARGEMENT DU DASHBOARD
-       ============================================ */
     async function loadDashboard() {
       const email = getCurrentUserEmail() || '';
       document.getElementById('user-name').textContent = email.split('@')[0];
