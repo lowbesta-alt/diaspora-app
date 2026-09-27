@@ -10,7 +10,6 @@
 
   <main class="p-4 max-w-2xl mx-auto space-y-6 pt-6">
 
-    <!-- Bienvenue -->
     <section class="bg-gradient-to-br from-amber-500/15 to-[#0f2252]/60 rounded-3xl p-6" style="border: 1px solid rgba(245,158,11,0.35);">
       <div class="flex items-center gap-3 mb-3">
         <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-400 flex items-center justify-center text-2xl">🏗️</div>
@@ -22,7 +21,6 @@
       <p class="text-sm text-slate-300 leading-relaxed">Voici les chantiers qui vous sont assignés par la plateforme.</p>
     </section>
 
-    <!-- Stats -->
     <section class="grid grid-cols-3 gap-3">
       <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 text-center">
         <div class="text-2xl">🏗️</div>
@@ -41,7 +39,6 @@
       </div>
     </section>
 
-    <!-- Action principale -->
     <a href="mes-rapports.html" class="block bg-gradient-to-r from-amber-500 to-amber-400 text-[#0a1838] rounded-3xl p-5 shadow-2xl shadow-amber-500/30">
       <div class="flex items-center gap-4">
         <div class="w-14 h-14 rounded-2xl bg-[#0a1838]/20 flex items-center justify-center text-2xl">📸</div>
@@ -53,9 +50,7 @@
       </div>
     </a>
 
-    <!-- ============================================ -->
     <!-- CARTE CONTRATS -->
-    <!-- ============================================ -->
     <a id="contrats-card" href="contrats.html" class="block bg-gradient-to-br from-sky-600/25 to-blue-900/25 border border-sky-500/50 rounded-2xl p-4 hover:bg-sky-500/15 transition">
       <div class="flex items-center gap-3">
         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center flex-shrink-0 text-2xl shadow-lg shadow-sky-500/30">
@@ -72,7 +67,20 @@
       </div>
     </a>
 
-    <!-- Liste chantiers -->
+    <!-- CARTE CAMÉRAS -->
+    <a href="cameras.html" class="block bg-gradient-to-br from-emerald-600/25 to-emerald-900/25 border border-emerald-500/50 rounded-2xl p-4 hover:bg-emerald-500/15 transition">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-400 flex items-center justify-center flex-shrink-0 text-2xl shadow-lg shadow-emerald-500/30">
+          📹
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="font-bold text-sm">Caméras du chantier</h3>
+          <p class="text-[11px] text-slate-300 mt-0.5">Filmez et partagez vos visites en direct</p>
+        </div>
+        <span class="text-emerald-400 text-xl">›</span>
+      </div>
+    </a>
+
     <section>
       <h2 class="text-lg font-extrabold tracking-tight mb-3">Mes chantiers assignés</h2>
       <div id="chantiers-list" class="space-y-3">
@@ -99,9 +107,6 @@
     const userName = getCurrentUserName();
     if (userName) document.getElementById('user-name').textContent = userName.split(' ')[0];
 
-    /* ============================================
-       COMPTE DES CONTRATS À SIGNER (côté provider)
-       ============================================ */
     async function loadContratsCount() {
       try {
         const mine = await apiGet('contracts',
