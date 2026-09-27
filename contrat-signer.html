@@ -9,97 +9,106 @@
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
 
   <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
-    <a href="contrats.html" class="text-2xl">←</a>
-    <span class="font-bold text-sm">Signer le contrat</span>
+    <a href="contrats.html" class="text-2xl" style="color:#fff;">←</a>
+    <span class="font-bold text-sm" id="header-label" style="color:#fff;">Signer le contrat</span>
     <span class="w-6"></span>
   </header>
 
   <main class="p-4 max-w-2xl mx-auto space-y-4">
 
-    <div class="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-3 flex items-start gap-3">
-      <span class="text-lg">🔒</span>
-      <p class="text-xs text-blue-200">Signature électronique sécurisée et conforme à la réglementation eIDAS.</p>
+    <div id="already-signed-banner" class="hidden rounded-2xl p-4" style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.45);">
+      <div class="flex items-start gap-3">
+        <span class="text-xl">✅</span>
+        <div class="flex-1">
+          <p class="text-sm font-bold" style="color:#6ee7b7;">Vous avez déjà signé ce contrat</p>
+          <p class="text-[11px] mt-1" style="color:#a7f3d0;">Retrouvez toutes les signatures ci-dessous.</p>
+        </div>
+      </div>
     </div>
 
-    <section class="bg-white text-slate-800 rounded-2xl p-5 max-h-72 overflow-y-auto">
-      <h1 class="text-base font-bold mb-1" id="contract-title">CONTRAT DE PRESTATION</h1>
-      <p class="text-[10px] text-slate-500 mb-4" id="contract-number">-</p>
+    <div class="rounded-2xl p-3 flex items-start gap-3" style="background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.4);">
+      <span class="text-lg">🔒</span>
+      <p class="text-xs" style="color:#bfdbfe;">Signature électronique sécurisée. Horodatée et tracée.</p>
+    </div>
 
-      <div class="space-y-3 text-xs leading-relaxed">
+    <!-- ================================================== -->
+    <!-- CONTENU DU CONTRAT : fond blanc + texte noir FORCÉ -->
+    <!-- ================================================== -->
+    <section id="contract-section" style="background:#ffffff; color:#111827; border-radius:1rem; padding:1.25rem; max-height:22rem; overflow-y:auto; box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+      <h1 id="contract-title" style="font-size:1rem; font-weight:700; color:#111827; margin:0 0 0.25rem 0;">Chargement…</h1>
+      <p id="contract-number" style="font-size:0.7rem; color:#6b7280; margin:0 0 1rem 0;">-</p>
+
+      <div id="contract-body" style="font-size:0.8rem; line-height:1.6; color:#1f2937;">
+        <p style="color:#9ca3af;">Chargement du contenu…</p>
+      </div>
+
+      <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid #e5e7eb; display:grid; grid-template-columns:1fr 1fr; gap:1rem; font-size:0.75rem;">
         <div>
-          <h2 class="font-bold">Article 1 - Objet du contrat</h2>
-          <p>Le présent contrat a pour objet la réalisation des travaux décrits ci-dessus.</p>
+          <p style="font-weight:700; color:#374151; margin:0 0 0.25rem 0;">Investisseur</p>
+          <p id="party-investor" style="color:#4b5563; margin:0;">—</p>
         </div>
         <div>
-          <h2 class="font-bold">Article 2 - Durée et délais</h2>
-          <p>Les travaux débuteront dès la signature et devront être achevés dans le délai convenu.</p>
-        </div>
-        <div>
-          <h2 class="font-bold">Article 3 - Montant et modalités</h2>
-          <p>Le montant total est payable par jalons validés par le maître d'ouvrage.</p>
-        </div>
-        <div>
-          <h2 class="font-bold">Article 4 - Obligations du prestataire</h2>
-          <p>Le prestataire s'engage à fournir des factures authentiques et à respecter les normes en vigueur.</p>
-        </div>
-        <div>
-          <h2 class="font-bold">Article 5 - Pénalités de retard</h2>
-          <p>Tout retard non justifié entraînera une pénalité proportionnelle au montant total.</p>
-        </div>
-        <div>
-          <h2 class="font-bold">Article 6 - Résiliation</h2>
-          <p>Le contrat peut être résilié avec un préavis de 15 jours en cas de manquement grave.</p>
-        </div>
-        <div>
-          <h2 class="font-bold">Article 7 - Juridiction compétente</h2>
-          <p>Tout litige sera soumis à la juridiction compétente.</p>
+          <p style="font-weight:700; color:#374151; margin:0 0 0.25rem 0;">Prestataire</p>
+          <p id="party-provider" style="color:#4b5563; margin:0;">—</p>
         </div>
       </div>
     </section>
 
-    <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
-      <label class="text-xs font-semibold text-slate-300 mb-2 block">Mode de signature</label>
-      <div class="grid grid-cols-2 gap-2 mb-4">
-        <button data-mode="type" class="mode-btn bg-emerald-600 py-3 rounded-lg text-xs font-semibold flex flex-col items-center gap-1">
-          <span class="text-lg">⌨️</span>Taper mon nom
-        </button>
-        <button data-mode="draw" class="mode-btn bg-white/5 border border-white/10 py-3 rounded-lg text-xs font-semibold flex flex-col items-center gap-1">
-          <span class="text-lg">✍️</span>Dessiner
-        </button>
-      </div>
+    <!-- SIGNATURES EXISTANTES -->
+    <section id="signatures-panel" class="hidden">
+      <h2 class="text-sm font-bold mb-2" style="color:#fff;">Signatures recueillies</h2>
+      <div id="signatures-list" class="space-y-2"></div>
+    </section>
 
-      <div id="mode-type">
-        <input type="text" id="typedName" placeholder="Tapez votre nom complet" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
-        <div class="mt-3 bg-slate-800/50 rounded-xl p-4 text-center">
-          <p id="signature-preview" class="text-2xl italic text-emerald-300 font-serif">Votre signature</p>
+    <!-- ZONE DE SIGNATURE -->
+    <div id="sign-zone">
+      <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
+        <label class="text-xs font-semibold text-slate-300 mb-2 block">Mode de signature</label>
+        <div class="grid grid-cols-2 gap-2 mb-4">
+          <button data-mode="type" class="mode-btn py-3 rounded-lg text-xs font-semibold flex flex-col items-center gap-1" style="background:#059669; color:#fff;">
+            <span class="text-lg">⌨️</span>Taper mon nom
+          </button>
+          <button data-mode="draw" class="mode-btn py-3 rounded-lg text-xs font-semibold flex flex-col items-center gap-1" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); color:#fff;">
+            <span class="text-lg">✍️</span>Dessiner
+          </button>
         </div>
-      </div>
 
-      <div id="mode-draw" class="hidden">
-        <canvas id="sigCanvas" class="w-full bg-white rounded-xl" height="150"></canvas>
-        <button id="btn-clear" class="w-full mt-2 bg-white/5 border border-white/10 py-2 rounded-lg text-xs">Effacer</button>
-      </div>
-    </section>
+        <div id="mode-type">
+          <input type="text" id="typedName" placeholder="Tapez votre nom complet" class="w-full rounded-xl px-3 py-3 text-sm focus:outline-none" style="background:rgba(30,41,59,0.6); border:1px solid rgba(255,255,255,0.15); color:#fff;">
+          <div class="mt-3 rounded-xl p-4 text-center" style="background:rgba(30,41,59,0.6);">
+            <p id="signature-preview" style="font-size:1.5rem; font-style:italic; color:#6ee7b7; font-family:serif;">Votre signature</p>
+          </div>
+        </div>
 
-    <section class="space-y-3">
-      <label class="flex items-start gap-2 bg-white/5 border border-white/10 rounded-xl p-3 cursor-pointer">
-        <input type="checkbox" class="cgu mt-0.5">
-        <span class="text-xs">J'ai lu et compris l'intégralité du contrat</span>
-      </label>
-      <label class="flex items-start gap-2 bg-white/5 border border-white/10 rounded-xl p-3 cursor-pointer">
-        <input type="checkbox" class="cgu mt-0.5">
-        <span class="text-xs">J'accepte les termes et conditions</span>
-      </label>
-      <label class="flex items-start gap-2 bg-white/5 border border-white/10 rounded-xl p-3 cursor-pointer">
-        <input type="checkbox" class="cgu mt-0.5">
-        <span class="text-xs">Je reconnais avoir la capacité juridique de signer</span>
-      </label>
-    </section>
+        <div id="mode-draw" class="hidden">
+          <div id="canvas-wrap" style="position:relative; width:100%;">
+            <canvas id="sigCanvas" style="display:block; width:100%; height:180px; background:#ffffff; border-radius:0.75rem; touch-action:none; cursor:crosshair;"></canvas>
+            <div id="canvas-placeholder" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); color:#9ca3af; font-size:0.8rem; pointer-events:none;">✍️ Signez ici avec votre doigt</div>
+          </div>
+          <button id="btn-clear" class="w-full mt-2 py-2 rounded-lg text-xs font-semibold" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#fff;">Effacer</button>
+        </div>
+      </section>
 
-    <section class="flex gap-2">
-      <a href="contrats.html" class="flex-1 bg-white/5 border border-white/10 py-3 rounded-xl font-semibold text-sm text-center">Refuser</a>
-      <button id="btn-sign" class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-semibold text-sm">Signer le contrat</button>
-    </section>
+      <section class="space-y-3 mt-4">
+        <label class="flex items-start gap-2 bg-white/5 border border-white/10 rounded-xl p-3 cursor-pointer">
+          <input type="checkbox" class="cgu mt-0.5">
+          <span class="text-xs">J'ai lu et compris l'intégralité du contrat</span>
+        </label>
+        <label class="flex items-start gap-2 bg-white/5 border border-white/10 rounded-xl p-3 cursor-pointer">
+          <input type="checkbox" class="cgu mt-0.5">
+          <span class="text-xs">J'accepte les termes et conditions</span>
+        </label>
+        <label class="flex items-start gap-2 bg-white/5 border border-white/10 rounded-xl p-3 cursor-pointer">
+          <input type="checkbox" class="cgu mt-0.5">
+          <span class="text-xs">Je reconnais avoir la capacité juridique de signer</span>
+        </label>
+      </section>
+
+      <section class="flex gap-2 mt-4">
+        <a href="contrats.html" class="flex-1 py-3 rounded-xl font-semibold text-sm text-center" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#fff;">Refuser</a>
+        <button id="btn-sign" class="flex-1 py-3 rounded-xl font-semibold text-sm" style="background:#059669; color:#fff;">Signer le contrat</button>
+      </section>
+    </div>
 
   </main>
 
@@ -111,33 +120,189 @@
     const urlParams = new URLSearchParams(window.location.search);
     const contractId = urlParams.get('id');
     if (!contractId) {
-      alert('Aucun contrat selectionne');
+      alert('Aucun contrat sélectionné');
       window.location.href = 'contrats.html';
     }
 
+    const userId = getCurrentUserId();
+    const isAdmin = getCurrentUserRole() === 'admin';
+
+    let contract = null;
+    let myRole = null;
+    let iAlreadySigned = false;
     let sigMode = 'type';
 
+    /* ============================================
+       CHARGEMENT
+       ============================================ */
     async function loadContract() {
       try {
         const data = await apiGet('contracts', 'id=eq.' + contractId);
-        if (Array.isArray(data) && data[0]) {
-          document.getElementById('contract-title').textContent = data[0].title || 'CONTRAT';
-          document.getElementById('contract-number').textContent = 'CTR-' + contractId.slice(0, 8).toUpperCase();
+        if (!Array.isArray(data) || !data[0]) {
+          showError('Contrat introuvable');
+          return;
         }
-      } catch (e) {}
+        contract = data[0];
+
+        document.getElementById('contract-title').textContent = contract.title || 'Contrat';
+        document.getElementById('contract-number').textContent = 'CTR-' + contractId.slice(0, 8).toUpperCase();
+
+        document.getElementById('contract-body').innerHTML = buildContractBody(contract);
+
+        if (contract.party_investor_id === userId) myRole = 'investor';
+        else if (contract.party_provider_id === userId) myRole = 'provider';
+        else if (isAdmin) myRole = 'admin';
+
+        // Noms des parties
+        const partyIds = [contract.party_investor_id, contract.party_provider_id].filter(Boolean);
+        let partyNames = {};
+        try {
+          const profs = await apiGet('profiles', 'id=in.(' + partyIds.join(',') + ')');
+          if (Array.isArray(profs)) for (const p of profs) partyNames[p.id] = p.full_name || p.email || 'Utilisateur';
+        } catch (e) {}
+
+        document.getElementById('party-investor').textContent = partyNames[contract.party_investor_id] || 'Investisseur';
+        document.getElementById('party-provider').textContent = partyNames[contract.party_provider_id] || 'Prestataire';
+
+        if (myRole === 'investor') iAlreadySigned = !!contract.signed_by_investor_at;
+        if (myRole === 'provider') iAlreadySigned = !!contract.signed_by_provider_at;
+
+        renderSignatures();
+
+        if (myRole === 'admin' || iAlreadySigned) {
+          document.getElementById('sign-zone').classList.add('hidden');
+          document.getElementById('already-signed-banner').classList.remove('hidden');
+          if (myRole === 'admin') {
+            document.getElementById('already-signed-banner').innerHTML = `
+              <div class="flex items-start gap-3">
+                <span class="text-xl">👁️</span>
+                <div class="flex-1">
+                  <p class="text-sm font-bold" style="color:#6ee7b7;">Mode supervision admin</p>
+                  <p class="text-[11px] mt-1" style="color:#a7f3d0;">Vous consultez ce contrat en lecture seule.</p>
+                </div>
+              </div>
+            `;
+          }
+        }
+
+      } catch (e) {
+        console.error('[contrat-signer]', e);
+        showError('Erreur de chargement');
+      }
     }
 
+    /* ============================================
+       CONTENU DU CONTRAT (styles inline pour éviter l'invisibilité)
+       ============================================ */
+    function buildContractBody(c) {
+      const styleH2 = 'font-weight:700; color:#111827; font-size:0.85rem; margin:0.75rem 0 0.25rem 0;';
+      const styleP = 'color:#374151; margin:0; font-size:0.78rem; line-height:1.55;';
+
+      if (c.content && c.content.trim().length > 10) {
+        return '<p style="' + styleP + ' white-space:pre-wrap;">' + escapeHtml(c.content) + '</p>';
+      }
+
+      const montant = c.total_amount || c.amount;
+      const montantTxt = montant
+        ? 'Le montant total est de <strong style="color:#111827;">' + Number(montant).toLocaleString('fr-FR') + ' XAF</strong>. '
+        : '';
+
+      return `
+        <div>
+          <h2 style="${styleH2}">Article 1 — Objet du contrat</h2>
+          <p style="${styleP}">Le présent contrat a pour objet la réalisation des travaux décrits au projet associé.</p>
+        </div>
+        <div>
+          <h2 style="${styleH2}">Article 2 — Durée et délais</h2>
+          <p style="${styleP}">Les travaux débuteront dès la signature par les deux parties et devront être achevés dans le délai convenu.</p>
+        </div>
+        <div>
+          <h2 style="${styleH2}">Article 3 — Montant et modalités</h2>
+          <p style="${styleP}">${montantTxt}Le paiement sera effectué par jalons validés par le maître d'ouvrage.</p>
+        </div>
+        <div>
+          <h2 style="${styleH2}">Article 4 — Obligations du prestataire</h2>
+          <p style="${styleP}">Le prestataire s'engage à fournir des factures authentiques, à respecter les normes en vigueur et à maintenir une communication régulière.</p>
+        </div>
+        <div>
+          <h2 style="${styleH2}">Article 5 — Pénalités de retard</h2>
+          <p style="${styleP}">Tout retard non justifié entraînera une pénalité proportionnelle au montant total, définie d'un commun accord.</p>
+        </div>
+        <div>
+          <h2 style="${styleH2}">Article 6 — Résiliation</h2>
+          <p style="${styleP}">Le contrat peut être résilié avec un préavis de 15 jours en cas de manquement grave, par notification officielle via la plateforme.</p>
+        </div>
+        <div>
+          <h2 style="${styleH2}">Article 7 — Juridiction compétente</h2>
+          <p style="${styleP}">Tout litige sera soumis à la juridiction compétente selon la localisation du projet.</p>
+        </div>
+        <div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid #e5e7eb;">
+          <h2 style="${styleH2}">Article 8 — Preuve et signature électronique</h2>
+          <p style="${styleP}">Les parties acceptent la signature électronique comme preuve valable. Chaque signature est horodatée, tracée et liée au compte utilisateur.</p>
+        </div>
+      `;
+    }
+
+    /* ============================================
+       SIGNATURES EXISTANTES
+       ============================================ */
+    function renderSignatures() {
+      const panel = document.getElementById('signatures-panel');
+      const list = document.getElementById('signatures-list');
+      const sigs = [];
+
+      if (contract.signed_by_investor_at) {
+        sigs.push({ label: 'Investisseur', date: contract.signed_by_investor_at, sig: contract.signature_investor });
+      }
+      if (contract.signed_by_provider_at) {
+        sigs.push({ label: 'Prestataire', date: contract.signed_by_provider_at, sig: contract.signature_provider });
+      }
+
+      if (sigs.length === 0) { panel.classList.add('hidden'); return; }
+
+      panel.classList.remove('hidden');
+      list.innerHTML = sigs.map(s => {
+        let sigHTML = '';
+        if (s.sig) {
+          if (s.sig.startsWith('data:image')) {
+            sigHTML = '<img src="' + s.sig + '" style="height:3rem; margin-top:0.25rem; background:#fff; border-radius:0.4rem; padding:0.25rem;">';
+          } else {
+            sigHTML = '<p style="font-size:1.1rem; font-style:italic; color:#6ee7b7; font-family:serif; margin-top:0.25rem;">' + escapeHtml(s.sig) + '</p>';
+          }
+        }
+        return `
+          <div class="rounded-2xl p-3" style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.45);">
+            <div class="flex justify-between items-center">
+              <p class="text-xs font-bold" style="color:#6ee7b7;">✅ ${escapeHtml(s.label)}</p>
+              <p class="text-[10px]" style="color:#a7f3d0;">${new Date(s.date).toLocaleString('fr-FR')}</p>
+            </div>
+            ${sigHTML}
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* ============================================
+       MODE DE SIGNATURE
+       ============================================ */
     document.querySelectorAll('.mode-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.mode-btn').forEach(b => {
-          b.classList.remove('bg-emerald-600');
-          b.classList.add('bg-white/5', 'border', 'border-white/10');
+          b.style.background = 'rgba(255,255,255,0.05)';
+          b.style.border = '1px solid rgba(255,255,255,0.15)';
+          b.style.color = '#fff';
         });
-        btn.classList.add('bg-emerald-600');
-        btn.classList.remove('bg-white/5', 'border', 'border-white/10');
+        btn.style.background = '#059669';
+        btn.style.border = 'none';
+        btn.style.color = '#fff';
+
         sigMode = btn.dataset.mode;
         document.getElementById('mode-type').classList.toggle('hidden', sigMode !== 'type');
         document.getElementById('mode-draw').classList.toggle('hidden', sigMode !== 'draw');
+
+        if (sigMode === 'draw') {
+          setTimeout(setupCanvas, 50); // re-mesure après affichage
+        }
       });
     });
 
@@ -145,50 +310,164 @@
       document.getElementById('signature-preview').textContent = e.target.value || 'Votre signature';
     });
 
+    /* ============================================
+       CANVAS DE SIGNATURE (mobile + desktop)
+       ============================================ */
     const canvas = document.getElementById('sigCanvas');
     const ctx = canvas.getContext('2d');
     let drawing = false;
-    canvas.width = canvas.offsetWidth || 300;
+    let hasDrawn = false;
+    let lastX = 0, lastY = 0;
 
-    canvas.addEventListener('mousedown', (e) => { drawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
-    canvas.addEventListener('mouseup', () => drawing = false);
-    canvas.addEventListener('mousemove', (e) => {
-      if (!drawing) return;
-      ctx.lineTo(e.offsetX, e.offsetY);
+    function setupCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const w = rect.width;
+      const h = 180;
+      const ratio = window.devicePixelRatio || 1;
+
+      canvas.width = w * ratio;
+      canvas.height = h * ratio;
+      canvas.style.height = h + 'px';
+
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
       ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, w, h);
+    }
+
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      let clientX, clientY;
+      if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else if (e.changedTouches && e.changedTouches.length > 0) {
+        clientX = e.changedTouches[0].clientX;
+        clientY = e.changedTouches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function startDraw(e) {
+      e.preventDefault();
+      drawing = true;
+      hasDrawn = true;
+      const ph = document.getElementById('canvas-placeholder');
+      if (ph) ph.style.display = 'none';
+      const p = getPos(e);
+      lastX = p.x; lastY = p.y;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+    }
+
+    function moveDraw(e) {
+      if (!drawing) return;
+      e.preventDefault();
+      const p = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(p.x, p.y);
       ctx.stroke();
-    });
+      lastX = p.x; lastY = p.y;
+    }
+
+    function endDraw(e) {
+      if (!drawing) return;
+      e.preventDefault();
+      drawing = false;
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', moveDraw);
+    canvas.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('mouseleave', endDraw);
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', moveDraw, { passive: false });
+    canvas.addEventListener('touchend', endDraw, { passive: false });
+    canvas.addEventListener('touchcancel', endDraw, { passive: false });
 
     document.getElementById('btn-clear').addEventListener('click', () => {
+      const rect = canvas.getBoundingClientRect();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, rect.width, rect.height);
+      hasDrawn = false;
+      const ph = document.getElementById('canvas-placeholder');
+      if (ph) ph.style.display = 'block';
     });
 
+    // Redimensionnement : re-setup pour ne pas déformer
+    window.addEventListener('resize', () => { if (sigMode === 'draw') setupCanvas(); });
+
+    /* ============================================
+       SOUMISSION
+       ============================================ */
     document.getElementById('btn-sign').addEventListener('click', async () => {
       const checkboxes = document.querySelectorAll('.cgu');
       const allChecked = Array.from(checkboxes).every(c => c.checked);
       if (!allChecked) { alert('Cochez toutes les cases avant de signer'); return; }
 
-      if (sigMode === 'type' && !document.getElementById('typedName').value.trim()) {
-        alert('Tapez votre nom pour signer');
-        return;
+      let signatureValue = null;
+
+      if (sigMode === 'type') {
+        const typed = document.getElementById('typedName').value.trim();
+        if (!typed) { alert('Tapez votre nom pour signer'); return; }
+        signatureValue = typed;
+      } else {
+        if (!hasDrawn) { alert('Dessinez votre signature dans le cadre blanc'); return; }
+        signatureValue = canvas.toDataURL('image/png');
       }
 
-      if (!confirm('Confirmer la signature électronique ?')) return;
+      if (!confirm('Confirmer la signature électronique ?\n\nCette action est définitive.')) return;
 
       const btn = document.getElementById('btn-sign');
       btn.disabled = true;
       btn.textContent = 'Signature...';
 
       try {
-        await apiPatch('contracts', contractId, {
-          status: 'signed',
-          signed_by_investor_at: new Date().toISOString()
-        });
+        const now = new Date().toISOString();
+        const patch = {
+          signature_type: sigMode,
+          last_signed_at: now
+        };
+
+        if (myRole === 'investor') {
+          patch.signed_by_investor_at = now;
+          patch.signature_investor = signatureValue;
+        } else if (myRole === 'provider') {
+          patch.signed_by_provider_at = now;
+          patch.signature_provider = signatureValue;
+        }
+
+        const bothSigned =
+          (myRole === 'investor' && contract.signed_by_provider_at) ||
+          (myRole === 'provider' && contract.signed_by_investor_at);
+
+        if (bothSigned) patch.status = 'signed';
+
+        try {
+          await apiPatch('contracts', contractId, patch);
+        } catch (err) {
+          console.warn('[sign] full patch failed, retry minimal', err);
+          const minimal = {};
+          if (myRole === 'investor') minimal.signed_by_investor_at = now;
+          if (myRole === 'provider') minimal.signed_by_provider_at = now;
+          if (bothSigned) minimal.status = 'signed';
+          await apiPatch('contracts', contractId, minimal);
+        }
+
         showSuccess('Contrat signé !');
-        window.location.href = 'contrats.html';
+        setTimeout(() => { window.location.href = 'contrats.html'; }, 800);
+
       } catch (e) {
-        showError(e.message);
+        console.error('[sign]', e);
+        showError(e.message || 'Erreur lors de la signature');
         btn.disabled = false;
         btn.textContent = 'Signer le contrat';
       }
