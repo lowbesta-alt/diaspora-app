@@ -11,68 +11,68 @@
   <main class="p-4 max-w-3xl mx-auto space-y-6 pt-6">
 
     <!-- EN-TETE ADMIN -->
-    <section class="bg-gradient-to-br from-sky-600/20 to-[#0f2252]/60 rounded-3xl p-6" style="border: 1px solid rgba(59,130,246,0.35);">
+    <section class="rounded-3xl p-6" style="background: linear-gradient(135deg, rgba(2,132,199,0.25) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(59,130,246,0.4);">
       <div class="flex items-center gap-3 mb-3">
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-sky-500 to-sky-400 flex items-center justify-center text-2xl">🎯</div>
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl" style="background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);">🎯</div>
         <div>
-          <div class="text-xs font-bold text-sky-300 tracking-widest uppercase">Administration</div>
+          <div class="text-xs font-bold tracking-widest uppercase" style="color: #7dd3fc;">Administration</div>
           <h1 class="text-xl font-extrabold">Tour de contrôle</h1>
         </div>
       </div>
-      <p class="text-sm text-slate-300 leading-relaxed">Vue globale de la plateforme : projets, artisans, candidatures et flux financiers.</p>
+      <p class="text-sm text-slate-200 leading-relaxed">Vue globale de la plateforme : projets, artisans, candidatures et flux financiers.</p>
     </section>
 
     <!-- ACCÈS RAPIDE : KYC -->
-    <a href="admin-kyc.html" id="kyc-admin-card" class="block bg-gradient-to-br from-emerald-600/20 to-[#0f2252]/60 rounded-3xl p-5 hover:from-emerald-600/30 transition" style="border: 1px solid rgba(16,185,129,0.4);">
+    <a href="admin-kyc.html" id="kyc-admin-card" class="block rounded-3xl p-5 transition" style="background: linear-gradient(135deg, rgba(16,185,129,0.22) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(16,185,129,0.45); text-decoration: none; color: #fff;">
       <div class="flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-400 flex items-center justify-center text-2xl flex-shrink-0 shadow-lg shadow-emerald-500/30">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); box-shadow: 0 8px 20px -8px rgba(16,185,129,0.5);">
           🛡️
         </div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
-            <h2 class="text-base font-extrabold">Vérifications d'identité (KYC)</h2>
+            <h2 class="text-base font-extrabold" style="color: #fff;">Vérifications d'identité (KYC)</h2>
             <span id="kyc-pending-badge" class="hidden text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">0</span>
           </div>
-          <p id="kyc-admin-subtitle" class="text-xs text-slate-300 mt-1">Chargement…</p>
+          <p id="kyc-admin-subtitle" class="text-xs mt-1" style="color: #cbd5e1;">Chargement…</p>
         </div>
-        <span class="text-emerald-400 text-2xl">›</span>
+        <span style="color: #34d399; font-size: 1.5rem;">›</span>
       </div>
     </a>
 
     <!-- ACCÈS RAPIDE : CONTRATS -->
-    <a href="contrats.html" id="contrats-admin-card" class="block bg-gradient-to-br from-sky-600/20 to-[#0f2252]/60 rounded-3xl p-5 hover:from-sky-600/30 transition" style="border: 1px solid rgba(59,130,246,0.4);">
+    <a href="contrats.html" id="contrats-admin-card" class="block rounded-3xl p-5 transition" style="background: linear-gradient(135deg, rgba(2,132,199,0.22) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(59,130,246,0.45); text-decoration: none; color: #fff;">
       <div class="flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-sky-500 to-sky-400 flex items-center justify-center text-2xl flex-shrink-0 shadow-lg shadow-sky-500/30">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style="background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%); box-shadow: 0 8px 20px -8px rgba(14,165,233,0.5);">
           📋
         </div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
-            <h2 class="text-base font-extrabold">Contrats</h2>
+            <h2 class="text-base font-extrabold" style="color: #fff;">Contrats</h2>
             <span id="contrats-pending-badge" class="hidden text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">0</span>
           </div>
-          <p id="contrats-admin-subtitle" class="text-xs text-slate-300 mt-1">Chargement…</p>
+          <p id="contrats-admin-subtitle" class="text-xs mt-1" style="color: #cbd5e1;">Créer et suivre les contrats de la plateforme</p>
         </div>
-        <span class="text-sky-400 text-2xl">›</span>
+        <span style="color: #38bdf8; font-size: 1.5rem;">›</span>
       </div>
     </a>
 
     <!-- MODE TEST -->
-    <section class="bg-gradient-to-br from-amber-500/15 to-[#0f2252]/60 rounded-3xl p-6" style="border: 1px solid rgba(245,158,11,0.4);">
+    <section class="rounded-3xl p-6" style="background: linear-gradient(135deg, rgba(245,158,11,0.18) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(245,158,11,0.45);">
       <div class="flex items-start gap-3 mb-4">
         <div class="text-3xl">👁️</div>
         <div class="flex-1">
-          <h2 class="text-base font-extrabold text-amber-300">Mode test — Voir l'app comme un utilisateur</h2>
-          <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+          <h2 class="text-base font-extrabold" style="color: #fcd34d;">Mode test — Voir l'app comme un utilisateur</h2>
+          <p class="text-xs text-slate-200 mt-1 leading-relaxed">
             Basculez dans la vue d'un Client ou d'un Artisan pour tester la plateforme. Vous gardez votre compte admin, vous pouvez revenir à tout moment.
           </p>
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3">
-        <button id="btn-test-client" class="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold py-3.5 rounded-xl text-xs flex flex-col items-center gap-1 transition shadow-lg shadow-emerald-500/30">
+        <button id="btn-test-client" class="font-bold py-3.5 rounded-xl text-xs flex flex-col items-center gap-1 transition" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #fff; box-shadow: 0 8px 20px -8px rgba(16,185,129,0.5);">
           <span class="text-xl">🏠</span>
           <span>Voir en Client</span>
         </button>
-        <button id="btn-test-artisan" class="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-bold py-3.5 rounded-xl text-xs flex flex-col items-center gap-1 transition shadow-lg shadow-amber-500/30">
+        <button id="btn-test-artisan" class="font-bold py-3.5 rounded-xl text-xs flex flex-col items-center gap-1 transition" style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); color: #fff; box-shadow: 0 8px 20px -8px rgba(245,158,11,0.5);">
           <span class="text-xl">🏗️</span>
           <span>Voir en Artisan</span>
         </button>
@@ -168,8 +168,9 @@
         if (count > 0) {
           badge.textContent = count;
           badge.classList.remove('hidden');
-          subtitle.innerHTML = '<span class="text-red-300 font-bold">' + count + ' vérification' + (count > 1 ? 's' : '') + ' en attente</span> — Cliquez pour traiter';
-          document.getElementById('kyc-admin-card').style.borderColor = 'rgba(239,68,68,0.6)';
+          subtitle.innerHTML = '<span style="color:#fca5a5;font-weight:700;">' + count + ' vérification' + (count > 1 ? 's' : '') + ' en attente</span> — Cliquez pour traiter';
+          document.getElementById('kyc-admin-card').style.borderColor = 'rgba(239,68,68,0.7)';
+          document.getElementById('kyc-admin-card').style.boxShadow = '0 0 20px rgba(239,68,68,0.25)';
         } else {
           badge.classList.add('hidden');
           subtitle.textContent = 'Aucune vérification en attente';
@@ -189,14 +190,15 @@
         if (count > 0) {
           badge.textContent = count;
           badge.classList.remove('hidden');
-          subtitle.innerHTML = '<span class="text-red-300 font-bold">' + count + ' contrat' + (count > 1 ? 's' : '') + ' en attente de signature</span>';
-          document.getElementById('contrats-admin-card').style.borderColor = 'rgba(239,68,68,0.6)';
+          subtitle.innerHTML = '<span style="color:#fca5a5;font-weight:700;">' + count + ' contrat' + (count > 1 ? 's' : '') + ' en attente de signature</span>';
+          document.getElementById('contrats-admin-card').style.borderColor = 'rgba(239,68,68,0.7)';
+          document.getElementById('contrats-admin-card').style.boxShadow = '0 0 20px rgba(239,68,68,0.25)';
         } else {
           badge.classList.add('hidden');
           subtitle.textContent = 'Créer et suivre les contrats de la plateforme';
         }
       } catch (e) {
-        subtitle.textContent = 'Créer et suivre les contrats';
+        subtitle.textContent = 'Créer et suivre les contrats de la plateforme';
       }
     }
 
