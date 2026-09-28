@@ -108,7 +108,7 @@
         </div>
       </div>
 
-      <!-- Motif de refus (si refusée) -->
+      <!-- Motif de refus -->
       <div id="m-rejection-wrap" class="hidden bg-red-500/10 border border-red-500/40 rounded-2xl p-4">
         <div class="text-[10px] font-bold text-red-300 uppercase tracking-wider mb-1">❌ Motif du refus</div>
         <p id="m-rejection" class="text-xs text-red-100"></p>
@@ -124,6 +124,9 @@
         <button id="btn-reject" class="bg-red-600 hover:bg-red-500 py-3 rounded-xl font-semibold text-sm">❌ Refuser</button>
         <button id="btn-approve" class="bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-semibold text-sm">✅ Approuver</button>
       </div>
+      <button id="btn-delete" class="w-full bg-slate-700/60 hover:bg-red-700/60 border border-white/10 hover:border-red-500/50 py-2.5 rounded-xl font-semibold text-xs transition" style="color:#fca5a5;">
+        🗑️ Supprimer définitivement cette réalisation
+      </button>
     </footer>
   </div>
 
@@ -143,9 +146,7 @@
 
     async function getSignedUrl(bucket, path, expiresIn = 3600) {
       if (!path) return null;
-      // Si l'URL est déjà absolue (http...), on la retourne direct
       if (path.startsWith('http')) return path;
-
       const key = bucket + '/' + path;
       const cached = signedCache.get(key);
       if (cached && cached.exp > Date.now() + 60000) return cached.url;
@@ -153,11 +154,7 @@
         const token = getToken() || SUPABASE_KEY;
         const res = await fetch(SUPABASE_URL + '/storage/v1/object/sign/' + bucket + '/' + path, {
           method: 'POST',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + token,
-            'Content-Type': 'application/json'
-          },
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
           body: JSON.stringify({ expiresIn })
         });
         if (!res.ok) return null;
@@ -174,7 +171,6 @@
     async function loadData() {
       const list = document.getElementById('rea-list');
       list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Chargement...</p>';
-
       try {
         const data = await apiGet('realisations', 'order=created_at.desc&limit=200');
         allRealisations = Array.isArray(data) ? data : [];
@@ -212,11 +208,11 @@
           <div class="bg-white/5 hover:bg-white/[0.08] border border-white/10 rounded-2xl overflow-hidden cursor-pointer rea-card" data-id="${r.id}">
             <div class="grid grid-cols-2 gap-px bg-slate-900/40">
               <div class="aspect-square bg-slate-800/50 flex items-center justify-center relative">
-                <span class="text-[10px] absolute top-1.5 left-1.5 bg-red-500/80 text-white font-bold px-1.5 py-0.5 rounded">AVANT</span>
+                <span class="text-[10px] absolute top-1.5 left-1.5 bg-red-500/80 text-white font-bold px-1.5 py-0.5 rounded z-10">AVANT</span>
                 <img src="" data-img="before" data-path="${escapeHtml(r.before_photo_url || '')}" class="w-full h-full object-cover" alt="">
               </div>
               <div class="aspect-square bg-slate-800/50 flex items-center justify-center relative">
-                <span class="text-[10px] absolute top-1.5 left-1.5 bg-emerald-500/80 text-white font-bold px-1.5 py-0.5 rounded">APRÈS</span>
+                <span class="text-[10px] absolute top-1.5 left-1.5 bg-emerald-500/80 text-white font-bold px-1.5 py-0.5 rounded z-10">APRÈS</span>
                 <img src="" data-img="after" data-path="${escapeHtml(r.after_photo_url || '')}" class="w-full h-full object-cover" alt="">
               </div>
             </div>
@@ -230,11 +226,8 @@
         `;
       }).join('');
 
-      // Charge les images
       list.querySelectorAll('.rea-card').forEach(card => {
         card.addEventListener('click', () => openModal(card.dataset.id));
-
-        // Images
         card.querySelectorAll('img[data-path]').forEach(async img => {
           const path = img.dataset.path;
           if (!path) { img.style.display = 'none'; return; }
@@ -266,7 +259,6 @@
 
       document.getElementById('modal-title').textContent = r.project_title || 'Réalisation';
       document.getElementById('modal-subtitle').textContent = r.company_name || '—';
-
       document.getElementById('m-project-title').textContent = r.project_title || '—';
       document.getElementById('m-location').textContent = [r.project_city, r.project_country].filter(Boolean).join(', ') || '—';
       document.getElementById('m-year').textContent = r.project_year || '—';
@@ -284,7 +276,6 @@
       document.getElementById('m-company-reg').textContent = r.company_registration_number || '—';
       document.getElementById('m-company-address').textContent = r.company_address || '—';
 
-      // Motif de refus
       if (r.status === 'rejected' && r.rejection_reason) {
         document.getElementById('m-rejection-wrap').classList.remove('hidden');
         document.getElementById('m-rejection').textContent = r.rejection_reason;
@@ -292,7 +283,6 @@
         document.getElementById('m-rejection-wrap').classList.add('hidden');
       }
 
-      // Photos
       const beforeEl = document.getElementById('m-before');
       const afterEl = document.getElementById('m-after');
       beforeEl.innerHTML = '<span class="text-slate-500 text-xs">Chargement…</span>';
@@ -304,7 +294,6 @@
       beforeEl.innerHTML = beforeUrl ? '<img src="' + beforeUrl + '" class="w-full h-full object-cover">' : '<span class="text-slate-500 text-xs">Photo indisponible</span>';
       afterEl.innerHTML = afterUrl ? '<img src="' + afterUrl + '" class="w-full h-full object-cover">' : '<span class="text-slate-500 text-xs">Photo indisponible</span>';
 
-      // Boutons selon statut
       const btnApprove = document.getElementById('btn-approve');
       const btnReject = document.getElementById('btn-reject');
       const rejectBox = document.getElementById('reject-box');
@@ -320,7 +309,6 @@
         btnApprove.textContent = '✅ Approuver';
         btnApprove.classList.remove('opacity-50');
       }
-
       btnReject.textContent = r.status === 'rejected' ? '❌ Déjà refusée' : '❌ Refuser';
 
       document.getElementById('modal').classList.remove('hidden');
@@ -348,9 +336,7 @@
         showSuccess('Réalisation approuvée !');
         closeModal();
         await loadData();
-      } catch (e) {
-        showError(e.message);
-      }
+      } catch (e) { showError(e.message); }
     });
 
     document.getElementById('btn-reject').addEventListener('click', async () => {
@@ -363,23 +349,48 @@
       }
       const reason = document.getElementById('reject-reason').value.trim();
       if (!reason) { alert('Indiquez la raison du refus'); return; }
-
       try {
         try {
-          await apiPatch('realisations', currentReaId, {
-            status: 'rejected',
-            rejection_reason: reason
-          });
+          await apiPatch('realisations', currentReaId, { status: 'rejected', rejection_reason: reason });
         } catch (e) {
-          // Fallback si la colonne rejection_reason n'existe pas
           await apiPatch('realisations', currentReaId, { status: 'rejected' });
         }
         showSuccess('Réalisation refusée');
         closeModal();
         await loadData();
-      } catch (e) {
-        showError(e.message);
-      }
+      } catch (e) { showError(e.message); }
+    });
+
+    // NOUVEAU : Supprimer définitivement
+    document.getElementById('btn-delete').addEventListener('click', async () => {
+      if (!currentReaId) return;
+      const r = allRealisations.find(x => x.id === currentReaId);
+      const title = r ? (r.project_title || 'cette réalisation') : 'cette réalisation';
+
+      if (!confirm('⚠️ SUPPRESSION DÉFINITIVE\n\nVoulez-vous vraiment supprimer « ' + title + ' » ?\n\nCette action est IRRÉVERSIBLE.\nLes photos seront également supprimées.\n\nContinuer ?')) return;
+
+      try {
+        // 1) Supprimer les fichiers du storage (photos + logo) si présents
+        if (r) {
+          const pathsToDelete = [r.before_photo_url, r.after_photo_url, r.company_logo_url].filter(p => p && !p.startsWith('http'));
+          for (const path of pathsToDelete) {
+            try {
+              const token = getToken() || SUPABASE_KEY;
+              await fetch(SUPABASE_URL + '/storage/v1/object/project-documents/' + path, {
+                method: 'DELETE',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token }
+              });
+            } catch (e) { /* silencieux */ }
+          }
+        }
+
+        // 2) Supprimer la ligne en base
+        await apiDelete('realisations', currentReaId);
+
+        showSuccess('Réalisation supprimée');
+        closeModal();
+        await loadData();
+      } catch (e) { showError(e.message); }
     });
 
     document.addEventListener('keydown', (e) => {
