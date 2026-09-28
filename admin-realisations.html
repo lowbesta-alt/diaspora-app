@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Réalisations à valider - Admin</title>
+  <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
@@ -55,7 +56,6 @@
 
     <div class="flex-1 overflow-y-auto p-4 space-y-4">
 
-      <!-- Photos avant / après -->
       <div class="grid grid-cols-2 gap-3">
         <div>
           <div class="text-[10px] font-bold text-red-300 mb-1.5 uppercase tracking-wider">📸 Avant</div>
@@ -67,7 +67,6 @@
         </div>
       </div>
 
-      <!-- Infos projet -->
       <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2.5 text-xs">
         <div class="flex justify-between gap-2">
           <span class="text-slate-400">Titre :</span>
@@ -91,7 +90,6 @@
         </div>
       </div>
 
-      <!-- Infos entreprise -->
       <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 space-y-2.5 text-xs">
         <div class="text-[10px] font-bold text-emerald-300 uppercase tracking-wider mb-1">🏢 Entreprise</div>
         <div class="flex justify-between gap-2">
@@ -108,7 +106,6 @@
         </div>
       </div>
 
-      <!-- Motif de refus -->
       <div id="m-rejection-wrap" class="hidden bg-red-500/10 border border-red-500/40 rounded-2xl p-4">
         <div class="text-[10px] font-bold text-red-300 uppercase tracking-wider mb-1">❌ Motif du refus</div>
         <p id="m-rejection" class="text-xs text-red-100"></p>
@@ -166,6 +163,21 @@
         }
         return null;
       } catch (e) { return null; }
+    }
+
+    // ✅ NOUVEAU : Créer une notification pour l'artisan
+    async function sendNotification(userId, type, title, message, link) {
+      try {
+        await apiPost('notifications', {
+          user_id: userId,
+          type: type,
+          title: title,
+          message: message,
+          link: link || null
+        });
+      } catch (e) {
+        console.warn('[notification] échec envoi :', e);
+      }
     }
 
     async function loadData() {
@@ -325,20 +337,37 @@
 
     document.getElementById('modal-close').addEventListener('click', closeModal);
 
+    // ✅ APPROUVER + NOTIFICATION AUTO
     document.getElementById('btn-approve').addEventListener('click', async () => {
       if (!currentReaId) return;
       if (!confirm('Approuver cette réalisation ? Elle apparaîtra sur la page d\'accueil.')) return;
+
+      const rea = allRealisations.find(x => x.id === currentReaId);
+
       try {
         await apiPatch('realisations', currentReaId, {
           status: 'approved',
           approved_at: new Date().toISOString()
         });
-        showSuccess('Réalisation approuvée !');
+
+        // 🎉 Notification à l'artisan
+        if (rea && rea.company_id) {
+          await sendNotification(
+            rea.company_id,
+            'portfolio_approved',
+            '🎉 Votre portfolio est publié !',
+            'Félicitations ! Votre réalisation "' + (rea.project_title || 'Sans titre') + '" a été approuvée par Espace Diaspora. Elle est maintenant visible sur la page d\'accueil.',
+            'mon-portfolio.html'
+          );
+        }
+
+        showSuccess('Réalisation approuvée ! L\'artisan a été notifié.');
         closeModal();
         await loadData();
       } catch (e) { showError(e.message); }
     });
 
+    // ❌ REFUSER + NOTIFICATION AUTO
     document.getElementById('btn-reject').addEventListener('click', async () => {
       if (!currentReaId) return;
       const box = document.getElementById('reject-box');
@@ -349,19 +378,34 @@
       }
       const reason = document.getElementById('reject-reason').value.trim();
       if (!reason) { alert('Indiquez la raison du refus'); return; }
+
+      const rea = allRealisations.find(x => x.id === currentReaId);
+
       try {
         try {
           await apiPatch('realisations', currentReaId, { status: 'rejected', rejection_reason: reason });
         } catch (e) {
           await apiPatch('realisations', currentReaId, { status: 'rejected' });
         }
-        showSuccess('Réalisation refusée');
+
+        // ⚠️ Notification à l'artisan
+        if (rea && rea.company_id) {
+          await sendNotification(
+            rea.company_id,
+            'portfolio_rejected',
+            '⚠️ Réalisation refusée',
+            'Votre réalisation "' + (rea.project_title || 'Sans titre') + '" n\'a pas été validée. Motif : ' + reason + '. Vous pouvez la modifier et la republier.',
+            'mon-portfolio.html'
+          );
+        }
+
+        showSuccess('Réalisation refusée. L\'artisan a été notifié.');
         closeModal();
         await loadData();
       } catch (e) { showError(e.message); }
     });
 
-    // NOUVEAU : Supprimer définitivement
+    // 🗑️ SUPPRIMER
     document.getElementById('btn-delete').addEventListener('click', async () => {
       if (!currentReaId) return;
       const r = allRealisations.find(x => x.id === currentReaId);
@@ -370,7 +414,6 @@
       if (!confirm('⚠️ SUPPRESSION DÉFINITIVE\n\nVoulez-vous vraiment supprimer « ' + title + ' » ?\n\nCette action est IRRÉVERSIBLE.\nLes photos seront également supprimées.\n\nContinuer ?')) return;
 
       try {
-        // 1) Supprimer les fichiers du storage (photos + logo) si présents
         if (r) {
           const pathsToDelete = [r.before_photo_url, r.after_photo_url, r.company_logo_url].filter(p => p && !p.startsWith('http'));
           for (const path of pathsToDelete) {
@@ -380,12 +423,22 @@
                 method: 'DELETE',
                 headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token }
               });
-            } catch (e) { /* silencieux */ }
+            } catch (e) {}
           }
         }
 
-        // 2) Supprimer la ligne en base
         await apiDelete('realisations', currentReaId);
+
+        // ⚠️ Notification à l'artisan (optionnel)
+        if (r && r.company_id) {
+          await sendNotification(
+            r.company_id,
+            'portfolio_deleted',
+            '🗑️ Réalisation supprimée',
+            'Votre réalisation "' + (r.project_title || 'Sans titre') + '" a été supprimée par l\'administrateur. Contactez le support si vous avez des questions.',
+            'mon-portfolio.html'
+          );
+        }
 
         showSuccess('Réalisation supprimée');
         closeModal();
