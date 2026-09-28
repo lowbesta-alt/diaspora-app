@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Réalisations à valider - Admin</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <a href="dashboard-admin.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm">🏆 Réalisations</span>
+    <span class="w-6"></span>
+  </header>
+
+  <main class="p-4 max-w-2xl mx-auto space-y-4">
+
+    <div class="grid grid-cols-3 gap-2">
+      <button data-filter="pending" class="rea-filter-btn font-bold py-2.5 rounded-xl text-[11px] whitespace-nowrap" style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #0a1838;">⏳ En attente</button>
+      <button data-filter="approved" class="rea-filter-btn py-2.5 rounded-xl text-[11px] font-semibold" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(16,185,129,0.3); color:#fff;">✅ Approuvées</button>
+      <button data-filter="rejected" class="rea-filter-btn py-2.5 rounded-xl text-[11px] font-semibold" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(16,185,129,0.3); color:#fff;">❌ Refusées</button>
+    </div>
+
+    <div class="grid grid-cols-3 gap-2 text-center">
+      <div class="bg-white/5 rounded-xl p-3" style="border: 1px solid rgba(16,185,129,0.25);">
+        <div class="text-lg font-bold text-amber-400" id="stat-pending">-</div>
+        <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">En attente</div>
+      </div>
+      <div class="bg-white/5 rounded-xl p-3" style="border: 1px solid rgba(16,185,129,0.25);">
+        <div class="text-lg font-bold text-emerald-400" id="stat-approved">-</div>
+        <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Approuvées</div>
+      </div>
+      <div class="bg-white/5 rounded-xl p-3" style="border: 1px solid rgba(16,185,129,0.25);">
+        <div class="text-lg font-bold text-red-400" id="stat-rejected">-</div>
+        <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Refusées</div>
+      </div>
+    </div>
+
+    <div id="rea-list" class="space-y-3">
+      <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
+    </div>
+
+  </main>
+
+  <!-- MODAL DÉTAIL -->
+  <div id="modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm hidden flex-col">
+    <header class="flex items-center justify-between p-4 border-b border-white/10">
+      <div class="min-w-0 flex-1">
+        <h2 id="modal-title" class="font-bold text-sm truncate">Réalisation</h2>
+        <p id="modal-subtitle" class="text-[10px] text-slate-400"></p>
+      </div>
+      <button id="modal-close" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xl flex-shrink-0 ml-2">✕</button>
+    </header>
+
+    <div class="flex-1 overflow-y-auto p-4 space-y-4">
+
+      <!-- Photos avant / après -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <div class="text-[10px] font-bold text-red-300 mb-1.5 uppercase tracking-wider">📸 Avant</div>
+          <div id="m-before" class="rounded-xl overflow-hidden bg-slate-800/50 aspect-square flex items-center justify-center"></div>
+        </div>
+        <div>
+          <div class="text-[10px] font-bold text-emerald-300 mb-1.5 uppercase tracking-wider">✨ Après</div>
+          <div id="m-after" class="rounded-xl overflow-hidden bg-slate-800/50 aspect-square flex items-center justify-center"></div>
+        </div>
+      </div>
+
+      <!-- Infos projet -->
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2.5 text-xs">
+        <div class="flex justify-between gap-2">
+          <span class="text-slate-400">Titre :</span>
+          <span id="m-project-title" class="font-bold text-right truncate"></span>
+        </div>
+        <div class="flex justify-between gap-2">
+          <span class="text-slate-400">Ville / Pays :</span>
+          <span id="m-location" class="font-bold text-right"></span>
+        </div>
+        <div class="flex justify-between gap-2">
+          <span class="text-slate-400">Année :</span>
+          <span id="m-year" class="font-bold text-right"></span>
+        </div>
+        <div class="flex justify-between gap-2">
+          <span class="text-slate-400">Budget :</span>
+          <span id="m-budget" class="font-bold text-right"></span>
+        </div>
+        <div id="m-description-wrap" class="pt-2 border-t border-white/10">
+          <span class="text-slate-400 block mb-1">Description :</span>
+          <p id="m-description" class="text-slate-200 leading-relaxed"></p>
+        </div>
+      </div>
+
+      <!-- Infos entreprise -->
+      <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 space-y-2.5 text-xs">
+        <div class="text-[10px] font-bold text-emerald-300 uppercase tracking-wider mb-1">🏢 Entreprise</div>
+        <div class="flex justify-between gap-2">
+          <span class="text-slate-300">Raison sociale :</span>
+          <span id="m-company-name" class="font-bold text-right"></span>
+        </div>
+        <div class="flex justify-between gap-2">
+          <span class="text-slate-300">N° RCCM/IFU :</span>
+          <span id="m-company-reg" class="font-bold text-right"></span>
+        </div>
+        <div class="flex justify-between gap-2">
+          <span class="text-slate-300">Adresse :</span>
+          <span id="m-company-address" class="text-right"></span>
+        </div>
+      </div>
+
+      <!-- Motif de refus (si refusée) -->
+      <div id="m-rejection-wrap" class="hidden bg-red-500/10 border border-red-500/40 rounded-2xl p-4">
+        <div class="text-[10px] font-bold text-red-300 uppercase tracking-wider mb-1">❌ Motif du refus</div>
+        <p id="m-rejection" class="text-xs text-red-100"></p>
+      </div>
+
+    </div>
+
+    <footer class="p-4 border-t border-white/10 space-y-2">
+      <div id="reject-box" class="hidden">
+        <textarea id="reject-reason" rows="2" placeholder="Raison du refus (visible par l'artisan)" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-red-500 resize-none"></textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <button id="btn-reject" class="bg-red-600 hover:bg-red-500 py-3 rounded-xl font-semibold text-sm">❌ Refuser</button>
+        <button id="btn-approve" class="bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-semibold text-sm">✅ Approuver</button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if (!requireLogin()) throw new Error('Not logged');
+    if (getCurrentUserRole() !== 'admin') {
+      alert('Accès réservé à l\'administrateur');
+      window.location.href = 'dashboard-investisseur.html';
+    }
+
+    const signedCache = new Map();
+    let allRealisations = [];
+    let currentFilter = 'pending';
+    let currentReaId = null;
+
+    async function getSignedUrl(bucket, path, expiresIn = 3600) {
+      if (!path) return null;
+      // Si l'URL est déjà absolue (http...), on la retourne direct
+      if (path.startsWith('http')) return path;
+
+      const key = bucket + '/' + path;
+      const cached = signedCache.get(key);
+      if (cached && cached.exp > Date.now() + 60000) return cached.url;
+      try {
+        const token = getToken() || SUPABASE_KEY;
+        const res = await fetch(SUPABASE_URL + '/storage/v1/object/sign/' + bucket + '/' + path, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ expiresIn })
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (data.signedURL) {
+          const url = SUPABASE_URL + '/storage/v1' + data.signedURL;
+          signedCache.set(key, { url, exp: Date.now() + (expiresIn - 120) * 1000 });
+          return url;
+        }
+        return null;
+      } catch (e) { return null; }
+    }
+
+    async function loadData() {
+      const list = document.getElementById('rea-list');
+      list.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Chargement...</p>';
+
+      try {
+        const data = await apiGet('realisations', 'order=created_at.desc&limit=200');
+        allRealisations = Array.isArray(data) ? data : [];
+        renderStats();
+        renderList();
+      } catch (e) {
+        console.error('[admin-realisations]', e);
+        list.innerHTML = '<div class="bg-red-500/10 border border-red-500/40 rounded-2xl p-4 text-red-300 text-sm">Erreur : ' + escapeHtml(String(e && e.message || e)) + '</div>';
+      }
+    }
+
+    function renderStats() {
+      document.getElementById('stat-pending').textContent = allRealisations.filter(r => r.status === 'pending').length;
+      document.getElementById('stat-approved').textContent = allRealisations.filter(r => r.status === 'approved').length;
+      document.getElementById('stat-rejected').textContent = allRealisations.filter(r => r.status === 'rejected').length;
+    }
+
+    function renderList() {
+      const list = document.getElementById('rea-list');
+      const filtered = allRealisations.filter(r => r.status === currentFilter);
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">🏆</div><p class="text-slate-400 text-sm">Aucune réalisation dans cette catégorie</p></div>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(r => {
+        const title = r.project_title || 'Sans titre';
+        const city = r.project_city || '';
+        const country = r.project_country || '';
+        const loc = [city, country].filter(Boolean).join(', ');
+        const company = r.company_name || 'Artisan';
+
+        return `
+          <div class="bg-white/5 hover:bg-white/[0.08] border border-white/10 rounded-2xl overflow-hidden cursor-pointer rea-card" data-id="${r.id}">
+            <div class="grid grid-cols-2 gap-px bg-slate-900/40">
+              <div class="aspect-square bg-slate-800/50 flex items-center justify-center relative">
+                <span class="text-[10px] absolute top-1.5 left-1.5 bg-red-500/80 text-white font-bold px-1.5 py-0.5 rounded">AVANT</span>
+                <img src="" data-img="before" data-path="${escapeHtml(r.before_photo_url || '')}" class="w-full h-full object-cover" alt="">
+              </div>
+              <div class="aspect-square bg-slate-800/50 flex items-center justify-center relative">
+                <span class="text-[10px] absolute top-1.5 left-1.5 bg-emerald-500/80 text-white font-bold px-1.5 py-0.5 rounded">APRÈS</span>
+                <img src="" data-img="after" data-path="${escapeHtml(r.after_photo_url || '')}" class="w-full h-full object-cover" alt="">
+              </div>
+            </div>
+            <div class="p-3">
+              <h3 class="font-bold text-sm truncate">${escapeHtml(title)}</h3>
+              <p class="text-[10px] text-emerald-400 font-semibold mt-0.5">par ${escapeHtml(company)}</p>
+              ${loc ? '<p class="text-[10px] text-slate-400 mt-0.5">📍 ' + escapeHtml(loc) + '</p>' : ''}
+              <p class="text-[10px] text-slate-500 mt-1">Soumis le ${formatDate(r.created_at)}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Charge les images
+      list.querySelectorAll('.rea-card').forEach(card => {
+        card.addEventListener('click', () => openModal(card.dataset.id));
+
+        // Images
+        card.querySelectorAll('img[data-path]').forEach(async img => {
+          const path = img.dataset.path;
+          if (!path) { img.style.display = 'none'; return; }
+          const url = await getSignedUrl('project-documents', path);
+          if (url) img.src = url;
+        });
+      });
+    }
+
+    document.querySelectorAll('.rea-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.rea-filter-btn').forEach(b => {
+          b.style.background = 'rgba(255,255,255,0.05)';
+          b.style.border = '1px solid rgba(16,185,129,0.3)';
+          b.style.color = '#fff';
+        });
+        btn.style.background = 'linear-gradient(135deg, #f59e0b, #fbbf24)';
+        btn.style.color = '#0a1838';
+        btn.style.border = 'none';
+        currentFilter = btn.dataset.filter;
+        renderList();
+      });
+    });
+
+    async function openModal(reaId) {
+      currentReaId = reaId;
+      const r = allRealisations.find(x => x.id === reaId);
+      if (!r) return;
+
+      document.getElementById('modal-title').textContent = r.project_title || 'Réalisation';
+      document.getElementById('modal-subtitle').textContent = r.company_name || '—';
+
+      document.getElementById('m-project-title').textContent = r.project_title || '—';
+      document.getElementById('m-location').textContent = [r.project_city, r.project_country].filter(Boolean).join(', ') || '—';
+      document.getElementById('m-year').textContent = r.project_year || '—';
+      document.getElementById('m-budget').textContent = r.project_budget ? Number(r.project_budget).toLocaleString('fr-FR') + ' XAF' : '—';
+
+      const desc = r.project_description || '';
+      if (desc) {
+        document.getElementById('m-description-wrap').classList.remove('hidden');
+        document.getElementById('m-description').textContent = desc;
+      } else {
+        document.getElementById('m-description-wrap').classList.add('hidden');
+      }
+
+      document.getElementById('m-company-name').textContent = r.company_name || '—';
+      document.getElementById('m-company-reg').textContent = r.company_registration_number || '—';
+      document.getElementById('m-company-address').textContent = r.company_address || '—';
+
+      // Motif de refus
+      if (r.status === 'rejected' && r.rejection_reason) {
+        document.getElementById('m-rejection-wrap').classList.remove('hidden');
+        document.getElementById('m-rejection').textContent = r.rejection_reason;
+      } else {
+        document.getElementById('m-rejection-wrap').classList.add('hidden');
+      }
+
+      // Photos
+      const beforeEl = document.getElementById('m-before');
+      const afterEl = document.getElementById('m-after');
+      beforeEl.innerHTML = '<span class="text-slate-500 text-xs">Chargement…</span>';
+      afterEl.innerHTML = '<span class="text-slate-500 text-xs">Chargement…</span>';
+
+      const beforeUrl = await getSignedUrl('project-documents', r.before_photo_url);
+      const afterUrl = await getSignedUrl('project-documents', r.after_photo_url);
+
+      beforeEl.innerHTML = beforeUrl ? '<img src="' + beforeUrl + '" class="w-full h-full object-cover">' : '<span class="text-slate-500 text-xs">Photo indisponible</span>';
+      afterEl.innerHTML = afterUrl ? '<img src="' + afterUrl + '" class="w-full h-full object-cover">' : '<span class="text-slate-500 text-xs">Photo indisponible</span>';
+
+      // Boutons selon statut
+      const btnApprove = document.getElementById('btn-approve');
+      const btnReject = document.getElementById('btn-reject');
+      const rejectBox = document.getElementById('reject-box');
+      rejectBox.classList.add('hidden');
+      document.getElementById('reject-reason').value = '';
+
+      if (r.status === 'approved') {
+        btnApprove.disabled = true;
+        btnApprove.textContent = '✅ Déjà approuvée';
+        btnApprove.classList.add('opacity-50');
+      } else {
+        btnApprove.disabled = false;
+        btnApprove.textContent = '✅ Approuver';
+        btnApprove.classList.remove('opacity-50');
+      }
+
+      btnReject.textContent = r.status === 'rejected' ? '❌ Déjà refusée' : '❌ Refuser';
+
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+      document.getElementById('modal').classList.remove('flex');
+      document.body.style.overflow = '';
+      currentReaId = null;
+    }
+
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+
+    document.getElementById('btn-approve').addEventListener('click', async () => {
+      if (!currentReaId) return;
+      if (!confirm('Approuver cette réalisation ? Elle apparaîtra sur la page d\'accueil.')) return;
+      try {
+        await apiPatch('realisations', currentReaId, {
+          status: 'approved',
+          approved_at: new Date().toISOString()
+        });
+        showSuccess('Réalisation approuvée !');
+        closeModal();
+        await loadData();
+      } catch (e) {
+        showError(e.message);
+      }
+    });
+
+    document.getElementById('btn-reject').addEventListener('click', async () => {
+      if (!currentReaId) return;
+      const box = document.getElementById('reject-box');
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+        document.getElementById('reject-reason').focus();
+        return;
+      }
+      const reason = document.getElementById('reject-reason').value.trim();
+      if (!reason) { alert('Indiquez la raison du refus'); return; }
+
+      try {
+        try {
+          await apiPatch('realisations', currentReaId, {
+            status: 'rejected',
+            rejection_reason: reason
+          });
+        } catch (e) {
+          // Fallback si la colonne rejection_reason n'existe pas
+          await apiPatch('realisations', currentReaId, { status: 'rejected' });
+        }
+        showSuccess('Réalisation refusée');
+        closeModal();
+        await loadData();
+      } catch (e) {
+        showError(e.message);
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
