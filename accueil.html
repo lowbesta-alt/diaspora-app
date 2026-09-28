@@ -118,7 +118,6 @@
           Fini le stress des travaux à distance. Nous sécurisons vos fonds, contrôlons la qualité et vous envoyons photos et vidéos en temps réel. Du gros œuvre jusqu'aux clés.
         </p>
 
-        <!-- 2 CTA côte à côte -->
         <div class="flex flex-row gap-2.5 mb-4 max-w-md">
           <a href="inscription.html" class="flex-1 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-[#0a1838] font-extrabold py-3.5 px-3 rounded-2xl shadow-xl shadow-amber-500/40 transition text-center text-sm">
             Créer mon compte
@@ -128,7 +127,6 @@
           </a>
         </div>
 
-        <!-- CTA artisan -->
         <a href="partenariat-btp.html" class="flex items-center justify-between gap-2 max-w-md bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/40 rounded-2xl px-4 py-3 mb-8 backdrop-blur transition group">
           <div class="flex items-center gap-2.5 min-w-0">
             <span class="text-xl flex-shrink-0">🏗️</span>
@@ -233,9 +231,13 @@
 
       <div id="realisations-carousel-wrap" class="relative">
         <div id="realisations-carousel" class="carousel-track">
-          <div class="carousel-card">
-            <div class="aspect-[4/3] bg-slate-800/50 flex items-center justify-center">
-              <span class="text-slate-500 text-sm">Chargement…</span>
+          <div class="carousel-card" style="flex: 0 0 100%; max-width: 100%;">
+            <div class="aspect-[16/9] flex items-center justify-center" style="background: linear-gradient(135deg, rgba(15,34,82,0.6), rgba(10,24,56,0.9));">
+              <div class="text-center px-6">
+                <div class="text-5xl mb-3">🏗️</div>
+                <p class="text-slate-300 text-base font-bold mb-1">Nos premières réalisations arrivent bientôt</p>
+                <p class="text-slate-500 text-xs">Portfolio en cours de constitution par nos artisans partenaires.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -436,46 +438,9 @@
   <script src="app.js"></script>
   <script>
     /* ============================================
-       CARROUSEL RÉALISATIONS — Chargement intelligent
+       CARROUSEL RÉALISATIONS — UNIQUEMENT VRAIES RÉALISATIONS
+       (Pas d'images d'exemple — affichage uniquement du contenu validé)
        ============================================ */
-
-    const FALLBACK_REALISATIONS = [
-      {
-        project_title: 'Villa Duplex Bonapriso',
-        company_name: 'BTP Douala SARL',
-        project_city: 'Douala',
-        project_country: 'Cameroun',
-        after_photo_url: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80&auto=format&fit=crop'
-      },
-      {
-        project_title: 'Immeuble R+2 N\'Djamena',
-        company_name: 'Sahel Construction',
-        project_city: 'N\'Djamena',
-        project_country: 'Tchad',
-        after_photo_url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80&auto=format&fit=crop'
-      },
-      {
-        project_title: 'Villa moderne Kribi',
-        company_name: 'BTP Bertoua sarl',
-        project_city: 'Kribi',
-        project_country: 'Cameroun',
-        after_photo_url: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80&auto=format&fit=crop'
-      },
-      {
-        project_title: 'Résidence Dakar Almadies',
-        company_name: 'Senegal Bâtiment',
-        project_city: 'Dakar',
-        project_country: 'Sénégal',
-        after_photo_url: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80&auto=format&fit=crop'
-      },
-      {
-        project_title: 'Chantier Yaoundé Bastos',
-        company_name: 'Central BTP',
-        project_city: 'Yaoundé',
-        project_country: 'Cameroun',
-        after_photo_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80&auto=format&fit=crop'
-      }
-    ];
 
     let carouselItems = [];
     let currentCarouselIndex = 0;
@@ -483,18 +448,9 @@
     async function loadRealisations() {
       try {
         const data = await apiGet('realisations', 'status=eq.approved&order=approved_at.desc&limit=10');
-        const valid = Array.isArray(data) ? data : [];
-
-        if (valid.length === 0) {
-          carouselItems = FALLBACK_REALISATIONS;
-        } else if (valid.length < 3) {
-          const needed = 4 - valid.length;
-          carouselItems = [...valid, ...FALLBACK_REALISATIONS.slice(0, needed)];
-        } else {
-          carouselItems = valid;
-        }
+        carouselItems = Array.isArray(data) ? data : [];
       } catch (e) {
-        carouselItems = FALLBACK_REALISATIONS;
+        carouselItems = [];
       }
 
       renderCarousel();
@@ -504,11 +460,33 @@
       const track = document.getElementById('realisations-carousel');
       const dots = document.getElementById('carousel-dots');
 
+      // Aucune réalisation → message propre
       if (carouselItems.length === 0) {
-        track.innerHTML = '<div class="carousel-card"><div class="aspect-[4/3] bg-slate-800/50 flex items-center justify-center"><span class="text-slate-500 text-sm">Aucune réalisation</span></div></div>';
+        track.innerHTML = `
+          <div class="carousel-card" style="flex: 0 0 100%; max-width: 100%;">
+            <div class="aspect-[16/9] flex items-center justify-center" style="background: linear-gradient(135deg, rgba(15,34,82,0.6), rgba(10,24,56,0.9));">
+              <div class="text-center px-6">
+                <div class="text-5xl mb-3">🏗️</div>
+                <p class="text-slate-300 text-base font-bold mb-1">Nos premières réalisations arrivent bientôt</p>
+                <p class="text-slate-500 text-xs">Portfolio en cours de constitution par nos artisans partenaires.</p>
+              </div>
+            </div>
+          </div>
+        `;
         dots.innerHTML = '';
+        // Cache les flèches
+        const prev = document.getElementById('carousel-prev');
+        const next = document.getElementById('carousel-next');
+        if (prev) prev.style.display = 'none';
+        if (next) next.style.display = 'none';
         return;
       }
+
+      // Affiche les flèches si plusieurs réalisations
+      const prev = document.getElementById('carousel-prev');
+      const next = document.getElementById('carousel-next');
+      if (prev) prev.style.display = carouselItems.length > 1 ? 'flex' : 'none';
+      if (next) next.style.display = carouselItems.length > 1 ? 'flex' : 'none';
 
       track.innerHTML = carouselItems.map((item) => {
         const title = escapeHtml(item.project_title || 'Réalisation');
@@ -516,11 +494,13 @@
         const city = escapeHtml(item.project_city || '');
         const country = escapeHtml(item.project_country || '');
         const location = city && country ? city + ', ' + country : (city || country);
-        const img = item.after_photo_url || item.before_photo_url || '';
 
-        return '<a href="realisations.html" class="carousel-card group">' +
+        // L'image vient de Supabase Storage → il faut la résoudre
+        const imgPath = item.after_photo_url || item.before_photo_url || '';
+
+        return '<a href="realisations.html" class="carousel-card group" data-img-path="' + imgPath + '">' +
           '<div class="aspect-[4/3] overflow-hidden bg-slate-900">' +
-            '<img src="' + img + '" alt="' + title + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.style.display=\'none\'; this.parentElement.innerHTML=\'<div class=&quot;w-full h-full flex items-center justify-center text-4xl&quot;>🏗️</div>\';">' +
+            '<img src="" class="carousel-img w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="' + title + '">' +
           '</div>' +
           '<div class="p-4">' +
             '<div class="flex items-center gap-2 mb-1.5">' +
@@ -533,22 +513,42 @@
         '</a>';
       }).join('');
 
+      // Charge les images (URLs signées depuis Storage)
+      document.querySelectorAll('.carousel-card[data-img-path]').forEach(async (card) => {
+        const path = card.dataset.imgPath;
+        if (!path) return;
+        const img = card.querySelector('.carousel-img');
+        if (!img) return;
+
+        try {
+          const token = getToken() || SUPABASE_KEY;
+          const res = await fetch(SUPABASE_URL + '/storage/v1/object/sign/project-documents/' + path, {
+            method: 'POST',
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ expiresIn: 3600 })
+          });
+          if (res.ok) {
+            const d = await res.json();
+            if (d.signedURL) img.src = SUPABASE_URL + '/storage/v1' + d.signedURL;
+          }
+        } catch (e) {}
+      });
+
+      // Points
       dots.innerHTML = carouselItems.map((_, i) =>
         '<div class="carousel-dot' + (i === 0 ? ' active' : '') + '" data-idx="' + i + '"></div>'
       ).join('');
 
       track.addEventListener('scroll', updateActiveDot);
       dots.querySelectorAll('.carousel-dot').forEach(dot => {
-        dot.addEventListener('click', () => {
-          scrollToCard(parseInt(dot.dataset.idx, 10));
-        });
+        dot.addEventListener('click', () => scrollToCard(parseInt(dot.dataset.idx, 10)));
       });
     }
 
     function updateActiveDot() {
       const track = document.getElementById('realisations-carousel');
       const cards = track.querySelectorAll('.carousel-card');
-      if (cards.length === 0) return;
+      if (cards.length <= 1) return;
 
       const trackCenter = track.scrollLeft + track.clientWidth / 2;
       let closestIdx = 0, closestDist = Infinity;
