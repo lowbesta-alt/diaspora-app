@@ -57,7 +57,12 @@
         'report_validated': { ic: '✅', color: 'bg-emerald-500/20' },
         'report_rejected': { ic: '❌', color: 'bg-red-500/20' },
         'invitation_sent': { ic: '🎫', color: 'bg-purple-500/20' },
-        'account_activated': { ic: '🎉', color: 'bg-purple-500/20' }
+        'account_activated': { ic: '🎉', color: 'bg-purple-500/20' },
+        // ✅ NOUVEAUX TYPES PORTFOLIO
+        'portfolio_approved': { ic: '🏆', color: 'bg-amber-500/20' },
+        'portfolio_rejected': { ic: '⚠️', color: 'bg-orange-500/20' },
+        'portfolio_deleted': { ic: '🗑️', color: 'bg-red-500/20' },
+        'portfolio_submitted': { ic: '📤', color: 'bg-blue-500/20' }
       };
       return map[type] || { ic: '🔔', color: 'bg-slate-500/20' };
     }
@@ -87,20 +92,13 @@
         `;
       }).join('');
 
-      // Attache les événements de clic
       document.querySelectorAll('.notif-item').forEach(el => {
         el.addEventListener('click', async () => {
           const notifId = el.dataset.id;
           const link = el.dataset.link;
-
-          // Marquer comme lu
           try {
-            await apiPatch('notifications', notifId, {
-              read_at: new Date().toISOString()
-            });
+            await apiPatch('notifications', notifId, { read_at: new Date().toISOString() });
           } catch (e) {}
-
-          // Rediriger
           if (link) {
             window.location.href = link;
           } else {
@@ -153,12 +151,9 @@
     document.getElementById('btn-mark-all').addEventListener('click', async () => {
       const unread = allNotifs.filter(n => !n.read_at);
       if (unread.length === 0) return;
-
       for (const n of unread) {
         try {
-          await apiPatch('notifications', n.id, {
-            read_at: new Date().toISOString()
-          });
+          await apiPatch('notifications', n.id, { read_at: new Date().toISOString() });
         } catch (e) {}
       }
       await loadNotifs();
