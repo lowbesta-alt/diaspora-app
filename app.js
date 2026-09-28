@@ -1,6 +1,6 @@
 // ============================================================
 // APP.JS - Boite a outils centrale Espace Diaspora
-// v17.0 : ajout getAdminUserId pour canal support
+// v17.1 : correction lien mon-portfolio.html
 // ============================================================
 
 // ---------- Injection du favicon ----------
@@ -118,7 +118,7 @@ const ED_MENUS = {
     { href: 'dashboard-artisan.html', icon: 'home', label: 'Chantiers' },
     { href: 'artisan-jalon.html', icon: 'target', label: 'Jalons' },
     { href: 'mes-rapports.html', icon: 'camera', label: 'Rapports' },
-    { href: 'mes-realisations.html', icon: 'trophy', label: 'Réalisations' },
+    { href: 'mon-portfolio.html', icon: 'trophy', label: 'Portfolio' },
     { href: 'mes-paiements.html', icon: 'wallet', label: 'Paiements' },
     { href: 'messages.html', icon: 'message', label: 'Messages' },
     { href: 'profil.html', icon: 'user', label: 'Profil' }
