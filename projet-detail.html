@@ -28,6 +28,27 @@
 
     <div class="p-4 space-y-4 -mt-2">
 
+      <!-- ============================================= -->
+      <!-- BANDEAU STATUT GLOBAL (nouveau) -->
+      <!-- ============================================= -->
+      <div id="status-banner" class="hidden"></div>
+
+      <!-- ============================================= -->
+      <!-- DOCUMENTS DU PROJET (nouveau) -->
+      <!-- ============================================= -->
+      <section id="docs-status-section" class="hidden bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-bold">📎 Documents du projet</h2>
+          <a id="btn-docs-link" href="documents.html" class="text-[10px] text-sky-400 font-bold">Voir les fichiers →</a>
+        </div>
+        <div id="docs-status-list" class="space-y-2"></div>
+      </section>
+
+      <!-- ============================================= -->
+      <!-- DEVIS À ACCEPTER (nouveau) -->
+      <!-- ============================================= -->
+      <section id="quotes-section" class="hidden space-y-3"></section>
+
       <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
         <div class="grid grid-cols-3 gap-2 text-center">
           <div>
@@ -115,12 +136,17 @@
       window.location.href = 'projets.html';
     }
 
+    const userRole = getCurrentUserRole();
+    const userId = getCurrentUserId();
+    const isAdmin = userRole === 'admin';
+    let currentProject = null;
+
     document.getElementById('btn-edit').href = 'projet-modifier.html?id=' + projectId;
     document.getElementById('btn-add-milestone').href = 'jalon-creer.html?id=' + projectId;
     document.getElementById('btn-docs').href = 'documents.html?id=' + projectId;
+    document.getElementById('btn-docs-link').href = 'documents.html?id=' + projectId;
 
-    // Le bouton "+" n'est visible que pour l'admin
-    if (getCurrentUserRole() === 'admin') {
+    if (isAdmin) {
       document.getElementById('btn-add-milestone').classList.remove('hidden');
     }
 
@@ -128,6 +154,7 @@
 
     async function getSignedUrl(path) {
       if (!path) return null;
+      if (path.startsWith('http')) return path;
       try {
         const res = await fetch(SUPABASE_URL + '/storage/v1/object/sign/project-documents/' + path, {
           method: 'POST',
@@ -158,13 +185,330 @@
 
     function getStatusColors(status) {
       const map = {
-        'active': 'bg-emerald-500/90', 'draft': 'bg-orange-500/90',
-        'completed': 'bg-slate-500/90', 'paused': 'bg-yellow-500/90',
-        'cancelled': 'bg-red-500/90', 'disputed': 'bg-red-700/90'
+        'active': 'bg-emerald-500/90',
+        'draft': 'bg-orange-500/90',
+        'completed': 'bg-slate-500/90',
+        'paused': 'bg-yellow-500/90',
+        'cancelled': 'bg-red-500/90',
+        'disputed': 'bg-red-700/90',
+        'pending_verification': 'bg-sky-500/90',
+        'land_survey_needed': 'bg-amber-500/90',
+        'plan_needed': 'bg-purple-500/90',
+        'land_survey_and_plan_needed': 'bg-amber-600/90',
+        'ready_to_start': 'bg-emerald-500/90'
       };
       return map[status] || 'bg-slate-500/90';
     }
 
+    function statusText(status) {
+      const map = {
+        'active': 'En cours',
+        'draft': 'En préparation',
+        'completed': 'Terminé',
+        'paused': 'En pause',
+        'cancelled': 'Annulé',
+        'disputed': 'En litige',
+        'pending_verification': '⏳ En vérification',
+        'land_survey_needed': '🔍 Enquête foncière',
+        'plan_needed': '🎨 Plan à proposer',
+        'land_survey_and_plan_needed': '🔍🎨 Enquête + Plan',
+        'ready_to_start': '✅ Prêt à démarrer'
+      };
+      return map[status] || status;
+    }
+
+    // ============================================
+    // BANDEAU DE STATUT GLOBAL
+    // ============================================
+    function renderStatusBanner(p) {
+      const banner = document.getElementById('status-banner');
+      const status = p.status;
+
+      let config = null;
+
+      if (status === 'pending_verification') {
+        config = {
+          bg: 'rgba(14,165,233,0.12)',
+          border: 'rgba(14,165,233,0.45)',
+          icon: '⏳',
+          title: 'Projet en cours de vérification',
+          text: 'Notre équipe examine vos documents. Vous serez notifié dès qu\'ils seront validés.',
+          titleColor: '#7dd3fc'
+        };
+      } else if (status === 'land_survey_needed') {
+        config = {
+          bg: 'rgba(245,158,11,0.12)',
+          border: 'rgba(245,158,11,0.45)',
+          icon: '🔍',
+          title: 'Enquête foncière en cours',
+          text: 'Notre équipe va se déplacer sur le terrain pour vérifier la propriété de votre terrain.',
+          titleColor: '#fcd34d'
+        };
+      } else if (status === 'plan_needed') {
+        config = {
+          bg: 'rgba(168,85,247,0.12)',
+          border: 'rgba(168,85,247,0.45)',
+          icon: '🎨',
+          title: 'Plan de construction en attente',
+          text: 'Notre équipe va vous envoyer un devis pour la réalisation du plan architectural.',
+          titleColor: '#d8b4fe'
+        };
+      } else if (status === 'land_survey_and_plan_needed') {
+        config = {
+          bg: 'rgba(245,158,11,0.12)',
+          border: 'rgba(245,158,11,0.45)',
+          icon: '🔍🎨',
+          title: 'Enquête foncière + Plan en cours',
+          text: 'Notre équipe va réaliser l\'enquête foncière sur le terrain et vous envoyer un devis pour le plan.',
+          titleColor: '#fcd34d'
+        };
+      } else if (status === 'ready_to_start') {
+        config = {
+          bg: 'rgba(16,185,129,0.12)',
+          border: 'rgba(16,185,129,0.45)',
+          icon: '✅',
+          title: 'Projet prêt à démarrer',
+          text: 'Tous les documents sont validés. Notre équipe va désigner un artisan qualifié.',
+          titleColor: '#6ee7b7'
+        };
+      } else if (status === 'active') {
+        config = {
+          bg: 'rgba(16,185,129,0.12)',
+          border: 'rgba(16,185,129,0.45)',
+          icon: '🚀',
+          title: 'Chantier en cours',
+          text: 'Votre chantier est lancé. Suivez l\'avancement dans l\'onglet "Jalons".',
+          titleColor: '#6ee7b7'
+        };
+      }
+
+      if (!config) {
+        banner.classList.add('hidden');
+        return;
+      }
+
+      banner.classList.remove('hidden');
+      banner.innerHTML = `
+        <div class="rounded-2xl p-4 flex items-start gap-3" style="background:${config.bg}; border:1px solid ${config.border};">
+          <span class="text-2xl flex-shrink-0">${config.icon}</span>
+          <div class="flex-1">
+            <p class="text-sm font-bold" style="color:${config.titleColor};">${config.title}</p>
+            <p class="text-[11px] text-slate-300 mt-1 leading-relaxed">${config.text}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // ============================================
+    // DOCUMENTS DU PROJET (statut par document)
+    // ============================================
+    function renderDocsStatus(p) {
+      const section = document.getElementById('docs-status-section');
+      const list = document.getElementById('docs-status-list');
+
+      // Ne s'affiche que pour les statuts de préparation
+      const prepStatuses = ['pending_verification', 'land_survey_needed', 'plan_needed', 'land_survey_and_plan_needed', 'ready_to_start', 'draft'];
+      if (!prepStatuses.includes(p.status)) {
+        section.classList.add('hidden');
+        return;
+      }
+
+      section.classList.remove('hidden');
+      list.innerHTML = '';
+
+      // --- TITRE FONCIER ---
+      let landIcon = '⏳';
+      let landText = '';
+      let landColor = '#cbd5e1';
+
+      if (p.land_survey_status === 'provided') {
+        landIcon = '✅';
+        landText = 'Titre foncier reçu — vérification en cours';
+        landColor = '#6ee7b7';
+      } else if (p.land_survey_status === 'needed') {
+        landIcon = '🔍';
+        landText = 'Enquête foncière à réaliser par notre équipe';
+        landColor = '#fcd34d';
+      } else if (p.land_survey_status === 'validated') {
+        landIcon = '✅';
+        landText = 'Enquête foncière validée';
+        landColor = '#6ee7b7';
+      } else if (p.land_survey_status === 'not_needed') {
+        landIcon = '✅';
+        landText = 'Titre foncier fourni';
+        landColor = '#6ee7b7';
+      }
+
+      list.innerHTML += `
+        <div class="flex items-center gap-3 bg-slate-800/40 rounded-xl p-3">
+          <span class="text-xl flex-shrink-0">${landIcon}</span>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold" style="color:${landColor};">📋 Titre foncier</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">${landText}</p>
+          </div>
+        </div>
+      `;
+
+      // --- PLAN ---
+      let planIcon = '⏳';
+      let planText = '';
+      let planColor = '#cbd5e1';
+
+      if (p.plan_status === 'provided') {
+        planIcon = '✅';
+        planText = 'Plan reçu — vérification en cours';
+        planColor = '#6ee7b7';
+      } else if (p.plan_status === 'needed') {
+        planIcon = '🎨';
+        planText = 'En attente du devis pour le plan';
+        planColor = '#d8b4fe';
+      } else if (p.plan_status === 'validated') {
+        planIcon = '✅';
+        planText = 'Plan validé';
+        planColor = '#6ee7b7';
+      } else if (p.plan_status === 'not_needed') {
+        planIcon = '✅';
+        planText = 'Plan fourni';
+        planColor = '#6ee7b7';
+      }
+
+      list.innerHTML += `
+        <div class="flex items-center gap-3 bg-slate-800/40 rounded-xl p-3">
+          <span class="text-xl flex-shrink-0">${planIcon}</span>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold" style="color:${planColor};">🗺️ Plan de construction</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">${planText}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // ============================================
+    // DEVIS À ACCEPTER (client)
+    // ============================================
+    async function loadQuotes() {
+      const section = document.getElementById('quotes-section');
+      if (!currentProject) return;
+
+      // Ne s'affiche que pour le client (propriétaire)
+      if (!isAdmin && currentProject.owner_id !== userId) {
+        section.classList.add('hidden');
+        return;
+      }
+      if (isAdmin) {
+        section.classList.add('hidden');
+        return;
+      }
+
+      try {
+        const data = await apiGet('project_quotes', 'project_id=eq.' + projectId + '&order=created_at.desc');
+        const quotes = Array.isArray(data) ? data : [];
+
+        if (quotes.length === 0) {
+          section.classList.add('hidden');
+          return;
+        }
+
+        section.classList.remove('hidden');
+        section.innerHTML = quotes.map(q => {
+          const isPending = q.status === 'pending';
+          const isAccepted = q.status === 'accepted';
+          const isRejected = q.status === 'rejected';
+
+          let badge = '';
+          if (isPending) badge = '<span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">⏳ À VALIDER</span>';
+          else if (isAccepted) badge = '<span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">✅ ACCEPTÉ</span>';
+          else if (isRejected) badge = '<span class="text-[10px] bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full font-bold">❌ REFUSÉ</span>';
+
+          let actions = '';
+          if (isPending) {
+            actions = `
+              <div class="grid grid-cols-2 gap-2 mt-3">
+                <button class="quote-reject-btn bg-red-600/20 hover:bg-red-600/40 border border-red-500/40 py-2.5 rounded-xl font-bold text-xs" data-id="${q.id}" style="color:#fca5a5;">❌ Refuser</button>
+                <button class="quote-accept-btn bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded-xl font-bold text-xs" data-id="${q.id}">✅ Accepter</button>
+              </div>
+            `;
+          }
+
+          return `
+            <div class="bg-gradient-to-br from-purple-600/20 to-purple-900/20 border border-purple-500/40 rounded-2xl p-4">
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl">💰</span>
+                  <div>
+                    <h3 class="text-sm font-bold text-purple-200">${escapeHtml(q.title || 'Devis')}</h3>
+                    <p class="text-[10px] text-slate-400">${formatDate(q.created_at)}</p>
+                  </div>
+                </div>
+                ${badge}
+              </div>
+
+              <p class="text-xs text-slate-300 leading-relaxed mb-3">${escapeHtml(q.description || '')}</p>
+
+              <div class="bg-slate-900/60 rounded-xl p-3 text-center mb-3">
+                <div class="text-2xl font-extrabold text-purple-300">${Number(q.amount).toLocaleString('fr-FR')}</div>
+                <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">${q.currency || 'XAF'}</div>
+              </div>
+
+              ${actions}
+            </div>
+          `;
+        }).join('');
+
+        // Boutons d'action
+        section.querySelectorAll('.quote-accept-btn').forEach(btn => {
+          btn.addEventListener('click', () => respondToQuote(btn.dataset.id, 'accepted'));
+        });
+        section.querySelectorAll('.quote-reject-btn').forEach(btn => {
+          btn.addEventListener('click', () => respondToQuote(btn.dataset.id, 'rejected'));
+        });
+
+      } catch (e) {
+        console.warn('[quotes]', e);
+        section.classList.add('hidden');
+      }
+    }
+
+    async function respondToQuote(quoteId, response) {
+      const isAccept = response === 'accepted';
+      const confirmMsg = isAccept
+        ? 'Accepter ce devis ? L\'équipe sera notifiée et commencera le travail.'
+        : 'Refuser ce devis ? Vous pourrez toujours négocier avec l\'équipe.';
+
+      if (!confirm(confirmMsg)) return;
+
+      try {
+        await apiPatch('project_quotes', quoteId, {
+          status: response,
+          responded_at: new Date().toISOString()
+        });
+
+        // Notifier les admins
+        try {
+          const admins = await apiGet('profiles', 'default_role=eq.admin');
+          if (Array.isArray(admins)) {
+            for (const a of admins) {
+              await apiPost('notifications', {
+                user_id: a.id,
+                type: isAccept ? 'quote_accepted' : 'quote_rejected',
+                title: isAccept ? '✅ Devis accepté par le client' : '❌ Devis refusé par le client',
+                message: 'Le client a ' + (isAccept ? 'accepté' : 'refusé') + ' le devis pour le projet "' + (currentProject ? currentProject.title : '') + '".',
+                link: 'admin-validation-docs.html'
+              });
+            }
+          }
+        } catch (e) {}
+
+        showSuccess(isAccept ? 'Devis accepté' : 'Devis refusé');
+        await loadQuotes();
+      } catch (e) {
+        showError(e.message);
+      }
+    }
+
+    // ============================================
+    // CHARGEMENT DU PROJET
+    // ============================================
     async function loadProject() {
       try {
         const data = await apiGet('projects', 'id=eq.' + projectId);
@@ -173,9 +517,11 @@
           return;
         }
         const p = data[0];
+        currentProject = p;
+
         document.getElementById('project-title').textContent = p.title;
         document.getElementById('project-location').textContent = '📍 ' + (p.city || '') + (p.country ? ', ' + p.country : '');
-        document.getElementById('project-status').textContent = getStatusLabel(p.status);
+        document.getElementById('project-status').textContent = statusText(p.status);
         document.getElementById('project-status').className = 'self-start text-[10px] ' + getStatusColors(p.status) + ' backdrop-blur text-white px-3 py-1 rounded-full font-bold tracking-wide mb-3';
 
         const budget = Number(p.total_budget) || 0;
@@ -194,15 +540,18 @@
           heroImg.style.backgroundSize = 'cover';
           heroImg.style.backgroundPosition = 'center';
         }
+
+        // Nouveaux blocs
+        renderStatusBanner(p);
+        renderDocsStatus(p);
+        await loadQuotes();
       } catch (e) {
         document.getElementById('project-title').textContent = 'Erreur';
       }
     }
 
     // ============================================================
-    // JALONS — Visibilité selon le rôle
-    // - Client (investor) : voit uniquement les jalons validés
-    // - Admin / Artisan : voit tous les jalons
+    // JALONS
     // ============================================================
     async function loadMilestones() {
       const list = document.getElementById('milestones-list');
@@ -218,7 +567,6 @@
         const data = await apiGet('milestones', params);
         const valid = Array.isArray(data) ? data : [];
 
-        // Aucun jalon à afficher
         if (valid.length === 0) {
           if (isClient) {
             list.innerHTML = `
@@ -246,7 +594,6 @@
           return;
         }
 
-        // Bandeau d'info pour le client s'il y a des jalons en attente
         let infoBanner = '';
         if (isClient) {
           try {
