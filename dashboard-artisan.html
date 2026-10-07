@@ -40,9 +40,7 @@
       </div>
     </section>
 
-    <!-- ============================================= -->
-    <!-- SECTION : À FAIRE -->
-    <!-- ============================================= -->
+    <!-- À FAIRE -->
     <section id="todo-section" class="space-y-3">
       <div class="flex items-center gap-2">
         <span class="text-lg">⚙️</span>
@@ -50,17 +48,19 @@
         <span id="total-todo-badge" class="hidden text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">0</span>
       </div>
 
-      <!-- SOUMETTRE RAPPORT -->
-      <a href="mes-rapports.html" class="block bg-gradient-to-r from-amber-500 to-amber-400 text-[#0a1838] rounded-2xl p-4 shadow-xl shadow-amber-500/30">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-2xl bg-[#0a1838]/20 flex items-center justify-center text-xl flex-shrink-0">📸</div>
-          <div class="flex-1">
-            <div class="font-extrabold text-sm">Soumettre un rapport</div>
-            <div class="text-[11px] opacity-80 mt-0.5">Suivi d'avancement du chantier</div>
+      <!-- SOUMETTRE RAPPORT (bloqué si projet pas prêt) -->
+      <div id="rapport-zone">
+        <a id="btn-rapport" href="mes-rapports.html" class="block bg-gradient-to-r from-amber-500 to-amber-400 text-[#0a1838] rounded-2xl p-4 shadow-xl shadow-amber-500/30 transition">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-[#0a1838]/20 flex items-center justify-center text-xl flex-shrink-0">📸</div>
+            <div class="flex-1">
+              <div class="font-extrabold text-sm">Soumettre un rapport</div>
+              <div id="rapport-subtitle" class="text-[11px] opacity-80 mt-0.5">Suivi d'avancement du chantier</div>
+            </div>
+            <span class="text-xl">→</span>
           </div>
-          <span class="text-xl">→</span>
-        </div>
-      </a>
+        </a>
+      </div>
 
       <!-- CONTRATS -->
       <a id="contrats-card" href="contrats.html" class="block rounded-2xl p-4 transition" style="background: linear-gradient(135deg, rgba(2,132,199,0.22) 0%, rgba(15,34,82,0.75) 100%); border: 1px solid rgba(59,130,246,0.5); text-decoration: none; color: #fff;">
@@ -78,9 +78,7 @@
       </a>
     </section>
 
-    <!-- ============================================= -->
-    <!-- SECTION : MES CHANTIERS -->
-    <!-- ============================================= -->
+    <!-- MES CHANTIERS -->
     <section class="space-y-3">
       <h2 class="text-base font-extrabold tracking-tight uppercase text-slate-300">Mes chantiers assignés</h2>
       <div id="chantiers-list" class="space-y-3">
@@ -88,16 +86,13 @@
       </div>
     </section>
 
-    <!-- ============================================= -->
-    <!-- SECTION : OUTILS -->
-    <!-- ============================================= -->
+    <!-- OUTILS -->
     <section class="space-y-3">
       <div class="flex items-center gap-2">
         <span class="text-lg">🎥</span>
         <h2 class="text-base font-extrabold tracking-tight uppercase text-slate-300">Outils</h2>
       </div>
 
-      <!-- PORTFOLIO -->
       <a id="rea-card" href="mon-portfolio.html" class="block rounded-2xl p-4 transition" style="background: linear-gradient(135deg, rgba(245,158,11,0.22) 0%, rgba(15,34,82,0.75) 100%); border: 1px solid rgba(245,158,11,0.5); text-decoration: none; color: #fff;">
         <div class="flex items-center gap-3">
           <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);">🏆</div>
@@ -112,7 +107,6 @@
         </div>
       </a>
 
-      <!-- CAMÉRAS -->
       <a href="cameras.html" class="block rounded-2xl p-4 transition" style="background: linear-gradient(135deg, rgba(16,185,129,0.18) 0%, rgba(15,34,82,0.75) 100%); border: 1px solid rgba(16,185,129,0.5); text-decoration: none; color: #fff;">
         <div class="flex items-center gap-3">
           <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">📹</div>
@@ -144,7 +138,14 @@
     const userName = getCurrentUserName();
     if (userName) document.getElementById('user-name').textContent = userName.split(' ')[0];
 
+    // Statuts où le projet est PRÊT pour l'artisan
+    const READY_STATUSES = ['ready_to_start', 'active', 'completed'];
+
+    // Statuts où le projet N'EST PAS PRÊT
+    const NOT_READY_STATUSES = ['draft', 'pending_verification', 'land_survey_needed', 'plan_needed', 'land_survey_and_plan_needed'];
+
     let pendingCounts = { contrats: 0 };
+    let hasReadyChantier = false;
 
     function updateTotalTodo() {
       const total = pendingCounts.contrats;
@@ -154,6 +155,45 @@
         badge.classList.remove('hidden');
       } else {
         badge.classList.add('hidden');
+      }
+    }
+
+    function updateRapportCard() {
+      const btn = document.getElementById('btn-rapport');
+      const subtitle = document.getElementById('rapport-subtitle');
+      const zone = document.getElementById('rapport-zone');
+
+      if (hasReadyChantier) {
+        // Actif
+        btn.href = 'mes-rapports.html';
+        btn.style.background = 'linear-gradient(to right, #f59e0b, #fbbf24)';
+        btn.style.color = '#0a1838';
+        btn.style.opacity = '1';
+        btn.style.pointerEvents = 'auto';
+        btn.style.cursor = 'pointer';
+        subtitle.textContent = 'Suivi d\'avancement du chantier';
+      } else {
+        // Bloqué
+        btn.href = '#';
+        btn.style.background = 'rgba(255,255,255,0.05)';
+        btn.style.color = '#94a3b8';
+        btn.style.opacity = '0.6';
+        btn.style.pointerEvents = 'none';
+        btn.style.cursor = 'not-allowed';
+        subtitle.innerHTML = '<span style="color:#fca5a5;font-weight:700;">⏳ En attente de validation des documents</span>';
+
+        // Message explicatif
+        zone.innerHTML = `
+          <div class="bg-amber-500/10 border border-amber-500/40 rounded-2xl p-4 flex items-start gap-3">
+            <span class="text-2xl flex-shrink-0">⏳</span>
+            <div class="flex-1">
+              <p class="text-sm font-bold text-amber-200">Aucun chantier actif pour le moment</p>
+              <p class="text-[11px] text-amber-100/80 mt-1 leading-relaxed">
+                Vos chantiers assignés ne sont pas encore prêts à démarrer. L'équipe Espace Diaspora est en train de valider les documents (titre foncier, plan de construction...). Vous serez notifié dès que le chantier pourra commencer.
+              </p>
+            </div>
+          </div>
+        `;
       }
     }
 
@@ -192,7 +232,6 @@
 
         const badge = document.getElementById('rea-badge');
         const subtitle = document.getElementById('rea-subtitle');
-        const card = document.getElementById('rea-card');
 
         if (pending > 0) {
           badge.textContent = pending;
@@ -208,6 +247,68 @@
       } catch (e) {}
     }
 
+    function renderChantier(c) {
+      const p = c.project;
+      const progress = c.totalJalons > 0 ? Math.round(((c.totalJalons - c.jalonsEnCours) / c.totalJalons) * 100) : 0;
+      const isReady = READY_STATUSES.includes(p.status);
+
+      if (!isReady) {
+        // Projet pas prêt → grisé
+        return `
+          <div class="block bg-white/5 border border-white/10 rounded-2xl p-4 opacity-60 cursor-not-allowed relative">
+            <div class="absolute top-3 right-3">
+              <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">⏳ EN ATTENTE</span>
+            </div>
+            <div class="flex justify-between items-start mb-2 pr-24">
+              <h3 class="font-extrabold text-sm text-slate-300">${escapeHtml(p.title)}</h3>
+            </div>
+            <p class="text-xs text-slate-500 mb-3">${escapeHtml(p.description || '')}</p>
+            <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2.5 mt-2">
+              <p class="text-[10px] text-amber-200 leading-relaxed">
+                ⏳ Ce chantier n'est pas encore prêt. L'équipe Espace Diaspora valide actuellement les documents. Vous serez notifié dès qu'il pourra démarrer.
+              </p>
+            </div>
+            <div class="flex justify-between text-[11px] text-slate-500 mt-3">
+              <span>📍 ${escapeHtml(p.city || '')}</span>
+              <span>${statusLabelShort(p.status)}</span>
+            </div>
+          </div>
+        `;
+      }
+
+      // Projet prêt → cliquable normal
+      return `
+        <a href="projet-detail.html?id=${p.id}" class="block bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition">
+          <div class="flex justify-between items-start mb-2">
+            <h3 class="font-extrabold text-sm">${escapeHtml(p.title)}</h3>
+            ${renderStatusBadge(p.status)}
+          </div>
+          <p class="text-xs text-slate-400 mb-3">${escapeHtml(p.description || '')}</p>
+          <div class="w-full bg-slate-700/50 rounded-full h-2 mb-2">
+            <div class="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full" style="width: ${progress}%"></div>
+          </div>
+          <div class="flex justify-between text-[11px] text-slate-400">
+            <span>📍 ${escapeHtml(p.city || '')}</span>
+            <span>${c.jalonsEnCours} jalon(s) à soumettre</span>
+          </div>
+        </a>
+      `;
+    }
+
+    function statusLabelShort(s) {
+      const map = {
+        'draft': 'Brouillon',
+        'pending_verification': '⏳ Vérification',
+        'land_survey_needed': '🔍 Enquête',
+        'plan_needed': '🎨 Plan',
+        'land_survey_and_plan_needed': '🔍🎨 Enquête + Plan',
+        'ready_to_start': '✅ Prêt',
+        'active': '🚀 En cours',
+        'completed': '✔️ Terminé'
+      };
+      return map[s] || s;
+    }
+
     async function loadChantiers() {
       const list = document.getElementById('chantiers-list');
       try {
@@ -218,11 +319,15 @@
           document.getElementById('stat-chantiers').textContent = '0';
           document.getElementById('stat-jalons').textContent = '0';
           document.getElementById('stat-paiements').textContent = '0';
+          hasReadyChantier = false;
+          updateRapportCard();
           return;
         }
 
         const chantiers = [];
         let totalJalons = 0;
+        let readyCount = 0;
+
         for (const m of members) {
           try {
             const proj = await apiGet('projects', 'id=eq.' + m.project_id);
@@ -235,6 +340,8 @@
               const jalonsEnCours = Array.isArray(jalons) ? jalons.filter(j => j.status === 'pending' || j.status === 'in_progress' || j.status === 'submitted').length : 0;
               totalJalons += jalonsEnCours;
 
+              if (READY_STATUSES.includes(p.status)) readyCount++;
+
               chantiers.push({
                 project: p,
                 role: m.role,
@@ -244,6 +351,9 @@
             }
           } catch (e) {}
         }
+
+        hasReadyChantier = readyCount > 0;
+        updateRapportCard();
 
         document.getElementById('stat-chantiers').textContent = chantiers.length;
         document.getElementById('stat-jalons').textContent = totalJalons;
@@ -261,26 +371,14 @@
           return;
         }
 
-        list.innerHTML = chantiers.map(c => {
-          const p = c.project;
-          const progress = c.totalJalons > 0 ? Math.round(((c.totalJalons - c.jalonsEnCours) / c.totalJalons) * 100) : 0;
-          return `
-            <a href="projet-detail.html?id=${p.id}" class="block bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition">
-              <div class="flex justify-between items-start mb-2">
-                <h3 class="font-extrabold text-sm">${escapeHtml(p.title)}</h3>
-                ${renderStatusBadge(p.status)}
-              </div>
-              <p class="text-xs text-slate-400 mb-3">${escapeHtml(p.description || '')}</p>
-              <div class="w-full bg-slate-700/50 rounded-full h-2 mb-2">
-                <div class="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full" style="width: ${progress}%"></div>
-              </div>
-              <div class="flex justify-between text-[11px] text-slate-400">
-                <span>📍 ${escapeHtml(p.city || '')}</span>
-                <span>${c.jalonsEnCours} jalon(s) à soumettre</span>
-              </div>
-            </a>
-          `;
-        }).join('');
+        // Tri : projets prêts en premier
+        chantiers.sort((a, b) => {
+          const aReady = READY_STATUSES.includes(a.project.status) ? 0 : 1;
+          const bReady = READY_STATUSES.includes(b.project.status) ? 0 : 1;
+          return aReady - bReady;
+        });
+
+        list.innerHTML = chantiers.map(renderChantier).join('');
 
       } catch (e) {
         list.innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur de chargement</p>';
