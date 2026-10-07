@@ -10,6 +10,9 @@
 
   <main class="p-4 max-w-3xl mx-auto space-y-6 pt-6">
 
+    <!-- ============================================= -->
+    <!-- EN-TÊTE -->
+    <!-- ============================================= -->
     <section class="rounded-3xl p-6" style="background: linear-gradient(135deg, rgba(2,132,199,0.25) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(59,130,246,0.4);">
       <div class="flex items-center gap-3 mb-3">
         <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl" style="background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);">🎯</div>
@@ -21,85 +24,9 @@
       <p class="text-sm text-slate-200 leading-relaxed">Vue globale de la plateforme : projets, artisans, candidatures et flux financiers.</p>
     </section>
 
-    <!-- KYC -->
-    <a href="admin-kyc.html" id="kyc-admin-card" class="block rounded-3xl p-5 transition" style="background: linear-gradient(135deg, rgba(16,185,129,0.22) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(16,185,129,0.45); text-decoration: none; color: #fff;">
-      <div class="flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); box-shadow: 0 8px 20px -8px rgba(16,185,129,0.5);">🛡️</div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 flex-wrap">
-            <h2 class="text-base font-extrabold" style="color: #fff;">Vérifications d'identité (KYC)</h2>
-            <span id="kyc-pending-badge" class="hidden text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">0</span>
-          </div>
-          <p id="kyc-admin-subtitle" class="text-xs mt-1" style="color: #cbd5e1;">Chargement…</p>
-        </div>
-        <span style="color: #34d399; font-size: 1.5rem;">›</span>
-      </div>
-    </a>
-
-    <!-- CONTRATS -->
-    <a href="contrats.html" id="contrats-admin-card" class="block rounded-3xl p-5 transition" style="background: linear-gradient(135deg, rgba(2,132,199,0.22) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(59,130,246,0.45); text-decoration: none; color: #fff;">
-      <div class="flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style="background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%); box-shadow: 0 8px 20px -8px rgba(14,165,233,0.5);">📋</div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 flex-wrap">
-            <h2 class="text-base font-extrabold" style="color: #fff;">Contrats</h2>
-            <span id="contrats-pending-badge" class="hidden text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">0</span>
-          </div>
-          <p id="contrats-admin-subtitle" class="text-xs mt-1" style="color: #cbd5e1;">Créer et suivre les contrats de la plateforme</p>
-        </div>
-        <span style="color: #38bdf8; font-size: 1.5rem;">›</span>
-      </div>
-    </a>
-
-    <!-- RÉALISATIONS -->
-    <a href="admin-realisations.html" id="rea-admin-card" class="block rounded-3xl p-5 transition" style="background: linear-gradient(135deg, rgba(245,158,11,0.22) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(245,158,11,0.45); text-decoration: none; color: #fff;">
-      <div class="flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); box-shadow: 0 8px 20px -8px rgba(245,158,11,0.5);">🏆</div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 flex-wrap">
-            <h2 class="text-base font-extrabold" style="color: #fff;">Réalisations</h2>
-            <span id="rea-pending-badge" class="hidden text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">0</span>
-          </div>
-          <p id="rea-admin-subtitle" class="text-xs mt-1" style="color: #cbd5e1;">Valider les chantiers présentés par les artisans</p>
-        </div>
-        <span style="color: #fbbf24; font-size: 1.5rem;">›</span>
-      </div>
-    </a>
-
-    <!-- CAMÉRAS -->
-    <a href="cameras.html" class="block rounded-3xl p-5 transition" style="background: linear-gradient(135deg, rgba(16,185,129,0.22) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(16,185,129,0.45); text-decoration: none; color: #fff;">
-      <div class="flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); box-shadow: 0 8px 20px -8px rgba(16,185,129,0.5);">📹</div>
-        <div class="flex-1 min-w-0">
-          <h2 class="text-base font-extrabold" style="color: #fff;">Caméras</h2>
-          <p class="text-xs mt-1" style="color: #cbd5e1;">Configurer et superviser les caméras des chantiers</p>
-        </div>
-        <span style="color: #34d399; font-size: 1.5rem;">›</span>
-      </div>
-    </a>
-
-    <!-- MODE TEST -->
-    <section class="rounded-3xl p-6" style="background: linear-gradient(135deg, rgba(245,158,11,0.18) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(245,158,11,0.45);">
-      <div class="flex items-start gap-3 mb-4">
-        <div class="text-3xl">👁️</div>
-        <div class="flex-1">
-          <h2 class="text-base font-extrabold" style="color: #fcd34d;">Mode test — Voir l'app comme un utilisateur</h2>
-          <p class="text-xs text-slate-200 mt-1 leading-relaxed">Basculez dans la vue d'un Client ou d'un Artisan pour tester la plateforme.</p>
-        </div>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <button id="btn-test-client" class="font-bold py-3.5 rounded-xl text-xs flex flex-col items-center gap-1 transition" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #fff;">
-          <span class="text-xl">🏠</span>
-          <span>Voir en Client</span>
-        </button>
-        <button id="btn-test-artisan" class="font-bold py-3.5 rounded-xl text-xs flex flex-col items-center gap-1 transition" style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); color: #fff;">
-          <span class="text-xl">🏗️</span>
-          <span>Voir en Artisan</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- STATS -->
+    <!-- ============================================= -->
+    <!-- STATS GLOBALES -->
+    <!-- ============================================= -->
     <section class="grid grid-cols-2 md:grid-cols-4 gap-3">
       <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 text-center">
         <div class="text-2xl mb-1">📁</div>
@@ -123,26 +50,172 @@
       </div>
     </section>
 
-    <!-- CANDIDATURES -->
-    <section>
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-extrabold tracking-tight">Candidatures partenaires</h2>
-        <a href="admin-partenaires.html" class="text-xs text-amber-400 font-bold hover:underline">Voir tout →</a>
+    <!-- ============================================= -->
+    <!-- SECTION : À TRAITER -->
+    <!-- ============================================= -->
+    <section class="space-y-3">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">⚙️</span>
+        <h2 class="text-base font-extrabold tracking-tight uppercase text-slate-300">À traiter</h2>
+        <span id="total-pending-badge" class="hidden text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">0</span>
       </div>
-      <div id="partenaires-list" class="space-y-2">
-        <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
-      </div>
+
+      <!-- KYC -->
+      <a href="admin-kyc.html" id="kyc-admin-card" class="block rounded-2xl p-4 transition" style="background: linear-gradient(135deg, rgba(16,185,129,0.22) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(16,185,129,0.45); text-decoration: none; color: #fff;">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl flex-shrink-0" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">🛡️</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="text-sm font-extrabold">Vérifications KYC</h3>
+              <span id="kyc-pending-badge" class="hidden text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">0</span>
+            </div>
+            <p id="kyc-admin-subtitle" class="text-[11px] mt-0.5" style="color: #cbd5e1;">Chargement…</p>
+          </div>
+          <span style="color: #34d399; font-size: 1.25rem;">›</span>
+        </div>
+      </a>
+
+      <!-- DOCUMENTS PROJETS -->
+      <a href="admin-validation-docs.html" id="docs-admin-card" class="block rounded-2xl p-4 transition" style="background: linear-gradient(135deg, rgba(14,165,233,0.22) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(14,165,233,0.45); text-decoration: none; color: #fff;">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl flex-shrink-0" style="background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);">📎</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="text-sm font-extrabold">Documents de projets</h3>
+              <span id="docs-pending-badge" class="hidden text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">0</span>
+            </div>
+            <p id="docs-admin-subtitle" class="text-[11px] mt-0.5" style="color: #cbd5e1;">Chargement…</p>
+          </div>
+          <span style="color: #38bdf8; font-size: 1.25rem;">›</span>
+        </div>
+      </a>
+
+      <!-- RÉALISATIONS -->
+      <a href="admin-realisations.html" id="rea-admin-card" class="block rounded-2xl p-4 transition" style="background: linear-gradient(135deg, rgba(245,158,11,0.22) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(245,158,11,0.45); text-decoration: none; color: #fff;">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl flex-shrink-0" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);">🏆</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="text-sm font-extrabold">Réalisations artisans</h3>
+              <span id="rea-pending-badge" class="hidden text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">0</span>
+            </div>
+            <p id="rea-admin-subtitle" class="text-[11px] mt-0.5" style="color: #cbd5e1;">Valider les chantiers présentés</p>
+          </div>
+          <span style="color: #fbbf24; font-size: 1.25rem;">›</span>
+        </div>
+      </a>
+
+      <!-- CANDIDATURES BTP -->
+      <a href="admin-partenaires.html" id="cand-admin-card" class="block rounded-2xl p-4 transition" style="background: linear-gradient(135deg, rgba(139,92,246,0.22) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(139,92,246,0.45); text-decoration: none; color: #fff;">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl flex-shrink-0" style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);">🤝</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="text-sm font-extrabold">Candidatures BTP</h3>
+              <span id="cand-pending-badge" class="hidden text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">0</span>
+            </div>
+            <p id="cand-admin-subtitle" class="text-[11px] mt-0.5" style="color: #cbd5e1;">Chargement…</p>
+          </div>
+          <span style="color: #a78bfa; font-size: 1.25rem;">›</span>
+        </div>
+      </a>
     </section>
 
-    <!-- RAPPORTS -->
+    <!-- ============================================= -->
+    <!-- SECTION : GESTION -->
+    <!-- ============================================= -->
+    <section class="space-y-3">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">📁</span>
+        <h2 class="text-base font-extrabold tracking-tight uppercase text-slate-300">Gestion</h2>
+      </div>
+
+      <!-- CONTRATS -->
+      <a href="contrats.html" id="contrats-admin-card" class="block rounded-2xl p-4 transition" style="background: linear-gradient(135deg, rgba(2,132,199,0.22) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(59,130,246,0.45); text-decoration: none; color: #fff;">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl flex-shrink-0" style="background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);">📋</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="text-sm font-extrabold">Contrats</h3>
+              <span id="contrats-pending-badge" class="hidden text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">0</span>
+            </div>
+            <p id="contrats-admin-subtitle" class="text-[11px] mt-0.5" style="color: #cbd5e1;">Créer et suivre les contrats</p>
+          </div>
+          <span style="color: #38bdf8; font-size: 1.25rem;">›</span>
+        </div>
+      </a>
+
+      <!-- CHANTIERS -->
+      <a href="admin-chantiers.html" class="block rounded-2xl p-4 transition" style="background: linear-gradient(135deg, rgba(16,185,129,0.18) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(16,185,129,0.4); text-decoration: none; color: #fff;">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl flex-shrink-0" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">🏗️</div>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-sm font-extrabold">Chantiers &amp; Artisans</h3>
+            <p class="text-[11px] mt-0.5" style="color: #cbd5e1;">Assigner artisans et superviser</p>
+          </div>
+          <span style="color: #34d399; font-size: 1.25rem;">›</span>
+        </div>
+      </a>
+
+      <!-- UTILISATEURS -->
+      <a href="admin-utilisateurs.html" class="block rounded-2xl p-4 transition" style="background: linear-gradient(135deg, rgba(100,116,139,0.25) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(148,163,184,0.4); text-decoration: none; color: #fff;">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl flex-shrink-0" style="background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);">👥</div>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-sm font-extrabold">Utilisateurs</h3>
+            <p class="text-[11px] mt-0.5" style="color: #cbd5e1;">Liste et rôles</p>
+          </div>
+          <span style="color: #94a3b8; font-size: 1.25rem;">›</span>
+        </div>
+      </a>
+
+      <!-- PORTEFEUILLE -->
+      <a href="admin-portefeuille.html" class="block rounded-2xl p-4 transition" style="background: linear-gradient(135deg, rgba(16,185,129,0.18) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(16,185,129,0.4); text-decoration: none; color: #fff;">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl flex-shrink-0" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">💰</div>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-sm font-extrabold">Portefeuille</h3>
+            <p class="text-[11px] mt-0.5" style="color: #cbd5e1;">Flux financiers globaux</p>
+          </div>
+          <span style="color: #34d399; font-size: 1.25rem;">›</span>
+        </div>
+      </a>
+    </section>
+
+    <!-- ============================================= -->
+    <!-- SECTION : OUTILS -->
+    <!-- ============================================= -->
+    <section class="space-y-3">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">🎥</span>
+        <h2 class="text-base font-extrabold tracking-tight uppercase text-slate-300">Outils</h2>
+      </div>
+
+      <a href="cameras.html" class="block rounded-2xl p-4 transition" style="background: linear-gradient(135deg, rgba(16,185,129,0.18) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(16,185,129,0.4); text-decoration: none; color: #fff;">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl flex-shrink-0" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">📹</div>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-sm font-extrabold">Caméras</h3>
+            <p class="text-[11px] mt-0.5" style="color: #cbd5e1;">Superviser les caméras des chantiers</p>
+          </div>
+          <span style="color: #34d399; font-size: 1.25rem;">›</span>
+        </div>
+      </a>
+    </section>
+
+    <!-- ============================================= -->
+    <!-- RAPPORTS RÉCENTS -->
+    <!-- ============================================= -->
     <section>
-      <h2 class="text-lg font-extrabold tracking-tight mb-3">Rapports à vérifier</h2>
+      <h2 class="text-lg font-extrabold tracking-tight mb-3">Rapports récents</h2>
       <div id="reports-list" class="space-y-2">
         <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
       </div>
     </section>
 
-    <!-- PROJETS -->
+    <!-- ============================================= -->
+    <!-- PROJETS RÉCENTS -->
+    <!-- ============================================= -->
     <section>
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-lg font-extrabold tracking-tight">Projets récents</h2>
@@ -150,6 +223,29 @@
       </div>
       <div id="projets-list" class="space-y-2">
         <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
+      </div>
+    </section>
+
+    <!-- ============================================= -->
+    <!-- MODE TEST -->
+    <!-- ============================================= -->
+    <section class="rounded-3xl p-6" style="background: linear-gradient(135deg, rgba(245,158,11,0.18) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(245,158,11,0.45);">
+      <div class="flex items-start gap-3 mb-4">
+        <div class="text-3xl">👁️</div>
+        <div class="flex-1">
+          <h2 class="text-base font-extrabold" style="color: #fcd34d;">Mode test — Voir l'app comme un utilisateur</h2>
+          <p class="text-xs text-slate-200 mt-1 leading-relaxed">Basculez dans la vue d'un Client ou d'un Artisan pour tester la plateforme.</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <button id="btn-test-client" class="font-bold py-3.5 rounded-xl text-xs flex flex-col items-center gap-1 transition" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #fff;">
+          <span class="text-xl">🏠</span>
+          <span>Voir en Client</span>
+        </button>
+        <button id="btn-test-artisan" class="font-bold py-3.5 rounded-xl text-xs flex flex-col items-center gap-1 transition" style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); color: #fff;">
+          <span class="text-xl">🏗️</span>
+          <span>Voir en Artisan</span>
+        </button>
       </div>
     </section>
 
@@ -178,24 +274,109 @@
       window.location.href = 'dashboard-artisan.html';
     });
 
+    let pendingCounts = { kyc: 0, docs: 0, rea: 0, cand: 0 };
+
+    function updateTotalPending() {
+      const total = pendingCounts.kyc + pendingCounts.docs + pendingCounts.rea + pendingCounts.cand;
+      const badge = document.getElementById('total-pending-badge');
+      if (total > 0) {
+        badge.textContent = total;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
     async function loadKycCount() {
       const subtitle = document.getElementById('kyc-admin-subtitle');
       const badge = document.getElementById('kyc-pending-badge');
       try {
         const profiles = await apiGet('profiles', 'kyc_status=eq.pending');
         const count = Array.isArray(profiles) ? profiles.length : 0;
+        pendingCounts.kyc = count;
         if (count > 0) {
           badge.textContent = count;
           badge.classList.remove('hidden');
-          subtitle.innerHTML = '<span style="color:#fca5a5;font-weight:700;">' + count + ' vérification' + (count > 1 ? 's' : '') + ' en attente</span>';
+          subtitle.innerHTML = '<span style="color:#fca5a5;font-weight:700;">' + count + ' en attente</span>';
           document.getElementById('kyc-admin-card').style.borderColor = 'rgba(239,68,68,0.7)';
         } else {
           badge.classList.add('hidden');
           subtitle.textContent = 'Aucune vérification en attente';
+          document.getElementById('kyc-admin-card').style.borderColor = 'rgba(16,185,129,0.45)';
         }
       } catch (e) {
-        subtitle.textContent = 'Vérifier les identités des utilisateurs';
+        subtitle.textContent = 'Vérifier les identités';
       }
+      updateTotalPending();
+    }
+
+    async function loadDocsCount() {
+      const subtitle = document.getElementById('docs-admin-subtitle');
+      const badge = document.getElementById('docs-pending-badge');
+      try {
+        const all = await apiGet('projects', 'status=in.(pending_verification,land_survey_needed,plan_needed,land_survey_and_plan_needed)&limit=200');
+        const count = Array.isArray(all) ? all.length : 0;
+        pendingCounts.docs = count;
+        if (count > 0) {
+          badge.textContent = count;
+          badge.classList.remove('hidden');
+          subtitle.innerHTML = '<span style="color:#fca5a5;font-weight:700;">' + count + ' projet' + (count > 1 ? 's' : '') + ' à traiter</span>';
+          document.getElementById('docs-admin-card').style.borderColor = 'rgba(239,68,68,0.7)';
+        } else {
+          badge.classList.add('hidden');
+          subtitle.textContent = 'Aucun document en attente';
+          document.getElementById('docs-admin-card').style.borderColor = 'rgba(14,165,233,0.45)';
+        }
+      } catch (e) {
+        subtitle.textContent = 'Valider les documents de projets';
+      }
+      updateTotalPending();
+    }
+
+    async function loadRealisationsCount() {
+      const subtitle = document.getElementById('rea-admin-subtitle');
+      const badge = document.getElementById('rea-pending-badge');
+      try {
+        const all = await apiGet('realisations', 'status=eq.pending&limit=200');
+        const count = Array.isArray(all) ? all.length : 0;
+        pendingCounts.rea = count;
+        if (count > 0) {
+          badge.textContent = count;
+          badge.classList.remove('hidden');
+          subtitle.innerHTML = '<span style="color:#fca5a5;font-weight:700;">' + count + ' à valider</span>';
+          document.getElementById('rea-admin-card').style.borderColor = 'rgba(239,68,68,0.7)';
+        } else {
+          badge.classList.add('hidden');
+          subtitle.textContent = 'Valider les chantiers présentés';
+          document.getElementById('rea-admin-card').style.borderColor = 'rgba(245,158,11,0.45)';
+        }
+      } catch (e) {
+        subtitle.textContent = 'Valider les chantiers';
+      }
+      updateTotalPending();
+    }
+
+    async function loadCandidaturesCount() {
+      const subtitle = document.getElementById('cand-admin-subtitle');
+      const badge = document.getElementById('cand-pending-badge');
+      try {
+        const all = await apiGet('partnership_requests', 'status=eq.pending&limit=200');
+        const count = Array.isArray(all) ? all.length : 0;
+        pendingCounts.cand = count;
+        if (count > 0) {
+          badge.textContent = count;
+          badge.classList.remove('hidden');
+          subtitle.innerHTML = '<span style="color:#fca5a5;font-weight:700;">' + count + ' candidature' + (count > 1 ? 's' : '') + ' en attente</span>';
+          document.getElementById('cand-admin-card').style.borderColor = 'rgba(239,68,68,0.7)';
+        } else {
+          badge.classList.add('hidden');
+          subtitle.textContent = 'Aucune candidature en attente';
+          document.getElementById('cand-admin-card').style.borderColor = 'rgba(139,92,246,0.45)';
+        }
+      } catch (e) {
+        subtitle.textContent = 'Candidatures en attente';
+      }
+      updateTotalPending();
     }
 
     async function loadContratsCount() {
@@ -207,35 +388,13 @@
         if (count > 0) {
           badge.textContent = count;
           badge.classList.remove('hidden');
-          subtitle.innerHTML = '<span style="color:#fca5a5;font-weight:700;">' + count + ' contrat' + (count > 1 ? 's' : '') + ' en attente de signature</span>';
+          subtitle.innerHTML = '<span style="color:#fca5a5;font-weight:700;">' + count + ' en attente de signature</span>';
           document.getElementById('contrats-admin-card').style.borderColor = 'rgba(239,68,68,0.7)';
         } else {
           badge.classList.add('hidden');
-          subtitle.textContent = 'Créer et suivre les contrats de la plateforme';
+          subtitle.textContent = 'Créer et suivre les contrats';
         }
-      } catch (e) {
-        subtitle.textContent = 'Créer et suivre les contrats de la plateforme';
-      }
-    }
-
-    async function loadRealisationsCount() {
-      const subtitle = document.getElementById('rea-admin-subtitle');
-      const badge = document.getElementById('rea-pending-badge');
-      try {
-        const all = await apiGet('realisations', 'status=eq.pending&limit=200');
-        const count = Array.isArray(all) ? all.length : 0;
-        if (count > 0) {
-          badge.textContent = count;
-          badge.classList.remove('hidden');
-          subtitle.innerHTML = '<span style="color:#fca5a5;font-weight:700;">' + count + ' réalisation' + (count > 1 ? 's' : '') + ' à valider</span>';
-          document.getElementById('rea-admin-card').style.borderColor = 'rgba(239,68,68,0.7)';
-        } else {
-          badge.classList.add('hidden');
-          subtitle.textContent = 'Valider les chantiers présentés par les artisans';
-        }
-      } catch (e) {
-        subtitle.textContent = 'Valider les chantiers présentés par les artisans';
-      }
+      } catch (e) {}
     }
 
     async function loadStats() {
@@ -254,30 +413,6 @@
         const cand = await apiGet('partnership_requests', 'status=eq.pending');
         document.getElementById('stat-candidatures').textContent = Array.isArray(cand) ? cand.length : 0;
       } catch (e) {}
-    }
-
-    async function loadPartenaires() {
-      const list = document.getElementById('partenaires-list');
-      try {
-        const data = await apiGet('partnership_requests', 'status=eq.pending&order=created_at.desc&limit=5');
-        const valid = Array.isArray(data) ? data : [];
-        if (valid.length === 0) {
-          list.innerHTML = '<div class="text-center py-6 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucune candidature en attente</p></div>';
-          return;
-        }
-        list.innerHTML = valid.map(c => `
-          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-3">
-            <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-lg flex-shrink-0">🏗️</div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-bold truncate">${escapeHtml(c.company_name)}</p>
-              <p class="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">${escapeHtml(c.profession)} · ${escapeHtml(c.city)}</p>
-            </div>
-            <a href="admin-partenaires.html" class="text-xs text-sky-400 font-bold">Voir</a>
-          </div>
-        `).join('');
-      } catch (e) {
-        list.innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur</p>';
-      }
     }
 
     async function loadReports() {
@@ -332,9 +467,10 @@
 
     loadStats();
     loadKycCount();
-    loadContratsCount();
+    loadDocsCount();
     loadRealisationsCount();
-    loadPartenaires();
+    loadCandidaturesCount();
+    loadContratsCount();
     loadReports();
     loadProjets();
   </script>
