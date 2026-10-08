@@ -33,7 +33,6 @@
 
   <main class="p-4 max-w-2xl mx-auto space-y-4">
 
-    <!-- INFOS GÉNÉRALES -->
     <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
       <h2 class="text-sm font-bold">Informations générales</h2>
       <div>
@@ -56,7 +55,6 @@
       </div>
     </section>
 
-    <!-- INFOS FONCIÈRES -->
     <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
       <h2 class="text-sm font-bold">Informations foncières</h2>
       <div>
@@ -75,9 +73,6 @@
       </div>
     </section>
 
-    <!-- ================================================ -->
-    <!-- DOCUMENT : TITRE FONCIER -->
-    <!-- ================================================ -->
     <section class="bg-amber-500/5 border border-amber-500/30 rounded-2xl p-4 space-y-3">
       <div class="flex items-start gap-2">
         <span class="text-xl flex-shrink-0">📋</span>
@@ -120,14 +115,12 @@
         </div>
       </label>
 
-      <!-- Upload titre foncier (option A) -->
       <div id="land-upload-zone" class="pt-2">
         <label class="text-xs font-bold text-slate-200 mb-1 block">📎 Upload du titre foncier *</label>
         <input type="file" id="landTitleFile" accept="image/*,application/pdf" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-emerald-500/20 file:text-emerald-300 file:font-semibold">
         <div id="landTitlePreview" class="hidden mt-2"></div>
       </div>
 
-      <!-- Précision papiers (option B) -->
       <div id="land-papers-zone" class="hidden pt-2">
         <label class="text-xs font-bold text-slate-200 mb-1 block">📎 Upload des papiers (bon d'achat, lotissement...) *</label>
         <input type="file" id="landPapersFile" accept="image/*,application/pdf" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-amber-500/20 file:text-amber-300 file:font-semibold">
@@ -136,7 +129,6 @@
         <textarea id="landPapersNote" rows="2" placeholder="Ex : Terrain acheté en 2024, acte notarié en cours..." class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500 resize-none"></textarea>
       </div>
 
-      <!-- Note (option C) -->
       <div id="land-nothing-zone" class="hidden pt-2">
         <p class="text-[11px] text-amber-200 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 leading-relaxed">
           ⚠️ Notre équipe se déplacera sur le terrain pour vérifier la propriété. <strong>Ce service est payant</strong> (frais d'enquête).
@@ -146,9 +138,6 @@
       </div>
     </section>
 
-    <!-- ================================================ -->
-    <!-- DOCUMENT : PLAN DE CONSTRUCTION -->
-    <!-- ================================================ -->
     <section class="bg-sky-500/5 border border-sky-500/30 rounded-2xl p-4 space-y-3">
       <div class="flex items-start gap-2">
         <span class="text-xl flex-shrink-0">🗺️</span>
@@ -180,14 +169,12 @@
         </div>
       </label>
 
-      <!-- Upload plan (option A) -->
       <div id="plan-upload-zone" class="pt-2">
         <label class="text-xs font-bold text-slate-200 mb-1 block">📎 Upload du plan *</label>
         <input type="file" id="planFile" accept="image/*,application/pdf" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-emerald-500/20 file:text-emerald-300 file:font-semibold">
         <div id="planPreview" class="hidden mt-2"></div>
       </div>
 
-      <!-- Note plan (option B) -->
       <div id="plan-need-zone" class="hidden pt-2">
         <p class="text-[11px] text-amber-200 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 leading-relaxed">
           💡 Notre équipe contactera un architecte/dessinateur. <strong>Un devis vous sera envoyé pour validation avant tout engagement.</strong>
@@ -197,7 +184,6 @@
       </div>
     </section>
 
-    <!-- BUDGET ET DÉLAIS -->
     <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
       <h2 class="text-sm font-bold">Budget et délais</h2>
       <div class="grid grid-cols-2 gap-2">
@@ -227,7 +213,6 @@
       </div>
     </section>
 
-    <!-- LOCALISATION -->
     <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
       <h2 class="text-sm font-bold">Localisation</h2>
       <div class="grid grid-cols-2 gap-2">
@@ -274,9 +259,7 @@
     const userId = getCurrentUserId();
     document.getElementById('startDate').valueAsDate = new Date();
 
-    /* ============================================
-       GESTION DES OPTIONS (cartes sélectionnables)
-       ============================================ */
+    /* GESTION DES OPTIONS */
     function updateCardSelection(groupName) {
       document.querySelectorAll('input[name="' + groupName + '"]').forEach(input => {
         const card = input.closest('.option-card');
@@ -290,45 +273,28 @@
       return el ? el.value : null;
     }
 
-    // Zones conditionnelles — TITRE FONCIER
     function refreshLandZones() {
       const val = getSelectedValue('landOption');
-      const uploadZone = document.getElementById('land-upload-zone');
-      const papersZone = document.getElementById('land-papers-zone');
-      const nothingZone = document.getElementById('land-nothing-zone');
-
-      uploadZone.classList.toggle('hidden', val !== 'have_title');
-      papersZone.classList.toggle('hidden', val !== 'other_papers');
-      nothingZone.classList.toggle('hidden', val !== 'nothing');
-
+      document.getElementById('land-upload-zone').classList.toggle('hidden', val !== 'have_title');
+      document.getElementById('land-papers-zone').classList.toggle('hidden', val !== 'other_papers');
+      document.getElementById('land-nothing-zone').classList.toggle('hidden', val !== 'nothing');
       updateCardSelection('landOption');
     }
 
-    // Zones conditionnelles — PLAN
     function refreshPlanZones() {
       const val = getSelectedValue('planOption');
-      const uploadZone = document.getElementById('plan-upload-zone');
-      const needZone = document.getElementById('plan-need-zone');
-
-      uploadZone.classList.toggle('hidden', val !== 'have_plan');
-      needZone.classList.toggle('hidden', val !== 'need_plan');
-
+      document.getElementById('plan-upload-zone').classList.toggle('hidden', val !== 'have_plan');
+      document.getElementById('plan-need-zone').classList.toggle('hidden', val !== 'need_plan');
       updateCardSelection('planOption');
     }
 
-    document.querySelectorAll('input[name="landOption"]').forEach(el => {
-      el.addEventListener('change', refreshLandZones);
-    });
-    document.querySelectorAll('input[name="planOption"]').forEach(el => {
-      el.addEventListener('change', refreshPlanZones);
-    });
+    document.querySelectorAll('input[name="landOption"]').forEach(el => el.addEventListener('change', refreshLandZones));
+    document.querySelectorAll('input[name="planOption"]').forEach(el => el.addEventListener('change', refreshPlanZones));
 
     refreshLandZones();
     refreshPlanZones();
 
-    /* ============================================
-       APERÇU DES FICHIERS
-       ============================================ */
+    /* APERÇU FICHIERS */
     function bindPreview(inputId, previewId) {
       const input = document.getElementById(inputId);
       const preview = document.getElementById(previewId);
@@ -356,9 +322,7 @@
     bindPreview('landPapersFile', 'landPapersPreview');
     bindPreview('planFile', 'planPreview');
 
-    /* ============================================
-       UPLOAD FICHIER
-       ============================================ */
+    /* UPLOAD */
     async function uploadDocument(projectId, file, prefix) {
       const ext = file.name.split('.').pop();
       const fileName = prefix + '_' + Date.now() + '.' + ext;
@@ -377,9 +341,6 @@
       return path;
     }
 
-    /* ============================================
-       ENREGISTREMENT DANS LA TABLE documents
-       ============================================ */
     async function saveDocumentEntry(data) {
       try {
         await fetch(SUPABASE_URL + '/rest/v1/documents', {
@@ -392,30 +353,29 @@
       }
     }
 
-    /* ============================================
-       NOTIFICATION ADMIN
-       ============================================ */
+    /* NOTIFICATION ADMIN via RPC (SECURITY DEFINER → contourne RLS) */
     async function notifyAdmin(type, title, message, link) {
       try {
-        const admins = await apiGet('profiles', 'default_role=eq.admin');
-        const adminList = Array.isArray(admins) ? admins : [];
-        for (const a of adminList) {
-          await apiPost('notifications', {
-            user_id: a.id,
-            type: type,
-            title: title,
-            message: message,
-            link: link || 'admin-chantiers.html'
-          });
+        const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/notify_all_admins', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({
+            p_type: type,
+            p_title: title,
+            p_message: message,
+            p_link: link || 'admin-chantiers.html'
+          })
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          console.warn('RPC notify error:', err);
         }
       } catch (e) {
         console.warn('Notification admin échouée :', e);
       }
     }
 
-    /* ============================================
-       CRÉATION DU PROJET
-       ============================================ */
+    /* CRÉATION */
     document.getElementById('btn-create').addEventListener('click', async () => {
       if (!userId) { alert('Vous devez être connecté'); window.location.href = 'index.html'; return; }
 
@@ -443,7 +403,6 @@
       const planFile = document.getElementById('planFile').files[0];
       const planNote = document.getElementById('planNote').value.trim();
 
-      // Validations
       if (!rawTitle) { alert('Entrez un titre'); return; }
       if (!rawDescription) { alert('Entrez une description'); return; }
       if (!budget || budget <= 0) { alert('Entrez un budget valide'); return; }
@@ -451,7 +410,6 @@
       if (landOption === 'other_papers' && !landPapersFile) { alert('📄 Upload des papiers obligatoire'); return; }
       if (planOption === 'have_plan' && !planFile) { alert('🗺️ Upload du plan obligatoire'); return; }
 
-      // Statuts initiaux selon les options
       let landSurveyStatus = 'not_needed';
       let planStatus = 'not_needed';
       let initialProjectStatus = 'pending_verification';
@@ -477,7 +435,6 @@
         }
       }
 
-      // Description finale enrichie
       let finalDescription = rawDescription;
       let extraInfo = [];
       if (landTitle) extraInfo.push(`Titre foncier : ${landTitle}`);
@@ -492,7 +449,6 @@
       let projectId = null;
 
       try {
-        // 1) Création du projet
         const res = await fetch(SUPABASE_URL + '/rest/v1/projects', {
           method: 'POST',
           headers: authHeaders({ 'Prefer': 'return=representation' }),
@@ -529,7 +485,6 @@
 
         btn.textContent = 'Upload des documents...';
 
-        // 2) Upload du titre foncier (si fourni)
         if (landOption === 'have_title' && landTitleFile) {
           const path = await uploadDocument(projectId, landTitleFile, 'land_title');
           await saveDocumentEntry({
@@ -545,7 +500,6 @@
           });
         }
 
-        // 3) Upload des autres papiers (si fournis)
         if (landOption === 'other_papers' && landPapersFile) {
           const path = await uploadDocument(projectId, landPapersFile, 'land_papers');
           await saveDocumentEntry({
@@ -561,7 +515,6 @@
           });
         }
 
-        // 4) Upload du plan (si fourni)
         if (planOption === 'have_plan' && planFile) {
           const path = await uploadDocument(projectId, planFile, 'plan');
           await saveDocumentEntry({
@@ -579,7 +532,6 @@
 
         btn.textContent = 'Séquestre du budget...';
 
-        // 5) Séquestre du budget (dépôt initial)
         try {
           await fetch(SUPABASE_URL + '/rest/v1/transactions', {
             method: 'POST',
@@ -599,51 +551,37 @@
           console.warn('Erreur dépôt :', e);
         }
 
-        // 6) Notification à l'admin
         btn.textContent = 'Notification...';
 
         if (landOption === 'have_title' && planOption === 'have_plan') {
-          await notifyAdmin(
-            'project_created',
-            '🏗️ Nouveau projet à vérifier',
+          await notifyAdmin('project_created', '🏗️ Nouveau projet à vérifier',
             'Le projet "' + rawTitle + '" est prêt. Tous les documents sont fournis.',
-            'admin-chantiers.html'
-          );
+            'admin-chantiers.html');
         } else if (landSurveyStatus === 'needed' && planStatus === 'needed') {
-          await notifyAdmin(
-            'project_land_survey_and_plan',
-            '🔍 Nouveau projet - Enquête + Plan demandés',
+          await notifyAdmin('project_land_survey_and_plan', '🔍 Nouveau projet - Enquête + Plan demandés',
             'Le projet "' + rawTitle + '" nécessite une enquête foncière ET un plan.',
-            'admin-chantiers.html'
-          );
+            'admin-validation-docs.html');
         } else if (landSurveyStatus === 'needed') {
-          await notifyAdmin(
-            'project_land_survey',
-            '🔍 Nouveau projet - Enquête foncière demandée',
+          await notifyAdmin('project_land_survey', '🔍 Nouveau projet - Enquête foncière demandée',
             'Le projet "' + rawTitle + '" nécessite une enquête foncière sur le terrain.',
-            'admin-chantiers.html'
-          );
+            'admin-validation-docs.html');
         } else if (planStatus === 'needed') {
-          await notifyAdmin(
-            'project_plan',
-            '🎨 Nouveau projet - Plan à proposer',
+          await notifyAdmin('project_plan', '🎨 Nouveau projet - Plan à proposer',
             'Le projet "' + rawTitle + '" attend un plan de construction.',
-            'admin-chantiers.html'
-          );
+            'admin-validation-docs.html');
         }
 
-        // Message final adapté
         let finalMsg = '✅ Projet créé avec succès !\n\n';
         finalMsg += 'Votre budget de ' + budget.toLocaleString('fr-FR') + ' ' + currency + ' a été séquestré.\n\n';
 
         if (landOption === 'have_title' && planOption === 'have_plan') {
-          finalMsg += '📎 Vos documents (titre foncier + plan) ont été transmis à l\'équipe pour vérification.\n\nL\'équipe va maintenant désigner un artisan.';
+          finalMsg += '📎 Vos documents ont été transmis à l\'équipe pour vérification.';
         } else if (landSurveyStatus === 'needed' && planStatus === 'needed') {
-          finalMsg += '🔍 L\'équipe va effectuer une enquête foncière sur le terrain.\n🎨 Un devis vous sera envoyé pour le plan.\n\nLe chantier ne démarrera qu\'après validation.';
+          finalMsg += '🔍 L\'équipe va effectuer une enquête foncière sur le terrain.\n🎨 Un devis vous sera envoyé pour le plan.';
         } else if (landSurveyStatus === 'needed') {
-          finalMsg += '🔍 L\'équipe va effectuer une enquête foncière sur le terrain.\n\nLe chantier ne démarrera qu\'après validation.';
+          finalMsg += '🔍 L\'équipe va effectuer une enquête foncière sur le terrain.';
         } else if (planStatus === 'needed') {
-          finalMsg += '🎨 Un devis vous sera envoyé pour le plan de construction.\n\nLe chantier ne démarrera qu\'après validation.';
+          finalMsg += '🎨 Un devis vous sera envoyé pour le plan de construction.';
         }
 
         alert(finalMsg);
