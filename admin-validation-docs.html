@@ -48,7 +48,6 @@
 
   </main>
 
-  <!-- MODAL DÉTAIL PROJET -->
   <div id="modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm hidden flex-col">
     <header class="flex items-center justify-between p-4 border-b border-white/10">
       <div class="min-w-0 flex-1">
@@ -60,7 +59,6 @@
 
     <div class="flex-1 overflow-y-auto p-4 space-y-4">
 
-      <!-- Infos projet -->
       <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2 text-xs">
         <div class="flex justify-between gap-2"><span class="text-slate-400">Client :</span><span id="m-owner" class="font-bold text-right"></span></div>
         <div class="flex justify-between gap-2"><span class="text-slate-400">Ville :</span><span id="m-city" class="font-bold text-right"></span></div>
@@ -68,7 +66,6 @@
         <div class="flex justify-between gap-2"><span class="text-slate-400">Statut :</span><span id="m-status" class="font-bold text-right"></span></div>
       </div>
 
-      <!-- Documents uploadés -->
       <div>
         <h3 class="text-xs font-bold text-sky-300 uppercase tracking-wider mb-2">📎 Documents</h3>
         <div id="m-docs-list" class="space-y-2">
@@ -76,7 +73,6 @@
         </div>
       </div>
 
-      <!-- ENQUÊTE FONCIÈRE -->
       <div id="m-survey-zone" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 space-y-3">
         <h3 class="text-xs font-bold text-amber-200 uppercase tracking-wider">🔍 Enquête foncière</h3>
         <div id="m-survey-status" class="text-xs text-amber-100"></div>
@@ -98,7 +94,6 @@
         </div>
       </div>
 
-      <!-- PLAN DE CONSTRUCTION -->
       <div id="m-plan-zone" class="hidden bg-purple-500/10 border border-purple-500/30 rounded-2xl p-4 space-y-3">
         <h3 class="text-xs font-bold text-purple-200 uppercase tracking-wider">🎨 Plan de construction</h3>
         <div id="m-plan-status" class="text-xs text-purple-100"></div>
@@ -228,14 +223,25 @@
       return map[s] || s;
     }
 
+    // ✅ FONCTION CORRIGÉE : les projets "land_survey_and_plan_needed" apparaissent
+    // dans les 2 onglets selon leur état réel
     function filterProjects() {
       let filtered = [];
       if (currentFilter === 'pending_verification') {
         filtered = allProjects.filter(p => p.status === 'pending_verification');
       } else if (currentFilter === 'land_survey_needed') {
-        filtered = allProjects.filter(p => p.status === 'land_survey_needed' || p.status === 'land_survey_and_plan_needed');
+        // Enquête à faire = statut enquête non validée
+        filtered = allProjects.filter(p =>
+          (p.status === 'land_survey_needed' || p.status === 'land_survey_and_plan_needed')
+          && p.land_survey_status === 'needed'
+        );
       } else if (currentFilter === 'plan_needed') {
-        filtered = allProjects.filter(p => p.status === 'plan_needed');
+        // Plan à faire = plan demandé ET enquête déjà réglée (validée ou pas nécessaire)
+        filtered = allProjects.filter(p =>
+          (p.status === 'plan_needed' || p.status === 'land_survey_and_plan_needed')
+          && p.plan_status === 'needed'
+          && (p.land_survey_status === 'validated' || p.land_survey_status === 'provided' || p.land_survey_status === 'not_needed')
+        );
       } else if (currentFilter === 'ready_to_start') {
         filtered = allProjects.filter(p => p.status === 'ready_to_start');
       }
@@ -266,7 +272,9 @@
             <p class="text-[11px] text-slate-400">📍 ${escapeHtml(p.city || '')} · 💰 ${formatAmount(p.total_budget, p.currency)}</p>
             <div class="flex gap-2 mt-2 flex-wrap">
               ${p.land_survey_status === 'needed' ? '<span class="text-[9px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">🔍 Enquête à faire</span>' : ''}
+              ${p.land_survey_status === 'validated' ? '<span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">✅ Enquête OK</span>' : ''}
               ${p.plan_status === 'needed' ? '<span class="text-[9px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-bold">🎨 Plan à faire</span>' : ''}
+              ${p.plan_status === 'validated' ? '<span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">✅ Plan OK</span>' : ''}
               <span class="text-[9px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full font-bold">📎 ${docs.length} doc(s)</span>
             </div>
           </div>
@@ -309,24 +317,23 @@
       document.getElementById('m-budget').textContent = formatAmount(p.total_budget, p.currency);
       document.getElementById('m-status').textContent = statusLabel(p.status);
 
-      // Docs
       const docsEl = document.getElementById('m-docs-list');
       const docs = allDocs.filter(d => d.project_id === p.id);
       if (docs.length === 0) {
         docsEl.innerHTML = '<p class="text-slate-500 text-xs italic">Aucun document</p>';
       } else {
         docsEl.innerHTML = docs.map(d => `
-          <div class="flex items-center gap-2 bg-slate-800/40 border border-white/10 rounded-lg p-2 doc-item" data-path="${escapeHtml(d.storage_path)}">
-            <div class="w-10 h-10 rounded-lg bg-slate-700/50 flex items-center justify-center text-lg flex-shrink-0 doc-icon">📄</div>
+          <div class="flex items-center gap-2 bg-slate-800/40 border border-white/10 rounded-lg p-2">
+            <div class="w-10 h-10 rounded-lg bg-slate-700/50 flex items-center justify-center text-lg flex-shrink-0">📄</div>
             <div class="flex-1 min-w-0">
               <p class="text-xs font-bold truncate">${escapeHtml(d.title)}</p>
               <p class="text-[10px] text-slate-400">${(d.file_size / 1024).toFixed(0)} Ko</p>
             </div>
-            <button class="doc-download-btn text-xs text-sky-400 font-bold px-2 py-1" data-path="${escapeHtml(d.storage_path)}">👁️</button>
+            <button class="doc-view-btn text-xs text-sky-400 font-bold px-2 py-1" data-path="${escapeHtml(d.storage_path)}">👁️</button>
           </div>
         `).join('');
 
-        docsEl.querySelectorAll('.doc-download-btn').forEach(btn => {
+        docsEl.querySelectorAll('.doc-view-btn').forEach(btn => {
           btn.addEventListener('click', async (e) => {
             e.stopPropagation();
             const path = btn.dataset.path;
@@ -336,7 +343,7 @@
         });
       }
 
-      // Enquête foncière
+      // Enquête
       const surveyZone = document.getElementById('m-survey-zone');
       if (p.land_survey_status === 'needed') {
         surveyZone.classList.remove('hidden');
@@ -345,8 +352,6 @@
         document.getElementById('m-survey-note-wrap').innerHTML = note ? '<strong>Note client :</strong> ' + escapeHtml(note) : '<em>Aucune note du client</em>';
         document.getElementById('m-survey-upload-wrap').classList.remove('hidden');
         document.getElementById('m-survey-done').classList.add('hidden');
-      } else if (p.land_survey_status === 'provided') {
-        surveyZone.classList.add('hidden');
       } else if (p.land_survey_status === 'validated') {
         surveyZone.classList.remove('hidden');
         document.getElementById('m-survey-status').innerHTML = '✅ Enquête déjà validée.';
@@ -371,7 +376,7 @@
         document.getElementById('m-plan-quote-sent').classList.add('hidden');
         document.getElementById('m-plan-done').classList.add('hidden');
 
-        // Vérifier s'il y a un devis déjà envoyé
+        // Vérifier devis existant
         try {
           const quotes = await apiGet('project_quotes', 'project_id=eq.' + p.id + '&quote_type=eq.plan&order=created_at.desc&limit=1');
           if (Array.isArray(quotes) && quotes[0]) {
@@ -381,8 +386,6 @@
             document.getElementById('m-plan-quote-info').innerHTML = '💰 ' + formatAmount(q.amount, q.currency) + '<br>📝 ' + escapeHtml(q.title) + '<br>📌 Statut : ' + (q.status === 'accepted' ? '✅ Accepté' : (q.status === 'rejected' ? '❌ Refusé' : '⏳ En attente'));
           }
         } catch (e) {}
-      } else if (p.plan_status === 'provided') {
-        planZone.classList.add('hidden');
       } else if (p.plan_status === 'validated') {
         planZone.classList.remove('hidden');
         document.getElementById('m-plan-status').innerHTML = '✅ Plan validé.';
@@ -427,13 +430,12 @@
 
     document.getElementById('modal-close').addEventListener('click', closeModal);
 
-    // ============ VALIDER L'ENQUÊTE FONCIÈRE ============
+    // Enquête
     document.getElementById('btn-survey-validate').addEventListener('click', async () => {
       if (!currentProjectId) return;
       const fileInput = document.getElementById('m-survey-file');
       const file = fileInput.files[0];
       if (!file) { alert('Uploadez le rapport d\'enquête'); return; }
-
       if (!confirm('Confirmer la validation de l\'enquête foncière ?')) return;
 
       try {
@@ -448,7 +450,6 @@
         });
         if (!res.ok) throw new Error('Erreur upload rapport');
 
-        // Enregistrer dans documents
         await apiPost('documents', {
           project_id: currentProjectId,
           uploaded_by: getCurrentUserId(),
@@ -461,13 +462,11 @@
           mime_type: file.type
         });
 
-        // Mettre à jour le projet
         await apiPatch('projects', currentProjectId, {
           land_survey_status: 'validated',
           land_survey_report_url: path
         });
 
-        // Notifier le client
         if (currentProject && currentProject.owner_id) {
           await apiPost('notifications', {
             user_id: currentProject.owner_id,
@@ -484,7 +483,7 @@
       } catch (e) { showError(e.message); }
     });
 
-    // ============ ENVOYER DEVIS PLAN ============
+    // Devis plan
     document.getElementById('btn-plan-send-quote').addEventListener('click', async () => {
       if (!currentProjectId) return;
       const amount = Number(document.getElementById('m-plan-quote-amount').value);
@@ -492,7 +491,6 @@
 
       if (!amount || amount <= 0) { alert('Entrez un montant valide'); return; }
       if (!desc) { alert('Décrivez le devis'); return; }
-
       if (!confirm('Envoyer ce devis au client ?')) return;
 
       try {
@@ -507,7 +505,6 @@
           created_by: getCurrentUserId()
         });
 
-        // Notifier le client
         if (currentProject && currentProject.owner_id) {
           await apiPost('notifications', {
             user_id: currentProject.owner_id,
@@ -524,13 +521,12 @@
       } catch (e) { showError(e.message); }
     });
 
-    // ============ VALIDER LE PLAN ============
+    // Valider plan
     document.getElementById('btn-plan-validate').addEventListener('click', async () => {
       if (!currentProjectId) return;
       const fileInput = document.getElementById('m-plan-file');
       const file = fileInput.files[0];
       if (!file) { alert('Uploadez le plan finalisé'); return; }
-
       if (!confirm('Confirmer la validation du plan ?')) return;
 
       try {
@@ -557,9 +553,7 @@
           mime_type: file.type
         });
 
-        await apiPatch('projects', currentProjectId, {
-          plan_status: 'validated'
-        });
+        await apiPatch('projects', currentProjectId, { plan_status: 'validated' });
 
         if (currentProject && currentProject.owner_id) {
           await apiPost('notifications', {
@@ -577,7 +571,7 @@
       } catch (e) { showError(e.message); }
     });
 
-    // ============ PASSER EN READY TO START ============
+    // Ready to start
     document.getElementById('btn-ready-to-start').addEventListener('click', async () => {
       if (!currentProjectId) return;
       if (!confirm('Marquer ce projet comme "Prêt à démarrer" ?\n\nTous les documents sont validés.')) return;
