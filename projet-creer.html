@@ -259,7 +259,6 @@
     const userId = getCurrentUserId();
     document.getElementById('startDate').valueAsDate = new Date();
 
-    /* GESTION DES OPTIONS */
     function updateCardSelection(groupName) {
       document.querySelectorAll('input[name="' + groupName + '"]').forEach(input => {
         const card = input.closest('.option-card');
@@ -294,7 +293,6 @@
     refreshLandZones();
     refreshPlanZones();
 
-    /* APERÇU FICHIERS */
     function bindPreview(inputId, previewId) {
       const input = document.getElementById(inputId);
       const preview = document.getElementById(previewId);
@@ -322,7 +320,6 @@
     bindPreview('landPapersFile', 'landPapersPreview');
     bindPreview('planFile', 'planPreview');
 
-    /* UPLOAD */
     async function uploadDocument(projectId, file, prefix) {
       const ext = file.name.split('.').pop();
       const fileName = prefix + '_' + Date.now() + '.' + ext;
@@ -353,7 +350,6 @@
       }
     }
 
-    /* NOTIFICATION ADMIN via RPC (SECURITY DEFINER → contourne RLS) */
     async function notifyAdmin(type, title, message, link) {
       try {
         const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/notify_all_admins', {
@@ -375,7 +371,6 @@
       }
     }
 
-    /* CRÉATION */
     document.getElementById('btn-create').addEventListener('click', async () => {
       if (!userId) { alert('Vous devez être connecté'); window.location.href = 'index.html'; return; }
 
@@ -485,6 +480,7 @@
 
         btn.textContent = 'Upload des documents...';
 
+        // ✅ Titre foncier → confidentiel (client + admin uniquement)
         if (landOption === 'have_title' && landTitleFile) {
           const path = await uploadDocument(projectId, landTitleFile, 'land_title');
           await saveDocumentEntry({
@@ -496,10 +492,12 @@
             storage_bucket: 'project-documents',
             storage_path: path,
             file_size: landTitleFile.size,
-            mime_type: landTitleFile.type
+            mime_type: landTitleFile.type,
+            visibility: 'client_admin'
           });
         }
 
+        // ✅ Autres papiers → confidentiel (client + admin uniquement)
         if (landOption === 'other_papers' && landPapersFile) {
           const path = await uploadDocument(projectId, landPapersFile, 'land_papers');
           await saveDocumentEntry({
@@ -511,10 +509,12 @@
             storage_bucket: 'project-documents',
             storage_path: path,
             file_size: landPapersFile.size,
-            mime_type: landPapersFile.type
+            mime_type: landPapersFile.type,
+            visibility: 'client_admin'
           });
         }
 
+        // ✅ Plan → accessible par tous (client + admin + artisan)
         if (planOption === 'have_plan' && planFile) {
           const path = await uploadDocument(projectId, planFile, 'plan');
           await saveDocumentEntry({
@@ -526,7 +526,8 @@
             storage_bucket: 'project-documents',
             storage_path: path,
             file_size: planFile.size,
-            mime_type: planFile.type
+            mime_type: planFile.type,
+            visibility: 'all'
           });
         }
 
