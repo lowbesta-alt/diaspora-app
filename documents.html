@@ -21,12 +21,10 @@
 
     <input type="text" id="searchInput" placeholder="🔍 Rechercher un document..." class="w-full px-4 py-3 rounded-xl bg-white/5 text-sm placeholder-slate-500 focus:outline-none transition" style="border: 1px solid rgba(16,185,129,0.3);">
 
-    <!-- Filtre par projet (visible si plusieurs projets) -->
     <select id="project-filter" class="hidden w-full px-4 py-3 rounded-xl bg-white/5 text-sm focus:outline-none transition" style="border: 1px solid rgba(16,185,129,0.3); color: #fff; background-color: rgba(255,255,255,0.05);">
       <option value="all">📁 Tous les projets</option>
     </select>
 
-    <!-- Filtres par type -->
     <div class="flex gap-2 overflow-x-auto pb-1">
       <button data-filter="all" class="filter-btn font-bold px-4 py-1.5 rounded-full text-xs whitespace-nowrap" style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #0a1838;">Tous</button>
       <button data-filter="photo" class="filter-btn bg-white/5 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap" style="border: 1px solid rgba(16,185,129,0.3);">📸 Photos</button>
@@ -106,22 +104,35 @@
     const userId = getCurrentUserId();
     const role = getCurrentUserRole();
     const isAdmin = role === 'admin';
+    const isClient = role === 'investor';
+    const isArtisan = role === 'provider' || role === 'project_manager';
 
     let allDocs = [];
-    let myProjects = [];       // [{id, title}]
-    let projectsMap = {};       // { id: title }
-    let usersMap = {};          // { id: full_name }
+    let myProjects = [];
+    let projectsMap = {};
+    let usersMap = {};
     let currentFilter = 'all';
     let currentProject = filterProject || 'all';
     let searchQuery = '';
-    let visibleDocs = [];       // docs après filtres
+    let visibleDocs = [];
     let currentLightboxIdx = -1;
 
-    const signedUrlCache = new Map(); // { 'bucket/path': { url, exp } }
+    const signedUrlCache = new Map();
 
-    /* ==========================================================
-       URL signée avec cache (1h)
-       ========================================================== */
+    /* ============================================
+       🔒 FILTRE VISIBILITÉ
+       L'artisan ne voit QUE les docs 'all'
+       ============================================ */
+    function canSeeDoc(doc) {
+      if (!doc) return false;
+      if (isAdmin) return true;
+      if (isClient) return true; // Le client voit tout (c'est le sien)
+      if (isArtisan) {
+        return !doc.visibility || doc.visibility === 'all';
+      }
+      return false;
+    }
+
     async function getSignedUrl(bucket, path, expiresIn = 3600) {
       const key = bucket + '/' + path;
       const cached = signedUrlCache.get(key);
@@ -151,9 +162,6 @@
       }
     }
 
-    /* ==========================================================
-       Charge les projets accessibles à l'utilisateur
-       ========================================================== */
     async function loadMyProjects() {
       try {
         if (isAdmin) {
@@ -162,13 +170,11 @@
         } else {
           const map = new Map();
 
-          // 1) Projets dont il est propriétaire (owner_id)
           try {
             const owned = await apiGet('projects', 'owner_id=eq.' + userId);
             if (Array.isArray(owned)) for (const p of owned) map.set(p.id, { id: p.id, title: p.title });
           } catch (e) {}
 
-          // 2) Projets où il est membre actif (via project_members)
           try {
             const members = await apiGet('project_members', 'user_id=eq.' + userId + '&is_active=eq.true');
             if (Array.isArray(members) && members.length > 0) {
@@ -190,9 +196,6 @@
       }
     }
 
-    /* ==========================================================
-       Charge les documents (filtrés côté serveur par projet si possible)
-       ========================================================== */
     async function loadDocs() {
       try {
         let params = 'order=created_at.desc&limit=500';
@@ -201,19 +204,19 @@
           const ids = myProjects.map(p => p.id).join(',');
           params = 'project_id=in.(' + ids + ')&' + params;
         } else if (!isAdmin && myProjects.length === 0) {
-          // Pas de projet : on charge quand même ses propres uploads
           params = 'uploaded_by=eq.' + userId + '&' + params;
         }
-        // admin : tous les documents
 
         const data = await apiGet('documents', params);
-        allDocs = Array.isArray(data) ? data : [];
+        const raw = Array.isArray(data) ? data : [];
+
+        // 🔒 Filtre selon rôle
+        allDocs = raw.filter(canSeeDoc);
       } catch (e) {
         console.error('[docs] load error', e);
         allDocs = [];
       }
 
-      // Charge les noms des uploaders (en 1 seule requête)
       const uploaderIds = [...new Set(allDocs.map(d => d.uploaded_by).filter(Boolean))];
       if (uploaderIds.length > 0) {
         try {
@@ -223,9 +226,6 @@
       }
     }
 
-    /* ==========================================================
-       Applique les filtres et rend la grille
-       ========================================================== */
     function applyFilters() {
       visibleDocs = allDocs.filter(d => {
         if (currentFilter !== 'all' && d.document_type !== currentFilter) return false;
@@ -242,9 +242,6 @@
       document.getElementById('stat-invoices').textContent = visibleDocs.filter(d => d.document_type === 'invoice').length;
     }
 
-    /* ==========================================================
-       Rendu de la grille
-       ========================================================== */
     async function renderGrid() {
       const grid = document.getElementById('docs-grid');
       updateStats();
@@ -276,7 +273,6 @@
         `;
       }).join('');
 
-      // Charge les visuels en arrière-plan
       visibleDocs.forEach(async (d, i) => {
         if (!d.storage_path || !d.storage_bucket) return;
         if (d.document_type !== 'photo' && d.document_type !== 'video') return;
@@ -294,7 +290,6 @@
         }
       });
 
-      // Click sur carte → ouvre lightbox
       document.querySelectorAll('.ed-card').forEach(card => {
         card.addEventListener('click', () => {
           const idx = parseInt(card.dataset.idx, 10);
@@ -307,9 +302,6 @@
       return type === 'invoice' ? '📄' : type === 'contract' ? '📋' : type === 'video' ? '🎥' : type === 'photo' ? '📸' : '📎';
     }
 
-    /* ==========================================================
-       LIGHTBOX
-       ========================================================== */
     async function openLightbox(idx) {
       if (idx < 0 || idx >= visibleDocs.length) return;
       currentLightboxIdx = idx;
@@ -344,7 +336,6 @@
 
       content.innerHTML = '<div class="text-slate-500 text-sm">Chargement…</div>';
 
-      // Boutons précédent / suivant
       document.getElementById('lb-prev').style.display = currentLightboxIdx > 0 ? 'flex' : 'none';
       document.getElementById('lb-next').style.display = currentLightboxIdx < visibleDocs.length - 1 ? 'flex' : 'none';
 
@@ -370,14 +361,12 @@
       }
     }
 
-    /* Télécharger */
     document.getElementById('lb-download').addEventListener('click', async () => {
       const d = visibleDocs[currentLightboxIdx];
       if (!d || !d.storage_path) return;
       const url = await getSignedUrl(d.storage_bucket, d.storage_path);
       if (!url) return showError('Lien introuvable');
 
-      // Ouvre dans un nouvel onglet avec download forcé si possible
       const a = document.createElement('a');
       a.href = url;
       a.download = d.title || 'document';
@@ -389,7 +378,6 @@
       showSuccess('Téléchargement lancé');
     });
 
-    /* Partager */
     document.getElementById('lb-share').addEventListener('click', async () => {
       const d = visibleDocs[currentLightboxIdx];
       if (!d || !d.storage_path) return;
@@ -409,12 +397,9 @@
           await navigator.clipboard.writeText(url);
           showSuccess('Lien copié !');
         }
-      } catch (e) {
-        // L'utilisateur a annulé, rien à faire
-      }
+      } catch (e) {}
     });
 
-    /* Infos */
     document.getElementById('lb-info').addEventListener('click', () => {
       const d = visibleDocs[currentLightboxIdx];
       if (!d) return;
@@ -438,21 +423,16 @@
       panel.classList.toggle('hidden');
     });
 
-    /* Nav prev/next */
     document.getElementById('lb-prev').addEventListener('click', () => { if (currentLightboxIdx > 0) openLightbox(currentLightboxIdx - 1); });
     document.getElementById('lb-next').addEventListener('click', () => { if (currentLightboxIdx < visibleDocs.length - 1) openLightbox(currentLightboxIdx + 1); });
     document.getElementById('lb-close').addEventListener('click', closeLightbox);
 
-    /* Échap clavier */
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeLightbox();
       if (e.key === 'ArrowLeft' && currentLightboxIdx > 0) openLightbox(currentLightboxIdx - 1);
       if (e.key === 'ArrowRight' && currentLightboxIdx < visibleDocs.length - 1) openLightbox(currentLightboxIdx + 1);
     });
 
-    /* ==========================================================
-       Filtres UI
-       ========================================================== */
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.filter-btn').forEach(b => {
@@ -478,13 +458,9 @@
       applyFilters();
     });
 
-    /* ==========================================================
-       BOOT
-       ========================================================== */
     (async function boot() {
       await loadMyProjects();
 
-      // Remplit le filtre projet
       const pf = document.getElementById('project-filter');
       if (myProjects.length > 1) {
         pf.classList.remove('hidden');
@@ -496,7 +472,6 @@
 
       await loadDocs();
 
-      // Titre de page
       if (filterProject && projectsMap[filterProject]) {
         document.getElementById('project-name').textContent = projectsMap[filterProject];
       } else if (myProjects.length === 1) {
@@ -507,7 +482,6 @@
         document.getElementById('project-name').textContent = myProjects.length + ' projet(s) — ' + allDocs.length + ' document(s)';
       }
 
-      // Lien + Téléverser
       const addLink = document.getElementById('btn-add');
       if (currentProject && currentProject !== 'all') {
         addLink.href = 'document-ajouter.html?id=' + currentProject;
