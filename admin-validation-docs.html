@@ -133,9 +133,6 @@
     </div>
 
     <footer class="p-4 border-t border-white/10 space-y-2">
-      <button id="btn-ready-to-start" class="hidden w-full py-3.5 rounded-xl font-bold text-sm" style="background: linear-gradient(135deg, #059669, #10b981); color:#fff;">
-        🚀 Tout est validé - Prêt à démarrer
-      </button>
       <p id="m-footer-note" class="text-[10px] text-slate-400 text-center"></p>
     </footer>
   </div>
@@ -210,17 +207,7 @@
     }
 
     function statusLabel(s) {
-      const map = {
-        'draft': 'Brouillon',
-        'pending_verification': '⏳ À vérifier',
-        'land_survey_needed': '🔍 Enquête foncière',
-        'plan_needed': '🎨 Plan à proposer',
-        'land_survey_and_plan_needed': '🔍🎨 Enquête + Plan',
-        'ready_to_start': '✅ Prêt',
-        'active': '🚀 Actif',
-        'completed': '✔️ Terminé'
-      };
-      return map[s] || s;
+      return getStatusLabel(s);
     }
 
     function filterProjects() {
@@ -394,21 +381,12 @@
         planZone.classList.add('hidden');
       }
 
-      const btnReady = document.getElementById('btn-ready-to-start');
       const footerNote = document.getElementById('m-footer-note');
-      const canBeReady = (
-        (p.land_survey_status === 'provided' || p.land_survey_status === 'validated' || p.land_survey_status === 'not_needed') &&
-        (p.plan_status === 'provided' || p.plan_status === 'validated' || p.plan_status === 'not_needed')
-      );
-
-      if (canBeReady && p.status !== 'ready_to_start' && p.status !== 'active' && p.status !== 'completed') {
-        btnReady.classList.remove('hidden');
-        footerNote.textContent = 'Tous les documents sont validés. Vous pouvez lancer la phase de démarrage.';
-      } else if (p.status === 'ready_to_start') {
-        btnReady.classList.add('hidden');
+      if (p.status === 'ready_to_start') {
         footerNote.textContent = '✅ Ce projet est prêt. Assignez un artisan dans admin-chantiers.html';
+      } else if (p.status === 'active') {
+        footerNote.textContent = '🚀 Chantier en cours.';
       } else {
-        btnReady.classList.add('hidden');
         footerNote.textContent = 'En attente de validation des documents manquants.';
       }
 
@@ -427,7 +405,46 @@
 
     document.getElementById('modal-close').addEventListener('click', closeModal);
 
-    // Enquête → confidentiel
+    /* ============================================
+       ✅ NOUVELLE FONCTION : vérifie si tout est validé et auto-passe en ready_to_start
+       ============================================ */
+    async function checkAndAutoReady(projectId) {
+      try {
+        // Recharger le projet à jour
+        const data = await apiGet('projects', 'id=eq.' + projectId);
+        if (!Array.isArray(data) || !data[0]) return false;
+        const p = data[0];
+
+        // Vérifier les 2 documents
+        const landOK = (p.land_survey_status === 'validated' || p.land_survey_status === 'provided' || p.land_survey_status === 'not_needed');
+        const planOK = (p.plan_status === 'validated' || p.plan_status === 'provided' || p.plan_status === 'not_needed');
+
+        if (landOK && planOK && p.status !== 'ready_to_start' && p.status !== 'active' && p.status !== 'completed') {
+          await apiPatch('projects', projectId, {
+            status: 'ready_to_start',
+            updated_at: new Date().toISOString()
+          });
+
+          // Notifier le client
+          if (p.owner_id) {
+            await apiPost('notifications', {
+              user_id: p.owner_id,
+              type: 'project_ready',
+              title: '🚀 Votre projet est prêt à démarrer !',
+              message: 'Tous les documents du projet "' + p.title + '" ont été validés. Nous allons maintenant désigner un artisan.',
+              link: 'projet-detail.html?id=' + projectId
+            });
+          }
+          return true;
+        }
+        return false;
+      } catch (e) {
+        console.warn('[checkAndAutoReady]', e);
+        return false;
+      }
+    }
+
+    // Enquête
     document.getElementById('btn-survey-validate').addEventListener('click', async () => {
       if (!currentProjectId) return;
       const fileInput = document.getElementById('m-survey-file');
@@ -475,7 +492,10 @@
           });
         }
 
-        showSuccess('Enquête validée !');
+        // ✅ Auto-passage en ready si les 2 sont OK
+        const becameReady = await checkAndAutoReady(currentProjectId);
+
+        showSuccess(becameReady ? 'Enquête validée ! Le projet est maintenant prêt à démarrer.' : 'Enquête validée !');
         closeModal();
         await loadData();
       } catch (e) { showError(e.message); }
@@ -519,7 +539,7 @@
       } catch (e) { showError(e.message); }
     });
 
-    // Plan → accessible par tous
+    // Valider plan
     document.getElementById('btn-plan-validate').addEventListener('click', async () => {
       if (!currentProjectId) return;
       const fileInput = document.getElementById('m-plan-file');
@@ -564,33 +584,10 @@
           });
         }
 
-        showSuccess('Plan validé !');
-        closeModal();
-        await loadData();
-      } catch (e) { showError(e.message); }
-    });
+        // ✅ Auto-passage en ready si les 2 sont OK
+        const becameReady = await checkAndAutoReady(currentProjectId);
 
-    document.getElementById('btn-ready-to-start').addEventListener('click', async () => {
-      if (!currentProjectId) return;
-      if (!confirm('Marquer ce projet comme "Prêt à démarrer" ?\n\nTous les documents sont validés.')) return;
-
-      try {
-        await apiPatch('projects', currentProjectId, {
-          status: 'ready_to_start',
-          updated_at: new Date().toISOString()
-        });
-
-        if (currentProject && currentProject.owner_id) {
-          await apiPost('notifications', {
-            user_id: currentProject.owner_id,
-            type: 'project_ready',
-            title: '🚀 Votre projet est prêt à démarrer !',
-            message: 'Tous les documents du projet "' + currentProject.title + '" ont été validés. Nous allons maintenant désigner un artisan.',
-            link: 'projet-detail.html?id=' + currentProjectId
-          });
-        }
-
-        showSuccess('Projet prêt à démarrer !');
+        showSuccess(becameReady ? 'Plan validé ! Le projet est maintenant prêt à démarrer.' : 'Plan validé !');
         closeModal();
         await loadData();
       } catch (e) { showError(e.message); }
