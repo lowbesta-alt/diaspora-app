@@ -223,20 +223,16 @@
       return map[s] || s;
     }
 
-    // ✅ FONCTION CORRIGÉE : les projets "land_survey_and_plan_needed" apparaissent
-    // dans les 2 onglets selon leur état réel
     function filterProjects() {
       let filtered = [];
       if (currentFilter === 'pending_verification') {
         filtered = allProjects.filter(p => p.status === 'pending_verification');
       } else if (currentFilter === 'land_survey_needed') {
-        // Enquête à faire = statut enquête non validée
         filtered = allProjects.filter(p =>
           (p.status === 'land_survey_needed' || p.status === 'land_survey_and_plan_needed')
           && p.land_survey_status === 'needed'
         );
       } else if (currentFilter === 'plan_needed') {
-        // Plan à faire = plan demandé ET enquête déjà réglée (validée ou pas nécessaire)
         filtered = allProjects.filter(p =>
           (p.status === 'plan_needed' || p.status === 'land_survey_and_plan_needed')
           && p.plan_status === 'needed'
@@ -322,16 +318,19 @@
       if (docs.length === 0) {
         docsEl.innerHTML = '<p class="text-slate-500 text-xs italic">Aucun document</p>';
       } else {
-        docsEl.innerHTML = docs.map(d => `
-          <div class="flex items-center gap-2 bg-slate-800/40 border border-white/10 rounded-lg p-2">
-            <div class="w-10 h-10 rounded-lg bg-slate-700/50 flex items-center justify-center text-lg flex-shrink-0">📄</div>
-            <div class="flex-1 min-w-0">
-              <p class="text-xs font-bold truncate">${escapeHtml(d.title)}</p>
-              <p class="text-[10px] text-slate-400">${(d.file_size / 1024).toFixed(0)} Ko</p>
+        docsEl.innerHTML = docs.map(d => {
+          const isPrivate = d.visibility === 'client_admin';
+          return `
+            <div class="flex items-center gap-2 bg-slate-800/40 border ${isPrivate ? 'border-amber-500/30' : 'border-white/10'} rounded-lg p-2">
+              <div class="w-10 h-10 rounded-lg bg-slate-700/50 flex items-center justify-center text-lg flex-shrink-0">${isPrivate ? '🔒' : '📄'}</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-bold truncate">${escapeHtml(d.title)}</p>
+                <p class="text-[10px] text-slate-400">${(d.file_size / 1024).toFixed(0)} Ko ${isPrivate ? '· <span style="color:#fcd34d;">Confidentiel</span>' : ''}</p>
+              </div>
+              <button class="doc-view-btn text-xs text-sky-400 font-bold px-2 py-1" data-path="${escapeHtml(d.storage_path)}">👁️</button>
             </div>
-            <button class="doc-view-btn text-xs text-sky-400 font-bold px-2 py-1" data-path="${escapeHtml(d.storage_path)}">👁️</button>
-          </div>
-        `).join('');
+          `;
+        }).join('');
 
         docsEl.querySelectorAll('.doc-view-btn').forEach(btn => {
           btn.addEventListener('click', async (e) => {
@@ -376,7 +375,6 @@
         document.getElementById('m-plan-quote-sent').classList.add('hidden');
         document.getElementById('m-plan-done').classList.add('hidden');
 
-        // Vérifier devis existant
         try {
           const quotes = await apiGet('project_quotes', 'project_id=eq.' + p.id + '&quote_type=eq.plan&order=created_at.desc&limit=1');
           if (Array.isArray(quotes) && quotes[0]) {
@@ -396,7 +394,6 @@
         planZone.classList.add('hidden');
       }
 
-      // Bouton ready
       const btnReady = document.getElementById('btn-ready-to-start');
       const footerNote = document.getElementById('m-footer-note');
       const canBeReady = (
@@ -430,7 +427,7 @@
 
     document.getElementById('modal-close').addEventListener('click', closeModal);
 
-    // Enquête
+    // Enquête → confidentiel
     document.getElementById('btn-survey-validate').addEventListener('click', async () => {
       if (!currentProjectId) return;
       const fileInput = document.getElementById('m-survey-file');
@@ -459,7 +456,8 @@
           storage_bucket: 'project-documents',
           storage_path: path,
           file_size: file.size,
-          mime_type: file.type
+          mime_type: file.type,
+          visibility: 'client_admin'
         });
 
         await apiPatch('projects', currentProjectId, {
@@ -521,7 +519,7 @@
       } catch (e) { showError(e.message); }
     });
 
-    // Valider plan
+    // Plan → accessible par tous
     document.getElementById('btn-plan-validate').addEventListener('click', async () => {
       if (!currentProjectId) return;
       const fileInput = document.getElementById('m-plan-file');
@@ -550,7 +548,8 @@
           storage_bucket: 'project-documents',
           storage_path: path,
           file_size: file.size,
-          mime_type: file.type
+          mime_type: file.type,
+          visibility: 'all'
         });
 
         await apiPatch('projects', currentProjectId, { plan_status: 'validated' });
@@ -571,7 +570,6 @@
       } catch (e) { showError(e.message); }
     });
 
-    // Ready to start
     document.getElementById('btn-ready-to-start').addEventListener('click', async () => {
       if (!currentProjectId) return;
       if (!confirm('Marquer ce projet comme "Prêt à démarrer" ?\n\nTous les documents sont validés.')) return;
