@@ -1,6 +1,6 @@
 // ============================================================
 // APP.JS - Boite a outils centrale Espace Diaspora
-// v17.1 : correction lien mon-portfolio.html
+// v17.2 : ajout traduction nouveaux statuts projet
 // ============================================================
 
 // ---------- Injection du favicon ----------
@@ -307,17 +307,70 @@ async function uploadFile(bucket, path, file) {
 function formatAmount(amount, currency) { currency = currency || 'XAF'; return Number(amount || 0).toLocaleString('fr-FR') + ' ' + currency; }
 function formatDate(dateStr) { if (!dateStr) return '-'; return new Date(dateStr).toLocaleDateString('fr-FR'); }
 
+/* ============================================================
+   LABELS ET BADGES DE STATUT
+   (mis à jour v17.2 : nouveaux statuts projets)
+   ============================================================ */
 function getStatusLabel(status) {
-  const map = { 'active': 'En cours', 'draft': 'En preparation', 'completed': 'Termine', 'paused': 'En pause', 'cancelled': 'Annule', 'disputed': 'En litige', 'released': 'Debloque', 'approved': 'Valide', 'submitted': 'En attente', 'pending': 'A venir', 'rejected': 'Refuse', 'in_progress': 'En cours', 'pending_review': 'En attente de validation', 'published': 'Publie' };
+  const map = {
+    // Projets - statuts classiques
+    'active': 'En cours',
+    'draft': 'En préparation',
+    'completed': 'Terminé',
+    'paused': 'En pause',
+    'cancelled': 'Annulé',
+    'disputed': 'En litige',
+    // Projets - nouveaux statuts de validation documents
+    'pending_verification': '⏳ En vérification',
+    'land_survey_needed': '🔍 Enquête foncière',
+    'plan_needed': '🎨 Plan à proposer',
+    'land_survey_and_plan_needed': '🔍🎨 Enquête + Plan',
+    'ready_to_start': '✅ Prêt à démarrer',
+    // Jalons
+    'released': 'Débloqué',
+    'approved': 'Validé',
+    'submitted': 'En attente',
+    'pending': 'À venir',
+    'rejected': 'Refusé',
+    'in_progress': 'En cours',
+    'pending_review': 'En attente de validation',
+    // Rapports
+    'published': 'Publié'
+  };
   return map[status] || status;
 }
 
 function getStatusBadgeClass(status) {
-  const map = { 'active': 'bg-emerald-500/20 text-emerald-300', 'draft': 'bg-orange-500/20 text-orange-300', 'completed': 'bg-slate-500/20 text-slate-300', 'paused': 'bg-yellow-500/20 text-yellow-300', 'cancelled': 'bg-red-500/20 text-red-300', 'disputed': 'bg-red-700/20 text-red-300', 'released': 'bg-blue-500/20 text-blue-300', 'approved': 'bg-emerald-500/20 text-emerald-300', 'submitted': 'bg-orange-500/20 text-orange-300', 'pending': 'bg-slate-500/20 text-slate-300', 'rejected': 'bg-red-500/20 text-red-300', 'in_progress': 'bg-yellow-500/20 text-yellow-300', 'pending_review': 'bg-amber-500/20 text-amber-300', 'published': 'bg-emerald-500/20 text-emerald-300' };
+  const map = {
+    'active': 'bg-emerald-500/20 text-emerald-300',
+    'draft': 'bg-orange-500/20 text-orange-300',
+    'completed': 'bg-slate-500/20 text-slate-300',
+    'paused': 'bg-yellow-500/20 text-yellow-300',
+    'cancelled': 'bg-red-500/20 text-red-300',
+    'disputed': 'bg-red-700/20 text-red-300',
+    // Nouveaux statuts
+    'pending_verification': 'bg-sky-500/20 text-sky-300',
+    'land_survey_needed': 'bg-amber-500/20 text-amber-300',
+    'plan_needed': 'bg-purple-500/20 text-purple-300',
+    'land_survey_and_plan_needed': 'bg-amber-500/20 text-amber-300',
+    'ready_to_start': 'bg-emerald-500/20 text-emerald-300',
+    // Jalons
+    'released': 'bg-blue-500/20 text-blue-300',
+    'approved': 'bg-emerald-500/20 text-emerald-300',
+    'submitted': 'bg-orange-500/20 text-orange-300',
+    'pending': 'bg-slate-500/20 text-slate-300',
+    'rejected': 'bg-red-500/20 text-red-300',
+    'in_progress': 'bg-yellow-500/20 text-yellow-300',
+    'pending_review': 'bg-amber-500/20 text-amber-300',
+    'published': 'bg-emerald-500/20 text-emerald-300'
+  };
   return map[status] || 'bg-slate-500/20 text-slate-300';
 }
 
-function renderStatusBadge(status) { return '<span class="text-[10px] ' + getStatusBadgeClass(status) + ' px-2 py-0.5 rounded-full font-semibold">' + getStatusLabel(status) + '</span>'; }
+function renderStatusBadge(status) {
+  return '<span class="text-[10px] ' + getStatusBadgeClass(status) + ' px-2 py-0.5 rounded-full font-semibold">' + getStatusLabel(status) + '</span>';
+}
+
 function escapeHtml(str) { if (!str) return ''; return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function showError(msg) { alert('Erreur : ' + msg); }
 function showSuccess(msg) { alert(msg); }
