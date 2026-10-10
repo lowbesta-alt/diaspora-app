@@ -28,14 +28,8 @@
 
     <div class="p-4 space-y-4 -mt-2">
 
-      <!-- ============================================= -->
-      <!-- BANDEAU STATUT GLOBAL (nouveau) -->
-      <!-- ============================================= -->
       <div id="status-banner" class="hidden"></div>
 
-      <!-- ============================================= -->
-      <!-- DOCUMENTS DU PROJET (nouveau) -->
-      <!-- ============================================= -->
       <section id="docs-status-section" class="hidden bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-3">
         <div class="flex items-center justify-between">
           <h2 class="text-sm font-bold">📎 Documents du projet</h2>
@@ -44,9 +38,6 @@
         <div id="docs-status-list" class="space-y-2"></div>
       </section>
 
-      <!-- ============================================= -->
-      <!-- DEVIS À ACCEPTER (nouveau) -->
-      <!-- ============================================= -->
       <section id="quotes-section" class="hidden space-y-3"></section>
 
       <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
@@ -139,6 +130,8 @@
     const userRole = getCurrentUserRole();
     const userId = getCurrentUserId();
     const isAdmin = userRole === 'admin';
+    const isClient = userRole === 'investor';
+    const isArtisan = userRole === 'provider' || userRole === 'project_manager';
     let currentProject = null;
 
     document.getElementById('btn-edit').href = 'projet-modifier.html?id=' + projectId;
@@ -151,6 +144,23 @@
     }
 
     let allTimelineReports = [];
+
+    /* ============================================
+       🔒 FILTRE VISIBILITÉ DOCUMENTS
+       L'artisan ne voit JAMAIS les documents confidentiels (client_admin)
+       ============================================ */
+    function canSeeDoc(doc) {
+      if (!doc) return false;
+      // Admin voit tout
+      if (isAdmin) return true;
+      // Client (propriétaire) voit tout
+      if (isClient) return true;
+      // Artisan : uniquement les documents publics
+      if (isArtisan) {
+        return !doc.visibility || doc.visibility === 'all';
+      }
+      return false;
+    }
 
     async function getSignedUrl(path) {
       if (!path) return null;
@@ -301,12 +311,12 @@
 
     // ============================================
     // DOCUMENTS DU PROJET (statut par document)
+    // 🔒 L'artisan ne voit QUE le plan, pas le titre foncier
     // ============================================
     function renderDocsStatus(p) {
       const section = document.getElementById('docs-status-section');
       const list = document.getElementById('docs-status-list');
 
-      // Ne s'affiche que pour les statuts de préparation
       const prepStatuses = ['pending_verification', 'land_survey_needed', 'plan_needed', 'land_survey_and_plan_needed', 'ready_to_start', 'draft'];
       if (!prepStatuses.includes(p.status)) {
         section.classList.add('hidden');
@@ -316,40 +326,42 @@
       section.classList.remove('hidden');
       list.innerHTML = '';
 
-      // --- TITRE FONCIER ---
-      let landIcon = '⏳';
-      let landText = '';
-      let landColor = '#cbd5e1';
+      // --- TITRE FONCIER (🔒 caché pour artisan) ---
+      if (isAdmin || isClient) {
+        let landIcon = '⏳';
+        let landText = '';
+        let landColor = '#cbd5e1';
 
-      if (p.land_survey_status === 'provided') {
-        landIcon = '✅';
-        landText = 'Titre foncier reçu — vérification en cours';
-        landColor = '#6ee7b7';
-      } else if (p.land_survey_status === 'needed') {
-        landIcon = '🔍';
-        landText = 'Enquête foncière à réaliser par notre équipe';
-        landColor = '#fcd34d';
-      } else if (p.land_survey_status === 'validated') {
-        landIcon = '✅';
-        landText = 'Enquête foncière validée';
-        landColor = '#6ee7b7';
-      } else if (p.land_survey_status === 'not_needed') {
-        landIcon = '✅';
-        landText = 'Titre foncier fourni';
-        landColor = '#6ee7b7';
+        if (p.land_survey_status === 'provided') {
+          landIcon = '✅';
+          landText = 'Titre foncier reçu — vérification en cours';
+          landColor = '#6ee7b7';
+        } else if (p.land_survey_status === 'needed') {
+          landIcon = '🔍';
+          landText = 'Enquête foncière à réaliser par notre équipe';
+          landColor = '#fcd34d';
+        } else if (p.land_survey_status === 'validated') {
+          landIcon = '✅';
+          landText = 'Enquête foncière validée';
+          landColor = '#6ee7b7';
+        } else if (p.land_survey_status === 'not_needed') {
+          landIcon = '✅';
+          landText = 'Titre foncier fourni';
+          landColor = '#6ee7b7';
+        }
+
+        list.innerHTML += `
+          <div class="flex items-center gap-3 bg-slate-800/40 rounded-xl p-3">
+            <span class="text-xl flex-shrink-0">${landIcon}</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold" style="color:${landColor};">📋 Titre foncier</p>
+              <p class="text-[10px] text-slate-400 mt-0.5">${landText}</p>
+            </div>
+          </div>
+        `;
       }
 
-      list.innerHTML += `
-        <div class="flex items-center gap-3 bg-slate-800/40 rounded-xl p-3">
-          <span class="text-xl flex-shrink-0">${landIcon}</span>
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-bold" style="color:${landColor};">📋 Titre foncier</p>
-            <p class="text-[10px] text-slate-400 mt-0.5">${landText}</p>
-          </div>
-        </div>
-      `;
-
-      // --- PLAN ---
+      // --- PLAN (visible par tous) ---
       let planIcon = '⏳';
       let planText = '';
       let planColor = '#cbd5e1';
@@ -455,7 +467,6 @@
           `;
         }).join('');
 
-        // Boutons d'action
         section.querySelectorAll('.quote-accept-btn').forEach(btn => {
           btn.addEventListener('click', () => respondToQuote(btn.dataset.id, 'accepted'));
         });
@@ -483,7 +494,6 @@
           responded_at: new Date().toISOString()
         });
 
-        // Notifier les admins
         try {
           const admins = await apiGet('profiles', 'default_role=eq.admin');
           if (Array.isArray(admins)) {
@@ -541,7 +551,6 @@
           heroImg.style.backgroundPosition = 'center';
         }
 
-        // Nouveaux blocs
         renderStatusBanner(p);
         renderDocsStatus(p);
         await loadQuotes();
@@ -663,8 +672,10 @@
         try {
           const docs = await apiGet('documents', 'report_id=eq.' + r.id + '&order=created_at.asc');
           if (Array.isArray(docs)) {
-            photos = docs.filter(d => d.document_type === 'photo');
-            invoices = docs.filter(d => d.document_type === 'invoice');
+            // 🔒 FILTRE : on ne garde que les docs visibles selon le rôle
+            const visibleDocs = docs.filter(canSeeDoc);
+            photos = visibleDocs.filter(d => d.document_type === 'photo');
+            invoices = visibleDocs.filter(d => d.document_type === 'invoice');
           }
         } catch (e) {}
 
