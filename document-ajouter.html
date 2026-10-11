@@ -3,91 +3,115 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ajouter un document - Espace Diaspora</title>
+  <title>Téléverser un document - Espace Diaspora</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
 
   <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
-    <a id="btn-back" href="documents.html" class="text-2xl">←</a>
-    <span class="font-bold text-sm">Ajouter un document</span>
+    <a href="documents.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm">📤 Téléverser un document</span>
     <span class="w-6"></span>
   </header>
 
   <main class="p-4 max-w-2xl mx-auto space-y-4">
 
-    <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
-      <label class="text-xs font-semibold text-slate-300 mb-2 block">Type de document</label>
-      <div class="grid grid-cols-4 gap-2">
-        <button data-type="photo" class="type-btn bg-emerald-600 py-3 rounded-xl text-[10px] font-semibold flex flex-col items-center gap-1">
-          <span class="text-lg">📸</span>Photo
-        </button>
-        <button data-type="invoice" class="type-btn bg-white/5 border border-white/10 py-3 rounded-xl text-[10px] font-semibold flex flex-col items-center gap-1">
-          <span class="text-lg">📄</span>Facture
-        </button>
-        <button data-type="contract" class="type-btn bg-white/5 border border-white/10 py-3 rounded-xl text-[10px] font-semibold flex flex-col items-center gap-1">
-          <span class="text-lg">📋</span>Contrat
-        </button>
-        <button data-type="video" class="type-btn bg-white/5 border border-white/10 py-3 rounded-xl text-[10px] font-semibold flex flex-col items-center gap-1">
-          <span class="text-lg">🎥</span>Vidéo
-        </button>
-      </div>
-    </section>
-
-    <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
-      <label class="text-xs font-semibold text-slate-300 mb-2 block">Fichier</label>
-      <label for="fileInput" class="block border-2 border-dashed border-white/20 rounded-2xl p-6 text-center cursor-pointer hover:border-emerald-500 transition">
-        <div class="text-4xl mb-2">☁️</div>
-        <p class="text-sm font-semibold">Glissez votre fichier ici</p>
-        <p class="text-[10px] text-slate-400 mt-1">ou cliquez pour parcourir</p>
-      </label>
-      <input type="file" id="fileInput" class="hidden" accept="image/*,application/pdf,video/mp4">
-      <div id="file-preview" class="hidden mt-3 bg-slate-800/50 rounded-xl p-3 flex items-center gap-3">
-        <span class="text-2xl">📎</span>
-        <div class="flex-1 min-w-0">
-          <p id="file-name" class="text-xs font-semibold truncate"></p>
-          <p id="file-size" class="text-[10px] text-slate-400"></p>
-        </div>
-        <button id="file-remove" class="text-red-400 text-sm">✕</button>
-      </div>
-    </section>
-
-    <!-- SECTION GPS -->
-    <section class="bg-white/5 border border-white/10 rounded-2xl p-4">
-      <label class="text-xs font-semibold text-slate-300 mb-2 block">📍 Géolocalisation (optionnel)</label>
-      <p class="text-[10px] text-slate-400 mb-3">Enregistre la position exacte de la prise de vue. Recommandé pour les photos de chantier.</p>
-      <button id="btn-gps" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2">
-        <span>📍</span> Obtenir ma position
-      </button>
-      <div id="gps-status" class="hidden mt-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
-        <p class="text-[11px] text-emerald-300">✅ Position enregistrée</p>
-        <p id="gps-coords" class="text-[10px] text-slate-300 mt-1"></p>
-      </div>
-    </section>
-
-    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+    <!-- BANDEAU INFO -->
+    <div class="bg-sky-500/10 border border-sky-500/30 rounded-2xl p-4 flex items-start gap-3">
+      <span class="text-sky-400 text-xl flex-shrink-0">ℹ️</span>
       <div>
-        <label class="text-xs font-semibold text-slate-300 mb-2 block">Titre du document *</label>
-        <input type="text" id="title" placeholder="Ex : Facture ciment du 15/02" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
+        <p class="text-xs font-bold text-sky-200 mb-1">Documents confidentiels</p>
+        <p class="text-[11px] text-sky-100/80 leading-relaxed">
+          Vous pouvez marquer un document comme <strong>confidentiel</strong> (titre foncier, enquête). Il sera visible uniquement par <strong>vous et l'administrateur</strong>, jamais par les artisans.
+        </p>
       </div>
+    </div>
 
-      <div>
-        <label class="text-xs font-semibold text-slate-300 mb-2 block">Description</label>
-        <textarea id="description" rows="3" placeholder="Détails (optionnel)" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500 resize-none"></textarea>
-      </div>
+    <!-- PROJET -->
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
+      <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Projet concerné *</label>
+      <select id="project" required class="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-white/10 text-white text-sm focus:border-amber-500 outline-none transition">
+        <option value="">Chargement...</option>
+      </select>
+    </section>
 
-      <div>
-        <label class="text-xs font-semibold text-slate-300 mb-2 block">Projet associé</label>
-        <select id="project" class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500">
-          <option value="">Chargement...</option>
-        </select>
+    <!-- TYPE DE DOCUMENT -->
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-3">
+      <h2 class="text-sm font-extrabold text-amber-300 uppercase tracking-wider">1. Type de document *</h2>
+      <div class="grid grid-cols-3 gap-2" id="type-grid">
+        <button type="button" data-type="land_survey" class="type-btn bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col items-center gap-1.5 hover:bg-white/10 transition">
+          <span class="text-2xl">📋</span>
+          <span class="text-[10px] font-bold text-center leading-tight">Titre foncier</span>
+        </button>
+        <button type="button" data-type="plan" class="type-btn bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col items-center gap-1.5 hover:bg-white/10 transition">
+          <span class="text-2xl">🗺️</span>
+          <span class="text-[10px] font-bold text-center leading-tight">Plan</span>
+        </button>
+        <button type="button" data-type="id_card" class="type-btn bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col items-center gap-1.5 hover:bg-white/10 transition">
+          <span class="text-2xl">🪪</span>
+          <span class="text-[10px] font-bold text-center leading-tight">Pièce d'identité</span>
+        </button>
+        <button type="button" data-type="invoice" class="type-btn bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col items-center gap-1.5 hover:bg-white/10 transition">
+          <span class="text-2xl">📄</span>
+          <span class="text-[10px] font-bold text-center leading-tight">Facture / Devis</span>
+        </button>
+        <button type="button" data-type="contract" class="type-btn bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col items-center gap-1.5 hover:bg-white/10 transition">
+          <span class="text-2xl">📝</span>
+          <span class="text-[10px] font-bold text-center leading-tight">Contrat</span>
+        </button>
+        <button type="button" data-type="photo" class="type-btn bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col items-center gap-1.5 hover:bg-white/10 transition">
+          <span class="text-2xl">📸</span>
+          <span class="text-[10px] font-bold text-center leading-tight">Photo</span>
+        </button>
+        <button type="button" data-type="other" class="type-btn bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col items-center gap-1.5 hover:bg-white/10 transition col-span-3">
+          <span class="text-2xl">📎</span>
+          <span class="text-[10px] font-bold text-center leading-tight">Autre document</span>
+        </button>
       </div>
     </section>
 
-    <section class="flex gap-2">
-      <a id="btn-cancel" href="documents.html" class="flex-1 bg-white/5 border border-white/10 py-3 rounded-xl font-semibold text-sm text-center">Annuler</a>
-      <button id="btn-upload" class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-semibold text-sm">Téléverser</button>
+    <!-- VISIBILITÉ -->
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-3">
+      <h2 class="text-sm font-extrabold text-amber-300 uppercase tracking-wider">2. Qui peut voir ce document ? *</h2>
+      <div class="grid grid-cols-2 gap-2" id="visibility-grid">
+        <button type="button" data-visibility="all" class="vis-btn bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col items-center gap-1.5 hover:bg-white/10 transition">
+          <span class="text-2xl">👥</span>
+          <span class="text-[10px] font-bold text-center leading-tight">Tout le monde</span>
+          <span class="text-[9px] text-slate-400 text-center">Client + Admin + Artisan</span>
+        </button>
+        <button type="button" data-visibility="client_admin" class="vis-btn bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col items-center gap-1.5 hover:bg-white/10 transition">
+          <span class="text-2xl">🔒</span>
+          <span class="text-[10px] font-bold text-center leading-tight">Confidentiel</span>
+          <span class="text-[9px] text-slate-400 text-center">Client + Admin seulement</span>
+        </button>
+      </div>
     </section>
+
+    <!-- FICHIERS + TITRE -->
+    <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-4">
+      <h2 class="text-sm font-extrabold text-amber-300 uppercase tracking-wider">3. Fichiers *</h2>
+
+      <div>
+        <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Titre / Libellé *</label>
+        <input type="text" id="title" required placeholder="Ex : Titre foncier Villa Kribi" class="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm placeholder-slate-500 transition">
+      </div>
+
+      <div>
+        <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Description (optionnel)</label>
+        <textarea id="description" rows="2" placeholder="Notes complémentaires..." class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm placeholder-slate-500 transition resize-none"></textarea>
+      </div>
+
+      <div>
+        <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Fichiers (max 5) *</label>
+        <input type="file" id="files" accept="image/*,application/pdf" multiple class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-amber-500/20 file:text-amber-300 file:font-semibold">
+        <p class="text-[10px] text-slate-500 mt-2">PDF, JPG, PNG. Max 10 Mo par fichier.</p>
+        <div id="files-preview" class="space-y-1 mt-3"></div>
+      </div>
+    </section>
+
+    <button type="button" id="btnSubmit" class="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-[#0a1838] font-extrabold py-4 rounded-xl text-sm tracking-wide shadow-lg shadow-amber-500/40 transition">
+      📤 Téléverser
+    </button>
 
   </main>
 
@@ -104,39 +128,84 @@
   <script>
     if (!requireLogin()) throw new Error('Not logged');
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const preselectProject = urlParams.get('id');
-
     const userId = getCurrentUserId();
     const role = getCurrentUserRole();
-    const isAdmin = (role === 'admin');
+    const isAdmin = role === 'admin';
 
-    let docType = 'photo';
-    let selectedFile = null;
-    let gpsCoords = null;
+    const urlParams = new URLSearchParams(window.location.search);
+    const presetProjectId = urlParams.get('id');
 
-    /* ============================================
-       CHARGEMENT DES PROJETS ACCESSIBLES
-       - Admin : tous les projets
-       - Client / Artisan : ses projets (owner + membre actif)
-       ============================================ */
+    let selectedType = null;
+    let selectedVisibility = 'all';
+
+    // ============================================
+    // SÉLECTION TYPE
+    // ============================================
+    document.querySelectorAll('.type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.type-btn').forEach(b => {
+          b.classList.remove('bg-amber-500/20', 'border-amber-500');
+          b.classList.add('bg-white/5', 'border-white/10');
+        });
+        btn.classList.add('bg-amber-500/20', 'border-amber-500');
+        btn.classList.remove('bg-white/5', 'border-white/10');
+        selectedType = btn.dataset.type;
+
+        // Titre auto si vide
+        const titleInput = document.getElementById('title');
+        if (!titleInput.value.trim()) {
+          const labels = {
+            land_survey: 'Titre foncier',
+            plan: 'Plan de construction',
+            id_card: 'Pièce d\'identité',
+            invoice: 'Facture / Devis',
+            contract: 'Contrat',
+            photo: 'Photo du chantier',
+            other: 'Document'
+          };
+          titleInput.value = labels[selectedType] || '';
+        }
+      });
+    });
+
+    // ============================================
+    // SÉLECTION VISIBILITÉ
+    // ============================================
+    document.querySelectorAll('.vis-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.vis-btn').forEach(b => {
+          b.classList.remove('bg-emerald-500/20', 'border-emerald-500');
+          b.classList.add('bg-white/5', 'border-white/10');
+        });
+        btn.classList.add('bg-emerald-500/20', 'border-emerald-500');
+        btn.classList.remove('bg-white/5', 'border-white/10');
+        selectedVisibility = btn.dataset.visibility;
+      });
+    });
+
+    // Sélection par défaut
+    document.querySelector('.type-btn[data-type="land_survey"]').click();
+    document.querySelector('.vis-btn[data-visibility="client_admin"]').click();
+
+    // ============================================
+    // CHARGER LES PROJETS
+    // ============================================
     async function loadProjects() {
       const select = document.getElementById('project');
-
       try {
-        let map = new Map();
+        let projects = [];
 
         if (isAdmin) {
           const all = await apiGet('projects', 'order=created_at.desc');
-          if (Array.isArray(all)) for (const p of all) map.set(p.id, p);
+          projects = Array.isArray(all) ? all : [];
         } else {
-          // 1) Projets dont il est propriétaire
+          const map = new Map();
+
           try {
             const owned = await apiGet('projects', 'owner_id=eq.' + userId);
             if (Array.isArray(owned)) for (const p of owned) map.set(p.id, p);
           } catch (e) {}
 
-          // 2) Projets où il est membre actif
           try {
             const members = await apiGet('project_members', 'user_id=eq.' + userId + '&is_active=eq.true');
             if (Array.isArray(members) && members.length > 0) {
@@ -147,169 +216,163 @@
               }
             }
           } catch (e) {}
-        }
 
-        const projects = Array.from(map.values());
+          projects = Array.from(map.values());
+        }
 
         if (projects.length === 0) {
           select.innerHTML = '<option value="">Aucun projet disponible</option>';
           return;
         }
 
-        select.innerHTML = '<option value="">Sélectionner un projet</option>' +
-          projects.map(p => '<option value="' + p.id + '"' + (p.id === preselectProject ? ' selected' : '') + '>' + escapeHtml(p.title) + '</option>').join('');
+        select.innerHTML = projects.map(p =>
+          '<option value="' + p.id + '"' + (p.id === presetProjectId ? ' selected' : '') + '>' + escapeHtml(p.title) + '</option>'
+        ).join('');
 
+        // Si un seul projet, verrouiller
+        if (projects.length === 1) {
+          select.disabled = true;
+          select.classList.add('opacity-70');
+        }
       } catch (e) {
-        console.error('[loadProjects]', e);
         select.innerHTML = '<option value="">Erreur de chargement</option>';
       }
     }
 
-    /* ============================================
-       SÉLECTION DU TYPE
-       ============================================ */
-    document.querySelectorAll('.type-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.type-btn').forEach(b => {
-          b.classList.remove('bg-emerald-600');
-          b.classList.add('bg-white/5', 'border', 'border-white/10');
-        });
-        btn.classList.add('bg-emerald-600');
-        btn.classList.remove('bg-white/5', 'border', 'border-white/10');
-        docType = btn.dataset.type;
+    // ============================================
+    // PREVIEW FICHIERS
+    // ============================================
+    document.getElementById('files').addEventListener('change', function() {
+      const preview = document.getElementById('files-preview');
+      preview.innerHTML = '';
+      const files = Array.from(this.files).slice(0, 5);
+      files.forEach(file => {
+        const size = (file.size / 1024 / 1024).toFixed(2);
+        const div = document.createElement('div');
+        div.className = 'text-[11px] text-slate-300 bg-slate-900/50 rounded-lg px-3 py-2 flex justify-between items-center gap-2';
+        div.innerHTML = '<span class="truncate">📎 ' + escapeHtml(file.name) + '</span><span class="text-slate-500 flex-shrink-0">' + size + ' MB</span>';
+        preview.appendChild(div);
       });
-    });
-
-    /* ============================================
-       SÉLECTION DU FICHIER
-       ============================================ */
-    document.getElementById('fileInput').addEventListener('change', (e) => {
-      const f = e.target.files[0];
-      if (!f) return;
-      selectedFile = f;
-      document.getElementById('file-name').textContent = f.name;
-      document.getElementById('file-size').textContent = (f.size / 1024 / 1024).toFixed(2) + ' MB';
-      document.getElementById('file-preview').classList.remove('hidden');
-    });
-
-    document.getElementById('file-remove').addEventListener('click', () => {
-      selectedFile = null;
-      document.getElementById('fileInput').value = '';
-      document.getElementById('file-preview').classList.add('hidden');
-    });
-
-    /* ============================================
-       GPS
-       ============================================ */
-    document.getElementById('btn-gps').addEventListener('click', () => {
-      if (!navigator.geolocation) {
-        showError('GPS non supporté par votre appareil');
-        return;
+      if (this.files.length > 5) {
+        const warn = document.createElement('p');
+        warn.className = 'text-[10px] text-amber-400 mt-1';
+        warn.textContent = '⚠️ Seuls les 5 premiers fichiers seront téléversés';
+        preview.appendChild(warn);
       }
-
-      const btn = document.getElementById('btn-gps');
-      btn.disabled = true;
-      btn.textContent = '📍 Localisation...';
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          gpsCoords = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-            accuracy: position.coords.accuracy
-          };
-
-          document.getElementById('gps-status').classList.remove('hidden');
-          document.getElementById('gps-coords').textContent =
-            'Lat : ' + gpsCoords.lat.toFixed(6) +
-            ' — Lng : ' + gpsCoords.lng.toFixed(6) +
-            ' (±' + Math.round(gpsCoords.accuracy) + ' m)';
-
-          btn.textContent = '✅ Position enregistrée';
-          btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-          btn.classList.add('bg-emerald-600');
-          btn.disabled = false;
-        },
-        (error) => {
-          let msg = 'Impossible d\'obtenir la position';
-          if (error.code === 1) msg = 'Autorisation refusée. Activez la localisation.';
-          if (error.code === 2) msg = 'Position indisponible';
-          if (error.code === 3) msg = 'Délai dépassé';
-          showError(msg);
-          btn.disabled = false;
-          btn.textContent = '📍 Obtenir ma position';
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-      );
     });
 
-    /* ============================================
-       UPLOAD
-       ============================================ */
-    document.getElementById('btn-upload').addEventListener('click', async () => {
-      if (!selectedFile) { alert('Sélectionnez un fichier'); return; }
-      const title = document.getElementById('title').value.trim();
-      const projectId = document.getElementById('project').value;
-      if (!title) { alert('Entrez un titre'); return; }
-      if (!projectId) { alert('Sélectionnez un projet'); return; }
+    // ============================================
+    // UPLOAD
+    // ============================================
+    async function uploadFileToStorage(file, projectId) {
+      const ext = file.name.split('.').pop();
+      const fileName = Date.now() + '_' + Math.random().toString(36).substring(7) + '.' + ext;
+      const path = projectId + '/' + fileName;
+      const token = getToken() || SUPABASE_KEY;
+      const res = await fetch(SUPABASE_URL + '/storage/v1/object/project-documents/' + path, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': file.type
+        },
+        body: file
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error('Upload échoué : ' + (err.message || file.name));
+      }
+      return path;
+    }
 
-      const btn = document.getElementById('btn-upload');
+    document.getElementById('btnSubmit').addEventListener('click', async () => {
+      const projectId = document.getElementById('project').value;
+      const title = document.getElementById('title').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const files = document.getElementById('files').files;
+
+      if (!projectId) { alert('Sélectionnez un projet'); return; }
+      if (!title) { alert('Entrez un titre'); return; }
+      if (!selectedType) { alert('Sélectionnez un type de document'); return; }
+      if (!files || files.length === 0) { alert('Ajoutez au moins un fichier'); return; }
+
+      const btn = document.getElementById('btnSubmit');
       btn.disabled = true;
-      btn.textContent = 'Envoi...';
+      btn.textContent = 'Envoi en cours...';
+
+      let uploaded = 0;
+      let errors = [];
 
       try {
-        const fileName = Date.now() + '_' + selectedFile.name;
-        const path = projectId + '/' + fileName;
+        const filesToUpload = Array.from(files).slice(0, 5);
 
-        // 1) Upload Storage
-        await uploadFile('project-documents', path, selectedFile);
+        for (const file of filesToUpload) {
+          if (file.size > 10 * 1024 * 1024) {
+            errors.push(file.name + ' (trop gros)');
+            continue;
+          }
 
-        // 2) Insertion BDD
-        const docData = {
-          project_id: projectId,
-          uploaded_by: userId,
-          document_type: docType,
-          title: title,
-          description: document.getElementById('description').value.trim(),
-          storage_bucket: 'project-documents',
-          storage_path: path,
-          file_size: selectedFile.size,
-          mime_type: selectedFile.type,
-          captured_at: new Date().toISOString()
-        };
+          try {
+            const path = await uploadFileToStorage(file, projectId);
 
-        if (gpsCoords) {
-          docData.latitude = gpsCoords.lat;
-          docData.longitude = gpsCoords.lng;
-        }
+            await apiPost('documents', {
+              project_id: projectId,
+              uploaded_by: userId,
+              document_type: selectedType,
+              title: title + (filesToUpload.length > 1 ? ' - ' + (uploaded + 1) : ''),
+              description: description || null,
+              storage_bucket: 'project-documents',
+              storage_path: path,
+              file_size: file.size,
+              mime_type: file.type,
+              visibility: selectedVisibility
+            });
 
-        try {
-          await apiPost('documents', docData);
-        } catch (err) {
-          // Fallback : si l'insertion échoue ET qu'on avait un GPS → on retente sans GPS
-          // (utile si les colonnes latitude/longitude n'existent pas dans la table)
-          if (gpsCoords && docData.latitude !== undefined) {
-            console.warn('[upload] retry without GPS', err);
-            delete docData.latitude;
-            delete docData.longitude;
-            await apiPost('documents', docData);
-            showSuccess('Document envoyé (GPS non enregistré)');
-          } else {
-            throw err;
+            uploaded++;
+          } catch (e) {
+            errors.push(file.name + ' : ' + e.message);
           }
         }
 
-        showSuccess('Document téléversé !');
-        window.location.href = 'documents.html?id=' + projectId;
+        if (uploaded > 0) {
+          // Notifier les admins
+          try {
+            const admins = await apiGet('profiles', 'default_role=eq.admin');
+            if (Array.isArray(admins)) {
+              for (const a of admins) {
+                if (a.id === userId) continue;
+                await apiPost('notifications', {
+                  user_id: a.id,
+                  type: 'document_uploaded',
+                  title: '📎 Nouveau document téléversé',
+                  message: 'Un nouveau document "' + title + '" a été téléversé (projet ID : ' + projectId.substring(0, 8) + ').',
+                  link: 'documents.html?id=' + projectId
+                });
+              }
+            }
+          } catch (e) {
+            console.warn('[notif admin]', e);
+          }
 
+          showSuccess(uploaded + ' document(s) téléversé(s) !');
+          setTimeout(() => {
+            window.location.href = 'documents.html?id=' + projectId;
+          }, 1200);
+        } else {
+          showError('Aucun fichier n\'a pu être téléversé');
+          if (errors.length > 0) console.error(errors);
+        }
       } catch (e) {
-        console.error('[upload]', e);
-        showError(e.message || 'Erreur upload');
-        btn.disabled = false;
-        btn.textContent = 'Téléverser';
+        showError(e.message);
       }
+
+      btn.disabled = false;
+      btn.textContent = '📤 Téléverser';
     });
 
+    // ============================================
+    // BOOT
+    // ============================================
     loadProjects();
   </script>
 </body>
