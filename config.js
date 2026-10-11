@@ -38,21 +38,19 @@ function currentUserId() {
 // ============================================================
 (function initPWA() {
   try {
-    // --- Favicon : force l'utilisation du PNG ---
     document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach(el => el.remove());
 
     const favicon = document.createElement('link');
     favicon.rel = 'icon';
     favicon.type = 'image/png';
-    favicon.href = '/icon-192.png?v=2';
+    favicon.href = '/icon-192.png?v=3';
     document.head.appendChild(favicon);
 
     const appleIcon = document.createElement('link');
     appleIcon.rel = 'apple-touch-icon';
-    appleIcon.href = '/icon-192.png?v=2';
+    appleIcon.href = '/icon-192.png?v=3';
     document.head.appendChild(appleIcon);
 
-    // --- Manifest ---
     if (!document.querySelector('link[rel="manifest"]')) {
       const link = document.createElement('link');
       link.rel = 'manifest';
@@ -60,7 +58,6 @@ function currentUserId() {
       document.head.appendChild(link);
     }
 
-    // --- Theme color ---
     if (!document.querySelector('meta[name="theme-color"]')) {
       const meta = document.createElement('meta');
       meta.name = 'theme-color';
@@ -68,7 +65,6 @@ function currentUserId() {
       document.head.appendChild(meta);
     }
 
-    // --- Service Worker ---
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch((err) => {
@@ -79,4 +75,54 @@ function currentUserId() {
   } catch (e) {
     console.warn('[PWA] init failed', e);
   }
+})();
+
+// ============================================================
+// 🎨 Remplacement automatique du logo immeuble orange
+//    -> par icon-192.png (globe vert)
+// ============================================================
+(function replaceOrangeLogo() {
+  function replaceAll() {
+    try {
+      const svgs = document.querySelectorAll('svg');
+      svgs.forEach(svg => {
+        const html = (svg.outerHTML || '').toLowerCase();
+        // Détecte l'immeuble orange par ses couleurs caractéristiques
+        const isOrangeBuilding =
+          html.includes('#fbbf24') || html.includes('#f59e0b') ||
+          html.includes('#ea580c') || html.includes('#fcd34d') ||
+          html.includes('#d97706') || html.includes('#fb923c') ||
+          html.includes('#f97316') || html.includes('#eab308');
+
+        if (isOrangeBuilding) {
+          const img = document.createElement('img');
+          img.src = '/icon-192.png?v=3';
+          img.alt = 'Espace Diaspora';
+
+          const cls = svg.getAttribute('class');
+          if (cls) img.className = cls;
+
+          const w = svg.getAttribute('width');
+          const h = svg.getAttribute('height');
+          img.style.width = w ? (isNaN(w) ? w : w + 'px') : '60px';
+          img.style.height = h ? (isNaN(h) ? h : h + 'px') : '60px';
+          img.style.borderRadius = '16px';
+          img.style.objectFit = 'cover';
+
+          svg.replaceWith(img);
+        }
+      });
+    } catch (e) {
+      console.warn('[logo] replace failed', e);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(replaceAll, 150));
+  } else {
+    setTimeout(replaceAll, 150);
+  }
+
+  // Retry au cas où le contenu se charge en différé
+  window.addEventListener('load', () => setTimeout(replaceAll, 300));
 })();
