@@ -151,7 +151,6 @@
         btn.classList.remove('bg-white/5', 'border-white/10');
         selectedType = btn.dataset.type;
 
-        // Titre auto si vide
         const titleInput = document.getElementById('title');
         if (!titleInput.value.trim()) {
           const labels = {
@@ -183,7 +182,6 @@
       });
     });
 
-    // Sélection par défaut
     document.querySelector('.type-btn[data-type="land_survey"]').click();
     document.querySelector('.vis-btn[data-visibility="client_admin"]').click();
 
@@ -229,7 +227,6 @@
           '<option value="' + p.id + '"' + (p.id === presetProjectId ? ' selected' : '') + '>' + escapeHtml(p.title) + '</option>'
         ).join('');
 
-        // Si un seul projet, verrouiller
         if (projects.length === 1) {
           select.disabled = true;
           select.classList.add('opacity-70');
@@ -335,19 +332,40 @@
         }
 
         if (uploaded > 0) {
-          // Notifier les admins
+          // ============================================
+          // ✅ NOUVEAU : Notifier les admins (in-app + EMAIL)
+          // ============================================
           try {
-            const admins = await apiGet('profiles', 'default_role=eq.admin');
+            const admins = await apiGet('profiles', 'default_role=eq.admin&select=id,email,full_name');
             if (Array.isArray(admins)) {
               for (const a of admins) {
                 if (a.id === userId) continue;
-                await apiPost('notifications', {
-                  user_id: a.id,
-                  type: 'document_uploaded',
-                  title: '📎 Nouveau document téléversé',
-                  message: 'Un nouveau document "' + title + '" a été téléversé (projet ID : ' + projectId.substring(0, 8) + ').',
-                  link: 'documents.html?id=' + projectId
-                });
+
+                // 1. Notification in-app
+                try {
+                  await apiPost('notifications', {
+                    user_id: a.id,
+                    type: 'document_uploaded',
+                    title: '📎 Nouveau document téléversé',
+                    message: 'Un nouveau document "' + title + '" a été téléversé.',
+                    link: 'documents.html?id=' + projectId
+                  });
+                } catch (e) {
+                  console.warn('[notif in-app admin]', e);
+                }
+
+                // 2. Email 📧
+                try {
+                  await sendEmailNotification(
+                    a.id,
+                    'document_uploaded',
+                    '📎 Nouveau document à valider',
+                    'Un nouveau document "' + title + '" a été téléversé sur un projet. Connectez-vous pour le vérifier.',
+                    'admin-validation-docs.html'
+                  );
+                } catch (e) {
+                  console.warn('[email admin]', e);
+                }
               }
             }
           } catch (e) {
