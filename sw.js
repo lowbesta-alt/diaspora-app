@@ -1,5 +1,5 @@
 // Service Worker — Espace Diaspora
-const CACHE_NAME = 'diaspora-v1';
+const CACHE_NAME = 'diaspora-v2';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_URLS = [
