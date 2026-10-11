@@ -44,12 +44,12 @@ function currentUserId() {
     const favicon = document.createElement('link');
     favicon.rel = 'icon';
     favicon.type = 'image/png';
-    favicon.href = '/icon-192.png';
+    favicon.href = '/icon-192.png?v=2';
     document.head.appendChild(favicon);
 
     const appleIcon = document.createElement('link');
     appleIcon.rel = 'apple-touch-icon';
-    appleIcon.href = '/icon-192.png';
+    appleIcon.href = '/icon-192.png?v=2';
     document.head.appendChild(appleIcon);
 
     // --- Manifest ---
