@@ -18,7 +18,6 @@
   </header>
 
   <main class="pt-20 px-4 max-w-2xl mx-auto" id="main-container">
-    <!-- Bandeau supervision (visible pour tous, texte adapté selon le rôle) -->
     <div id="supervision-banner" class="mb-4" style="display:none;"></div>
 
     <div id="messages-list" class="space-y-3">
@@ -26,7 +25,6 @@
     </div>
   </main>
 
-  <!-- Barre d'écriture (cachée pour l'admin) -->
   <div id="composer-bar" class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 p-3">
     <div class="max-w-2xl mx-auto flex gap-2 items-end">
       <textarea id="message-input" rows="1" placeholder="Votre message..." class="flex-1 bg-slate-800/50 border border-white/10 rounded-2xl px-4 py-3 text-sm resize-none focus:outline-none focus:border-sky-500 max-h-32"></textarea>
@@ -53,15 +51,14 @@
     const isAdmin = (role === 'admin');
 
     let projectData = null;
+    let projectMembersCache = [];
 
-    /* ============ GESTION DES BANDEAUX ET DE LA BARRE D'ÉCRITURE ============ */
     function setupRoleUI() {
       const banner = document.getElementById('supervision-banner');
       const composer = document.getElementById('composer-bar');
       const main = document.getElementById('main-container');
 
       if (isAdmin) {
-        // ADMIN : bandeau "supervision" + pas de barre d'écriture
         banner.style.display = 'block';
         banner.innerHTML = `
           <div class="bg-gradient-to-r from-amber-500/15 to-orange-500/10 border border-amber-500/40 rounded-2xl px-4 py-3 flex items-start gap-3">
@@ -76,10 +73,8 @@
           </div>
         `;
         composer.style.display = 'none';
-        // On ajoute du padding en bas pour ne pas laisser de vide
         main.style.paddingBottom = '2rem';
       } else {
-        // CLIENT / ARTISAN : bandeau d'info + barre d'écriture normale
         banner.style.display = 'block';
         banner.innerHTML = `
           <div class="bg-sky-500/10 border border-sky-500/30 rounded-2xl px-4 py-2.5 flex items-center gap-3">
@@ -95,7 +90,6 @@
     }
     setupRoleUI();
 
-    /* ============ CHARGEMENT DU PROJET ============ */
     async function loadProject() {
       try {
         const data = await apiGet('projects', 'id=eq.' + projectId);
@@ -103,11 +97,17 @@
           projectData = data[0];
           document.getElementById('project-title').textContent = projectData.title;
           document.getElementById('project-subtitle').textContent = projectData.city ? '📍 ' + projectData.city : '';
+
+          // Pré-charger les membres du projet pour l'envoi d'email
+          try {
+            const members = await apiGet('project_members',
+              'project_id=eq.' + projectId + '&is_active=eq.true');
+            if (Array.isArray(members)) projectMembersCache = members;
+          } catch (e) {}
         }
       } catch (e) {}
     }
 
-    /* ============ CHARGEMENT DES MESSAGES ============ */
     async function loadMessages() {
       const list = document.getElementById('messages-list');
       try {
@@ -130,7 +130,6 @@
         }
 
         list.innerHTML = valid.map(m => {
-          // Pour l'admin : tous les messages sont "à gauche" (il n'écrit pas)
           const isMine = !isAdmin && m.sender_id === userId;
           const profile = profiles[m.sender_id];
           const senderName = profile ? (profile.full_name || profile.email) : 'Utilisateur';
@@ -146,8 +145,6 @@
           `;
         }).join('');
 
-        // Marquer comme lu uniquement si on n'est pas admin
-        // (l'admin en lecture ne doit pas interférer avec le statut de lecture des vrais participants)
         if (!isAdmin) {
           for (const m of valid) {
             if (m.sender_id !== userId && !m.read_at) {
@@ -163,7 +160,6 @@
       }
     }
 
-    /* ============ ENVOI (uniquement client / artisan) ============ */
     if (!isAdmin) {
       document.getElementById('btn-send').addEventListener('click', sendMessage);
       document.getElementById('message-input').addEventListener('keydown', (e) => {
@@ -172,7 +168,7 @@
     }
 
     async function sendMessage() {
-      if (isAdmin) return; // sécurité
+      if (isAdmin) return;
       const input = document.getElementById('message-input');
       const content = input.value.trim();
       if (!content) return;
@@ -188,6 +184,40 @@
         });
         input.value = '';
         await loadMessages();
+
+        // 📧 EMAIL aux autres membres du projet (sauf moi)
+        try {
+          const myName = (getCurrentUserFullName && getCurrentUserFullName()) || 'Un membre';
+          const projectTitle = projectData ? projectData.title : 'un projet';
+          const preview = content.length > 100 ? content.substring(0, 100) + '…' : content;
+
+          // Rassembler les destinataires : owner + assigned_artisan + autres membres
+          const recipients = new Set();
+          if (projectData) {
+            if (projectData.owner_id && projectData.owner_id !== userId) recipients.add(projectData.owner_id);
+            if (projectData.assigned_artisan_id && projectData.assigned_artisan_id !== userId) recipients.add(projectData.assigned_artisan_id);
+          }
+          for (const m of projectMembersCache) {
+            if (m.user_id && m.user_id !== userId) recipients.add(m.user_id);
+          }
+
+          for (const rid of recipients) {
+            try {
+              await sendEmailNotification(
+                rid,
+                'new_project_message',
+                '💬 Nouveau message sur "' + projectTitle + '"',
+                myName + ' a écrit : ' + preview,
+                'message-detail.html?id=' + projectId
+              );
+            } catch (e) {
+              console.warn('[email membre]', e);
+            }
+          }
+        } catch (e) {
+          console.warn('[email projet]', e);
+        }
+
       } catch (e) {
         showError(e.message);
       }
