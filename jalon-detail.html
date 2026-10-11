@@ -16,9 +16,7 @@
 
   <main class="p-4 max-w-2xl mx-auto space-y-4">
 
-    <!-- ============================================
-         INFOS DU JALON
-         ============================================ -->
+    <!-- INFOS DU JALON -->
     <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-5">
       <div class="flex items-center gap-2 mb-3">
         <span id="jalon-number" class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-semibold">Jalon</span>
@@ -29,9 +27,7 @@
       <p id="jalon-date" class="text-xs text-slate-400"></p>
     </section>
 
-    <!-- ============================================
-         ACTIONS CLIENT (validation / déblocage)
-         ============================================ -->
+    <!-- ACTIONS CLIENT -->
     <section id="actions-investor" class="space-y-2 hidden">
       <button id="btn-approve" class="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 py-3 rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/30">
         ✅ Valider le jalon
@@ -52,18 +48,14 @@
       </button>
     </section>
 
-    <!-- ============================================
-         ACTION ARTISAN : Ajouter des preuves
-         ============================================ -->
+    <!-- ACTION ARTISAN -->
     <section id="actions-pm" class="hidden">
       <button id="btn-open-upload" class="w-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
         📸 Ajouter des photos à ce jalon
       </button>
     </section>
 
-    <!-- ============================================
-         📸 GALERIE PHOTOS DU JALON (NOUVEAU)
-         ============================================ -->
+    <!-- GALERIE PHOTOS -->
     <section id="photos-section" class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-sm font-bold">📸 Photos du jalon</h2>
@@ -74,9 +66,7 @@
       </div>
     </section>
 
-    <!-- ============================================
-         📄 FACTURES DU JALON (NOUVEAU)
-         ============================================ -->
+    <!-- FACTURES -->
     <section id="invoices-section" class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4 hidden">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-sm font-bold">📄 Factures du jalon</h2>
@@ -85,9 +75,7 @@
       <div id="invoices-list" class="space-y-2"></div>
     </section>
 
-    <!-- ============================================
-         DESCRIPTION
-         ============================================ -->
+    <!-- DESCRIPTION -->
     <section class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-4">
       <h2 class="text-sm font-bold mb-2">📝 Description</h2>
       <p id="description-content" class="text-xs text-slate-300">Aucune description</p>
@@ -95,9 +83,7 @@
 
   </main>
 
-  <!-- ============================================
-       MODAL UPLOAD PHOTOS
-       ============================================ -->
+  <!-- MODAL UPLOAD -->
   <div id="upload-modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm hidden flex-col">
     <header class="flex items-center justify-between p-4 border-b border-white/10">
       <h2 class="font-bold text-sm">📸 Ajouter des preuves</h2>
@@ -105,11 +91,10 @@
     </header>
 
     <div class="flex-1 overflow-y-auto p-4 space-y-4">
-
       <div class="bg-slate-800/50 rounded-2xl p-4">
         <label class="text-xs font-bold text-amber-300 mb-3 block tracking-wider uppercase">📸 Photos du chantier *</label>
         <input type="file" id="quick-photos" accept="image/*" multiple class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-amber-500/20 file:text-amber-300 file:font-semibold">
-        <p class="text-[10px] text-slate-500 mt-2">Sélectionnez plusieurs photos (avancement, finitions, détails).</p>
+        <p class="text-[10px] text-slate-500 mt-2">Sélectionnez plusieurs photos.</p>
         <div id="quick-photos-preview" class="grid grid-cols-3 gap-2 mt-3"></div>
       </div>
 
@@ -121,9 +106,8 @@
 
       <div>
         <label class="text-xs font-bold text-slate-200 mb-2 block tracking-wider uppercase">Note (optionnel)</label>
-        <textarea id="quick-note" rows="3" placeholder="Ex : Fin des fondations, coulage effectué ce matin..." class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm placeholder-slate-500 resize-none"></textarea>
+        <textarea id="quick-note" rows="3" placeholder="Ex : Fin des fondations..." class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-white/10 focus:border-amber-500 outline-none text-white text-sm placeholder-slate-500 resize-none"></textarea>
       </div>
-
     </div>
 
     <footer class="p-4 border-t border-white/10">
@@ -133,9 +117,7 @@
     </footer>
   </div>
 
-  <!-- ============================================
-       LIGHTBOX PHOTO
-       ============================================ -->
+  <!-- LIGHTBOX -->
   <div id="lightbox" class="fixed inset-0 z-[60] bg-black/95 hidden items-center justify-center p-4">
     <button id="lightbox-close" class="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-2xl">✕</button>
     <img id="lightbox-img" src="" alt="" class="max-w-full max-h-full object-contain rounded-xl">
@@ -173,9 +155,6 @@
 
     const signedCache = new Map();
 
-    // ============================================
-    // HELPERS
-    // ============================================
     async function getSignedUrl(path, expiresIn = 3600) {
       if (!path) return null;
       if (path.startsWith('http')) return path;
@@ -240,9 +219,6 @@
       return path;
     }
 
-    // ============================================
-    // CHARGEMENT DU JALON
-    // ============================================
     async function loadMilestone() {
       try {
         const data = await apiGet('milestones', 'id=eq.' + milestoneId);
@@ -284,16 +260,12 @@
         }
         if (canSubmit) document.getElementById('actions-pm').classList.remove('hidden');
 
-        // Charge les documents liés au jalon
         await loadMilestoneDocs();
       } catch (e) {
         document.getElementById('jalon-title').textContent = 'Erreur de chargement';
       }
     }
 
-    // ============================================
-    // GALERIE PHOTOS + FACTURES
-    // ============================================
     async function loadMilestoneDocs() {
       const gallery = document.getElementById('photos-gallery');
       const invoicesList = document.getElementById('invoices-list');
@@ -315,7 +287,6 @@
         photosCountEl.textContent = photos.length;
         invoicesCountEl.textContent = invoices.length;
 
-        // ---- Photos ----
         if (photos.length === 0) {
           gallery.innerHTML = `
             <div class="col-span-3 text-center py-8">
@@ -341,7 +312,6 @@
           });
         }
 
-        // ---- Factures ----
         if (invoices.length === 0) {
           invoicesSection.classList.add('hidden');
         } else {
@@ -367,9 +337,6 @@
       }
     }
 
-    // ============================================
-    // LIGHTBOX
-    // ============================================
     function openLightbox(url) {
       const lb = document.getElementById('lightbox');
       document.getElementById('lightbox-img').src = url;
@@ -392,9 +359,6 @@
       if (e.key === 'Escape') { closeLightbox(); closeUploadModal(); }
     });
 
-    // ============================================
-    // MODAL UPLOAD
-    // ============================================
     const uploadModal = document.getElementById('upload-modal');
     const quickPhotos = document.getElementById('quick-photos');
     const quickInvoices = document.getElementById('quick-invoices');
@@ -456,7 +420,6 @@
       btn.textContent = 'Envoi en cours...';
 
       try {
-        // 1. Créer le rapport (preuves du jalon)
         const reportData = await apiPost('reports', {
           project_id: currentMilestone.project_id,
           author_id: userId,
@@ -470,7 +433,6 @@
         const reportId = reportData && reportData[0] ? reportData[0].id : null;
         if (!reportId) throw new Error('Erreur création du rapport');
 
-        // 2. Upload photos
         if (photoFiles && photoFiles.length > 0) {
           for (const file of Array.from(photoFiles)) {
             const path = await uploadFileToStorage(file, currentMilestone.project_id, reportId);
@@ -489,7 +451,6 @@
           }
         }
 
-        // 3. Upload factures
         if (invoiceFiles && invoiceFiles.length > 0) {
           for (const file of Array.from(invoiceFiles)) {
             const path = await uploadFileToStorage(file, currentMilestone.project_id, reportId);
@@ -508,17 +469,30 @@
           }
         }
 
-        // 4. Notifier le client (propriétaire du projet)
+        // Notif in-app au client
         if (projectOwnerId && projectOwnerId !== userId) {
           await notifyUser(
             projectOwnerId,
             'milestone_proof_submitted',
             '📸 Nouvelles preuves sur un jalon',
-            'L\'artisan a soumis de nouvelles preuves pour le jalon "' + currentMilestone.title + '" du projet "' + (currentProject ? currentProject.title : '') + '".',
+            'L\'artisan a soumis de nouvelles preuves pour le jalon "' + currentMilestone.title + '".',
             'jalon-detail.html?id=' + currentMilestone.id,
             currentMilestone.project_id,
             currentMilestone.id
           );
+
+          // 📧 EMAIL au client
+          try {
+            await sendEmailNotification(
+              projectOwnerId,
+              'milestone_proof_submitted',
+              '📸 Nouvelles preuves sur un jalon',
+              'L\'artisan a ajouté des photos au jalon "' + currentMilestone.title + '" du projet "' + (currentProject ? currentProject.title : '') + '". Connectez-vous pour les voir.',
+              'jalon-detail.html?id=' + currentMilestone.id
+            );
+          } catch (e) {
+            console.warn('[email client]', e);
+          }
         }
 
         showSuccess('Preuves envoyées ! Le client sera notifié.');
@@ -532,9 +506,6 @@
       btn.textContent = 'Envoyer les preuves';
     });
 
-    // ============================================
-    // ACTIONS CLIENT (approve / reject / release)
-    // ============================================
     document.getElementById('btn-approve').addEventListener('click', async () => {
       if (!confirm('Valider ce jalon ?')) return;
       try {
@@ -605,21 +576,34 @@
           }
         } catch (e) {}
 
-        try {
-          const artisanId = currentProject ? currentProject.assigned_artisan_id : null;
-          if (artisanId) {
-            await notifyUser(
-              artisanId,
-              'payment_received',
-              'Paiement recu : ' + amount.toLocaleString('fr-FR') + ' ' + currency,
-              'Le client a debloque les fonds pour le jalon "' + currentMilestone.title + '" du projet "' + (currentProject.title || '') + '".',
-              'jalon-detail.html?id=' + currentMilestone.id,
-              currentMilestone.project_id,
-              currentMilestone.id
-            );
-          }
-        } catch (e) {}
+        // Notif in-app artisan
+        const artisanId = currentProject ? currentProject.assigned_artisan_id : null;
+        if (artisanId) {
+          await notifyUser(
+            artisanId,
+            'payment_received',
+            'Paiement recu : ' + amount.toLocaleString('fr-FR') + ' ' + currency,
+            'Le client a debloque les fonds pour le jalon "' + currentMilestone.title + '".',
+            'jalon-detail.html?id=' + currentMilestone.id,
+            currentMilestone.project_id,
+            currentMilestone.id
+          );
 
+          // 📧 EMAIL à l'artisan
+          try {
+            await sendEmailNotification(
+              artisanId,
+              'payment_released',
+              '💸 Paiement débloqué !',
+              Number(amount).toLocaleString('fr-FR') + ' ' + currency + ' ont été débloqués pour le jalon "' + currentMilestone.title + '" du projet "' + (currentProject ? currentProject.title : '') + '".',
+              'jalon-detail.html?id=' + currentMilestone.id
+            );
+          } catch (e) {
+            console.warn('[email artisan]', e);
+          }
+        }
+
+        // Notif in-app admins
         try {
           const admins = await apiGet('profiles', 'default_role=eq.admin');
           if (Array.isArray(admins)) {
@@ -628,7 +612,7 @@
                 admin.id,
                 'payment_released',
                 'Deblocage : ' + amount.toLocaleString('fr-FR') + ' ' + currency,
-                'Le client a debloque les fonds sur le jalon "' + currentMilestone.title + '" du projet "' + (currentProject.title || '') + '".',
+                'Le client a debloque les fonds sur le jalon "' + currentMilestone.title + '".',
                 'admin-chantiers.html',
                 currentMilestone.project_id,
                 currentMilestone.id
