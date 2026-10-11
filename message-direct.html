@@ -8,7 +8,6 @@
 </head>
 <body class="bg-slate-950 text-white min-h-screen">
 
-  <!-- Header chat (préservé) -->
   <header class="fixed top-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur border-b border-white/10">
     <div class="max-w-3xl mx-auto flex items-center gap-3 px-4 py-3">
       <a href="messages.html" class="text-2xl leading-none text-white/80 hover:text-white" aria-label="Retour">←</a>
@@ -19,12 +18,10 @@
     </div>
   </header>
 
-  <!-- Liste des messages -->
   <main class="pt-24 pb-32 px-4 max-w-3xl mx-auto">
     <div id="messages-list"></div>
   </main>
 
-  <!-- Barre de saisie -->
   <div class="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur border-t border-white/10">
     <div class="max-w-3xl mx-auto flex items-end gap-2 p-3">
       <textarea id="message-input" rows="1" placeholder="Écrire un message…"
@@ -37,13 +34,6 @@
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script>
-  /* =====================================================================
-     message-direct.html — Canal de messages directs 1-to-1
-     Table : direct_messages (id, sender_id, recipient_id, content,
-                              created_at, read_at)
-     FIX : plus de requête or() — 2 requêtes séparées + fusion + tri
-     ===================================================================== */
-
   const ENABLE_POLLING = true;
   const POLL_INTERVAL_MS = 5000;
   const MAX_TEXTAREA_HEIGHT = 128;
@@ -77,8 +67,6 @@
     window.addEventListener('focus', () => pollNew());
   }
 
-  /* ---------- Contact (profil destinataire) ---------- */
-
   async function loadContact() {
     const nameEl = document.getElementById('contact-name');
     const subEl  = document.getElementById('contact-subtitle');
@@ -111,11 +99,8 @@
     if (btn)   { btn.disabled = true; }
   }
 
-  /* ---------- Chargement des messages (LE FIX) ---------- */
-
   async function loadMessages() {
     try {
-      // 2 requêtes séparées au lieu de or=(and(...),and(...))
       const [envoyes, recus] = await Promise.all([
         apiGet('direct_messages',
           'sender_id=eq.' + ME + '&recipient_id=eq.' + OTHER +
@@ -145,8 +130,6 @@
     return Array.from(map.values())
       .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
   }
-
-  /* ---------- Rendu ---------- */
 
   function renderFull() {
     const list = document.getElementById('messages-list');
@@ -184,8 +167,6 @@
     } catch { return ''; }
   }
 
-  /* ---------- Marquer comme lu ---------- */
-
   async function markReceivedAsRead() {
     const unread = messages.filter(m => m.recipient_id === ME && !m.read_at);
     if (!unread.length) return;
@@ -197,8 +178,6 @@
       if (m.recipient_id === ME && !m.read_at) m.read_at = now;
     }
   }
-
-  /* ---------- Composer / Envoyer ---------- */
 
   function bindUI() {
     const input = document.getElementById('message-input');
@@ -244,6 +223,22 @@
       }
       input.value = '';
       autoResize();
+
+      // 📧 EMAIL au destinataire (silencieux en cas d'échec)
+      try {
+        const myName = (getCurrentUserFullName && getCurrentUserFullName()) || 'Quelqu\'un';
+        const preview = text.length > 100 ? text.substring(0, 100) + '…' : text;
+        await sendEmailNotification(
+          OTHER,
+          'new_direct_message',
+          '💬 Nouveau message de ' + myName,
+          preview + ' Connectez-vous pour répondre.',
+          'message-direct.html?to=' + ME
+        );
+      } catch (e) {
+        console.warn('[email direct]', e);
+      }
+
     } catch (e) {
       console.error('[message-direct] sendMessage error', e);
       showError('Envoi impossible');
@@ -253,8 +248,6 @@
     }
   }
 
-  /* ---------- Scroll ---------- */
-
   function scrollBottom(smooth = true) {
     try {
       window.scrollTo({
@@ -263,8 +256,6 @@
       });
     } catch { window.scrollTo(0, document.body.scrollHeight); }
   }
-
-  /* ---------- Polling (nouveaux messages) ---------- */
 
   function startPolling() {
     stopPolling();
