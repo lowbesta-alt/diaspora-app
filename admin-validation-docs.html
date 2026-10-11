@@ -405,17 +405,12 @@
 
     document.getElementById('modal-close').addEventListener('click', closeModal);
 
-    /* ============================================
-       ✅ NOUVELLE FONCTION : vérifie si tout est validé et auto-passe en ready_to_start
-       ============================================ */
     async function checkAndAutoReady(projectId) {
       try {
-        // Recharger le projet à jour
         const data = await apiGet('projects', 'id=eq.' + projectId);
         if (!Array.isArray(data) || !data[0]) return false;
         const p = data[0];
 
-        // Vérifier les 2 documents
         const landOK = (p.land_survey_status === 'validated' || p.land_survey_status === 'provided' || p.land_survey_status === 'not_needed');
         const planOK = (p.plan_status === 'validated' || p.plan_status === 'provided' || p.plan_status === 'not_needed');
 
@@ -425,7 +420,6 @@
             updated_at: new Date().toISOString()
           });
 
-          // Notifier le client
           if (p.owner_id) {
             await apiPost('notifications', {
               user_id: p.owner_id,
@@ -434,6 +428,19 @@
               message: 'Tous les documents du projet "' + p.title + '" ont été validés. Nous allons maintenant désigner un artisan.',
               link: 'projet-detail.html?id=' + projectId
             });
+
+            // 📧 EMAIL au client
+            try {
+              await sendEmailNotification(
+                p.owner_id,
+                'project_ready',
+                '🚀 Votre projet est prêt à démarrer !',
+                'Tous les documents du projet "' + p.title + '" ont été validés. Nous allons maintenant désigner un artisan qualifié.',
+                'projet-detail.html?id=' + projectId
+              );
+            } catch (e) {
+              console.warn('[email project_ready]', e);
+            }
           }
           return true;
         }
@@ -490,9 +497,21 @@
             message: 'L\'enquête foncière de votre projet "' + currentProject.title + '" a été réalisée avec succès.',
             link: 'projet-detail.html?id=' + currentProjectId
           });
+
+          // 📧 EMAIL
+          try {
+            await sendEmailNotification(
+              currentProject.owner_id,
+              'land_survey_validated',
+              '✅ Enquête foncière validée',
+              'L\'enquête foncière de votre projet "' + currentProject.title + '" a été réalisée avec succès. Consultez le rapport dans votre espace.',
+              'projet-detail.html?id=' + currentProjectId
+            );
+          } catch (e) {
+            console.warn('[email survey]', e);
+          }
         }
 
-        // ✅ Auto-passage en ready si les 2 sont OK
         const becameReady = await checkAndAutoReady(currentProjectId);
 
         showSuccess(becameReady ? 'Enquête validée ! Le projet est maintenant prêt à démarrer.' : 'Enquête validée !');
@@ -501,7 +520,7 @@
       } catch (e) { showError(e.message); }
     });
 
-    // Devis plan
+    // Devis plan → 📧 EMAIL au client
     document.getElementById('btn-plan-send-quote').addEventListener('click', async () => {
       if (!currentProjectId) return;
       const amount = Number(document.getElementById('m-plan-quote-amount').value);
@@ -531,6 +550,19 @@
             message: 'Un devis de ' + amount.toLocaleString('fr-FR') + ' XAF vous a été envoyé pour le plan de votre projet "' + currentProject.title + '".',
             link: 'projet-detail.html?id=' + currentProjectId
           });
+
+          // 📧 EMAIL au client
+          try {
+            await sendEmailNotification(
+              currentProject.owner_id,
+              'plan_quote_received',
+              '💰 Nouveau devis à valider',
+              'Un devis de ' + amount.toLocaleString('fr-FR') + ' XAF vous a été envoyé pour le plan de construction du projet "' + currentProject.title + '". Connectez-vous pour l\'accepter ou le refuser.',
+              'projet-detail.html?id=' + currentProjectId
+            );
+          } catch (e) {
+            console.warn('[email plan quote]', e);
+          }
         }
 
         showSuccess('Devis envoyé !');
@@ -582,9 +614,21 @@
             message: 'Le plan de votre projet "' + currentProject.title + '" a été finalisé et validé.',
             link: 'projet-detail.html?id=' + currentProjectId
           });
+
+          // 📧 EMAIL
+          try {
+            await sendEmailNotification(
+              currentProject.owner_id,
+              'plan_validated',
+              '✅ Plan de construction validé',
+              'Le plan de votre projet "' + currentProject.title + '" a été finalisé et validé. Vous pouvez le consulter dans votre espace.',
+              'projet-detail.html?id=' + currentProjectId
+            );
+          } catch (e) {
+            console.warn('[email plan validated]', e);
+          }
         }
 
-        // ✅ Auto-passage en ready si les 2 sont OK
         const becameReady = await checkAndAutoReady(currentProjectId);
 
         showSuccess(becameReady ? 'Plan validé ! Le projet est maintenant prêt à démarrer.' : 'Plan validé !');
