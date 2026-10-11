@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics - Espace Diaspora</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-20">
+
+  <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+    <a href="dashboard-admin.html" class="text-2xl">←</a>
+    <span class="font-bold text-sm">📊 Analytics</span>
+    <button id="btn-refresh" class="text-xs text-sky-400 font-bold">↻ Rafraîchir</button>
+  </header>
+
+  <main class="p-4 max-w-3xl mx-auto space-y-6 pt-4">
+
+    <!-- HERO -->
+    <section class="rounded-3xl p-6" style="background: linear-gradient(135deg, rgba(16,185,129,0.25) 0%, rgba(15,34,82,0.7) 100%); border: 1px solid rgba(16,185,129,0.4);">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">📊</div>
+        <div>
+          <div class="text-xs font-bold tracking-widest uppercase text-emerald-300">Pilotage</div>
+          <h1 class="text-xl font-extrabold">Analytics</h1>
+        </div>
+      </div>
+      <p class="text-sm text-slate-200 leading-relaxed">Vue chiffrée de la plateforme : utilisateurs, projets, finances, activité.</p>
+      <p id="last-update" class="text-[10px] text-slate-400 mt-2"></p>
+    </section>
+
+    <!-- ============================================
+         VUE GLOBALE
+         ============================================ -->
+    <section class="space-y-3">
+      <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+        <span>🌍</span> Vue globale
+      </h2>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
+          <div class="text-2xl mb-1">👥</div>
+          <div class="text-2xl font-extrabold" id="stat-clients">-</div>
+          <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Clients</div>
+        </div>
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
+          <div class="text-2xl mb-1">🏗️</div>
+          <div class="text-2xl font-extrabold" id="stat-artisans">-</div>
+          <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Artisans</div>
+        </div>
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
+          <div class="text-2xl mb-1">📁</div>
+          <div class="text-2xl font-extrabold" id="stat-projects">-</div>
+          <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Projets</div>
+        </div>
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
+          <div class="text-2xl mb-1">📎</div>
+          <div class="text-2xl font-extrabold" id="stat-docs">-</div>
+          <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Documents</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         FINANCES
+         ============================================ -->
+    <section class="space-y-3">
+      <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+        <span>💰</span> Finances
+      </h2>
+
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-slate-300">Total engagé</span>
+          <span class="text-base font-extrabold text-sky-400" id="fin-total">-</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-slate-300">Total débloqué</span>
+          <span class="text-base font-extrabold text-amber-400" id="fin-spent">-</span>
+        </div>
+        <div class="flex justify-between items-center border-t border-white/10 pt-3">
+          <span class="text-xs text-slate-300">Restant à débloquer</span>
+          <span class="text-base font-extrabold text-emerald-400" id="fin-remaining">-</span>
+        </div>
+        <div class="pt-2">
+          <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+            <span>Progression globale</span>
+            <span id="fin-progress-text" class="font-bold text-white">0%</span>
+          </div>
+          <div class="w-full bg-slate-700/50 rounded-full h-2 overflow-hidden">
+            <div id="fin-progress-bar" class="bg-gradient-to-r from-emerald-500 to-emerald-400 h-2 rounded-full transition-all" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+          <div class="text-lg mb-1">💸</div>
+          <div class="text-sm font-extrabold text-amber-400" id="fin-milestones-released">-</div>
+          <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Jalons payés</div>
+        </div>
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+          <div class="text-lg mb-1">⏳</div>
+          <div class="text-sm font-extrabold text-orange-400" id="fin-milestones-pending">-</div>
+          <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Jalons en attente</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         PROJETS PAR STATUT
+         ============================================ -->
+    <section class="space-y-3">
+      <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+        <span>📈</span> Projets par statut
+      </h2>
+      <div id="projects-by-status" class="space-y-2">
+        <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
+      </div>
+    </section>
+
+    <!-- ============================================
+         ACTIVITÉ 7 JOURS
+         ============================================ -->
+    <section class="space-y-3">
+      <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+        <span>📅</span> Activité des 7 derniers jours
+      </h2>
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+          <div class="text-lg mb-1">👤</div>
+          <div class="text-xl font-extrabold text-sky-400" id="act-new-users">-</div>
+          <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Inscrits</div>
+        </div>
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+          <div class="text-lg mb-1">📁</div>
+          <div class="text-xl font-extrabold text-amber-400" id="act-new-projects">-</div>
+          <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Projets</div>
+        </div>
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+          <div class="text-lg mb-1">📎</div>
+          <div class="text-xl font-extrabold text-emerald-400" id="act-new-docs">-</div>
+          <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Documents</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         TOP ARTISANS
+         ============================================ -->
+    <section class="space-y-3">
+      <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+        <span>🏆</span> Top artisans
+      </h2>
+      <div id="top-artisans" class="space-y-2">
+        <p class="text-slate-400 text-sm text-center py-6">Chargement...</p>
+      </div>
+    </section>
+
+    <!-- ============================================
+         KYC
+         ============================================ -->
+    <section class="space-y-3">
+      <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+        <span>🛡️</span> Vérifications KYC
+      </h2>
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+          <div class="text-xl font-extrabold text-emerald-400" id="kyc-approved">-</div>
+          <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Validés</div>
+        </div>
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+          <div class="text-xl font-extrabold text-amber-400" id="kyc-pending">-</div>
+          <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">En attente</div>
+        </div>
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+          <div class="text-xl font-extrabold text-red-400" id="kyc-rejected">-</div>
+          <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Refusés</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-admin.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🎯</span>Contrôle</a>
+    <a href="admin-analytics.html" class="flex flex-col items-center gap-0.5 text-emerald-400 text-[10px]"><span class="text-lg">📊</span>Analytics</a>
+    <a href="admin-chantiers.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏗️</span>Chantiers</a>
+    <a href="admin-utilisateurs.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👥</span>Users</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if (!requireRole(['admin'])) throw new Error('Not allowed');
+
+    function fmtXAF(n) {
+      if (!n && n !== 0) return '—';
+      const v = Number(n);
+      if (v >= 1000000) return (v / 1000000).toFixed(1) + 'M XAF';
+      if (v >= 1000) return (v / 1000).toFixed(0) + 'K XAF';
+      return v.toLocaleString('fr-FR') + ' XAF';
+    }
+
+    function daysAgoISO(days) {
+      const d = new Date();
+      d.setDate(d.getDate() - days);
+      return d.toISOString();
+    }
+
+    // ============================================
+    // VUE GLOBALE
+    // ============================================
+    async function loadGlobalStats() {
+      try {
+        const profiles = await apiGet('profiles', '');
+        const p = Array.isArray(profiles) ? profiles : [];
+        document.getElementById('stat-clients').textContent = p.filter(u => u.default_role === 'investor').length;
+        document.getElementById('stat-artisans').textContent = p.filter(u => u.default_role === 'provider' || u.default_role === 'project_manager').length;
+      } catch (e) { console.warn('[stats users]', e); }
+
+      try {
+        const projects = await apiGet('projects', '');
+        const pr = Array.isArray(projects) ? projects : [];
+        document.getElementById('stat-projects').textContent = pr.length;
+      } catch (e) {}
+
+      try {
+        const docs = await apiGet('documents', 'select=id&limit=1000');
+        document.getElementById('stat-docs').textContent = Array.isArray(docs) ? docs.length : 0;
+      } catch (e) {
+        document.getElementById('stat-docs').textContent = '0';
+      }
+    }
+
+    // ============================================
+    // FINANCES
+    // ============================================
+    async function loadFinances() {
+      try {
+        const projects = await apiGet('projects', '');
+        const pr = Array.isArray(projects) ? projects : [];
+        const totalBudget = pr.reduce((s, p) => s + Number(p.total_budget || 0), 0);
+        const totalSpent = pr.reduce((s, p) => s + Number(p.spent_budget || 0), 0);
+        const remaining = totalBudget - totalSpent;
+
+        document.getElementById('fin-total').textContent = fmtXAF(totalBudget);
+        document.getElementById('fin-spent').textContent = fmtXAF(totalSpent);
+        document.getElementById('fin-remaining').textContent = fmtXAF(remaining);
+
+        const pct = totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 100) : 0;
+        document.getElementById('fin-progress-text').textContent = pct + '%';
+        document.getElementById('fin-progress-bar').style.width = pct + '%';
+      } catch (e) { console.warn('[finances]', e); }
+
+      try {
+        const milestones = await apiGet('milestones', '');
+        const ms = Array.isArray(milestones) ? milestones : [];
+        document.getElementById('fin-milestones-released').textContent = ms.filter(m => m.status === 'released').length;
+        document.getElementById('fin-milestones-pending').textContent = ms.filter(m => m.status === 'submitted' || m.status === 'pending' || m.status === 'in_progress').length;
+      } catch (e) {}
+    }
+
+    // ============================================
+    // PROJETS PAR STATUT
+    // ============================================
+    const STATUS_META = {
+      'draft': { label: 'Brouillon', icon: '📝', color: 'orange' },
+      'pending_verification': { label: 'En vérification', icon: '⏳', color: 'sky' },
+      'land_survey_needed': { label: 'Enquête foncière', icon: '🔍', color: 'amber' },
+      'plan_needed': { label: 'Plan à proposer', icon: '🎨', color: 'purple' },
+      'land_survey_and_plan_needed': { label: 'Enquête + Plan', icon: '🔍🎨', color: 'amber' },
+      'ready_to_start': { label: 'Prêt à démarrer', icon: '✅', color: 'emerald' },
+      'active': { label: 'En cours', icon: '🚀', color: 'emerald' },
+      'completed': { label: 'Terminé', icon: '🏁', color: 'slate' },
+      'paused': { label: 'En pause', icon: '⏸️', color: 'yellow' },
+      'cancelled': { label: 'Annulé', icon: '❌', color: 'red' },
+      'disputed': { label: 'Litige', icon: '⚠️', color: 'red' }
+    };
+
+    async function loadProjectsByStatus() {
+      const container = document.getElementById('projects-by-status');
+      try {
+        const projects = await apiGet('projects', '');
+        const pr = Array.isArray(projects) ? projects : [];
+
+        if (pr.length === 0) {
+          container.innerHTML = '<div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl"><div class="text-3xl mb-2 opacity-40">📊</div><p class="text-slate-400 text-sm">Aucun projet pour le moment</p></div>';
+          return;
+        }
+
+        const counts = {};
+        for (const p of pr) {
+          const s = p.status || 'draft';
+          counts[s] = (counts[s] || 0) + 1;
+        }
+
+        const total = pr.length;
+        const rows = Object.keys(counts)
+          .sort((a, b) => counts[b] - counts[a])
+          .map(status => {
+            const meta = STATUS_META[status] || { label: status, icon: '📁', color: 'slate' };
+            const count = counts[status];
+            const pct = Math.round((count / total) * 100);
+            return `
+              <div class="bg-white/5 border border-white/10 rounded-2xl p-3">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-2">
+                    <span>${meta.icon}</span>
+                    <span class="text-xs font-bold">${meta.label}</span>
+                  </div>
+                  <span class="text-sm font-extrabold">${count}</span>
+                </div>
+                <div class="w-full bg-slate-700/50 rounded-full h-1.5 overflow-hidden">
+                  <div class="bg-${meta.color}-500 h-1.5 rounded-full transition-all" style="width: ${pct}%"></div>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+        container.innerHTML = rows;
+      } catch (e) {
+        container.innerHTML = '<p class="text-red-400 text-sm text-center py-6">Erreur de chargement</p>';
+      }
+    }
+
+    // ============================================
+    // ACTIVITÉ 7 JOURS
+    // ============================================
+    async function loadRecentActivity() {
+      const since = daysAgoISO(7);
+
+      try {
+        const profiles = await apiGet('profiles', 'created_at=gte.' + since);
+        document.getElementById('act-new-users').textContent = Array.isArray(profiles) ? profiles.length : 0;
+      } catch (e) {}
+
+      try {
+        const projects = await apiGet('projects', 'created_at=gte.' + since);
+        document.getElementById('act-new-projects').textContent = Array.isArray(projects) ? projects.length : 0;
+      } catch (e) {}
+
+      try {
+        const docs = await apiGet('documents', 'created_at=gte.' + since + '&select=id');
+        document.getElementById('act-new-docs').textContent = Array.isArray(docs) ? docs.length : 0;
+      } catch (e) {}
+    }
+
+    // ============================================
+    // TOP ARTISANS
+    // ============================================
+    async function loadTopArtisans() {
+      const container = document.getElementById('top-artisans');
+      try {
+        const profiles = await apiGet('profiles', 'default_role=in.(provider,project_manager)&limit=50');
+        const artisans = Array.isArray(profiles) ? profiles : [];
+
+        if (artisans.length === 0) {
+          container.innerHTML = '<div class="text-center py-6 bg-white/5 border border-white/10 rounded-2xl"><p class="text-slate-400 text-sm">Aucun artisan inscrit</p></div>';
+          return;
+        }
+
+        const rows = [];
+        for (const a of artisans) {
+          let reaCount = 0;
+          let contractsDone = 0;
+          try {
+            const reas = await apiGet('realisations', 'company_id=eq.' + a.id + '&status=eq.approved&select=id');
+            reaCount = Array.isArray(reas) ? reas.length : 0;
+          } catch (e) {}
+          try {
+            const ct = await apiGet('contracts', 'party_provider_id=eq.' + a.id + '&select=id');
+            contractsDone = Array.isArray(ct) ? ct.length : 0;
+          } catch (e) {}
+          rows.push({ name: a.full_name || a.email, reaCount, contractsDone });
+        }
+
+        rows.sort((x, y) => (y.reaCount + y.contractsDone) - (x.reaCount + x.contractsDone));
+        const top = rows.slice(0, 5);
+
+        if (top.length === 0) {
+          container.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Aucun artisan</p>';
+          return;
+        }
+
+        container.innerHTML = top.map((a, i) => `
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-3">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${i === 0 ? 'bg-amber-500/30 text-amber-300' : 'bg-slate-700/50 text-slate-300'}">${i + 1}</div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-bold truncate">${escapeHtml(a.name)}</p>
+              <p class="text-[10px] text-slate-400">🏆 ${a.reaCount} réalisation${a.reaCount > 1 ? 's' : ''} · 📋 ${a.contractsDone} contrat${a.contractsDone > 1 ? 's' : ''}</p>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">Impossible de charger</p>';
+      }
+    }
+
+    // ============================================
+    // KYC
+    // ============================================
+    async function loadKyc() {
+      try {
+        const profiles = await apiGet('profiles', '');
+        const p = Array.isArray(profiles) ? profiles : [];
+        document.getElementById('kyc-approved').textContent = p.filter(u => u.kyc_status === 'approved').length;
+        document.getElementById('kyc-pending').textContent = p.filter(u => u.kyc_status === 'pending').length;
+        document.getElementById('kyc-rejected').textContent = p.filter(u => u.kyc_status === 'rejected').length;
+      } catch (e) {}
+    }
+
+    // ============================================
+    // BOOT
+    // ============================================
+    async function loadAll() {
+      const btn = document.getElementById('btn-refresh');
+      btn.disabled = true;
+      btn.textContent = '↻ ...';
+
+      await Promise.allSettled([
+        loadGlobalStats(),
+        loadFinances(),
+        loadProjectsByStatus(),
+        loadRecentActivity(),
+        loadTopArtisans(),
+        loadKyc()
+      ]);
+
+      document.getElementById('last-update').textContent = 'Dernière mise à jour : ' + new Date().toLocaleTimeString('fr-FR');
+      btn.disabled = false;
+      btn.textContent = '↻ Rafraîchir';
+    }
+
+    document.getElementById('btn-refresh').addEventListener('click', loadAll);
+    loadAll();
+  </script>
+</body>
+  </html>
