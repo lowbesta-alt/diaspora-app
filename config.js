@@ -1,4 +1,3 @@
-
 // Configuration Supabase - Espace Diaspora
 const SUPABASE_URL = 'https://zsievfntsgncijfbtkle.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_oRQaAhvYoSznSyYVXzSTkw__j3sOXUY';
@@ -33,3 +32,37 @@ function isLoggedIn() {
 function currentUserId() {
   return localStorage.getItem('user_id') || TEST_USER_ID;
 }
+
+// ============================================================
+// 📱 PWA — Service Worker + Manifest (activé sur toutes les pages)
+// ============================================================
+(function initPWA() {
+  try {
+    // Ajoute le manifest dans le <head> si absent
+    if (!document.querySelector('link[rel="manifest"]')) {
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = '/manifest.json';
+      document.head.appendChild(link);
+    }
+
+    // Ajoute le theme-color si absent
+    if (!document.querySelector('meta[name="theme-color"]')) {
+      const meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      meta.content = '#10b981';
+      document.head.appendChild(meta);
+    }
+
+    // Enregistre le Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch((err) => {
+          console.warn('[PWA] SW register failed', err);
+        });
+      });
+    }
+  } catch (e) {
+    console.warn('[PWA] init failed', e);
+  }
+})();
