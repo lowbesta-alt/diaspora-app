@@ -443,3 +443,42 @@ function edInit() {
 }
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', edInit); } else { edInit(); }
+// ============================================================
+// 📧 ENVOI D'EMAIL VIA EDGE FUNCTION (Resend)
+// ============================================================
+async function sendEmailNotification(userId, type, title, message, link) {
+  if (!userId) return false;
+  try {
+    const profiles = await apiGet('profiles', 'id=eq.' + userId + '&select=email,full_name');
+    if (!Array.isArray(profiles) || !profiles[0]) return false;
+    const recipient = profiles[0];
+    if (!recipient.email) return false;
+
+    const res = await fetch(SUPABASE_URL + '/functions/v1/send-notification-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + (getToken() || SUPABASE_KEY),
+        'apikey': SUPABASE_KEY
+      },
+      body: JSON.stringify({
+        to: recipient.email,
+        type: type,
+        title: title,
+        message: message,
+        link: link || null,
+        recipient_name: recipient.full_name || 'Utilisateur'
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      console.warn('[email] échec :', err);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.warn('[email] erreur :', e.message);
+    return false;
+  }
+}
