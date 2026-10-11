@@ -34,11 +34,25 @@ function currentUserId() {
 }
 
 // ============================================================
-// 📱 PWA — Service Worker + Manifest (activé sur toutes les pages)
+// 📱 PWA + Favicon (activé sur toutes les pages)
 // ============================================================
 (function initPWA() {
   try {
-    // Ajoute le manifest dans le <head> si absent
+    // --- Favicon : force l'utilisation du PNG ---
+    document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach(el => el.remove());
+
+    const favicon = document.createElement('link');
+    favicon.rel = 'icon';
+    favicon.type = 'image/png';
+    favicon.href = '/icon-192.png';
+    document.head.appendChild(favicon);
+
+    const appleIcon = document.createElement('link');
+    appleIcon.rel = 'apple-touch-icon';
+    appleIcon.href = '/icon-192.png';
+    document.head.appendChild(appleIcon);
+
+    // --- Manifest ---
     if (!document.querySelector('link[rel="manifest"]')) {
       const link = document.createElement('link');
       link.rel = 'manifest';
@@ -46,7 +60,7 @@ function currentUserId() {
       document.head.appendChild(link);
     }
 
-    // Ajoute le theme-color si absent
+    // --- Theme color ---
     if (!document.querySelector('meta[name="theme-color"]')) {
       const meta = document.createElement('meta');
       meta.name = 'theme-color';
@@ -54,7 +68,7 @@ function currentUserId() {
       document.head.appendChild(meta);
     }
 
-    // Enregistre le Service Worker
+    // --- Service Worker ---
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch((err) => {
