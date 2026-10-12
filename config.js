@@ -34,7 +34,7 @@ function currentUserId() {
 }
 
 // ============================================================
-// 📱 PWA + Favicon (activé sur toutes les pages)
+// 📱 PWA + Favicon
 // ============================================================
 (function initPWA() {
   try {
@@ -78,51 +78,54 @@ function currentUserId() {
 })();
 
 // ============================================================
-// 🎨 Remplacement automatique du logo immeuble orange
-//    -> par icon-192.png (globe vert)
+// 🔙 Bouton "Retour à l'accueil" sur les pages de connexion/inscription
 // ============================================================
-(function replaceOrangeLogo() {
-  function replaceAll() {
-    try {
-      const svgs = document.querySelectorAll('svg');
-      svgs.forEach(svg => {
-        const html = (svg.outerHTML || '').toLowerCase();
-        // Détecte l'immeuble orange par ses couleurs caractéristiques
-        const isOrangeBuilding =
-          html.includes('#fbbf24') || html.includes('#f59e0b') ||
-          html.includes('#ea580c') || html.includes('#fcd34d') ||
-          html.includes('#d97706') || html.includes('#fb923c') ||
-          html.includes('#f97316') || html.includes('#eab308');
+(function addHomeButton() {
+  try {
+    const path = window.location.pathname.toLowerCase();
+    const isAuthPage = path.includes('index.html') ||
+                       path.endsWith('/') ||
+                       path.includes('inscription.html') ||
+                       path.includes('inscription-artisan.html');
 
-        if (isOrangeBuilding) {
-          const img = document.createElement('img');
-          img.src = '/icon-192.png?v=3';
-          img.alt = 'Espace Diaspora';
+    if (!isAuthPage) return;
 
-          const cls = svg.getAttribute('class');
-          if (cls) img.className = cls;
+    // Éviter le double ajout
+    if (document.getElementById('home-back-btn')) return;
 
-          const w = svg.getAttribute('width');
-          const h = svg.getAttribute('height');
-          img.style.width = w ? (isNaN(w) ? w : w + 'px') : '60px';
-          img.style.height = h ? (isNaN(h) ? h : h + 'px') : '60px';
-          img.style.borderRadius = '16px';
-          img.style.objectFit = 'cover';
-
-          svg.replaceWith(img);
-        }
-      });
-    } catch (e) {
-      console.warn('[logo] replace failed', e);
+    function inject() {
+      const btn = document.createElement('a');
+      btn.id = 'home-back-btn';
+      btn.href = 'accueil.html';
+      btn.innerHTML = '← Accueil';
+      btn.style.cssText = [
+        'position:fixed',
+        'top:16px',
+        'left:16px',
+        'z-index:9999',
+        'background:rgba(15,23,42,0.85)',
+        'color:#fff',
+        'padding:8px 14px',
+        'border-radius:12px',
+        'font-size:12px',
+        'font-weight:600',
+        'text-decoration:none',
+        'border:1px solid rgba(255,255,255,0.15)',
+        'backdrop-filter:blur(8px)',
+        'display:inline-flex',
+        'align-items:center',
+        'gap:6px',
+        'font-family:inherit'
+      ].join(';');
+      document.body.appendChild(btn);
     }
-  }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => setTimeout(replaceAll, 150));
-  } else {
-    setTimeout(replaceAll, 150);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', inject);
+    } else {
+      inject();
+    }
+  } catch (e) {
+    console.warn('[home-btn]', e);
   }
-
-  // Retry au cas où le contenu se charge en différé
-  window.addEventListener('load', () => setTimeout(replaceAll, 300));
 })();
