@@ -206,7 +206,7 @@
     function renderStats() {
       document.getElementById('stat-pending').textContent = allProjects.filter(p => p.status === 'pending_verification').length;
       document.getElementById('stat-survey').textContent = allProjects.filter(p => p.status === 'land_survey_needed' || p.status === 'land_survey_and_plan_needed').length;
-      document.getElementById('stat-plan').textContent = allProjects.filter(p => p.status === 'plan_needed').length;
+      document.getElementById('stat-plan').textContent = allProjects.filter(p => p.status === 'plan_needed' || p.status === 'land_survey_and_plan_needed').length;
       document.getElementById('stat-ready').textContent = allProjects.filter(p => p.status === 'ready_to_start').length;
     }
 
