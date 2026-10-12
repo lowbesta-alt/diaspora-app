@@ -138,10 +138,9 @@
     document.getElementById('btn-add-milestone').href = 'jalon-creer.html?id=' + projectId;
     document.getElementById('btn-docs').href = 'documents.html?id=' + projectId;
     document.getElementById('btn-docs-link').href = 'documents.html?id=' + projectId;
-
-    if (isAdmin) {
-      document.getElementById('btn-add-milestone').classList.remove('hidden');
-    }
+if (isAdmin || isArtisan) {
+  document.getElementById('btn-add-milestone').classList.remove('hidden');
+}
 
     let allTimelineReports = [];
 
