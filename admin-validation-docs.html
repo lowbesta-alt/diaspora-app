@@ -73,7 +73,7 @@
         </div>
       </div>
 
-      <!-- 🔍 ENQUÊTE FONCIÈRE -->
+      <!-- 🔍 ENQUÊTE -->
       <div id="m-survey-zone" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 space-y-3">
         <h3 class="text-xs font-bold text-amber-200 uppercase tracking-wider">🔍 Enquête foncière</h3>
         <div id="m-survey-status" class="text-xs text-amber-100"></div>
@@ -157,6 +157,10 @@
     let currentFilter = 'pending_verification';
     let currentProjectId = null;
     let currentProject = null;
+
+    // Fichiers en attente (avec possibilité de retrait)
+    let pendingSurveyFiles = [];
+    let pendingPlanFiles = [];
 
     async function getSignedUrl(bucket, path, expiresIn = 3600) {
       if (!path) return null;
@@ -292,6 +296,16 @@
       if (!p) return;
       currentProject = p;
 
+      // Reset des fichiers en attente
+      pendingSurveyFiles = [];
+      pendingPlanFiles = [];
+      document.getElementById('m-survey-file').value = '';
+      document.getElementById('m-plan-file').value = '';
+      document.getElementById('m-survey-preview').innerHTML = '';
+      document.getElementById('m-plan-preview').innerHTML = '';
+      document.getElementById('m-survey-preview').classList.add('hidden');
+      document.getElementById('m-plan-preview').classList.add('hidden');
+
       const owner = profilesMap[p.owner_id];
       const ownerName = owner ? (owner.full_name || owner.email) : 'Client';
 
@@ -302,7 +316,6 @@
       document.getElementById('m-budget').textContent = formatAmount(p.total_budget, p.currency);
       document.getElementById('m-status').textContent = statusLabel(p.status);
 
-      // Docs
       const docsEl = document.getElementById('m-docs-list');
       const docs = allDocs.filter(d => d.project_id === p.id);
       if (docs.length === 0) {
@@ -426,50 +439,73 @@
       document.body.style.overflow = '';
       currentProjectId = null;
       currentProject = null;
+      pendingSurveyFiles = [];
+      pendingPlanFiles = [];
     }
 
     document.getElementById('modal-close').addEventListener('click', closeModal);
 
-    // Aperçu multi-fichiers enquête
-    document.getElementById('m-survey-file').addEventListener('change', function() {
-      const preview = document.getElementById('m-survey-preview');
-      preview.innerHTML = '';
-      const files = Array.from(this.files).slice(0, 5);
-      if (files.length === 0) { preview.classList.add('hidden'); return; }
-      preview.classList.remove('hidden');
-      files.forEach(f => {
-        const div = document.createElement('div');
-        div.className = 'text-[10px] text-slate-300 bg-slate-900/50 rounded-lg px-2 py-1.5 flex justify-between items-center gap-2';
-        div.innerHTML = '<span class="truncate">📎 ' + escapeHtml(f.name) + '</span><span class="text-slate-500 flex-shrink-0">' + (f.size/1024/1024).toFixed(2) + ' MB</span>';
-        preview.appendChild(div);
-      });
-      if (this.files.length > 5) {
-        const w = document.createElement('p');
-        w.className = 'text-[10px] text-amber-400 mt-1';
-        w.textContent = '⚠️ Seuls les 5 premiers seront envoyés';
-        preview.appendChild(w);
+    // ============================================================
+    // 📎 AFFICHER + RETIRER LES FICHIERS SÉLECTIONNÉS
+    // ============================================================
+    function renderPendingFiles(type) {
+      const arr = type === 'survey' ? pendingSurveyFiles : pendingPlanFiles;
+      const previewId = type === 'survey' ? 'm-survey-preview' : 'm-plan-preview';
+      const preview = document.getElementById(previewId);
+
+      if (arr.length === 0) {
+        preview.classList.add('hidden');
+        preview.innerHTML = '';
+        return;
       }
+
+      preview.classList.remove('hidden');
+      preview.innerHTML = arr.map((f, i) => `
+        <div class="flex items-center gap-2 bg-slate-900/60 rounded-lg px-2 py-1.5 border border-white/10">
+          <span class="text-xs flex-shrink-0">📎</span>
+          <span class="text-[10px] text-slate-200 flex-1 truncate">${escapeHtml(f.name)}</span>
+          <span class="text-[10px] text-slate-500 flex-shrink-0">${(f.size/1024/1024).toFixed(2)} MB</span>
+          <button class="remove-file-btn w-6 h-6 rounded-full bg-red-500/20 hover:bg-red-500/40 flex items-center justify-center text-red-300 text-xs font-bold flex-shrink-0" data-type="${type}" data-index="${i}">✕</button>
+        </div>
+      `).join('');
+
+      preview.querySelectorAll('.remove-file-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const t = btn.dataset.type;
+          const idx = parseInt(btn.dataset.index, 10);
+          if (t === 'survey') {
+            pendingSurveyFiles.splice(idx, 1);
+            renderPendingFiles('survey');
+          } else {
+            pendingPlanFiles.splice(idx, 1);
+            renderPendingFiles('plan');
+          }
+        });
+      });
+    }
+
+    // Sélection enquête
+    document.getElementById('m-survey-file').addEventListener('change', function() {
+      const files = Array.from(this.files || []);
+      for (const f of files) {
+        if (pendingSurveyFiles.length >= 5) break;
+        pendingSurveyFiles.push(f);
+      }
+      // Reset l'input pour pouvoir re-sélectionner les mêmes si besoin
+      this.value = '';
+      renderPendingFiles('survey');
     });
 
-    // Aperçu multi-fichiers plan
+    // Sélection plan
     document.getElementById('m-plan-file').addEventListener('change', function() {
-      const preview = document.getElementById('m-plan-preview');
-      preview.innerHTML = '';
-      const files = Array.from(this.files).slice(0, 5);
-      if (files.length === 0) { preview.classList.add('hidden'); return; }
-      preview.classList.remove('hidden');
-      files.forEach(f => {
-        const div = document.createElement('div');
-        div.className = 'text-[10px] text-slate-300 bg-slate-900/50 rounded-lg px-2 py-1.5 flex justify-between items-center gap-2';
-        div.innerHTML = '<span class="truncate">📎 ' + escapeHtml(f.name) + '</span><span class="text-slate-500 flex-shrink-0">' + (f.size/1024/1024).toFixed(2) + ' MB</span>';
-        preview.appendChild(div);
-      });
-      if (this.files.length > 5) {
-        const w = document.createElement('p');
-        w.className = 'text-[10px] text-amber-400 mt-1';
-        w.textContent = '⚠️ Seuls les 5 premiers seront envoyés';
-        preview.appendChild(w);
+      const files = Array.from(this.files || []);
+      for (const f of files) {
+        if (pendingPlanFiles.length >= 5) break;
+        pendingPlanFiles.push(f);
       }
+      this.value = '';
+      renderPendingFiles('plan');
     });
 
     async function checkAndAutoReady(projectId) {
@@ -489,13 +525,13 @@
               user_id: p.owner_id,
               type: 'project_ready',
               title: '🚀 Votre projet est prêt à démarrer !',
-              message: 'Tous les documents du projet "' + p.title + '" ont été validés. Nous allons maintenant désigner un artisan.',
+              message: 'Tous les documents du projet "' + p.title + '" ont été validés.',
               link: 'projet-detail.html?id=' + projectId
             });
             try {
               await sendEmailNotification(p.owner_id, 'project_ready',
                 '🚀 Votre projet est prêt à démarrer !',
-                'Tous les documents du projet "' + p.title + '" ont été validés. Nous allons maintenant désigner un artisan qualifié.',
+                'Tous les documents du projet "' + p.title + '" ont été validés.',
                 'projet-detail.html?id=' + projectId);
             } catch (e) {}
           }
@@ -505,13 +541,11 @@
       } catch (e) { return false; }
     }
 
-    // Enquête — MULTI-FICHIERS
+    // Enquête — MULTI + RETRAIT
     document.getElementById('btn-survey-validate').addEventListener('click', async () => {
       if (!currentProjectId) return;
-      const fileInput = document.getElementById('m-survey-file');
-      const files = Array.from(fileInput.files || []).slice(0, 5);
-      if (files.length === 0) { alert('Uploadez au moins un rapport'); return; }
-      if (!confirm('Confirmer la validation de l\'enquête foncière avec ' + files.length + ' document(s) ?')) return;
+      if (pendingSurveyFiles.length === 0) { alert('Uploadez au moins un rapport'); return; }
+      if (!confirm('Confirmer la validation de l\'enquête foncière avec ' + pendingSurveyFiles.length + ' document(s) ?')) return;
 
       const btn = document.getElementById('btn-survey-validate');
       btn.disabled = true;
@@ -521,7 +555,7 @@
         const token = getToken() || SUPABASE_KEY;
         let uploaded = 0;
 
-        for (const file of files) {
+        for (const file of pendingSurveyFiles) {
           if (file.size > 10 * 1024 * 1024) continue;
           const ext = file.name.split('.').pop();
           const path = currentProjectId + '/survey_' + Date.now() + '_' + Math.random().toString(36).substring(7) + '.' + ext;
@@ -563,7 +597,7 @@
           try {
             await sendEmailNotification(currentProject.owner_id, 'land_survey_validated',
               '✅ Enquête foncière validée',
-              'L\'enquête foncière de votre projet "' + currentProject.title + '" a été réalisée avec succès (' + uploaded + ' document(s)).',
+              'L\'enquête foncière de votre projet "' + currentProject.title + '" a été réalisée avec succès.',
               'projet-detail.html?id=' + currentProjectId);
           } catch (e) {}
         }
@@ -623,13 +657,11 @@
       } catch (e) { showError(e.message); }
     });
 
-    // Plan — MULTI-FICHIERS
+    // Plan — MULTI + RETRAIT
     document.getElementById('btn-plan-validate').addEventListener('click', async () => {
       if (!currentProjectId) return;
-      const fileInput = document.getElementById('m-plan-file');
-      const files = Array.from(fileInput.files || []).slice(0, 5);
-      if (files.length === 0) { alert('Uploadez au moins un plan'); return; }
-      if (!confirm('Confirmer la validation du plan avec ' + files.length + ' fichier(s) ?')) return;
+      if (pendingPlanFiles.length === 0) { alert('Uploadez au moins un plan'); return; }
+      if (!confirm('Confirmer la validation du plan avec ' + pendingPlanFiles.length + ' fichier(s) ?')) return;
 
       const btn = document.getElementById('btn-plan-validate');
       btn.disabled = true;
@@ -639,7 +671,7 @@
         const token = getToken() || SUPABASE_KEY;
         let uploaded = 0;
 
-        for (const file of files) {
+        for (const file of pendingPlanFiles) {
           if (file.size > 10 * 1024 * 1024) continue;
           const ext = file.name.split('.').pop();
           const path = currentProjectId + '/plan_' + Date.now() + '_' + Math.random().toString(36).substring(7) + '.' + ext;
@@ -681,7 +713,7 @@
           try {
             await sendEmailNotification(currentProject.owner_id, 'plan_validated',
               '✅ Plan de construction validé',
-              'Le plan de votre projet "' + currentProject.title + '" a été finalisé et validé (' + uploaded + ' fichier(s)).',
+              'Le plan de votre projet "' + currentProject.title + '" a été finalisé et validé.',
               'projet-detail.html?id=' + currentProjectId);
           } catch (e) {}
         }
