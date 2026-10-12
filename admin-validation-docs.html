@@ -73,6 +73,7 @@
         </div>
       </div>
 
+      <!-- 🔍 ENQUÊTE FONCIÈRE -->
       <div id="m-survey-zone" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 space-y-3">
         <h3 class="text-xs font-bold text-amber-200 uppercase tracking-wider">🔍 Enquête foncière</h3>
         <div id="m-survey-status" class="text-xs text-amber-100"></div>
@@ -80,20 +81,22 @@
         <div id="m-survey-note-wrap" class="text-[11px] text-slate-300 bg-slate-800/50 rounded-lg p-2"></div>
 
         <div id="m-survey-upload-wrap" class="space-y-2">
-          <label class="text-[10px] text-slate-400 block">📄 Rapport d'enquête (à uploader après visite terrain)</label>
-          <input type="file" id="m-survey-file" accept="image/*,application/pdf" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-amber-500/20 file:text-amber-300 file:font-semibold">
-          <div id="m-survey-preview" class="hidden mt-2"></div>
+          <label class="text-[10px] text-slate-400 block">📄 Rapports d'enquête (max 5 fichiers — contrat d'achat, bail, factures, etc.)</label>
+          <input type="file" id="m-survey-file" accept="image/*,application/pdf" multiple class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-amber-500/20 file:text-amber-300 file:font-semibold">
+          <p class="text-[10px] text-slate-500">PDF, JPG, PNG. Max 10 Mo par fichier.</p>
+          <div id="m-survey-preview" class="hidden mt-2 space-y-1"></div>
           <button id="btn-survey-validate" class="w-full py-2.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500">
             ✅ Valider l'enquête foncière
           </button>
         </div>
 
-        <div id="m-survey-done" class="hidden bg-emerald-500/20 border border-emerald-500/40 rounded-lg p-3 text-center">
-          <p class="text-xs font-bold text-emerald-200">✅ Enquête foncière validée</p>
-          <a id="m-survey-report-link" href="#" target="_blank" class="text-[10px] text-emerald-300 underline mt-1 inline-block">Voir le rapport</a>
+        <div id="m-survey-done" class="hidden bg-emerald-500/20 border border-emerald-500/40 rounded-lg p-3">
+          <p class="text-xs font-bold text-emerald-200 mb-2">✅ Enquête foncière validée</p>
+          <div id="m-survey-report-list" class="space-y-1"></div>
         </div>
       </div>
 
+      <!-- 🎨 PLAN -->
       <div id="m-plan-zone" class="hidden bg-purple-500/10 border border-purple-500/30 rounded-2xl p-4 space-y-3">
         <h3 class="text-xs font-bold text-purple-200 uppercase tracking-wider">🎨 Plan de construction</h3>
         <div id="m-plan-status" class="text-xs text-purple-100"></div>
@@ -115,18 +118,19 @@
           <div id="m-plan-quote-info" class="text-[11px] text-slate-300"></div>
 
           <div id="m-plan-upload-wrap" class="space-y-2 pt-2 border-t border-purple-500/30">
-            <label class="text-[10px] text-slate-400 block">📄 Uploader le plan finalisé</label>
-            <input type="file" id="m-plan-file" accept="image/*,application/pdf" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-purple-500/20 file:text-purple-300 file:font-semibold">
-            <div id="m-plan-preview" class="hidden mt-2"></div>
+            <label class="text-[10px] text-slate-400 block">📄 Plans finalisés (max 5 fichiers — plan de masse, RDC, étage, coupe, façade)</label>
+            <input type="file" id="m-plan-file" accept="image/*,application/pdf" multiple class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-purple-500/20 file:text-purple-300 file:font-semibold">
+            <p class="text-[10px] text-slate-500">PDF, JPG, PNG. Max 10 Mo par fichier.</p>
+            <div id="m-plan-preview" class="hidden mt-2 space-y-1"></div>
             <button id="btn-plan-validate" class="w-full py-2.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500">
               ✅ Valider le plan
             </button>
           </div>
         </div>
 
-        <div id="m-plan-done" class="hidden bg-emerald-500/20 border border-emerald-500/40 rounded-lg p-3 text-center">
-          <p class="text-xs font-bold text-emerald-200">✅ Plan validé</p>
-          <a id="m-plan-file-link" href="#" target="_blank" class="text-[10px] text-emerald-300 underline mt-1 inline-block">Voir le plan</a>
+        <div id="m-plan-done" class="hidden bg-emerald-500/20 border border-emerald-500/40 rounded-lg p-3">
+          <p class="text-xs font-bold text-emerald-200 mb-2">✅ Plan validé</p>
+          <div id="m-plan-file-list" class="space-y-1"></div>
         </div>
       </div>
 
@@ -206,9 +210,7 @@
       document.getElementById('stat-ready').textContent = allProjects.filter(p => p.status === 'ready_to_start').length;
     }
 
-    function statusLabel(s) {
-      return getStatusLabel(s);
-    }
+    function statusLabel(s) { return getStatusLabel(s); }
 
     function filterProjects() {
       let filtered = [];
@@ -300,6 +302,7 @@
       document.getElementById('m-budget').textContent = formatAmount(p.total_budget, p.currency);
       document.getElementById('m-status').textContent = statusLabel(p.status);
 
+      // Docs
       const docsEl = document.getElementById('m-docs-list');
       const docs = allDocs.filter(d => d.project_id === p.id);
       if (docs.length === 0) {
@@ -343,9 +346,20 @@
         document.getElementById('m-survey-status').innerHTML = '✅ Enquête déjà validée.';
         document.getElementById('m-survey-upload-wrap').classList.add('hidden');
         document.getElementById('m-survey-done').classList.remove('hidden');
-        if (p.land_survey_report_url) {
-          const url = await getSignedUrl('project-documents', p.land_survey_report_url);
-          document.getElementById('m-survey-report-link').href = url || '#';
+
+        const surveyDocs = allDocs.filter(d => d.project_id === p.id && (d.title || '').toLowerCase().includes('enquête'));
+        const list = document.getElementById('m-survey-report-list');
+        if (surveyDocs.length === 0) {
+          list.innerHTML = '<p class="text-[10px] text-slate-400 italic">Aucun rapport</p>';
+        } else {
+          const urls = await Promise.all(surveyDocs.map(d => getSignedUrl('project-documents', d.storage_path)));
+          list.innerHTML = surveyDocs.map((d, i) => `
+            <a href="${urls[i] || '#'}" target="_blank" class="flex items-center gap-2 bg-slate-900/50 rounded px-2 py-1.5 hover:bg-slate-900 transition">
+              <span class="text-xs">📄</span>
+              <span class="text-[10px] flex-1 truncate text-emerald-100">${escapeHtml(d.title)}</span>
+              <span class="text-emerald-400 text-xs">↗</span>
+            </a>
+          `).join('');
         }
       } else {
         surveyZone.classList.add('hidden');
@@ -377,18 +391,29 @@
         document.getElementById('m-plan-quote-wrap').classList.add('hidden');
         document.getElementById('m-plan-quote-sent').classList.add('hidden');
         document.getElementById('m-plan-done').classList.remove('hidden');
+
+        const planDocs = allDocs.filter(d => d.project_id === p.id && (d.title || '').toLowerCase().includes('plan'));
+        const list = document.getElementById('m-plan-file-list');
+        if (planDocs.length === 0) {
+          list.innerHTML = '<p class="text-[10px] text-slate-400 italic">Aucun plan</p>';
+        } else {
+          const urls = await Promise.all(planDocs.map(d => getSignedUrl('project-documents', d.storage_path)));
+          list.innerHTML = planDocs.map((d, i) => `
+            <a href="${urls[i] || '#'}" target="_blank" class="flex items-center gap-2 bg-slate-900/50 rounded px-2 py-1.5 hover:bg-slate-900 transition">
+              <span class="text-xs">📄</span>
+              <span class="text-[10px] flex-1 truncate text-emerald-100">${escapeHtml(d.title)}</span>
+              <span class="text-emerald-400 text-xs">↗</span>
+            </a>
+          `).join('');
+        }
       } else {
         planZone.classList.add('hidden');
       }
 
       const footerNote = document.getElementById('m-footer-note');
-      if (p.status === 'ready_to_start') {
-        footerNote.textContent = '✅ Ce projet est prêt. Assignez un artisan dans admin-chantiers.html';
-      } else if (p.status === 'active') {
-        footerNote.textContent = '🚀 Chantier en cours.';
-      } else {
-        footerNote.textContent = 'En attente de validation des documents manquants.';
-      }
+      if (p.status === 'ready_to_start') footerNote.textContent = '✅ Ce projet est prêt. Assignez un artisan.';
+      else if (p.status === 'active') footerNote.textContent = '🚀 Chantier en cours.';
+      else footerNote.textContent = 'En attente de validation des documents manquants.';
 
       document.getElementById('modal').classList.remove('hidden');
       document.getElementById('modal').classList.add('flex');
@@ -405,6 +430,48 @@
 
     document.getElementById('modal-close').addEventListener('click', closeModal);
 
+    // Aperçu multi-fichiers enquête
+    document.getElementById('m-survey-file').addEventListener('change', function() {
+      const preview = document.getElementById('m-survey-preview');
+      preview.innerHTML = '';
+      const files = Array.from(this.files).slice(0, 5);
+      if (files.length === 0) { preview.classList.add('hidden'); return; }
+      preview.classList.remove('hidden');
+      files.forEach(f => {
+        const div = document.createElement('div');
+        div.className = 'text-[10px] text-slate-300 bg-slate-900/50 rounded-lg px-2 py-1.5 flex justify-between items-center gap-2';
+        div.innerHTML = '<span class="truncate">📎 ' + escapeHtml(f.name) + '</span><span class="text-slate-500 flex-shrink-0">' + (f.size/1024/1024).toFixed(2) + ' MB</span>';
+        preview.appendChild(div);
+      });
+      if (this.files.length > 5) {
+        const w = document.createElement('p');
+        w.className = 'text-[10px] text-amber-400 mt-1';
+        w.textContent = '⚠️ Seuls les 5 premiers seront envoyés';
+        preview.appendChild(w);
+      }
+    });
+
+    // Aperçu multi-fichiers plan
+    document.getElementById('m-plan-file').addEventListener('change', function() {
+      const preview = document.getElementById('m-plan-preview');
+      preview.innerHTML = '';
+      const files = Array.from(this.files).slice(0, 5);
+      if (files.length === 0) { preview.classList.add('hidden'); return; }
+      preview.classList.remove('hidden');
+      files.forEach(f => {
+        const div = document.createElement('div');
+        div.className = 'text-[10px] text-slate-300 bg-slate-900/50 rounded-lg px-2 py-1.5 flex justify-between items-center gap-2';
+        div.innerHTML = '<span class="truncate">📎 ' + escapeHtml(f.name) + '</span><span class="text-slate-500 flex-shrink-0">' + (f.size/1024/1024).toFixed(2) + ' MB</span>';
+        preview.appendChild(div);
+      });
+      if (this.files.length > 5) {
+        const w = document.createElement('p');
+        w.className = 'text-[10px] text-amber-400 mt-1';
+        w.textContent = '⚠️ Seuls les 5 premiers seront envoyés';
+        preview.appendChild(w);
+      }
+    });
+
     async function checkAndAutoReady(projectId) {
       try {
         const data = await apiGet('projects', 'id=eq.' + projectId);
@@ -415,10 +482,7 @@
         const planOK = (p.plan_status === 'validated' || p.plan_status === 'provided' || p.plan_status === 'not_needed');
 
         if (landOK && planOK && p.status !== 'ready_to_start' && p.status !== 'active' && p.status !== 'completed') {
-          await apiPatch('projects', projectId, {
-            status: 'ready_to_start',
-            updated_at: new Date().toISOString()
-          });
+          await apiPatch('projects', projectId, { status: 'ready_to_start', updated_at: new Date().toISOString() });
 
           if (p.owner_id) {
             await apiPost('notifications', {
@@ -428,99 +492,94 @@
               message: 'Tous les documents du projet "' + p.title + '" ont été validés. Nous allons maintenant désigner un artisan.',
               link: 'projet-detail.html?id=' + projectId
             });
-
-            // 📧 EMAIL au client
             try {
-              await sendEmailNotification(
-                p.owner_id,
-                'project_ready',
+              await sendEmailNotification(p.owner_id, 'project_ready',
                 '🚀 Votre projet est prêt à démarrer !',
                 'Tous les documents du projet "' + p.title + '" ont été validés. Nous allons maintenant désigner un artisan qualifié.',
-                'projet-detail.html?id=' + projectId
-              );
-            } catch (e) {
-              console.warn('[email project_ready]', e);
-            }
+                'projet-detail.html?id=' + projectId);
+            } catch (e) {}
           }
           return true;
         }
         return false;
-      } catch (e) {
-        console.warn('[checkAndAutoReady]', e);
-        return false;
-      }
+      } catch (e) { return false; }
     }
 
-    // Enquête
+    // Enquête — MULTI-FICHIERS
     document.getElementById('btn-survey-validate').addEventListener('click', async () => {
       if (!currentProjectId) return;
       const fileInput = document.getElementById('m-survey-file');
-      const file = fileInput.files[0];
-      if (!file) { alert('Uploadez le rapport d\'enquête'); return; }
-      if (!confirm('Confirmer la validation de l\'enquête foncière ?')) return;
+      const files = Array.from(fileInput.files || []).slice(0, 5);
+      if (files.length === 0) { alert('Uploadez au moins un rapport'); return; }
+      if (!confirm('Confirmer la validation de l\'enquête foncière avec ' + files.length + ' document(s) ?')) return;
+
+      const btn = document.getElementById('btn-survey-validate');
+      btn.disabled = true;
+      btn.textContent = 'Envoi en cours...';
 
       try {
-        const ext = file.name.split('.').pop();
-        const path = currentProjectId + '/survey_report_' + Date.now() + '.' + ext;
         const token = getToken() || SUPABASE_KEY;
+        let uploaded = 0;
 
-        const res = await fetch(SUPABASE_URL + '/storage/v1/object/project-documents/' + path, {
-          method: 'POST',
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': file.type },
-          body: file
-        });
-        if (!res.ok) throw new Error('Erreur upload rapport');
+        for (const file of files) {
+          if (file.size > 10 * 1024 * 1024) continue;
+          const ext = file.name.split('.').pop();
+          const path = currentProjectId + '/survey_' + Date.now() + '_' + Math.random().toString(36).substring(7) + '.' + ext;
 
-        await apiPost('documents', {
-          project_id: currentProjectId,
-          uploaded_by: getCurrentUserId(),
-          document_type: 'contract',
-          title: 'Rapport d\'enquête foncière',
-          description: 'Rapport de visite terrain effectuée par l\'équipe',
-          storage_bucket: 'project-documents',
-          storage_path: path,
-          file_size: file.size,
-          mime_type: file.type,
-          visibility: 'client_admin'
-        });
+          const res = await fetch(SUPABASE_URL + '/storage/v1/object/project-documents/' + path, {
+            method: 'POST',
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': file.type },
+            body: file
+          });
+          if (!res.ok) continue;
 
-        await apiPatch('projects', currentProjectId, {
-          land_survey_status: 'validated',
-          land_survey_report_url: path
-        });
+          await apiPost('documents', {
+            project_id: currentProjectId,
+            uploaded_by: getCurrentUserId(),
+            document_type: 'contract',
+            title: 'Enquête foncière — ' + file.name,
+            description: 'Document d\'enquête foncière',
+            storage_bucket: 'project-documents',
+            storage_path: path,
+            file_size: file.size,
+            mime_type: file.type,
+            visibility: 'client_admin'
+          });
+          uploaded++;
+        }
+
+        if (uploaded === 0) throw new Error('Aucun fichier n\'a pu être uploadé');
+
+        await apiPatch('projects', currentProjectId, { land_survey_status: 'validated' });
 
         if (currentProject && currentProject.owner_id) {
           await apiPost('notifications', {
             user_id: currentProject.owner_id,
             type: 'land_survey_validated',
             title: '✅ Enquête foncière validée',
-            message: 'L\'enquête foncière de votre projet "' + currentProject.title + '" a été réalisée avec succès.',
+            message: 'L\'enquête foncière de votre projet "' + currentProject.title + '" a été réalisée (' + uploaded + ' document(s)).',
             link: 'projet-detail.html?id=' + currentProjectId
           });
-
-          // 📧 EMAIL
           try {
-            await sendEmailNotification(
-              currentProject.owner_id,
-              'land_survey_validated',
+            await sendEmailNotification(currentProject.owner_id, 'land_survey_validated',
               '✅ Enquête foncière validée',
-              'L\'enquête foncière de votre projet "' + currentProject.title + '" a été réalisée avec succès. Consultez le rapport dans votre espace.',
-              'projet-detail.html?id=' + currentProjectId
-            );
-          } catch (e) {
-            console.warn('[email survey]', e);
-          }
+              'L\'enquête foncière de votre projet "' + currentProject.title + '" a été réalisée avec succès (' + uploaded + ' document(s)).',
+              'projet-detail.html?id=' + currentProjectId);
+          } catch (e) {}
         }
 
         const becameReady = await checkAndAutoReady(currentProjectId);
-
-        showSuccess(becameReady ? 'Enquête validée ! Le projet est maintenant prêt à démarrer.' : 'Enquête validée !');
+        showSuccess(uploaded + ' document(s) uploadés !' + (becameReady ? ' Projet prêt à démarrer.' : ''));
         closeModal();
         await loadData();
-      } catch (e) { showError(e.message); }
+      } catch (e) {
+        showError(e.message);
+        btn.disabled = false;
+        btn.textContent = '✅ Valider l\'enquête foncière';
+      }
     });
 
-    // Devis plan → 📧 EMAIL au client
+    // Devis plan
     document.getElementById('btn-plan-send-quote').addEventListener('click', async () => {
       if (!currentProjectId) return;
       const amount = Number(document.getElementById('m-plan-quote-amount').value);
@@ -547,22 +606,15 @@
             user_id: currentProject.owner_id,
             type: 'plan_quote_received',
             title: '💰 Devis plan de construction',
-            message: 'Un devis de ' + amount.toLocaleString('fr-FR') + ' XAF vous a été envoyé pour le plan de votre projet "' + currentProject.title + '".',
+            message: 'Un devis de ' + amount.toLocaleString('fr-FR') + ' XAF vous a été envoyé.',
             link: 'projet-detail.html?id=' + currentProjectId
           });
-
-          // 📧 EMAIL au client
           try {
-            await sendEmailNotification(
-              currentProject.owner_id,
-              'plan_quote_received',
+            await sendEmailNotification(currentProject.owner_id, 'plan_quote_received',
               '💰 Nouveau devis à valider',
-              'Un devis de ' + amount.toLocaleString('fr-FR') + ' XAF vous a été envoyé pour le plan de construction du projet "' + currentProject.title + '". Connectez-vous pour l\'accepter ou le refuser.',
-              'projet-detail.html?id=' + currentProjectId
-            );
-          } catch (e) {
-            console.warn('[email plan quote]', e);
-          }
+              'Un devis de ' + amount.toLocaleString('fr-FR') + ' XAF vous a été envoyé pour le plan de construction du projet "' + currentProject.title + '".',
+              'projet-detail.html?id=' + currentProjectId);
+          } catch (e) {}
         }
 
         showSuccess('Devis envoyé !');
@@ -571,38 +623,50 @@
       } catch (e) { showError(e.message); }
     });
 
-    // Valider plan
+    // Plan — MULTI-FICHIERS
     document.getElementById('btn-plan-validate').addEventListener('click', async () => {
       if (!currentProjectId) return;
       const fileInput = document.getElementById('m-plan-file');
-      const file = fileInput.files[0];
-      if (!file) { alert('Uploadez le plan finalisé'); return; }
-      if (!confirm('Confirmer la validation du plan ?')) return;
+      const files = Array.from(fileInput.files || []).slice(0, 5);
+      if (files.length === 0) { alert('Uploadez au moins un plan'); return; }
+      if (!confirm('Confirmer la validation du plan avec ' + files.length + ' fichier(s) ?')) return;
+
+      const btn = document.getElementById('btn-plan-validate');
+      btn.disabled = true;
+      btn.textContent = 'Envoi en cours...';
 
       try {
-        const ext = file.name.split('.').pop();
-        const path = currentProjectId + '/plan_' + Date.now() + '.' + ext;
         const token = getToken() || SUPABASE_KEY;
+        let uploaded = 0;
 
-        const res = await fetch(SUPABASE_URL + '/storage/v1/object/project-documents/' + path, {
-          method: 'POST',
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': file.type },
-          body: file
-        });
-        if (!res.ok) throw new Error('Erreur upload plan');
+        for (const file of files) {
+          if (file.size > 10 * 1024 * 1024) continue;
+          const ext = file.name.split('.').pop();
+          const path = currentProjectId + '/plan_' + Date.now() + '_' + Math.random().toString(36).substring(7) + '.' + ext;
 
-        await apiPost('documents', {
-          project_id: currentProjectId,
-          uploaded_by: getCurrentUserId(),
-          document_type: 'photo',
-          title: 'Plan de construction (validé)',
-          description: 'Plan finalisé du projet',
-          storage_bucket: 'project-documents',
-          storage_path: path,
-          file_size: file.size,
-          mime_type: file.type,
-          visibility: 'all'
-        });
+          const res = await fetch(SUPABASE_URL + '/storage/v1/object/project-documents/' + path, {
+            method: 'POST',
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': file.type },
+            body: file
+          });
+          if (!res.ok) continue;
+
+          await apiPost('documents', {
+            project_id: currentProjectId,
+            uploaded_by: getCurrentUserId(),
+            document_type: 'photo',
+            title: 'Plan — ' + file.name,
+            description: 'Plan de construction validé',
+            storage_bucket: 'project-documents',
+            storage_path: path,
+            file_size: file.size,
+            mime_type: file.type,
+            visibility: 'all'
+          });
+          uploaded++;
+        }
+
+        if (uploaded === 0) throw new Error('Aucun fichier n\'a pu être uploadé');
 
         await apiPatch('projects', currentProjectId, { plan_status: 'validated' });
 
@@ -611,35 +675,29 @@
             user_id: currentProject.owner_id,
             type: 'plan_validated',
             title: '✅ Plan de construction validé',
-            message: 'Le plan de votre projet "' + currentProject.title + '" a été finalisé et validé.',
+            message: 'Le plan de votre projet "' + currentProject.title + '" a été finalisé (' + uploaded + ' fichier(s)).',
             link: 'projet-detail.html?id=' + currentProjectId
           });
-
-          // 📧 EMAIL
           try {
-            await sendEmailNotification(
-              currentProject.owner_id,
-              'plan_validated',
+            await sendEmailNotification(currentProject.owner_id, 'plan_validated',
               '✅ Plan de construction validé',
-              'Le plan de votre projet "' + currentProject.title + '" a été finalisé et validé. Vous pouvez le consulter dans votre espace.',
-              'projet-detail.html?id=' + currentProjectId
-            );
-          } catch (e) {
-            console.warn('[email plan validated]', e);
-          }
+              'Le plan de votre projet "' + currentProject.title + '" a été finalisé et validé (' + uploaded + ' fichier(s)).',
+              'projet-detail.html?id=' + currentProjectId);
+          } catch (e) {}
         }
 
         const becameReady = await checkAndAutoReady(currentProjectId);
-
-        showSuccess(becameReady ? 'Plan validé ! Le projet est maintenant prêt à démarrer.' : 'Plan validé !');
+        showSuccess(uploaded + ' fichier(s) uploadé(s) !' + (becameReady ? ' Projet prêt à démarrer.' : ''));
         closeModal();
         await loadData();
-      } catch (e) { showError(e.message); }
+      } catch (e) {
+        showError(e.message);
+        btn.disabled = false;
+        btn.textContent = '✅ Valider le plan';
+      }
     });
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
-    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
     loadData();
   </script>
