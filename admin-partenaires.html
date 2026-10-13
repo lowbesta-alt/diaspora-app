@@ -1,81 +1,526 @@
-async function saveEdit() {
-  const id = document.getElementById('edit-id').value;
-  const company = document.getElementById('edit-company').value.trim();
-  const newEmail = document.getElementById('edit-email').value.trim().toLowerCase();
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partenaires BTP - Administration</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 min-h-screen text-white pb-24">
 
-  if (!company) { alert('Le nom de l\'entreprise est obligatoire'); return; }
-  if (!newEmail) { alert('L\'email est obligatoire'); return; }
+  <main class="p-4 max-w-3xl mx-auto space-y-4 pt-6">
 
-  const originalPartner = allPartners.find(p => p.id === id);
-  const oldEmail = originalPartner ? (originalPartner.email || '').toLowerCase().trim() : '';
-  const emailChanged = oldEmail && oldEmail !== newEmail;
+    <div>
+      <h1 class="text-2xl font-extrabold tracking-tight">Candidatures partenaires</h1>
+      <p class="text-sm text-slate-400 mt-1">Approuvez, gérez ou supprimez les entreprises BTP</p>
+    </div>
 
-  const btn = document.getElementById('saveEditBtn');
-  btn.disabled = true;
-  btn.textContent = 'Enregistrement...';
+    <section class="grid grid-cols-3 gap-2 text-center">
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-lg font-bold text-amber-400" id="stat-pending">0</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">En attente</div>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-lg font-bold text-emerald-400" id="stat-approved">0</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Approuvés</div>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+        <div class="text-lg font-bold text-red-400" id="stat-rejected">0</div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Refusés</div>
+      </div>
+    </section>
 
-  try {
-    await apiPatch('partnership_requests', id, {
-      company_name: company,
-      profession: document.getElementById('edit-profession').value.trim() || null,
-      contact_name: document.getElementById('edit-contact').value.trim() || null,
-      phone: document.getElementById('edit-phone').value.trim() || null,
-      city: document.getElementById('edit-city').value.trim() || null,
-      country: document.getElementById('edit-country').value.trim() || null,
-      description: document.getElementById('edit-description').value.trim() || null
-    });
+    <div class="flex gap-2 overflow-x-auto pb-1 text-xs">
+      <button onclick="filterPartners('all')" id="btn-all" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold transition">Tous</button>
+      <button onclick="filterPartners('pending')" id="btn-pending" class="px-3 py-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/10 transition">En attente</button>
+      <button onclick="filterPartners('approved')" id="btn-approved" class="px-3 py-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/10 transition">Approuvés</button>
+      <button onclick="filterPartners('rejected')" id="btn-rejected" class="px-3 py-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/10 transition">Refusés</button>
+    </div>
 
-    if (emailChanged) {
-      try {
-        const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/admin_update_partner_email', {
-          method: 'POST',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + (getToken() || SUPABASE_KEY),
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            p_partnership_id: id,
-            p_new_email: newEmail
-          })
-        });
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.message || 'Erreur de mise a jour email');
-        }
-        const data = await res.json();
-        if (!data.success) throw new Error('RPC a echoue');
-        showSuccess('Email mis a jour partout !');
-      } catch (err) {
-        alert('Attention : candidature modifiee, MAIS email non propage. Erreur : ' + err.message);
-        closeEditModal();
-        await loadPartners();
-        btn.disabled = false;
-        btn.textContent = 'Enregistrer';
-        return;
+    <div id="partners-list" class="space-y-3">
+      <div class="text-center py-8 bg-white/5 border border-white/10 rounded-2xl">
+        <p class="text-slate-400 text-sm">Chargement...</p>
+      </div>
+    </div>
+
+    <div id="pagination-controls" class="flex justify-between items-center pt-2 hidden">
+      <button onclick="changePage(-1)" id="prev-page" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-slate-300 disabled:opacity-30">← Précédent</button>
+      <span id="page-info" class="text-xs text-slate-400">Page 1 / 1</span>
+      <button onclick="changePage(1)" id="next-page" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-slate-300 disabled:opacity-30">Suivant →</button>
+    </div>
+
+  </main>
+
+  <div id="invitationModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div class="bg-slate-900 border border-emerald-500/40 rounded-3xl p-6 max-w-md w-full shadow-2xl">
+      <div class="text-center mb-5">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-3xl mb-3">🎫</div>
+        <h2 class="text-xl font-extrabold tracking-tight text-white">Candidature approuvée !</h2>
+        <p class="text-xs text-slate-400 mt-2">Transmettez ce code d'invitation à l'artisan via WhatsApp ou SMS.</p>
+      </div>
+
+      <div class="bg-slate-800/60 border border-emerald-500/30 rounded-2xl p-4 mb-4">
+        <p class="text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-2">Code d'invitation</p>
+        <div class="flex items-center gap-2">
+          <div id="invitationCodeDisplay" class="flex-1 font-mono font-extrabold text-lg text-emerald-300 tracking-wider select-all">---------</div>
+          <button id="copyBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-2 rounded-xl text-xs transition">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 mb-5">
+        <p class="text-[11px] text-amber-200 leading-relaxed">
+          <strong>Instructions pour l'artisan :</strong><br>
+          1. Va sur <span class="font-mono text-amber-300">inscription-artisan.html</span><br>
+          2. Entre son email + ce code + son mot de passe<br>
+          3. Son compte sera créé automatiquement
+        </p>
+      </div>
+
+      <button id="closeModalBtn" class="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold py-3.5 rounded-xl text-sm transition">
+        Fermer
+      </button>
+    </div>
+  </div>
+
+  <div id="editModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto">
+    <div class="bg-slate-900 border border-sky-500/40 rounded-3xl p-5 max-w-md w-full shadow-2xl my-8">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-2xl">✏️</div>
+          <div>
+            <h2 class="text-base font-extrabold text-white">Modifier la candidature</h2>
+            <p class="text-[10px] text-slate-400">Corrigez les informations erronées</p>
+          </div>
+        </div>
+        <button onclick="closeEditModal()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-lg">✕</button>
+      </div>
+
+      <input type="hidden" id="edit-id">
+
+      <div class="space-y-3">
+        <div>
+          <label class="text-[10px] font-bold text-slate-300 mb-1 block uppercase tracking-wider">Nom de l'entreprise *</label>
+          <input type="text" id="edit-company" class="w-full px-3 py-2.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-sky-500 outline-none text-white text-sm">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[10px] font-bold text-slate-300 mb-1 block uppercase tracking-wider">Profession</label>
+            <input type="text" id="edit-profession" class="w-full px-3 py-2.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-sky-500 outline-none text-white text-sm">
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-slate-300 mb-1 block uppercase tracking-wider">Responsable</label>
+            <input type="text" id="edit-contact" class="w-full px-3 py-2.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-sky-500 outline-none text-white text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="text-[10px] font-bold text-slate-300 mb-1 block uppercase tracking-wider">Email *</label>
+          <input type="email" id="edit-email" class="w-full px-3 py-2.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-sky-500 outline-none text-white text-sm">
+          <p id="edit-email-warn" class="text-[10px] text-amber-400 mt-1 hidden">⚠️ Le compte a déjà été créé. Changer l'email ici met à jour les 3 endroits.</p>
+        </div>
+
+        <div>
+          <label class="text-[10px] font-bold text-slate-300 mb-1 block uppercase tracking-wider">Téléphone</label>
+          <input type="tel" id="edit-phone" class="w-full px-3 py-2.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-sky-500 outline-none text-white text-sm">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[10px] font-bold text-slate-300 mb-1 block uppercase tracking-wider">Ville</label>
+            <input type="text" id="edit-city" class="w-full px-3 py-2.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-sky-500 outline-none text-white text-sm">
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-slate-300 mb-1 block uppercase tracking-wider">Pays</label>
+            <input type="text" id="edit-country" class="w-full px-3 py-2.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-sky-500 outline-none text-white text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="text-[10px] font-bold text-slate-300 mb-1 block uppercase tracking-wider">Description / Présentation</label>
+          <textarea id="edit-description" rows="4" class="w-full px-3 py-2.5 rounded-xl bg-slate-800/50 border border-white/10 focus:border-sky-500 outline-none text-white text-xs resize-none"></textarea>
+        </div>
+      </div>
+
+      <div class="flex gap-2 mt-5">
+        <button onclick="closeEditModal()" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-bold py-3 rounded-xl text-sm transition">
+          Annuler
+        </button>
+        <button id="saveEditBtn" onclick="saveEdit()" class="flex-1 bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white font-extrabold py-3 rounded-xl text-sm transition">
+          💾 Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 flex justify-around py-2 z-40">
+    <a href="dashboard-admin.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🎯</span>Contrôle</a>
+    <a href="admin-leads.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">📋</span>Leads</a>
+    <a href="admin-chantiers.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">🏗️</span>Chantiers</a>
+    <a href="admin-partenaires.html" class="flex flex-col items-center gap-0.5 text-sky-400 text-[10px]"><span class="text-lg">🤝</span>Partenaires</a>
+    <a href="admin-utilisateurs.html" class="flex flex-col items-center gap-0.5 text-slate-400 text-[10px]"><span class="text-lg">👥</span>Users</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    let allPartners = [];
+    let currentFilter = 'all';
+    let currentPage = 1;
+    const itemsPerPage = 4;
+
+    function generateInvitationCode() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let code = '';
+      for (let i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
       }
-    } else {
-      await apiPatch('partnership_requests', id, { email: newEmail });
-      showSuccess('Candidature modifiee !');
+      return 'ARTISAN-' + code;
     }
 
-    try {
-      await apiPost('audit_log', {
-        actor_id: getCurrentUserId(),
-        action: 'edit_partner',
-        table_name: 'partnership_requests',
-        record_id: id,
-        new_data: { company_name: company, email: newEmail, email_changed: emailChanged }
+    async function loadPartners() {
+      const list = document.getElementById('partners-list');
+      try {
+        const data = await apiGet('partnership_requests', 'select=*&order=created_at.desc');
+        allPartners = Array.isArray(data) ? data : [];
+        updateStats();
+        renderPartners();
+      } catch (e) {
+        list.innerHTML = '<div class="text-center py-8 bg-red-500/10 border border-red-500/30 rounded-2xl"><p class="text-red-300 text-sm font-bold">Erreur réseau</p><p class="text-red-200 text-xs mt-2">' + e.message + '</p></div>';
+      }
+    }
+
+    function updateStats() {
+      document.getElementById('stat-pending').textContent = allPartners.filter(p => p.status === 'pending').length;
+      document.getElementById('stat-approved').textContent = allPartners.filter(p => p.status === 'approved').length;
+      document.getElementById('stat-rejected').textContent = allPartners.filter(p => p.status === 'rejected').length;
+    }
+
+    function filterPartners(status) {
+      currentFilter = status;
+      currentPage = 1;
+      ['all', 'pending', 'approved', 'rejected'].forEach(s => {
+        const btn = document.getElementById(`btn-${s}`);
+        if (s === status) {
+          btn.className = "px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold transition";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/10 transition";
+        }
       });
-    } catch (e) {}
+      renderPartners();
+    }
 
-    closeEditModal();
-    await loadPartners();
+    function renderPartners() {
+      const list = document.getElementById('partners-list');
+      const paginationControls = document.getElementById('pagination-controls');
 
-  } catch (e) {
-    alert('Erreur : ' + e.message);
-  }
+      let filtered = allPartners;
+      if (currentFilter !== 'all') {
+        filtered = allPartners.filter(p => p.status === currentFilter);
+      }
 
-  btn.disabled = false;
-  btn.textContent = 'Enregistrer';
-}
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="text-center py-12 bg-white/5 border border-white/10 rounded-2xl"><div class="text-4xl mb-3 opacity-40">📭</div><p class="text-slate-400 text-sm">Aucune candidature trouvée</p></div>';
+        paginationControls.classList.add('hidden');
+        return;
+      }
+
+      const totalPages = Math.ceil(filtered.length / itemsPerPage);
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const start = (currentPage - 1) * itemsPerPage;
+      const pageItems = filtered.slice(start, start + itemsPerPage);
+
+      if (totalPages > 1) {
+        paginationControls.classList.remove('hidden');
+        document.getElementById('page-info').textContent = `Page ${currentPage} / ${totalPages}`;
+        document.getElementById('prev-page').disabled = currentPage === 1;
+        document.getElementById('next-page').disabled = currentPage === totalPages;
+      } else {
+        paginationControls.classList.add('hidden');
+      }
+
+      list.innerHTML = pageItems.map(c => {
+        const isPending = c.status === 'pending';
+        const isApproved = c.status === 'approved';
+        const isRejected = c.status === 'rejected';
+        const hasInvitation = !!c.invitation_code;
+        const isUsed = !!c.invitation_used_at;
+
+        let badge = '';
+        if (isPending) badge = '<span class="text-[10px] bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-full font-bold">EN ATTENTE</span>';
+        else if (isApproved && !isUsed) badge = '<span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full font-bold">APPROUVÉ</span>';
+        else if (isApproved && isUsed) badge = '<span class="text-[10px] bg-sky-500/20 text-sky-300 px-2.5 py-1 rounded-full font-bold">COMPTE ACTIF</span>';
+        else if (isRejected) badge = '<span class="text-[10px] bg-red-500/20 text-red-300 px-2.5 py-1 rounded-full font-bold">REFUSÉ</span>';
+
+        let invitationBlock = '';
+        if (isApproved && hasInvitation && !isUsed) {
+          invitationBlock = `
+            <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-2.5 mt-2">
+              <p class="text-[10px] text-emerald-300 font-bold uppercase tracking-wider mb-1">Code d'invitation</p>
+              <div class="flex items-center gap-2">
+                <code class="flex-1 font-mono text-xs text-emerald-200 select-all">${c.invitation_code}</code>
+                <button onclick="copyCode('${c.invitation_code}')" class="text-[10px] bg-emerald-600/50 hover:bg-emerald-600 text-white px-2 py-1 rounded-lg font-bold">📋</button>
+              </div>
+            </div>
+          `;
+        } else if (isApproved && isUsed) {
+          invitationBlock = `
+            <div class="bg-sky-500/10 border border-sky-500/30 rounded-xl p-2.5 mt-2">
+              <p class="text-[10px] text-sky-300 font-bold">✅ Compte créé — l'artisan peut se connecter</p>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 transition">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="font-extrabold text-sm text-white">${c.company_name || 'Sans nom'}</h3>
+                <p class="text-[10px] text-amber-300 font-semibold uppercase tracking-wider mt-0.5">${c.profession || 'BTP'}</p>
+              </div>
+              ${badge}
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-300 bg-slate-800/30 p-2.5 rounded-xl">
+              <div>👤 ${c.contact_name || '-'}</div>
+              <div>📍 ${c.city || ''}, ${c.country || ''}</div>
+              <div>✉️ ${c.email || '-'}</div>
+              <div>📞 ${c.phone || '-'}</div>
+            </div>
+
+            ${c.description ? `<p class="text-xs text-slate-300 leading-relaxed bg-slate-800/50 rounded-xl p-3">${c.description}</p>` : ''}
+
+            ${invitationBlock}
+
+            <div class="flex flex-wrap gap-2 pt-2 border-t border-white/5 justify-between items-center">
+              <div class="flex flex-wrap gap-1.5">
+                <button onclick="openEditModal('${c.id}')" class="px-2.5 py-1 bg-sky-600/30 hover:bg-sky-600/50 text-sky-300 border border-sky-500/30 rounded-lg text-[11px] font-semibold transition">✏️ Modifier</button>
+                ${!isApproved ? `<button onclick="approvePartner('${c.id}', '${(c.company_name || '').replace(/'/g, "\\'")}')" class="px-2.5 py-1 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/30 rounded-lg text-[11px] font-semibold transition">✓ Approuver</button>` : ''}
+                ${!isRejected && !isApproved ? `<button onclick="updateStatus('${c.id}', 'rejected')" class="px-2.5 py-1 bg-red-600/30 hover:bg-red-600/50 text-red-300 border border-red-500/30 rounded-lg text-[11px] font-semibold transition">✕ Refuser</button>` : ''}
+                ${isApproved && hasInvitation && !isUsed ? `<button onclick="regenerateCode('${c.id}')" class="px-2.5 py-1 bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 border border-amber-500/30 rounded-lg text-[11px] font-semibold transition">🔄 Nouveau code</button>` : ''}
+              </div>
+              <button onclick="deletePartner('${c.id}', '${(c.company_name || '').replace(/'/g, "\\'")}')" class="px-2.5 py-1 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 rounded-lg text-[11px] font-semibold transition">🗑️</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function changePage(direction) {
+      currentPage += direction;
+      renderPartners();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openEditModal(id) {
+      const c = allPartners.find(p => p.id === id);
+      if (!c) return;
+
+      document.getElementById('edit-id').value = c.id;
+      document.getElementById('edit-company').value = c.company_name || '';
+      document.getElementById('edit-profession').value = c.profession || '';
+      document.getElementById('edit-contact').value = c.contact_name || '';
+      document.getElementById('edit-email').value = c.email || '';
+      document.getElementById('edit-phone').value = c.phone || '';
+      document.getElementById('edit-city').value = c.city || '';
+      document.getElementById('edit-country').value = c.country || '';
+      document.getElementById('edit-description').value = c.description || '';
+
+      const warn = document.getElementById('edit-email-warn');
+      if (c.invitation_used_at) {
+        warn.classList.remove('hidden');
+      } else {
+        warn.classList.add('hidden');
+      }
+
+      document.getElementById('editModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    async function saveEdit() {
+      const id = document.getElementById('edit-id').value;
+      const company = document.getElementById('edit-company').value.trim();
+      const newEmail = document.getElementById('edit-email').value.trim().toLowerCase();
+
+      if (!company) { alert('Le nom de l\'entreprise est obligatoire'); return; }
+      if (!newEmail) { alert('L\'email est obligatoire'); return; }
+
+      const originalPartner = allPartners.find(p => p.id === id);
+      const oldEmail = originalPartner ? (originalPartner.email || '').toLowerCase().trim() : '';
+      const emailChanged = oldEmail && oldEmail !== newEmail;
+
+      const btn = document.getElementById('saveEditBtn');
+      btn.disabled = true;
+      btn.textContent = 'Enregistrement...';
+
+      try {
+        await apiPatch('partnership_requests', id, {
+          company_name: company,
+          profession: document.getElementById('edit-profession').value.trim() || null,
+          contact_name: document.getElementById('edit-contact').value.trim() || null,
+          phone: document.getElementById('edit-phone').value.trim() || null,
+          city: document.getElementById('edit-city').value.trim() || null,
+          country: document.getElementById('edit-country').value.trim() || null,
+          description: document.getElementById('edit-description').value.trim() || null
+        });
+
+        if (emailChanged) {
+          try {
+            const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/admin_update_partner_email', {
+              method: 'POST',
+              headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': 'Bearer ' + (getToken() || SUPABASE_KEY),
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                p_partnership_id: id,
+                p_new_email: newEmail
+              })
+            });
+            if (!res.ok) {
+              const err = await res.json().catch(() => ({}));
+              throw new Error(err.message || 'Erreur de mise a jour email');
+            }
+            const data = await res.json();
+            if (!data.success) throw new Error('RPC a echoue');
+            showSuccess('Email mis a jour partout !');
+          } catch (err) {
+            alert('Attention : candidature modifiee, MAIS email non propage. Erreur : ' + err.message);
+            closeEditModal();
+            await loadPartners();
+            btn.disabled = false;
+            btn.textContent = 'Enregistrer';
+            return;
+          }
+        } else {
+          await apiPatch('partnership_requests', id, { email: newEmail });
+          showSuccess('Candidature modifiee !');
+        }
+
+        try {
+          await apiPost('audit_log', {
+            actor_id: getCurrentUserId(),
+            action: 'edit_partner',
+            table_name: 'partnership_requests',
+            record_id: id,
+            new_data: { company_name: company, email: newEmail, email_changed: emailChanged }
+          });
+        } catch (e) {}
+
+        closeEditModal();
+        await loadPartners();
+
+      } catch (e) {
+        alert('Erreur : ' + e.message);
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Enregistrer';
+    }
+
+    async function approvePartner(id, companyName) {
+      if (!confirm('Approuver cette candidature ?\n\nUn code d\'invitation sera généré pour permettre à l\'artisan de créer son compte.')) return;
+
+      const code = generateInvitationCode();
+
+      try {
+        await apiPatch('partnership_requests', id, {
+          status: 'approved',
+          invitation_code: code
+        });
+
+        try {
+          await apiPost('audit_log', {
+            actor_id: getCurrentUserId(),
+            action: 'approve_partner',
+            table_name: 'partnership_requests',
+            record_id: id,
+            new_data: { status: 'approved', invitation_code: code, company_name: companyName }
+          });
+        } catch (e) {}
+
+        showInvitationModal(code);
+        await loadPartners();
+
+      } catch (e) {
+        alert('Erreur lors de l\'approbation : ' + e.message);
+      }
+    }
+
+    async function regenerateCode(id) {
+      if (!confirm('Générer un nouveau code ? L\'ancien ne fonctionnera plus.')) return;
+      const code = generateInvitationCode();
+      try {
+        await apiPatch('partnership_requests', id, {
+          invitation_code: code,
+          invitation_used_at: null
+        });
+        showInvitationModal(code);
+        await loadPartners();
+      } catch (e) {
+        alert('Erreur : ' + e.message);
+      }
+    }
+
+    function copyCode(code) {
+      navigator.clipboard.writeText(code).then(() => {
+        alert('✅ Code copié : ' + code);
+      }).catch(() => {
+        alert('Code : ' + code);
+      });
+    }
+
+    function showInvitationModal(code) {
+      document.getElementById('invitationCodeDisplay').textContent = code;
+      document.getElementById('invitationModal').classList.remove('hidden');
+    }
+
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+      document.getElementById('invitationModal').classList.add('hidden');
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      const code = document.getElementById('invitationCodeDisplay').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        document.getElementById('copyBtn').textContent = '✅ Copié !';
+        setTimeout(() => {
+          document.getElementById('copyBtn').textContent = '📋 Copier';
+        }, 2000);
+      }).catch(() => {
+        alert('Code : ' + code);
+      });
+    });
+
+    async function updateStatus(id, newStatus) {
+      try {
+        await apiPatch('partnership_requests', id, { status: newStatus });
+        await loadPartners();
+      } catch (e) {
+        alert('Erreur : ' + e.message);
+      }
+    }
+
+    async function deletePartner(id, name) {
+      if (!confirm(`Supprimer définitivement "${name || 'cette entreprise'}" ?`)) return;
+      try {
+        await apiDelete('partnership_requests', id);
+        allPartners = allPartners.filter(p => p.id !== id);
+        updateStats();
+        renderPartners();
+      } catch (e) {
+        alert('Erreur : ' + e.message);
+      }
+    }
+
+    loadPartners();
+  </script>
+</body>
+</html>
